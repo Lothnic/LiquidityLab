@@ -3,6 +3,7 @@
 import hashlib
 import json
 import math
+from collections import deque
 from dataclasses import asdict
 from decimal import Decimal
 
@@ -24,8 +25,16 @@ from .contracts import (
     decimal,
 )
 
-OBSERVATION_VERSION = "compact-v0"
+OBSERVATION_VERSION = "compact-v1"
 OBSERVATION_SIZE = 20
+OBSERVATION_FIELDS = (
+    "remaining_fraction", "time_remaining_fraction", "filled_fraction",
+    "average_fill_to_mid_ratio", "reserved_fraction", "free_quote_fraction",
+    "signed_limit_distance", "spread_bps", "bid_depth_to_target", "ask_depth_to_target",
+    "recent_mid_return", "recent_log_return_std", "cumulative_trade_flow_to_target",
+    "signed_child_price_distance", "child_age_fraction", "child_remaining_fraction",
+    "has_child", "market_valid", "simulated_account_valid", "child_pending",
+)
 
 
 def synthetic_events():
@@ -119,6 +128,7 @@ class Replay:
             raise ValueError("initial snapshot is invalid or crossed")
         self.initial_mid = self.book.mid
         self._last_mid = self.initial_mid
+        self._decision_mids = deque([self.initial_mid], maxlen=11)
         return self.observation(), self.info()
 
     def _event(self, event):
@@ -320,6 +330,8 @@ class Replay:
         if not self._done and (self.ledger.remaining == 0 or self.now >= self.plan.deadline):
             self._settle("target_filled" if self.ledger.remaining == 0 else "deadline")
         midpoint = self._frozen_mid if self._frozen_mid is not None else self._last_mid
+        if not self.truncated:
+            self._decision_mids.append(midpoint)
         cost = self.ledger.marked_cost(self.initial_mid, midpoint)
         reward = -10000.0 * float(
             (cost - self._previous_cost) / (self.plan.quantity * self.initial_mid)
@@ -337,6 +349,10 @@ class Replay:
         remaining = self.ledger.remaining
         reserved = child.remaining if child else ZERO
         sign = D(1) if self.plan.side == "buy" else D(-1)
+        mids = np.asarray([float(value) for value in self._decision_mids], dtype=np.float64)
+        recent_return = float(mid / self._decision_mids[0] - 1)
+        log_returns = np.diff(np.log(mids))
+        recent_volatility = float(np.std(log_returns)) if len(log_returns) > 1 else 0.0
         values = [
             remaining / q,
             max(self.plan.deadline - self.now, 0) / self.plan.deadline,
@@ -348,8 +364,8 @@ class Replay:
             (self.book.best_ask - self.book.best_bid) / mid * 10000,
             self.book.visible("bids") / q,
             self.book.visible("asks") / q,
-            0,
-            0,
+            recent_return,
+            recent_volatility,
             self._trade_flow / q,
             sign * (child.intent.price - mid) / mid if child else 0,
             max(self.now - child.arrival_at, 0) / self.plan.deadline if child else 0,
