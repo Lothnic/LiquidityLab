@@ -1,0 +1,1 @@
+{"allocated_bytes_per_transition":66660.98693333333,"allocations_per_transition":2069.2914333333333,"episodes":1000,"go_version":"go1.26.8","logical_cpus":16,"scope":"native Go HOLD replay, including resets and terminal report construction; no RPC","transitions":30000,"transitions_per_second":16366.574619068835,"wall_seconds":1.833004199}
