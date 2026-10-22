@@ -48,14 +48,13 @@ func Compile(action d.Action, plan d.Plan, rules d.InstrumentRules, fees d.FeeCo
 	if small {
 		quantity = quantity.Quo(d.MustDecimal("2"))
 	}
-	rate := d.Max(fees.Maker, fees.Taker)
-	den := d.One
-	if (plan.Side == "buy" && fees.Currency == "quote") || (plan.Side == "sell" && fees.Currency == "base") {
-		den = den.Add(rate)
+	kind, unitDebit, err := ReservationFor(d.OrderIntent{Side: plan.Side, Quantity: d.One, Price: price}, fees)
+	if err != nil {
+		return CompileResult{}, err
 	}
-	balance := ledger.Base.Quo(den)
-	if plan.Side == "buy" {
-		balance = ledger.Quote.Quo(price.Mul(den))
+	balance := ledger.Base.Quo(unitDebit)
+	if kind == "quote" {
+		balance = ledger.Quote.Quo(unitDebit)
 	}
 	side := "asks"
 	if passive && plan.Side == "buy" || !passive && plan.Side == "sell" {

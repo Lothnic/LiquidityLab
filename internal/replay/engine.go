@@ -13,10 +13,10 @@ import (
 	"strconv"
 )
 
-const ObservationVersion = "compact-v1"
-const ObservationSize = 20
+const ObservationVersion = x.ObservationVersion
+const ObservationSize = x.ObservationSize
 
-var ObservationFields = []string{"remaining_fraction", "time_remaining_fraction", "filled_fraction", "average_fill_to_mid_ratio", "reserved_fraction", "free_quote_fraction", "signed_limit_distance", "spread_bps", "bid_depth_to_target", "ask_depth_to_target", "recent_mid_return", "recent_log_return_std", "cumulative_trade_flow_to_target", "signed_child_price_distance", "child_age_fraction", "child_remaining_fraction", "has_child", "market_valid", "simulated_account_valid", "child_pending"}
+var ObservationFields = append([]string(nil), x.ObservationFields...)
 
 type Report map[string]any
 type Info struct {
@@ -239,9 +239,9 @@ func (e *Engine) fill(q, p d.Decimal, maker bool) error {
 	if maker {
 		rate = e.Fees.Maker
 	}
-	fee := q.Mul(rate)
-	if e.Fees.Currency == "quote" {
-		fee = fee.Mul(p)
+	fee, err := x.FeeFor(q, p, rate, e.Fees.Currency)
+	if err != nil {
+		return err
 	}
 	e.fillCounter++
 	f := d.Fill{ExecutionID: fmt.Sprintf("sim-%d", e.fillCounter), OrderID: c.OrderID, Side: e.Plan.Side, Quantity: q, Price: p, Fee: fee, FeeCurrency: e.Fees.Currency, Time: e.Now, Maker: maker}
