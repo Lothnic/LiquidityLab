@@ -27,7 +27,7 @@ with gym.make("LiquidityLab-SpotExecution-v1", binary="/absolute/path/build/liqu
     for _ in range(40):
         observation, reward, terminated, truncated, info = env.step(5)
         if terminated or truncated:
-            report = env.unwrapped._batch.reports()[0]
+            report = env.unwrapped.report()
             break
 ```
 

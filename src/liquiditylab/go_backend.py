@@ -322,5 +322,8 @@ class GoLiquidityEnv(gym.Env):
     def render(self):
         return str(self._info)
 
+    def report(self):
+        return self._batch.reports([0])[0]
+
     def close(self):
         self._batch.close()
