@@ -1,6 +1,16 @@
 # LiquidityLab: Go runtime and Python RL migration
 
-Decision plan prepared 23 October 2026. This document plans the migration; it does not claim that a Go implementation, distributed execution system, or production benchmark exists.
+Decision plan prepared 23 October 2026; expanded with staged scaling and rollout decisions. Go implementation work has begun in the working tree. The stages below remain acceptance requirements, not claims of production readiness or measured capacity.
+
+## Implementation order at a glance
+
+1. Freeze shared contracts and prove Go accounting/replay conformance against Python.
+2. Connect Python Gymnasium to batched Go replay; retain Python training and inference.
+3. Deliver a durable paper assistant with PostgreSQL, account ownership, and bounded queues.
+4. Add the trader interface, evaluated policy proposals, and private venue recovery.
+5. Pass a supervised live pilot, then measure capacity and add account shards when needed.
+
+The first usable product is a trader-supervised execution assistant. It accepts a trader's intended trade and helps execute within its quantity, price, and time limits. RL is one replaceable proposal source; the product can operate with its Go baseline while policy evaluation continues.
 
 ## 1. Decision and scope
 
@@ -248,7 +258,7 @@ liquiditylab/
   deploy/                       # Local compose and process configuration
 ```
 
-Choose and pin a supported Go release, Protobuf compiler/plugins, Go database driver, and RPC packages during the first implementation milestone. Generated code is reproducible and checked for schema drift. Credentials and market recordings stay outside version control. Repository paths are proposed; no Go module has been added by this planning task.
+Pin the Go release, Protobuf compiler/plugins, database driver, and RPC packages in the first milestone. Generated code must be reproducible and checked for schema drift. Credentials and market recordings stay outside version control. This is the intended module layout; the Go module, core, and public-data parsing have begun in the working tree, while several runtime/API/bridge directories remain planned.
 
 ## 12. Migration phases and gates
 
@@ -335,6 +345,44 @@ Measure baseline Python throughput before claiming a Go speedup. Report p50/p95/
 
 Then test 250 and 1,000 accounts to discover the first limiting component. An unmet target is a measured limit, not a reason to send stale actions or relax account ownership. Tune or add a shard only after identifying whether the constraint is the DB, account actor, model workers, memory, or venue budget.
 
+### Staged deployment and the reason to split each component
+
+**Stage A — supervised beta.** Deploy one Go service, PostgreSQL, and a separate Python inference process. Keep public books shared by instrument, account mutation serialized, and training/replay on separate resources. Set a supported account limit from the measured workload. Admission refuses new sessions when the service cannot preserve its latency, recovery, or venue-budget headroom.
+
+**Stage B — partition account execution.** Add executor processes when account work breaches the latency objective or sustained CPU/queue pressure leaves insufficient failover headroom after profiling and tuning. Persist an explicit account-to-owner assignment and ownership epoch. A routing hash may suggest assignments; changing worker count must not silently change ownership. Drain an account, settle or classify outstanding sends, isolate the old sender, reconcile, and then activate the new owner. A single hot account remains serialized and may need a lower supported workload.
+
+**Stage C — isolate shared ingest and inference.** Extract ingest if parsing, fanout, recording, or GC materially interferes with account latency. Fan out versioned snapshots with receipt-session identity, snapshot revision, and book validity. Receivers detect loss/restart and stop price-sensitive actions until resynchronized. Replicate Python inference when measured queue age consumes its deadline budget; route by bundle compatibility and reject excess work. Preserve end-to-end expiry after retries and load balancing.
+
+**Stage D — scale storage and history.** Separate large public recordings and historical analytics from transactional account state. Use manifest-addressed object storage for immutable recording chunks. Add database capacity or partitioning only when measured commit latency, lock waits, storage I/O, or recovery time requires it. If account storage is eventually sharded, colocate each account's commands, fills, reservations, intents, and outbox in one transactional shard. Design identity/uniqueness scope explicitly before migration. Read replicas may serve delayed history; execution decisions use authoritative state.
+
+**Stage E — independent API capacity.** Scale authenticated HTTP/UI delivery separately if subscriber or read traffic consumes execution resources. Commands remain revision-checked durable inputs routed to the account owner. Bound subscriptions and coalesce UI snapshots. A history query or slow browser must not block private-event processing.
+
+Stage order after B follows the observed bottleneck. Adding a broker, orchestrator, or service boundary is a separate decision with an owner, failure model, and measured benefit. These are LiquidityLab design choices, not language guarantees.
+
+### Resource budgets and operational measurements
+
+Publish a capacity manifest for each release: maximum active accounts, instruments, environments, connections, queue counts/bytes/age, DB connections, inference concurrency, tape memory, disk retention, and in-flight venue requests. Initial values are configuration subject to benchmark acceptance. Limit both item counts and bytes: one oversized event/report must not bypass a queue's memory budget.
+
+Admission checks must reserve headroom for recovery bursts and cancellations. Put a deadline and cancellation path on external work and database calls; do not hold an account database transaction open during Python inference or venue network I/O. Read an observation snapshot, perform inference outside the transaction, then revalidate revisions within the durable transition. Bound concurrent DB access across actors instead of allocating one permanent connection per account.
+
+Apply per-account command, mailbox, subscription, and inference quotas as well as process totals. One active parent per account remains the initial limit. Schedule bounded work fairly across runnable actors, with dedicated capacity for control and recovery. A hot account cannot monopolize the worker pool. Private-event overflow invalidates that account's readiness and starts reconciliation; admission pressure rejects new starts before existing accounts lose their operating headroom.
+
+Separate order-create, cancel, account-recovery, and REST-history budgets according to venue rules. Preserve capacity for cancellation and reconciliation during submission pressure. Backoff with jitter on throttling and apply account/global limits at their documented scope. More Go workers or API keys do not imply more venue trading capacity. Kraken documents separate REST counters and trading-engine limits across protocols. [Kraken rate limits](https://docs.kraken.com/exchange/guides/rest/ratelimits)
+
+Instrument public-book lag, oldest private event, actor mailbox age, durable command age, outbox unknown count/age, ownership changes, reservation discrepancies, inference expiry, venue throttle counts, and recording write lag. Keep account/tenant IDs in authorized logs/traces rather than unbounded metric labels. Record p99 latency together with rejection, pause, truncation, and disconnect rates so load shedding cannot conceal overload.
+
+Set retention and deletion rules for raw recordings, execution audit history, reports, and backups before hosted deployment. Recordings and bundles carry checksums and schema/engine revisions. Disk-pressure handling must preserve durable account writes and mark incomplete captures. Define and measure backup recovery point and recovery time objectives before making an availability commitment.
+
+Provisional paper-beta retention: keep seven days of hot raw public capture and thirty days total; immutable datasets referenced by bundles or evaluation evidence are pinned and exempt from expiry. Keep thirty days of diagnostic logs with sensitive fields redacted. Preserve account journals, fills, reservations, commands, and policy provenance for the entire beta; their eventual retention and deletion policy is a separate hosted-release decision. Prune complete chunks only after verifying manifests and active references. Estimate bytes/day from measured wire volume and compression before selecting storage capacity.
+
+Provisional disaster-recovery objectives are at most five minutes of database recovery-point loss and sixty minutes to restore a paused service on the reference deployment. Use base backups plus continuous WAL archiving, monitor archive lag, and verify access to encrypted backups and recovery keys. PostgreSQL documents the base-backup/WAL recovery mechanism and its archive-continuity requirements. [PostgreSQL continuous archiving](https://www.postgresql.org/docs/current/continuous-archiving.html) Drill restoration into an isolated database, verify journal/projection consistency, then reconcile against venue history before enabling execution. Track time to reconciled readiness separately; the sixty-minute target does not promise trading resumes while exchange outcomes remain unknown. These are proposed acceptance targets until a restore drill demonstrates them.
+
+### Capacity promotion and rollback criteria
+
+Use a mock venue and paper accounts for cohorts of 1, 10, 25, and 100 active accounts. Hold each for at least thirty minutes with the defined ingress, private-event bursts, inference delays, and UI traffic; hold the final supported workload for the full 24-hour soak. Capture the manifest and percentile/error/resource measurements for every cohort.
+
+Promote only when the latency/resource objectives above pass, queues drain after the injected burst, no unexplained reservation/accounting differences remain, and fault-induced unknown intents resolve within the scenario's specified recovery budget. Each scenario declares that budget before running. A growing unknown/recovery backlog, persistent queue growth, or any accounting/ownership violation stops the ramp. Return admission to the last demonstrated capacity and investigate; do not force ownership transfer or discard queued accounting facts to reduce the displayed load. Production admission limits come from the last passed workload, with documented recovery headroom.
+
 ## 14. Verification and release requirements
 
 Retain the current 40 checks as a reference and expand them with cross-language and runtime checks:
@@ -375,11 +423,22 @@ Commit boundaries may split further when a part is large; each commit must ident
 
 Use GPT-6.1-sol for integration decisions, ownership/recovery review, arithmetic semantics, and cross-language parity. Use cheaper subagents for bounded generated-schema wiring, fixtures, straightforward tests, documentation, and UI forms once contracts are frozen. Assign disjoint files and reconcile through the integration lead. Do not delegate independent incompatible designs for the financial core.
 
-## 16. First implementation step after this plan
+## 16. Implementation checkpoint and next milestone
 
-Start with contracts and conformance, then Go amount/accounting/compiler code. The first Go deliverable should replay the existing buy and partial-sell cases with matching balances and fees, while the existing Python trainer remains runnable.
+The committed Python reference remains available. In-progress Go files include the module, exact amounts, accounting/compiler, replay, common fixtures, public-data parsing, and a shared schema draft. They do not yet establish the complete runtime, generated bindings, Gym bridge, durable paper assistant, live connection/recovery, or performance gates. Use [implementation-progress.md](implementation-progress.md) as the requirement ledger; retain exact verification evidence per commit.
 
-Do not begin by rewriting every file or by deploying many services. The first milestone establishes shared semantics; the next proves that Go can execute them correctly. The product runtime and scale work build on that result.
+Finish contracts/conformance and review the Go core as the next bounded milestone. Then implement the batched replay bridge and prove a v1 PPO roundtrip. Follow with a complete paper workflow before private trading integration. The existing Python trainer stays runnable throughout.
+
+### Cutover, rollback, and removal of the reference path
+
+1. **Offline comparison:** feed immutable tapes and commands to both engines and compare economic results. Both may simulate. Preserve intentional v1 time/precision changes in versioned fixtures.
+2. **Paper comparison:** run the Go assistant on public data with mocked venue effects. An optional Python comparison observes copied inputs only. Persist all real product commands through the Go account authority.
+3. **Shadow on an authorized live account:** any comparison process observes and reports; exactly one runtime has order transport. An advisory model or reference engine cannot submit a second copy of the trade.
+4. **Controlled cutover:** pause admission and new sends, drain/reconcile outstanding intents, take a checkpoint, and establish the new owner. Resume only with a known account state and compatible schema/bundle. Expose the active engine/version in the execution journal.
+5. **Rollback:** halt new sends and isolate the outgoing sender before transfer. Restore compatible application state and reconcile with the venue. Rolling back a binary or database snapshot does not reverse venue fills. Use expand/migrate/contract database changes: add compatible structures, backfill/checkpoint resumably, deploy readers/writers that support both versions, and remove old structures only after the rollback window. Pin session engine/policy/schema compatibility and block downgrades that cannot read current state. Failed migrations leave execution paused; resume from their checkpoint or apply a forward repair before considering a disaster restore.
+6. **Reference retirement:** remove Python monetary/execution code from supported product/training paths only after conformance, bridge throughput, paper recovery, policy reevaluation, and a documented rollback window pass. Retain versioned fixtures and artifact provenance for old reports.
+
+Each rollout stage needs its own evidence; a fast replay does not establish safe live recovery or account capacity.
 
 ## 17. Evidence boundaries
 
