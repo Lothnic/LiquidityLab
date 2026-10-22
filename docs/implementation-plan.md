@@ -1,5 +1,7 @@
 # LiquidityLab: implementation plan
 
+Architecture update: the [Go runtime migration plan](go-runtime-plan.md) supersedes this baseline's Python product backend, production SQLite choice, and proposed NautilusTrader dependency. The original trader workflow and execution boundaries remain the product specification.
+
 Prepared 23 October 2026. Planning baseline. Implementation has begun in [the LiquidityLab project](../README.md); its README records current capabilities and remaining work. No private exchange execution has been enabled.
 
 ## 1. Product decision

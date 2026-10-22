@@ -1,0 +1,33 @@
+flowchart TB
+  UI["React trader interface<br/>Plan and supervise execution"]
+  subgraph PRODUCT["Go product runtime — one modular service initially"]
+    API["HTTP API<br/>Authenticated revisioned commands"]
+    ACTOR["Account executor<br/>One owner per account"]
+    CORE["Shared deterministic core<br/>Amounts · compiler · ledger · features"]
+    SEND["Durable dispatch and reconciliation<br/>Hard boundaries and unknown outcomes"]
+    FEED["Shared market ingest<br/>Books · validity · recording"]
+    API --> ACTOR
+    ACTOR --> CORE --> SEND
+    FEED --> ACTOR
+  end
+  DB[("PostgreSQL<br/>Plans · reservations · outbox · fills")]
+  VENUE["Crypto spot venue<br/>Market data and confirmed order events"]
+  POLICY["Python inference worker<br/>Frozen compatible policy bundle"]
+  subgraph OFFLINE["Offline training — separate resource pool"]
+    GYM["Python Gymnasium and PPO<br/>Training · evaluation · policy bundles"]
+    REPLAY["Go replay process<br/>Batched isolated environments"]
+    DATA[("Recorded market chunks<br/>Versioned dataset manifests")]
+    GYM <-->|"Batch replay RPC"| REPLAY
+    DATA --> REPLAY
+  end
+  UI <--> API
+  ACTOR <--> DB
+  SEND <--> DB
+  SEND <--> VENUE
+  VENUE --> FEED
+  FEED --> DATA
+  ACTOR <-->|"Bounded inference RPC<br/>Features in · semantic action out"| POLICY
+  CORE -.->|"Same Go package"| REPLAY
+  GYM -->|"Validated bundle publication"| POLICY
+  classDef primary fill:#e7edf3,stroke:#3e5368,color:#172b3b;
+  class CORE,ACTOR primary;

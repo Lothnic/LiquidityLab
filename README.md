@@ -48,6 +48,8 @@ The JSONL tape is intentionally small and deterministic. It covers relative rece
 
 This first implementation provides replay, accounting, baseline execution and the Gymnasium contract. The fixtures and generated demo support implementation and validation; they do not establish execution quality or profitability. An optional PPO training entry point is included. A live private exchange connector, a trader UI, durable application persistence and policy promotion are not included yet. `capture` is public market-data capture only; it does not place orders or access private account state.
 
+The selected next architecture is a Go product/execution runtime with Python for Gymnasium, training, evaluation and inference. The [Go migration plan](docs/go-runtime-plan.md) covers the shared execution core, batched training bridge, account ownership, migration gates and scale benchmarks. It supersedes the original product-backend choices; no Go code has been implemented yet.
+
 See [simulation assumptions](docs/simulation.md) and the [implementation plan](docs/implementation-plan.md) before interpreting reports.
 
 ## Validation and remaining integration

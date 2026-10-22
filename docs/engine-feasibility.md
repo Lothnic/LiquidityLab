@@ -1,5 +1,7 @@
 # Execution engine feasibility
 
+Status update: the [Go runtime plan](go-runtime-plan.md) now selects a Go-native shared execution core and Python RL interface. This document preserves the earlier NautilusTrader feasibility findings; that library is no longer the planned live-runtime dependency.
+
 Checked 23 October 2026. LiquidityLab's initial replay environment uses its own narrow execution contracts. Live order submission has not been enabled.
 
 The current [NautilusTrader installation documentation](https://nautilustrader.io/docs/latest/getting_started/installation/) describes the 2.x API, while its stable PyPI line is 1.x. The documentation explicitly says the APIs differ. Its 2.x wheels target Python 3.13–3.14 and are release candidates, whereas the initial LiquidityLab environment uses Python 3.12 for compatibility with the learning stack. A dependency installation is not evidence of a working Kraken live integration.
