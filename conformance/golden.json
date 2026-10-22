@@ -1,0 +1,1370 @@
+{
+  "schema": "liquiditylab-python-reference-v1",
+  "time_unit": "nanoseconds",
+  "decimal_encoding": "base-10 strings",
+  "action_mapping": {
+    "0": "HOLD",
+    "1": "CANCEL",
+    "2": "PASSIVE_SMALL",
+    "3": "PASSIVE_NORMAL",
+    "4": "AGGRESSIVE_SMALL",
+    "5": "AGGRESSIVE_NORMAL"
+  },
+  "cases": [
+    {
+      "name": "full_buy",
+      "input": {
+        "events": [
+          {
+            "kind": "snapshot",
+            "bids": [
+              [
+                "99.99",
+                "2"
+              ]
+            ],
+            "asks": [
+              [
+                "100.01",
+                "2"
+              ]
+            ],
+            "valid": true,
+            "time_ns": 0
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s1",
+            "time_ns": 1000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s2",
+            "time_ns": 2000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s3",
+            "time_ns": 3000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s4",
+            "time_ns": 4000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s5",
+            "time_ns": 5000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s6",
+            "time_ns": 6000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s7",
+            "time_ns": 7000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s8",
+            "time_ns": 8000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s9",
+            "time_ns": 9000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s10",
+            "time_ns": 10000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s11",
+            "time_ns": 11000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s12",
+            "time_ns": 12000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s13",
+            "time_ns": 13000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s14",
+            "time_ns": 14000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s15",
+            "time_ns": 15000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s16",
+            "time_ns": 16000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s17",
+            "time_ns": 17000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s18",
+            "time_ns": 18000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s19",
+            "time_ns": 19000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s20",
+            "time_ns": 20000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s21",
+            "time_ns": 21000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s22",
+            "time_ns": 22000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s23",
+            "time_ns": 23000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s24",
+            "time_ns": 24000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s25",
+            "time_ns": 25000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s26",
+            "time_ns": 26000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s27",
+            "time_ns": 27000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s28",
+            "time_ns": 28000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s29",
+            "time_ns": 29000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s30",
+            "time_ns": 30000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s31",
+            "time_ns": 31000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s32",
+            "time_ns": 32000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s33",
+            "time_ns": 33000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s34",
+            "time_ns": 34000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s35",
+            "time_ns": 35000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s36",
+            "time_ns": 36000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s37",
+            "time_ns": 37000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s38",
+            "time_ns": 38000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s39",
+            "time_ns": 39000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s40",
+            "time_ns": 40000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s41",
+            "time_ns": 41000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s42",
+            "time_ns": 42000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s43",
+            "time_ns": 43000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s44",
+            "time_ns": 44000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s45",
+            "time_ns": 45000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s46",
+            "time_ns": 46000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s47",
+            "time_ns": 47000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s48",
+            "time_ns": 48000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s49",
+            "time_ns": 49000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s50",
+            "time_ns": 50000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s51",
+            "time_ns": 51000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s52",
+            "time_ns": 52000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s53",
+            "time_ns": 53000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s54",
+            "time_ns": 54000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s55",
+            "time_ns": 55000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s56",
+            "time_ns": 56000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s57",
+            "time_ns": 57000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s58",
+            "time_ns": 58000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s59",
+            "time_ns": 59000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s60",
+            "time_ns": 60000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s61",
+            "time_ns": 61000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s62",
+            "time_ns": 62000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s63",
+            "time_ns": 63000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s64",
+            "time_ns": 64000000000
+          },
+          {
+            "kind": "trade",
+            "price": "99.99",
+            "quantity": "0.4",
+            "side": "sell",
+            "trade_id": "s65",
+            "time_ns": 65000000000
+          }
+        ],
+        "plan": {
+          "side": "buy",
+          "quantity": "0.060",
+          "limit_price": "100.05",
+          "deadline": 30.0,
+          "max_child_quantity": "0.060",
+          "quote_budget": "20",
+          "base_balance": "0",
+          "symbol": "BTC/USD"
+        },
+        "actions": null,
+        "policy": "scheduled",
+        "config": {
+          "decision_interval": 1.0,
+          "submission_latency": 0.05,
+          "cancel_latency": 0.05,
+          "settlement_allowance": 30.0,
+          "lambda_miss": 100.0,
+          "max_participation": "0.25",
+          "min_resting_age": 2.0,
+          "min_message_interval": 0.1,
+          "fill_model": "conservative-v0"
+        },
+        "fees": {
+          "maker": "0.001",
+          "taker": "0.002",
+          "currency": "quote",
+          "source": "synthetic-assumption"
+        }
+      },
+      "expected_report": {
+        "schema_version": "report-v0",
+        "compiler_version": "six-action-v0",
+        "dataset_sha256": "bab11525e72d9b8c9867ecd4475a61f95f6baeb4533213a4a83a268b7e976431",
+        "dataset_events": 66,
+        "events_processed": 16,
+        "mode": "historical-simulation",
+        "fill_model": "conservative-v0",
+        "observation_version": "compact-v1",
+        "status": "completed",
+        "terminated": true,
+        "truncated": false,
+        "economic_score_valid": true,
+        "plan": {
+          "side": "buy",
+          "quantity": "0.060",
+          "limit_price": "100.05",
+          "deadline": 30.0,
+          "max_child_quantity": "0.060",
+          "quote_budget": "20",
+          "base_balance": "0",
+          "symbol": "BTC/USD"
+        },
+        "instrument_assumption": {
+          "symbol": "BTC/USD",
+          "tick_size": "0.01",
+          "lot_size": "0.001",
+          "min_quantity": "0.001",
+          "min_notional": "0.01"
+        },
+        "fee_assumption": {
+          "maker": "0.001",
+          "taker": "0.002",
+          "currency": "quote",
+          "source": "synthetic-assumption"
+        },
+        "config": {
+          "decision_interval": 1.0,
+          "submission_latency": 0.05,
+          "cancel_latency": 0.05,
+          "settlement_allowance": 30.0,
+          "lambda_miss": 100.0,
+          "max_participation": "0.25",
+          "min_resting_age": 2.0,
+          "min_message_interval": 0.1,
+          "fill_model": "conservative-v0"
+        },
+        "initial_midpoint": "100.00",
+        "residual_midpoint": "100.00",
+        "filled_quantity": "0.060",
+        "remaining_quantity": "0.000",
+        "completion_fraction": "1",
+        "average_price": "100.01",
+        "gross_notional": "6.00060",
+        "fees_quote": "0.01200120",
+        "fees_base": "0",
+        "net_base_change": "0.060",
+        "base_balance": "0.060",
+        "quote_balance": "13.98739880",
+        "marked_cost_quote": "0.01260120",
+        "reward_sum": -21.002,
+        "terminal_objective": -21.002,
+        "fills": [
+          {
+            "execution_id": "sim-1",
+            "order_id": "child-1",
+            "side": "buy",
+            "quantity": "0.030",
+            "price": "100.01",
+            "fee": "0.00600060",
+            "fee_currency": "quote",
+            "maker": false,
+            "time_ns": 50000000
+          },
+          {
+            "execution_id": "sim-2",
+            "order_id": "child-2",
+            "side": "buy",
+            "quantity": "0.030",
+            "price": "100.01",
+            "fee": "0.00600060",
+            "fee_currency": "quote",
+            "maker": false,
+            "time_ns": 15050000000
+          }
+        ],
+        "decisions": [
+          {
+            "action": 5,
+            "reason": "submit_ioc",
+            "time_ns": 0
+          },
+          {
+            "action": 0,
+            "reason": "hold",
+            "time_ns": 1000000000
+          },
+          {
+            "action": 0,
+            "reason": "hold",
+            "time_ns": 2000000000
+          },
+          {
+            "action": 0,
+            "reason": "hold",
+            "time_ns": 3000000000
+          },
+          {
+            "action": 0,
+            "reason": "hold",
+            "time_ns": 4000000000
+          },
+          {
+            "action": 0,
+            "reason": "hold",
+            "time_ns": 5000000000
+          },
+          {
+            "action": 0,
+            "reason": "hold",
+            "time_ns": 6000000000
+          },
+          {
+            "action": 0,
+            "reason": "hold",
+            "time_ns": 7000000000
+          },
+          {
+            "action": 0,
+            "reason": "hold",
+            "time_ns": 8000000000
+          },
+          {
+            "action": 0,
+            "reason": "hold",
+            "time_ns": 9000000000
+          },
+          {
+            "action": 0,
+            "reason": "hold",
+            "time_ns": 10000000000
+          },
+          {
+            "action": 0,
+            "reason": "hold",
+            "time_ns": 11000000000
+          },
+          {
+            "action": 0,
+            "reason": "hold",
+            "time_ns": 12000000000
+          },
+          {
+            "action": 0,
+            "reason": "hold",
+            "time_ns": 13000000000
+          },
+          {
+            "action": 0,
+            "reason": "hold",
+            "time_ns": 14000000000
+          },
+          {
+            "action": 5,
+            "reason": "submit_ioc",
+            "time_ns": 15000000000
+          }
+        ],
+        "orders": [
+          {
+            "order_id": "child-1",
+            "intent": {
+              "side": "buy",
+              "quantity": "0.030",
+              "price": "100.02",
+              "passive": false
+            },
+            "remaining": "0.000",
+            "state": "filled",
+            "queue_ahead": "0",
+            "cancel_at": null,
+            "submitted_at_ns": 0,
+            "arrival_at_ns": 50000000
+          },
+          {
+            "order_id": "child-2",
+            "intent": {
+              "side": "buy",
+              "quantity": "0.030",
+              "price": "100.02",
+              "passive": false
+            },
+            "remaining": "0.000",
+            "state": "filled",
+            "queue_ahead": "0",
+            "cancel_at": null,
+            "submitted_at_ns": 15000000000,
+            "arrival_at_ns": 15050000000
+          }
+        ],
+        "limitations": [
+          "Synthetic/account fee assumptions require verification",
+          "No market impact response",
+          "L2 queue approximation; trade prints only",
+          "Price features warm up over ten completed decision intervals"
+        ],
+        "policy": "scheduled",
+        "time_ns": 15050000000
+      }
+    },
+    {
+      "name": "partial_sell",
+      "input": {
+        "events": [
+          {
+            "kind": "snapshot",
+            "bids": [
+              [
+                "99",
+                "0.04"
+              ]
+            ],
+            "asks": [
+              [
+                "101",
+                "2"
+              ]
+            ],
+            "time_ns": 0
+          },
+          {
+            "kind": "snapshot",
+            "bids": [
+              [
+                "99",
+                "0.04"
+              ]
+            ],
+            "asks": [
+              [
+                "101",
+                "2"
+              ]
+            ],
+            "time_ns": 1000000000
+          },
+          {
+            "kind": "snapshot",
+            "bids": [
+              [
+                "99",
+                "0.04"
+              ]
+            ],
+            "asks": [
+              [
+                "101",
+                "2"
+              ]
+            ],
+            "time_ns": 2000000000
+          },
+          {
+            "kind": "snapshot",
+            "bids": [
+              [
+                "99",
+                "0.04"
+              ]
+            ],
+            "asks": [
+              [
+                "101",
+                "2"
+              ]
+            ],
+            "time_ns": 3000000000
+          }
+        ],
+        "plan": {
+          "side": "sell",
+          "quantity": "0.1",
+          "limit_price": "99",
+          "deadline": 2,
+          "max_child_quantity": "0.1",
+          "quote_budget": "0",
+          "base_balance": "0.1",
+          "symbol": "BTC/USD"
+        },
+        "actions": [
+          5,
+          0
+        ],
+        "policy": null,
+        "config": {
+          "decision_interval": 1,
+          "submission_latency": 0,
+          "cancel_latency": 0,
+          "settlement_allowance": 1,
+          "lambda_miss": 100.0,
+          "max_participation": "1",
+          "min_resting_age": 2.0,
+          "min_message_interval": 0,
+          "fill_model": "conservative-v0"
+        },
+        "fees": {
+          "maker": "0",
+          "taker": "0",
+          "currency": "quote",
+          "source": "synthetic-assumption"
+        }
+      },
+      "expected_report": {
+        "schema_version": "report-v0",
+        "compiler_version": "six-action-v0",
+        "dataset_sha256": "30f0369b4ce9f51af6007939ea855b4dfceaed7fe642050d6e5e76a628da776a",
+        "dataset_events": 4,
+        "events_processed": 3,
+        "mode": "historical-simulation",
+        "fill_model": "conservative-v0",
+        "observation_version": "compact-v1",
+        "status": "deadline_partial",
+        "terminated": true,
+        "truncated": false,
+        "economic_score_valid": true,
+        "plan": {
+          "side": "sell",
+          "quantity": "0.1",
+          "limit_price": "99",
+          "deadline": 2,
+          "max_child_quantity": "0.1",
+          "quote_budget": "0",
+          "base_balance": "0.1",
+          "symbol": "BTC/USD"
+        },
+        "instrument_assumption": {
+          "symbol": "BTC/USD",
+          "tick_size": "0.01",
+          "lot_size": "0.001",
+          "min_quantity": "0.001",
+          "min_notional": "0.01"
+        },
+        "fee_assumption": {
+          "maker": "0",
+          "taker": "0",
+          "currency": "quote",
+          "source": "synthetic-assumption"
+        },
+        "config": {
+          "decision_interval": 1,
+          "submission_latency": 0,
+          "cancel_latency": 0,
+          "settlement_allowance": 1,
+          "lambda_miss": 100.0,
+          "max_participation": "1",
+          "min_resting_age": 2.0,
+          "min_message_interval": 0,
+          "fill_model": "conservative-v0"
+        },
+        "initial_midpoint": "100",
+        "residual_midpoint": "100",
+        "filled_quantity": "0.04",
+        "remaining_quantity": "0.06",
+        "completion_fraction": "0.4",
+        "average_price": "99",
+        "gross_notional": "3.96",
+        "fees_quote": "0.00",
+        "fees_base": "0",
+        "net_base_change": "-0.04",
+        "base_balance": "0.06",
+        "quote_balance": "3.96",
+        "marked_cost_quote": "0.04",
+        "reward_sum": -100.0,
+        "terminal_objective": -100.0,
+        "fills": [
+          {
+            "execution_id": "sim-1",
+            "order_id": "child-1",
+            "side": "sell",
+            "quantity": "0.04",
+            "price": "99",
+            "fee": "0.00",
+            "fee_currency": "quote",
+            "maker": false,
+            "time_ns": 0
+          }
+        ],
+        "decisions": [
+          {
+            "action": 5,
+            "reason": "submit_ioc",
+            "time_ns": 0
+          },
+          {
+            "action": 0,
+            "reason": "hold",
+            "time_ns": 1000000000
+          }
+        ],
+        "orders": [
+          {
+            "order_id": "child-1",
+            "intent": {
+              "side": "sell",
+              "quantity": "0.04",
+              "price": "99",
+              "passive": false
+            },
+            "remaining": "0.00",
+            "state": "filled",
+            "queue_ahead": "0",
+            "cancel_at": null,
+            "submitted_at_ns": 0,
+            "arrival_at_ns": 0
+          }
+        ],
+        "limitations": [
+          "Synthetic/account fee assumptions require verification",
+          "No market impact response",
+          "L2 queue approximation; trade prints only",
+          "Price features warm up over ten completed decision intervals"
+        ],
+        "time_ns": 2000000000
+      }
+    },
+    {
+      "name": "cancel_race_frozen_reference_late_gap",
+      "input": {
+        "events": [
+          {
+            "kind": "snapshot",
+            "bids": [
+              [
+                "99",
+                "2"
+              ]
+            ],
+            "asks": [
+              [
+                "101",
+                "2"
+              ]
+            ],
+            "time_ns": 0
+          },
+          {
+            "kind": "trade",
+            "side": "sell",
+            "price": "99",
+            "quantity": "2.1",
+            "trade_id": "race",
+            "time_ns": 1500000000
+          },
+          {
+            "kind": "snapshot",
+            "bids": [
+              [
+                "109",
+                "2"
+              ]
+            ],
+            "asks": [
+              [
+                "111",
+                "2"
+              ]
+            ],
+            "time_ns": 1750000000
+          },
+          {
+            "kind": "gap",
+            "time_ns": 1800000000
+          },
+          {
+            "kind": "snapshot",
+            "bids": [
+              [
+                "109",
+                "2"
+              ]
+            ],
+            "asks": [
+              [
+                "111",
+                "2"
+              ]
+            ],
+            "time_ns": 2000000000
+          }
+        ],
+        "plan": {
+          "side": "buy",
+          "quantity": "0.2",
+          "limit_price": "99",
+          "deadline": 1,
+          "max_child_quantity": "0.2",
+          "quote_budget": "1000",
+          "base_balance": "1",
+          "symbol": "BTC/USD"
+        },
+        "actions": [
+          3
+        ],
+        "policy": null,
+        "config": {
+          "decision_interval": 1,
+          "submission_latency": 0,
+          "cancel_latency": 0.5,
+          "settlement_allowance": 1,
+          "lambda_miss": 100.0,
+          "max_participation": "0.25",
+          "min_resting_age": 2.0,
+          "min_message_interval": 0,
+          "fill_model": "conservative-v0"
+        },
+        "fees": {
+          "maker": "0",
+          "taker": "0",
+          "currency": "quote",
+          "source": "synthetic-assumption"
+        }
+      },
+      "expected_report": {
+        "schema_version": "report-v0",
+        "compiler_version": "six-action-v0",
+        "dataset_sha256": "82458d37e84dd334b437567eb2e7e7dcd796ea2d0ab10d940189e2144a1d558c",
+        "dataset_events": 5,
+        "events_processed": 2,
+        "mode": "historical-simulation",
+        "fill_model": "conservative-v0",
+        "observation_version": "compact-v1",
+        "status": "deadline_partial",
+        "terminated": true,
+        "truncated": false,
+        "economic_score_valid": true,
+        "plan": {
+          "side": "buy",
+          "quantity": "0.2",
+          "limit_price": "99",
+          "deadline": 1,
+          "max_child_quantity": "0.2",
+          "quote_budget": "1000",
+          "base_balance": "1",
+          "symbol": "BTC/USD"
+        },
+        "instrument_assumption": {
+          "symbol": "BTC/USD",
+          "tick_size": "0.01",
+          "lot_size": "0.001",
+          "min_quantity": "0.001",
+          "min_notional": "0.01"
+        },
+        "fee_assumption": {
+          "maker": "0",
+          "taker": "0",
+          "currency": "quote",
+          "source": "synthetic-assumption"
+        },
+        "config": {
+          "decision_interval": 1,
+          "submission_latency": 0,
+          "cancel_latency": 0.5,
+          "settlement_allowance": 1,
+          "lambda_miss": 100.0,
+          "max_participation": "0.25",
+          "min_resting_age": 2.0,
+          "min_message_interval": 0,
+          "fill_model": "conservative-v0"
+        },
+        "initial_midpoint": "100",
+        "residual_midpoint": "100",
+        "filled_quantity": "0.1",
+        "remaining_quantity": "0.1",
+        "completion_fraction": "0.5",
+        "average_price": "99",
+        "gross_notional": "9.9",
+        "fees_quote": "0.0",
+        "fees_base": "0",
+        "net_base_change": "0.1",
+        "base_balance": "1.1",
+        "quote_balance": "990.1",
+        "marked_cost_quote": "-0.1",
+        "reward_sum": 0.0,
+        "terminal_objective": 0.0,
+        "fills": [
+          {
+            "execution_id": "sim-1",
+            "order_id": "child-1",
+            "side": "buy",
+            "quantity": "0.1",
+            "price": "99",
+            "fee": "0.0",
+            "fee_currency": "quote",
+            "maker": true,
+            "time_ns": 1500000000
+          }
+        ],
+        "decisions": [
+          {
+            "action": 3,
+            "reason": "submit_passive",
+            "time_ns": 0
+          }
+        ],
+        "orders": [
+          {
+            "order_id": "child-1",
+            "intent": {
+              "side": "buy",
+              "quantity": "0.2",
+              "price": "99",
+              "passive": true
+            },
+            "remaining": "0.1",
+            "state": "cancelled",
+            "queue_ahead": "0",
+            "submitted_at_ns": 0,
+            "arrival_at_ns": 0,
+            "cancel_at_ns": 1500000000
+          }
+        ],
+        "limitations": [
+          "Synthetic/account fee assumptions require verification",
+          "No market impact response",
+          "L2 queue approximation; trade prints only",
+          "Price features warm up over ten completed decision intervals"
+        ],
+        "time_ns": 1500000000
+      }
+    },
+    {
+      "name": "feed_gap_invalidates_episode",
+      "input": {
+        "events": [
+          {
+            "kind": "snapshot",
+            "bids": [
+              [
+                "99",
+                "2"
+              ]
+            ],
+            "asks": [
+              [
+                "101",
+                "2"
+              ]
+            ],
+            "time_ns": 0
+          },
+          {
+            "kind": "gap",
+            "time_ns": 1000000000
+          },
+          {
+            "kind": "snapshot",
+            "bids": [
+              [
+                "99",
+                "2"
+              ]
+            ],
+            "asks": [
+              [
+                "101",
+                "2"
+              ]
+            ],
+            "time_ns": 3000000000
+          }
+        ],
+        "plan": {
+          "side": "buy",
+          "quantity": "0.1",
+          "limit_price": "101",
+          "deadline": 2,
+          "max_child_quantity": "0.1",
+          "quote_budget": "1000",
+          "base_balance": "1",
+          "symbol": "BTC/USD"
+        },
+        "actions": [
+          0
+        ],
+        "policy": null,
+        "config": {
+          "decision_interval": 1,
+          "submission_latency": 0,
+          "cancel_latency": 0,
+          "settlement_allowance": 1,
+          "lambda_miss": 100.0,
+          "max_participation": "0.25",
+          "min_resting_age": 2.0,
+          "min_message_interval": 0,
+          "fill_model": "conservative-v0"
+        },
+        "fees": {
+          "maker": "0",
+          "taker": "0",
+          "currency": "quote",
+          "source": "synthetic-assumption"
+        }
+      },
+      "expected_report": {
+        "schema_version": "report-v0",
+        "compiler_version": "six-action-v0",
+        "dataset_sha256": "77337eb9e740e77ab53e1084b483b1183d258a4523ab293003e8eb537b8fb03c",
+        "dataset_events": 3,
+        "events_processed": 2,
+        "mode": "historical-simulation",
+        "fill_model": "conservative-v0",
+        "observation_version": "compact-v1",
+        "status": "invalid_market_data",
+        "terminated": false,
+        "truncated": true,
+        "economic_score_valid": false,
+        "plan": {
+          "side": "buy",
+          "quantity": "0.1",
+          "limit_price": "101",
+          "deadline": 2,
+          "max_child_quantity": "0.1",
+          "quote_budget": "1000",
+          "base_balance": "1",
+          "symbol": "BTC/USD"
+        },
+        "instrument_assumption": {
+          "symbol": "BTC/USD",
+          "tick_size": "0.01",
+          "lot_size": "0.001",
+          "min_quantity": "0.001",
+          "min_notional": "0.01"
+        },
+        "fee_assumption": {
+          "maker": "0",
+          "taker": "0",
+          "currency": "quote",
+          "source": "synthetic-assumption"
+        },
+        "config": {
+          "decision_interval": 1,
+          "submission_latency": 0,
+          "cancel_latency": 0,
+          "settlement_allowance": 1,
+          "lambda_miss": 100.0,
+          "max_participation": "0.25",
+          "min_resting_age": 2.0,
+          "min_message_interval": 0,
+          "fill_model": "conservative-v0"
+        },
+        "initial_midpoint": "100",
+        "residual_midpoint": "100",
+        "filled_quantity": "0",
+        "remaining_quantity": "0.1",
+        "completion_fraction": "0E+1",
+        "average_price": "0",
+        "gross_notional": "0",
+        "fees_quote": "0",
+        "fees_base": "0",
+        "net_base_change": "0",
+        "base_balance": "1",
+        "quote_balance": "1000",
+        "marked_cost_quote": "0.0",
+        "reward_sum": 0.0,
+        "terminal_objective": null,
+        "fills": [],
+        "decisions": [
+          {
+            "action": 0,
+            "reason": "hold",
+            "time_ns": 0
+          }
+        ],
+        "orders": [],
+        "limitations": [
+          "Synthetic/account fee assumptions require verification",
+          "No market impact response",
+          "L2 queue approximation; trade prints only",
+          "Price features warm up over ten completed decision intervals"
+        ],
+        "time_ns": 1000000000
+      }
+    }
+  ]
+}
