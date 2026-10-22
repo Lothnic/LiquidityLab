@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 from dataclasses import asdict
 from datetime import UTC, datetime
 from importlib.metadata import version
@@ -66,6 +67,11 @@ def train_policy(
     seed: int = 0,
     rules_path: Path | None = None,
     fees_path: Path | None = None,
+    *,
+    backend: str = "python-reference",
+    replay_binary: Path | None = None,
+    replay_endpoint: str | None = None,
+    num_envs: int = 1,
 ) -> dict:
     """Train on an explicit tape and save an unvalidated, replay-only bundle.
 
@@ -76,6 +82,21 @@ def train_policy(
         raise ValueError("total_timesteps must be an integer of at least 8")
     if isinstance(seed, bool) or not isinstance(seed, int) or seed < 0:
         raise ValueError("seed must be a nonnegative integer")
+    if backend not in ("python-reference", "go"):
+        raise ValueError("backend must be 'python-reference' or 'go'")
+    if isinstance(num_envs, bool) or not isinstance(num_envs, int) or not 1 <= num_envs <= 32:
+        raise ValueError("num_envs must be an integer in [1,32]")
+    if backend == "python-reference" and num_envs != 1:
+        raise ValueError("num_envs greater than one is supported only by the Go backend")
+    if backend == "python-reference" and (replay_binary is not None or replay_endpoint is not None):
+        raise ValueError("replay binary and endpoint options require --backend go")
+    if replay_binary is not None and replay_endpoint is not None:
+        raise ValueError("select replay_binary or replay_endpoint, not both")
+    if backend == "go" and replay_endpoint is not None:
+        raise ValueError(
+            "Go training through a remote endpoint has no trustworthy binary provenance; "
+            "use an owned local --replay-binary to create a bundle"
+        )
     tape_path, output_dir = Path(tape_path), Path(output_dir)
     if output_dir.exists():
         raise ValueError("Use a new bundle directory; existing bundles are immutable")
@@ -92,7 +113,32 @@ def train_policy(
     implementation_digest = _implementation_digest()
     lockfile = Path(__file__).resolve().parents[2] / "uv.lock"
     # Validate the tape and contracts before importing a large optional runtime.
-    env = TrainingGuard(LiquidityEnv(events, plan=plan, rules=rules, fees=fees, config=config))
+    binary_path = None
+    binary_digest = None
+    go_env_id = None
+    if backend == "go":
+        from .protocol import GO_ENV_ID as go_env_id
+
+        binary_value = replay_binary or os.environ.get("LIQUIDITYLAB_REPLAY_BINARY")
+        if not binary_value:
+            raise ValueError("Go training requires --replay-binary; see docs/go-replay.md")
+        binary_path = Path(binary_value).expanduser().resolve()
+        if not binary_path.is_file() or not os.access(binary_path, os.X_OK):
+            raise ValueError(f"replay executable unavailable: {binary_path}")
+        binary_digest = _digest(binary_path)
+        from .go_vector import make_go_vec_env
+
+        env = make_go_vec_env(
+            events,
+            plan,
+            rules,
+            fees,
+            config,
+            num_envs=num_envs,
+            binary=binary_path,
+        )
+    else:
+        env = TrainingGuard(LiquidityEnv(events, plan=plan, rules=rules, fees=fees, config=config))
     try:
         from stable_baselines3 import PPO
     except ImportError as exc:
@@ -101,10 +147,12 @@ def train_policy(
 
     rollout_steps = min(128, max(8, total_timesteps))
     batch_size = min(64, rollout_steps)
-    model = PPO("MlpPolicy", env, seed=seed, gamma=1.0, n_steps=rollout_steps,
-                batch_size=batch_size, n_epochs=4, device="cpu", verbose=0)
     try:
+        model = PPO("MlpPolicy", env, seed=seed, gamma=1.0, n_steps=rollout_steps,
+                    batch_size=batch_size, n_epochs=4, device="cpu", verbose=0)
         model.learn(total_timesteps=total_timesteps)
+        if binary_path is not None and _digest(binary_path) != binary_digest:
+            raise RuntimeError("Go replay binary changed during training; refusing bundle provenance")
         # Create only after training succeeds: failure cannot leave a usable bundle.
         output_dir.mkdir(parents=True, exist_ok=False)
         model.save(output_dir / "policy")
@@ -118,11 +166,18 @@ def train_policy(
             "seed": seed,
             "requested_timesteps": total_timesteps,
             "actual_timesteps": model.num_timesteps,
-            "environment": "LiquidityLab-SpotExecution-v0",
+            "backend": backend,
+            "environment": go_env_id if backend == "go" else "LiquidityLab-SpotExecution-v0",
             "observation_version": OBSERVATION_VERSION,
             "observation_size": OBSERVATION_SIZE,
             "observation_fields": list(OBSERVATION_FIELDS),
             "action_version": "six-actions-v0",
+            "compiler_version": "six-action-v1" if backend == "go" else "six-action-v0",
+            "action_compatibility": {
+                "policy_action_values": list(range(6)),
+                "go_wire_enum_values": list(range(1, 7)),
+                "mapping": "wire enum value = policy action value + 1",
+            },
             "feature_normalization": "fixed scaling defined by observation version; no fitted scaler",
             "reward_version": "marked-cost-bps-with-terminal-residual-v0",
             "dataset_sha256": _digest(tape_path),
@@ -135,8 +190,18 @@ def train_policy(
             "fees": serializable(asdict(fees)),
             "replay_config": serializable(asdict(config)),
             "dependencies": {name: version(name) for name in
-                             ("liquiditylab", "gymnasium", "numpy", "stable-baselines3", "torch")},
+                             (("liquiditylab", "gymnasium", "numpy", "stable-baselines3", "torch",
+                               "grpcio", "protobuf") if backend == "go" else
+                              ("liquiditylab", "gymnasium", "numpy", "stable-baselines3", "torch"))},
         }
+        if backend == "go":
+            manifest["go_replay"] = {
+                "environment": go_env_id,
+                "provenance": "owned-local-process-binary",
+                "binary_path": str(binary_path),
+                "binary_sha256": binary_digest,
+                "num_envs": num_envs,
+            }
         (output_dir / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
         return manifest
     finally:
@@ -152,10 +217,25 @@ def main(argv=None):
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--timesteps", type=int, default=2048)
     parser.add_argument("--seed", type=int, default=0)
+    parser.add_argument("--backend", choices=["python-reference", "go"], default="python-reference")
+    parser.add_argument("--replay-binary", type=Path, help="owned Go replay executable")
+    parser.add_argument("--replay-endpoint", help="local Go replay endpoint (cannot publish without binary provenance)")
+    parser.add_argument("--num-envs", type=int, default=1, help="parallel replay environments (Go backend)")
     args = parser.parse_args(argv)
     try:
-        manifest = train_policy(args.tape, args.plan, args.output, args.timesteps, args.seed,
-                                args.rules, args.fees)
+        manifest = train_policy(
+            args.tape,
+            args.plan,
+            args.output,
+            args.timesteps,
+            args.seed,
+            args.rules,
+            args.fees,
+            backend=args.backend,
+            replay_binary=args.replay_binary,
+            replay_endpoint=args.replay_endpoint,
+            num_envs=args.num_envs,
+        )
     except (ValueError, OSError, RuntimeError) as exc:
         parser.exit(2, f"liquiditylab training: {exc}\n")
     print(json.dumps(manifest, indent=2))
