@@ -10,6 +10,8 @@ import (
 	"math/big"
 	"sort"
 	"strings"
+
+	"github.com/liquiditylab/liquiditylab/internal/domain"
 )
 
 var ErrBook = errors.New("invalid Kraken book")
@@ -41,8 +43,12 @@ func NewBook(depth int) (*Book, error) {
 	return &Book{Depth: depth, bids: map[string]entry{}, asks: map[string]entry{}}, nil
 }
 func decimal(s string) (*big.Rat, error) {
-	r, ok := new(big.Rat).SetString(s)
-	if !ok || strings.ContainsAny(s, "NaInf") {
+	value, err := domain.ParseDecimal(s)
+	if err != nil {
+		return nil, fmt.Errorf("invalid book number")
+	}
+	r, ok := new(big.Rat).SetString(value.String())
+	if !ok {
 		return nil, fmt.Errorf("invalid book number")
 	}
 	return r, nil

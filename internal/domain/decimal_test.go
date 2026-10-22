@@ -32,6 +32,14 @@ func TestInternalPersistenceEnvelopeAndExactNormalization(t *testing.T) {
 	}
 }
 
+func TestTimeBoundsAreCheckedBeforeQuantization(t *testing.T) {
+	for _, text := range []string{"-0.0000000001", "9223372036.8547758071"} {
+		if _, err := SecondsToNanos(text); err == nil {
+			t.Fatal("rounded unsupported source time into range", text)
+		}
+	}
+}
+
 func TestExactDecimalArithmeticAndImmutability(t *testing.T) {
 	a := MustDecimal("1.2300")
 	b := MustDecimal(".07")

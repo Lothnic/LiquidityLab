@@ -44,3 +44,11 @@ func TestDepthValidation(t *testing.T) {
 		t.Fatal("accepted unsupported depth")
 	}
 }
+
+func TestBookNumberBoundsBeforeRationalAllocation(t *testing.T) {
+	for _, text := range []string{"1e100000000", "1/2", "0x100", "1e-100000000"} {
+		if _, err := decimal(text); err == nil {
+			t.Fatal("accepted unsupported decimal spelling", text)
+		}
+	}
+}

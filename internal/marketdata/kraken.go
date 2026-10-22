@@ -9,6 +9,8 @@ import (
 	"fmt"
 	"math/big"
 	"os"
+
+	"github.com/liquiditylab/liquiditylab/internal/domain"
 	"strconv"
 	"strings"
 
@@ -92,16 +94,7 @@ func ns(seconds string) (int64, error) {
 	if e := checkDecimalInput(seconds); e != nil {
 		return 0, errors.New("invalid elapsed time")
 	}
-	r, ok := new(big.Rat).SetString(seconds)
-	if !ok || r.Sign() < 0 {
-		return 0, errors.New("invalid elapsed time")
-	}
-	r.Mul(r, big.NewRat(1_000_000_000, 1))
-	q := new(big.Int).Quo(r.Num(), r.Denom())
-	if !q.IsInt64() {
-		return 0, errors.New("elapsed time out of range")
-	}
-	return q.Int64(), nil
+	return domain.SecondsToNanos(seconds)
 }
 func wireString(raw json.RawMessage) (string, error) {
 	var s string

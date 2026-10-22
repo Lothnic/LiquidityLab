@@ -321,6 +321,9 @@ func SecondsToNanos(s string) (int64, error) {
 	if e != nil {
 		return 0, e
 	}
+	if d.Sign() < 0 || d.Cmp(MustDecimal("9223372036.854775807")) > 0 {
+		return 0, fmt.Errorf("invalid replay time")
+	}
 	n := d.Mul(MustDecimal("1000000000")).Div(One, 0, HalfEven).coef()
 	if !n.IsInt64() || n.Sign() < 0 {
 		return 0, fmt.Errorf("invalid replay time")
