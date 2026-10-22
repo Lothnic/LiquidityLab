@@ -5,12 +5,17 @@ All fixture times use integer nanoseconds; report time fields are normalized too
 """
 
 import json
+from decimal import ROUND_HALF_EVEN, Decimal, localcontext
 from pathlib import Path
 
 from liquiditylab.contracts import FeeConfig, Plan, ReplayConfig
-from liquiditylab.policies import run_policy
-from liquiditylab.replay import Replay, synthetic_events
-
+from liquiditylab.policies import LiquidityAwarePolicy, ScheduledPolicy
+from liquiditylab.replay import (
+    OBSERVATION_FIELDS,
+    OBSERVATION_VERSION,
+    Replay,
+    synthetic_events,
+)
 
 ROOT = Path(__file__).resolve().parent
 
@@ -18,22 +23,30 @@ ROOT = Path(__file__).resolve().parent
 def ns_events(events):
     return [
         {**{key: value for key, value in event.items() if key != "time"},
-         "time_ns": int(round(event["time"] * 1_000_000_000))}
+         "time_ns": ns(event["time"])}
         for event in events
     ]
 
 
+def ns(value):
+    """Convert decimal-written seconds to nearest integer ns, ties to even."""
+    with localcontext() as context:
+        context.prec = 50
+        scaled = Decimal(str(value)) * Decimal(1_000_000_000)
+        return int(scaled.to_integral_value(rounding=ROUND_HALF_EVEN))
+
+
 def ns_report(report):
     result = json.loads(json.dumps(report))
-    result["time_ns"] = int(round(result.pop("time") * 1_000_000_000))
+    result["time_ns"] = ns(result.pop("time"))
     for decision in result["decisions"]:
-        decision["time_ns"] = int(round(decision.pop("time") * 1_000_000_000))
+        decision["time_ns"] = ns(decision.pop("time"))
     for order in result["orders"]:
         for key in ("submitted_at", "arrival_at", "cancel_at"):
             if order.get(key) is not None:
-                order[key + "_ns"] = int(round(order.pop(key) * 1_000_000_000))
+                order[key + "_ns"] = ns(order.pop(key))
     for fill in result["fills"]:
-        fill["time_ns"] = int(round(fill.pop("time") * 1_000_000_000))
+        fill["time_ns"] = ns(fill.pop("time"))
     return result
 
 
@@ -44,15 +57,42 @@ def report_case(name, events, plan, *, actions=None, policy=None, config=None, f
     )
     fees = fees or FeeConfig(maker="0", taker="0")
     replay = Replay(events, plan=plan, config=config, fees=fees)
-    if policy:
-        report = run_policy(replay, policy)
+    observation, _ = replay.reset()
+    expected_observations = {
+        "schema_version": OBSERVATION_VERSION,
+        "field_names": list(OBSERVATION_FIELDS),
+        "reset": [float(value) for value in observation],
+        "decisions": [],
+    }
+    policy_impl = None
+    if policy == "scheduled":
+        policy_impl = ScheduledPolicy()
+    elif policy == "liquidity-aware":
+        policy_impl = LiquidityAwarePolicy()
+    if policy_impl is not None:
+        while not (replay.terminated or replay.truncated):
+            action = policy_impl.act(replay)
+            observation, _, _, _, _ = replay.step(action)
+            expected_observations["decisions"].append({
+                "observation": [float(value) for value in observation],
+            })
+        report = replay.report()
+        report["policy"] = policy
     else:
-        replay.reset()
         for action in actions:
             if replay.terminated or replay.truncated:
                 break
-            replay.step(action)
+            observation, _, _, _, _ = replay.step(action)
+            expected_observations["decisions"].append({
+                "observation": [float(value) for value in observation],
+            })
         report = replay.report()
+    expected_observations["decisions"] = [
+        {"action": decision["action"], **vector}
+        for decision, vector in zip(
+            report["decisions"], expected_observations["decisions"], strict=True
+        )
+    ]
     return {
         "name": name,
         "input": {
@@ -64,6 +104,7 @@ def report_case(name, events, plan, *, actions=None, policy=None, config=None, f
             "fees": json.loads(json.dumps(fees.__dict__, default=str)),
         },
         "expected_report": ns_report(report),
+        "expected_observations": expected_observations,
     }
 
 
