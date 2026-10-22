@@ -1,0 +1,209 @@
+{
+  "schema_version": "report-v0",
+  "compiler_version": "six-action-v0",
+  "dataset_sha256": "bd0b3c4f06fcde3b08c859cb219da001baeafcb8fcc8be018411c931347d2af0",
+  "dataset_events": 22,
+  "events_processed": 9,
+  "mode": "historical-simulation",
+  "fill_model": "conservative-v0",
+  "observation_version": "compact-v1",
+  "status": "completed",
+  "terminated": true,
+  "truncated": false,
+  "economic_score_valid": true,
+  "plan": {
+    "side": "buy",
+    "quantity": "0.060",
+    "limit_price": "100.05",
+    "deadline": 30.0,
+    "max_child_quantity": "0.060",
+    "quote_budget": "20",
+    "base_balance": "0",
+    "symbol": "BTC/USD"
+  },
+  "instrument_assumption": {
+    "symbol": "BTC/USD",
+    "tick_size": "0.01",
+    "lot_size": "0.001",
+    "min_quantity": "0.001",
+    "min_notional": "0.01"
+  },
+  "fee_assumption": {
+    "maker": "0.001",
+    "taker": "0.002",
+    "currency": "quote",
+    "source": "synthetic-assumption"
+  },
+  "config": {
+    "decision_interval": 1.0,
+    "submission_latency": 0.05,
+    "cancel_latency": 0.05,
+    "settlement_allowance": 30.0,
+    "lambda_miss": 100.0,
+    "max_participation": "0.25",
+    "min_resting_age": 2.0,
+    "min_message_interval": 0.1,
+    "fill_model": "conservative-v0"
+  },
+  "time": 15.05,
+  "initial_midpoint": "100.00",
+  "residual_midpoint": "99.995",
+  "filled_quantity": "0.060",
+  "remaining_quantity": "0.000",
+  "completion_fraction": "1",
+  "average_price": "100.01",
+  "gross_notional": "6.00060",
+  "fees_quote": "0.01200120",
+  "fees_base": "0",
+  "net_base_change": "0.060",
+  "base_balance": "0.060",
+  "quote_balance": "13.98739880",
+  "marked_cost_quote": "0.01260120",
+  "reward_sum": -21.002000000000002,
+  "terminal_objective": -21.002,
+  "fills": [
+    {
+      "execution_id": "sim-1",
+      "order_id": "child-1",
+      "side": "buy",
+      "quantity": "0.030",
+      "price": "100.01",
+      "fee": "0.00600060",
+      "fee_currency": "quote",
+      "time": 0.05,
+      "maker": false
+    },
+    {
+      "execution_id": "sim-2",
+      "order_id": "child-2",
+      "side": "buy",
+      "quantity": "0.030",
+      "price": "100.01",
+      "fee": "0.00600060",
+      "fee_currency": "quote",
+      "time": 15.05,
+      "maker": false
+    }
+  ],
+  "decisions": [
+    {
+      "time": 0.0,
+      "action": 5,
+      "reason": "submit_ioc"
+    },
+    {
+      "time": 1.0,
+      "action": 0,
+      "reason": "hold"
+    },
+    {
+      "time": 2.0,
+      "action": 0,
+      "reason": "hold"
+    },
+    {
+      "time": 3.0,
+      "action": 0,
+      "reason": "hold"
+    },
+    {
+      "time": 4.0,
+      "action": 0,
+      "reason": "hold"
+    },
+    {
+      "time": 5.0,
+      "action": 0,
+      "reason": "hold"
+    },
+    {
+      "time": 6.0,
+      "action": 0,
+      "reason": "hold"
+    },
+    {
+      "time": 7.0,
+      "action": 0,
+      "reason": "hold"
+    },
+    {
+      "time": 8.0,
+      "action": 0,
+      "reason": "hold"
+    },
+    {
+      "time": 9.0,
+      "action": 0,
+      "reason": "hold"
+    },
+    {
+      "time": 10.0,
+      "action": 0,
+      "reason": "hold"
+    },
+    {
+      "time": 11.0,
+      "action": 0,
+      "reason": "hold"
+    },
+    {
+      "time": 12.0,
+      "action": 0,
+      "reason": "hold"
+    },
+    {
+      "time": 13.0,
+      "action": 0,
+      "reason": "hold"
+    },
+    {
+      "time": 14.0,
+      "action": 0,
+      "reason": "hold"
+    },
+    {
+      "time": 15.0,
+      "action": 5,
+      "reason": "submit_ioc"
+    }
+  ],
+  "orders": [
+    {
+      "order_id": "child-1",
+      "intent": {
+        "side": "buy",
+        "quantity": "0.030",
+        "price": "100.02",
+        "passive": false
+      },
+      "submitted_at": 0.0,
+      "arrival_at": 0.05,
+      "remaining": "0.000",
+      "state": "filled",
+      "queue_ahead": "0",
+      "cancel_at": null
+    },
+    {
+      "order_id": "child-2",
+      "intent": {
+        "side": "buy",
+        "quantity": "0.030",
+        "price": "100.02",
+        "passive": false
+      },
+      "submitted_at": 15.0,
+      "arrival_at": 15.05,
+      "remaining": "0.000",
+      "state": "filled",
+      "queue_ahead": "0",
+      "cancel_at": null
+    }
+  ],
+  "limitations": [
+    "Synthetic/account fee assumptions require verification",
+    "No market impact response",
+    "L2 queue approximation; trade prints only",
+    "Price features warm up over ten completed decision intervals"
+  ],
+  "policy": "scheduled"
+}

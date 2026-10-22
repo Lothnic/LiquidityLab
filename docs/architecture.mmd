@@ -1,0 +1,39 @@
+flowchart TB
+  UI["Trader interface<br/>Plan · supervise · review"]
+  API["Control API<br/>Revisioned operator commands"]
+  DB[("Durable ledger<br/>Plans · intents · fills · reservations")]
+  CORE["Shared contracts and execution logic<br/>Observations · policy actions · guards · accounting"]
+  subgraph OFFLINE["Historical training and replay"]
+    DATA[("Recorded market events<br/>Snapshots · trades · validity gaps")]
+    REPLAY["Replay engine<br/>Controlled clock and simulated fills"]
+    GYM["Gymnasium environment<br/>reset / step / reward"]
+    TRAIN["Offline training and evaluation"]
+    BUNDLE["Versioned policy bundle<br/>Weights · transforms · eligibility"]
+    DATA --> REPLAY --> GYM --> TRAIN --> BUNDLE
+  end
+  subgraph ONLINE["Asynchronous execution runtime"]
+    FEED["Market and account feeds"]
+    RUN["Policy timers and event processing"]
+    GUARD["Order compiler and hard boundaries"]
+    PAPER["Isolated paper execution<br/>Simulated fills"]
+    LIVE["Live engine bridge<br/>Outbox · acknowledgements · reconciliation"]
+    EX["One crypto spot venue<br/>Orders and confirmed fills"]
+    FEED --> RUN --> GUARD
+    GUARD -->|"Paper profile"| PAPER
+    GUARD -->|"Explicit live profile"| LIVE
+    LIVE <--> EX
+    EX --> FEED
+    PAPER --> RUN
+  end
+  UI <--> API
+  API --> RUN
+  API <--> DB
+  RUN <--> DB
+  LIVE <--> DB
+  FEED --> DATA
+  BUNDLE --> RUN
+  CORE -.-> GYM
+  CORE -.-> RUN
+  CORE -.-> GUARD
+  classDef primary fill:#e7edf3,stroke:#3e5368,color:#172b3b;
+  class UI,CORE primary;

@@ -1,0 +1,268 @@
+{
+  "schema_version": "report-v0",
+  "compiler_version": "six-action-v0",
+  "dataset_sha256": "bd0b3c4f06fcde3b08c859cb219da001baeafcb8fcc8be018411c931347d2af0",
+  "dataset_events": 22,
+  "events_processed": 13,
+  "mode": "historical-simulation",
+  "fill_model": "conservative-v0",
+  "observation_version": "compact-v1",
+  "status": "deadline_partial",
+  "terminated": true,
+  "truncated": false,
+  "economic_score_valid": true,
+  "plan": {
+    "side": "sell",
+    "quantity": "0.060",
+    "limit_price": "99.99",
+    "deadline": 30.0,
+    "max_child_quantity": "0.060",
+    "quote_budget": "0",
+    "base_balance": "0.060",
+    "symbol": "BTC/USD"
+  },
+  "instrument_assumption": {
+    "symbol": "BTC/USD",
+    "tick_size": "0.01",
+    "lot_size": "0.001",
+    "min_quantity": "0.001",
+    "min_notional": "0.01"
+  },
+  "fee_assumption": {
+    "maker": "0.001",
+    "taker": "0.002",
+    "currency": "quote",
+    "source": "synthetic-assumption"
+  },
+  "config": {
+    "decision_interval": 1.0,
+    "submission_latency": 0.05,
+    "cancel_latency": 0.05,
+    "settlement_allowance": 30.0,
+    "lambda_miss": 100.0,
+    "max_participation": "0.25",
+    "min_resting_age": 2.0,
+    "min_message_interval": 0.1,
+    "fill_model": "conservative-v0"
+  },
+  "time": 30.0,
+  "initial_midpoint": "100.00",
+  "residual_midpoint": "100.00",
+  "filled_quantity": "0.030",
+  "remaining_quantity": "0.030",
+  "completion_fraction": "0.5",
+  "average_price": "99.99",
+  "gross_notional": "2.99970",
+  "fees_quote": "0.00599940",
+  "fees_base": "0",
+  "net_base_change": "-0.030",
+  "base_balance": "0.030",
+  "quote_balance": "2.99370060",
+  "marked_cost_quote": "0.00629940",
+  "reward_sum": -60.499,
+  "terminal_objective": -60.499,
+  "fills": [
+    {
+      "execution_id": "sim-1",
+      "order_id": "child-1",
+      "side": "sell",
+      "quantity": "0.030",
+      "price": "99.99",
+      "fee": "0.00599940",
+      "fee_currency": "quote",
+      "time": 0.05,
+      "maker": false
+    }
+  ],
+  "decisions": [
+    {
+      "time": 0.0,
+      "action": 5,
+      "reason": "submit_ioc"
+    },
+    {
+      "time": 1.0,
+      "action": 0,
+      "reason": "hold"
+    },
+    {
+      "time": 2.0,
+      "action": 0,
+      "reason": "hold"
+    },
+    {
+      "time": 3.0,
+      "action": 0,
+      "reason": "hold"
+    },
+    {
+      "time": 4.0,
+      "action": 0,
+      "reason": "hold"
+    },
+    {
+      "time": 5.0,
+      "action": 0,
+      "reason": "hold"
+    },
+    {
+      "time": 6.0,
+      "action": 0,
+      "reason": "hold"
+    },
+    {
+      "time": 7.0,
+      "action": 0,
+      "reason": "hold"
+    },
+    {
+      "time": 8.0,
+      "action": 0,
+      "reason": "hold"
+    },
+    {
+      "time": 9.0,
+      "action": 0,
+      "reason": "hold"
+    },
+    {
+      "time": 10.0,
+      "action": 0,
+      "reason": "hold"
+    },
+    {
+      "time": 11.0,
+      "action": 0,
+      "reason": "hold"
+    },
+    {
+      "time": 12.0,
+      "action": 0,
+      "reason": "hold"
+    },
+    {
+      "time": 13.0,
+      "action": 0,
+      "reason": "hold"
+    },
+    {
+      "time": 14.0,
+      "action": 0,
+      "reason": "hold"
+    },
+    {
+      "time": 15.0,
+      "action": 5,
+      "reason": "submit_ioc"
+    },
+    {
+      "time": 16.0,
+      "action": 0,
+      "reason": "hold"
+    },
+    {
+      "time": 17.0,
+      "action": 0,
+      "reason": "hold"
+    },
+    {
+      "time": 18.0,
+      "action": 0,
+      "reason": "hold"
+    },
+    {
+      "time": 19.0,
+      "action": 0,
+      "reason": "hold"
+    },
+    {
+      "time": 20.0,
+      "action": 0,
+      "reason": "hold"
+    },
+    {
+      "time": 21.0,
+      "action": 0,
+      "reason": "hold"
+    },
+    {
+      "time": 22.0,
+      "action": 0,
+      "reason": "hold"
+    },
+    {
+      "time": 23.0,
+      "action": 0,
+      "reason": "hold"
+    },
+    {
+      "time": 24.0,
+      "action": 0,
+      "reason": "hold"
+    },
+    {
+      "time": 25.0,
+      "action": 0,
+      "reason": "hold"
+    },
+    {
+      "time": 26.0,
+      "action": 0,
+      "reason": "hold"
+    },
+    {
+      "time": 27.0,
+      "action": 0,
+      "reason": "hold"
+    },
+    {
+      "time": 28.0,
+      "action": 0,
+      "reason": "hold"
+    },
+    {
+      "time": 29.0,
+      "action": 0,
+      "reason": "hold"
+    }
+  ],
+  "orders": [
+    {
+      "order_id": "child-1",
+      "intent": {
+        "side": "sell",
+        "quantity": "0.030",
+        "price": "99.99",
+        "passive": false
+      },
+      "submitted_at": 0.0,
+      "arrival_at": 0.05,
+      "remaining": "0.000",
+      "state": "filled",
+      "queue_ahead": "0",
+      "cancel_at": null
+    },
+    {
+      "order_id": "child-2",
+      "intent": {
+        "side": "sell",
+        "quantity": "0.030",
+        "price": "99.99",
+        "passive": false
+      },
+      "submitted_at": 15.0,
+      "arrival_at": 15.05,
+      "remaining": "0.030",
+      "state": "ioc_expired",
+      "queue_ahead": "0",
+      "cancel_at": null
+    }
+  ],
+  "limitations": [
+    "Synthetic/account fee assumptions require verification",
+    "No market impact response",
+    "L2 queue approximation; trade prints only",
+    "Price features warm up over ten completed decision intervals"
+  ],
+  "policy": "scheduled"
+}

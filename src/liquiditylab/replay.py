@@ -444,7 +444,7 @@ class Replay:
                     "Synthetic/account fee assumptions require verification",
                     "No market impact response",
                     "L2 queue approximation; trade prints only",
-                    "Zero feature warmup; return/volatility slots reserved",
+                    "Price features warm up over ten completed decision intervals",
                 ],
             }
         )

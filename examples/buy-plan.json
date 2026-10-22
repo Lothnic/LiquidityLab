@@ -1,0 +1,10 @@
+{
+  "side": "buy",
+  "quantity": "0.060",
+  "limit_price": "100.05",
+  "deadline": 30.0,
+  "max_child_quantity": "0.060",
+  "quote_budget": "20",
+  "base_balance": "0",
+  "symbol": "BTC/USD"
+}
