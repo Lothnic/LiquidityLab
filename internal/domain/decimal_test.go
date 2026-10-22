@@ -6,6 +6,32 @@ import (
 	"testing"
 )
 
+func TestInternalPersistenceEnvelopeAndExactNormalization(t *testing.T) {
+	for _, text := range []string{strings.Repeat("9", 512), "0." + strings.Repeat("0", 143) + "1", "-123.4500"} {
+		value, err := ParseInternalDecimal(text)
+		if err != nil {
+			t.Fatal(err)
+		}
+		roundtrip, err := ParseInternalDecimal(value.String())
+		if err != nil || !roundtrip.Equal(value) {
+			t.Fatal("internal roundtrip", text, err)
+		}
+	}
+	for _, text := range []string{"NaN", "1e10", strings.Repeat("1", 513), "0." + strings.Repeat("0", 144) + "1"} {
+		if _, err := ParseInternalDecimal(text); err == nil {
+			t.Fatal("accepted unsupported internal value", text)
+		}
+	}
+	if _, err := ParseDecimal(strings.Repeat("9", 129)); err == nil {
+		t.Fatal("external envelope widened")
+	}
+	for i := 0; i < 100; i++ {
+		if MustDecimal("1").Quo(MustDecimal("1")).String() != "1" || MustDecimal("-1").Quo(MustDecimal("2")).String() != "-0.5" {
+			t.Fatal("normalization or shared factors mutated")
+		}
+	}
+}
+
 func TestExactDecimalArithmeticAndImmutability(t *testing.T) {
 	a := MustDecimal("1.2300")
 	b := MustDecimal(".07")

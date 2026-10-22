@@ -35,7 +35,23 @@ const (
 var Zero Decimal
 var One = MustDecimal("1")
 
-func pow10(n int32) *big.Int { return new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(n)), nil) }
+// All callers treat these private factors as immutable operands. The largest
+// exponent used by division is internal scale + division output scale.
+var decimalPowers = func() [MaxInternalScale + DivisionScale + 1]*big.Int {
+	var values [MaxInternalScale + DivisionScale + 1]*big.Int
+	values[0] = big.NewInt(1)
+	for i := 1; i < len(values); i++ {
+		values[i] = new(big.Int).Mul(values[i-1], big.NewInt(10))
+	}
+	return values
+}()
+
+func pow10(n int32) *big.Int {
+	if n < 0 || int(n) >= len(decimalPowers) {
+		panic("unsupported decimal exponent")
+	}
+	return decimalPowers[n]
+}
 func (d Decimal) coef() *big.Int {
 	if d.coefficient == nil {
 		return new(big.Int)
@@ -43,21 +59,24 @@ func (d Decimal) coef() *big.Int {
 	return new(big.Int).Set(d.coefficient)
 }
 func makeDecimal(n *big.Int, s int32) Decimal {
-	if s < 0 || s > MaxInternalScale || len(new(big.Int).Abs(n).String()) > MaxInternalDigits {
+	if s < 0 || s > MaxInternalScale {
 		panic("decimal arithmetic precision envelope exceeded")
 	}
 	if n.Sign() == 0 {
 		return Zero
 	}
-	n = new(big.Int).Set(n)
-	for s > 0 {
-		q, r := new(big.Int), new(big.Int)
-		q.QuoRem(n, big.NewInt(10), r)
-		if r.Sign() != 0 {
-			break
-		}
-		n = q
-		s--
+	text := n.String()
+	if len(strings.TrimPrefix(text, "-")) > MaxInternalDigits {
+		panic("decimal arithmetic precision envelope exceeded")
+	}
+	// Exact normalization uses one division instead of allocating one pair of
+	// big integers for each removable fractional zero (often 72 per feature).
+	trim := min(int(s), len(text)-len(strings.TrimRight(text, "0")))
+	if trim > 0 {
+		n = new(big.Int).Quo(n, pow10(int32(trim)))
+		s -= int32(trim)
+	} else {
+		n = new(big.Int).Set(n)
 	}
 	return Decimal{n, s}
 }
@@ -211,13 +230,30 @@ func align(a, b Decimal) (*big.Int, *big.Int, int32) {
 }
 func (d Decimal) Add(b Decimal) Decimal { a, c, s := align(d, b); return makeDecimal(a.Add(a, c), s) }
 func (d Decimal) Sub(b Decimal) Decimal { return d.Add(b.Neg()) }
-func (d Decimal) Neg() Decimal          { return makeDecimal(d.coef().Neg(d.coef()), d.scale) }
+func (d Decimal) Neg() Decimal          { n := d.coef(); return makeDecimal(n.Neg(n), d.scale) }
 func (d Decimal) Mul(b Decimal) Decimal {
 	return makeDecimal(new(big.Int).Mul(d.coef(), b.coef()), d.scale+b.scale)
 }
-func (d Decimal) Cmp(b Decimal) int    { a, c, _ := align(d, b); return a.Cmp(c) }
-func (d Decimal) IsZero() bool         { return d.coef().Sign() == 0 }
-func (d Decimal) Sign() int            { return d.coef().Sign() }
+func (d Decimal) Cmp(b Decimal) int {
+	if d.scale == b.scale {
+		if d.coefficient == nil {
+			return -b.Sign()
+		}
+		if b.coefficient == nil {
+			return d.Sign()
+		}
+		return d.coefficient.Cmp(b.coefficient)
+	}
+	a, c, _ := align(d, b)
+	return a.Cmp(c)
+}
+func (d Decimal) IsZero() bool { return d.Sign() == 0 }
+func (d Decimal) Sign() int {
+	if d.coefficient == nil {
+		return 0
+	}
+	return d.coefficient.Sign()
+}
 func (d Decimal) Equal(b Decimal) bool { return d.Cmp(b) == 0 }
 func (d Decimal) Div(b Decimal, scale int32, mode Rounding) Decimal {
 	if b.IsZero() {

@@ -10,6 +10,20 @@ import (
 	"github.com/liquiditylab/liquiditylab/internal/venue/kraken"
 )
 
+func TestCaptureDiskBudgetRejectsWholeWrite(t *testing.T) {
+	var destination strings.Builder
+	writer := &captureWriter{writer: &destination, limit: 8}
+	if n, err := writer.Write([]byte("first")); n != 5 || err != nil {
+		t.Fatal(n, err)
+	}
+	if n, err := writer.Write([]byte("next")); n != 0 || err == nil {
+		t.Fatal("over-budget write accepted", n, err)
+	}
+	if destination.String() != "first" || writer.written != 5 {
+		t.Fatal("rejected write changed capture")
+	}
+}
+
 func TestNormalizeReceiptOrderDropsHistoricalTradesAndInvalidatesOnGap(t *testing.T) {
 	// CRC32 of asks then bids: 1020250010003000.
 	const book = `{"channel":"book","type":"snapshot","data":[{"symbol":"BTC/USD","bids":[{"price":"100.0","qty":"0.3000"}],"asks":[{"price":"102.0","qty":"0.2500"}],"checksum":2926945269}]}`
