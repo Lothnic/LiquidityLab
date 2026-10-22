@@ -16,6 +16,8 @@ import (
 const MaxInputDigits = 128
 const MaxInputScale = 36
 const DivisionScale = 72
+const MaxInternalDigits = 512
+const MaxInternalScale = 144
 
 type Decimal struct {
 	coefficient *big.Int
@@ -41,7 +43,7 @@ func (d Decimal) coef() *big.Int {
 	return new(big.Int).Set(d.coefficient)
 }
 func makeDecimal(n *big.Int, s int32) Decimal {
-	if s < 0 || s > 144 || len(new(big.Int).Abs(n).String()) > 512 {
+	if s < 0 || s > MaxInternalScale || len(new(big.Int).Abs(n).String()) > MaxInternalDigits {
 		panic("decimal arithmetic precision envelope exceeded")
 	}
 	if n.Sign() == 0 {
@@ -58,6 +60,50 @@ func makeDecimal(n *big.Int, s int32) Decimal {
 		s--
 	}
 	return Decimal{n, s}
+}
+
+// ParseInternalDecimal roundtrips derived values from trusted persisted state.
+// It accepts plain decimal text only and must not replace external input limits.
+func ParseInternalDecimal(s string) (Decimal, error) {
+	if len(s) == 0 || len(s) > MaxInternalDigits+MaxInternalScale+3 {
+		return Zero, errors.New("invalid internal decimal length")
+	}
+	negative := strings.HasPrefix(s, "-")
+	if negative {
+		s = s[1:]
+	}
+	parts := strings.Split(s, ".")
+	if len(parts) > 2 {
+		return Zero, errors.New("invalid internal decimal")
+	}
+	coefficient, scale := parts[0], 0
+	if len(parts) == 2 {
+		coefficient += parts[1]
+		scale = len(parts[1])
+	}
+	if coefficient == "" || scale > MaxInternalScale {
+		return Zero, errors.New("invalid internal decimal scale")
+	}
+	for _, digit := range coefficient {
+		if digit < '0' || digit > '9' {
+			return Zero, errors.New("invalid internal decimal coefficient")
+		}
+	}
+	coefficient = strings.TrimLeft(coefficient, "0")
+	if len(coefficient) > MaxInternalDigits {
+		return Zero, errors.New("internal decimal exceeds coefficient envelope")
+	}
+	if coefficient == "" {
+		return Zero, nil
+	}
+	if negative {
+		coefficient = "-" + coefficient
+	}
+	n, ok := new(big.Int).SetString(coefficient, 10)
+	if !ok {
+		return Zero, errors.New("invalid internal decimal")
+	}
+	return makeDecimal(n, int32(scale)), nil
 }
 func FromCoefficient(coefficient string, scale int32) (Decimal, error) {
 	if scale < 0 || scale > MaxInputScale {
