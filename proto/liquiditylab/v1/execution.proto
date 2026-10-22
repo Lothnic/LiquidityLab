@@ -1,0 +1,191 @@
+syntax = "proto3";
+
+package liquiditylab.v1;
+option go_package = "github.com/liquiditylab/liquiditylab/gen/go/liquiditylab/v1;liquiditylabv1";
+
+// Exact numeric value = coefficient * 10^(-scale). No floating-point money.
+// Transport limits: at most 128 coefficient digits and scale <= 36.
+message Decimal { string coefficient = 1; uint32 scale = 2; }
+message Amount { Decimal value = 1; string currency = 2; }
+
+enum Side { SIDE_UNSPECIFIED = 0; SIDE_BUY = 1; SIDE_SELL = 2; }
+enum Action {
+  ACTION_UNSPECIFIED = 0;
+  ACTION_HOLD = 1;
+  ACTION_CANCEL_CHILD = 2;
+  ACTION_PASSIVE_SMALL = 3;
+  ACTION_PASSIVE_NORMAL = 4;
+  ACTION_AGGRESSIVE_SMALL = 5;
+  ACTION_AGGRESSIVE_NORMAL = 6;
+}
+enum EventKind {
+  EVENT_UNSPECIFIED = 0;
+  EVENT_SNAPSHOT = 1;
+  EVENT_BOOK = 2;
+  EVENT_TRADE = 3;
+  EVENT_GAP = 4;
+}
+enum FeeCurrency { FEE_UNSPECIFIED = 0; FEE_QUOTE = 1; FEE_BASE = 2; }
+
+message InstrumentRules {
+  string symbol = 1;
+  Decimal tick_size = 2;
+  Decimal lot_size = 3;
+  Decimal min_quantity = 4;
+  Decimal min_notional = 5;
+  string metadata_revision = 6;
+  string base_currency = 7;
+  string quote_currency = 8;
+}
+message FeeConfig {
+  Decimal maker = 1;
+  Decimal taker = 2;
+  FeeCurrency currency = 3;
+  string source = 4;
+}
+message Plan {
+  Side side = 1;
+  Decimal quantity = 2;
+  Decimal limit_price = 3;
+  int64 deadline_ns = 4;
+  Decimal max_child_quantity = 5;
+  Decimal quote_budget = 6;
+  Decimal base_balance = 7;
+  string symbol = 8;
+  string plan_id = 9;
+  uint64 revision = 10;
+  string account_id = 11;
+  string tenant_id = 12;
+}
+message ReplayConfig {
+  optional int64 decision_interval_ns = 1;
+  optional int64 submission_latency_ns = 2;
+  optional int64 cancel_latency_ns = 3;
+  optional int64 settlement_allowance_ns = 4;
+  optional double lambda_miss = 5;
+  Decimal max_participation = 6;
+  optional int64 min_resting_age_ns = 7;
+  optional int64 min_message_interval_ns = 8;
+  string fill_model = 9;
+}
+message PriceLevel { Decimal price = 1; Decimal quantity = 2; }
+message MarketEvent {
+  int64 receipt_time_ns = 1;
+  EventKind kind = 2;
+  string symbol = 3;
+  uint64 receipt_index = 4;
+  optional bool valid = 5;
+  repeated PriceLevel bids = 6;
+  repeated PriceLevel asks = 7;
+  Decimal price = 8;
+  Decimal quantity = 9;
+  Side aggressor_side = 10;
+  string trade_id = 11;
+  string exchange_timestamp = 12;
+  string receipt_session_id = 13;
+}
+message EpisodeSpec {
+  repeated MarketEvent events = 1;
+  Plan plan = 2;
+  InstrumentRules rules = 3;
+  FeeConfig fees = 4;
+  ReplayConfig config = 5;
+  string dataset_id = 6;
+}
+message Observation {
+  repeated float features = 1;
+  string schema_version = 2;
+  repeated string field_names = 3;
+}
+message Fill {
+  string execution_id = 1;
+  string order_id = 2;
+  Side side = 3;
+  Decimal quantity = 4;
+  Decimal price = 5;
+  Decimal fee = 6;
+  FeeCurrency fee_currency = 7;
+  int64 receipt_time_ns = 8;
+  bool maker = 9;
+}
+message ExecutionReport {
+  bool economic_score_valid = 1;
+  string status = 2;
+  Decimal filled_quantity = 3;
+  Decimal remaining_quantity = 4;
+  Decimal marked_cost_quote = 5;
+  repeated Fill fills = 6;
+  // Inspectable full Go report; typed state above remains authoritative.
+  bytes detail_json = 7;
+}
+message Transition {
+  string environment_id = 1;
+  Observation observation = 2;
+  double reward = 3;
+  bool terminated = 4;
+  bool truncated = 5;
+  bool economic_score_valid = 6;
+  string status = 7;
+  string reason = 8;
+  int64 receipt_time_ns = 9;
+  Decimal filled_quantity = 10;
+  Decimal remaining_quantity = 11;
+  ExecutionReport report = 12;
+}
+
+service ReplayService {
+  rpc CreateBatch(CreateBatchRequest) returns (CreateBatchResponse);
+  rpc ResetBatch(ResetBatchRequest) returns (BatchTransitions);
+  rpc StepBatch(StepBatchRequest) returns (BatchTransitions);
+  rpc GetReports(GetReportsRequest) returns (GetReportsResponse);
+  rpc CloseBatch(CloseBatchRequest) returns (CloseBatchResponse);
+}
+message CreateBatchRequest { string request_id = 1; uint32 count = 2; EpisodeSpec episode = 3; }
+message CreateBatchResponse {
+  string batch_id = 1;
+  repeated string environment_ids = 2;
+  string engine_version = 3;
+  string observation_version = 4;
+  uint64 next_sequence = 5;
+  string engine_instance_id = 6;
+}
+message EnvironmentReset { string environment_id = 1; uint64 seed = 2; }
+message ResetBatchRequest {
+  string batch_id = 1; string request_id = 2; uint64 sequence = 3;
+  repeated EnvironmentReset resets = 4;
+}
+message EnvironmentAction { string environment_id = 1; Action action = 2; }
+message StepBatchRequest {
+  string batch_id = 1; string request_id = 2; uint64 sequence = 3;
+  repeated EnvironmentAction actions = 4;
+}
+message BatchTransitions { string batch_id = 1; uint64 sequence = 2; repeated Transition transitions = 3; }
+message GetReportsRequest { string batch_id = 1; repeated string environment_ids = 2; }
+message GetReportsResponse { repeated ExecutionReport reports = 1; }
+message CloseBatchRequest { string batch_id = 1; string request_id = 2; uint64 sequence = 3; }
+message CloseBatchResponse { bool closed = 1; uint64 sequence = 2; }
+
+message DecisionBinding {
+  string request_id = 1;
+  string tenant_id = 2;
+  string account_id = 3;
+  string session_id = 4;
+  uint64 session_revision = 5;
+  uint64 account_revision = 6;
+  string policy_sha256 = 7;
+  string observation_version = 8;
+  string observation_schema_sha256 = 9;
+  string market_snapshot_id = 10;
+  int64 expires_at_unix_ns = 11;
+}
+service PolicyService {
+  rpc Predict(DecisionRequest) returns (DecisionResponse);
+  rpc GetPolicyInfo(PolicyInfoRequest) returns (PolicyInfoResponse);
+}
+message DecisionRequest { DecisionBinding binding = 1; Observation observation = 2; }
+message DecisionResponse { DecisionBinding binding = 1; Action action = 2; string mode = 3; }
+message PolicyInfoRequest { string policy_sha256 = 1; }
+message PolicyInfoResponse {
+  string policy_sha256 = 1; string observation_version = 2;
+  repeated string field_names = 3; string promotion_status = 4; bool live_eligible = 5;
+}
