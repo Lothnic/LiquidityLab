@@ -105,7 +105,10 @@ func validateChange(c Change) error {
 	if len(c.Snapshot) > 0 && !validJSON(c.Snapshot) {
 		return ErrInvalid
 	}
-	if len(c.Enqueue) > 64 || len(c.Reservations) > 128 || len(c.Resolutions) > 64 || len(c.ReservationUpdates) > 32 {
+	if c.ConsumeObservationThrough < 0 || c.ConsumeObservationThrough > 0 && len(c.Snapshot) == 0 {
+		return ErrInvalid
+	}
+	if len(c.Enqueue) > 64 || len(c.Reservations) > 128 || len(c.Resolutions) > 64 || len(c.ReservationUpdates) > 32 || len(c.ObsoleteQueued) > 64 {
 		return ErrInvalid
 	}
 	if c.Market != nil && (!validID(c.Market.SnapshotID) || !validID(c.Market.InstrumentRevision)) {
@@ -144,6 +147,13 @@ func validateChange(c Change) error {
 			return ErrInvalid
 		}
 		resolved[r.IntentID] = true
+	}
+	obsolete := map[string]bool{}
+	for _, id := range c.ObsoleteQueued {
+		if !validID(id) || obsolete[id] || intents[id] || resolved[id] {
+			return ErrInvalid
+		}
+		obsolete[id] = true
 	}
 	if e := c.Execution; e != nil {
 		if !validID(e.ID) || !validID(e.IntentID) || !validID(e.Venue) || !validJSON(e.Detail) || len(c.Balances) == 0 || len(c.Snapshot) == 0 {
@@ -310,6 +320,11 @@ func (s *Store) Apply(ctx context.Context, c Change) (Result, error) {
 			if !bytes.Equal(saved, executionDigest[:]) {
 				return Result{}, ErrConflict
 			}
+			// A repeated source fact still needs a new cursor transition. The
+			// reducer must recognize the recorded fill and submit cursor-only state.
+			if c.ConsumeObservationThrough > 0 {
+				return Result{}, ErrConflict
+			}
 			var result Result
 			if err = json.Unmarshal(encoded, &result); err != nil {
 				return Result{}, err
@@ -329,6 +344,30 @@ func (s *Store) Apply(ctx context.Context, c Change) (Result, error) {
 	}
 	if a.Revision == math.MaxInt64 {
 		return Result{}, ErrInvalid
+	}
+	if c.ConsumeObservationThrough > 0 {
+		if c.ConsumeObservationThrough <= a.ProcessedSequence || c.ConsumeObservationThrough > a.ObservedSequence {
+			return Result{}, ErrStaleRevision
+		}
+		var consumedBytes int64
+		if err := tx.QueryRow(ctx, `SELECT coalesce(sum(payload_bytes),0) FROM observations WHERE tenant_id=$1 AND account_id=$2 AND sequence>$3 AND sequence<=$4`, c.Key.TenantID, c.Key.AccountID, a.ProcessedSequence, c.ConsumeObservationThrough).Scan(&consumedBytes); err != nil {
+			return Result{}, err
+		}
+		a.ProcessedSequence = c.ConsumeObservationThrough
+		a.PendingObservationBytes -= consumedBytes
+	}
+	if len(c.ObsoleteQueued) > 0 {
+		updated, err := tx.Exec(ctx, `UPDATE outbox SET state='obsolete',resolution_evidence='{"reason":"policy invalidated before handoff"}'::jsonb
+ WHERE tenant_id=$1 AND account_id=$2 AND state='queued' AND intent_id=ANY($3::text[])`, c.Key.TenantID, c.Key.AccountID, c.ObsoleteQueued)
+		if err != nil {
+			return Result{}, err
+		}
+		if updated.RowsAffected() != int64(len(c.ObsoleteQueued)) {
+			return Result{}, ErrConflict
+		}
+		if _, err := tx.Exec(ctx, `UPDATE reservations SET state='released' WHERE tenant_id=$1 AND account_id=$2 AND state='held' AND intent_id=ANY($3::text[])`, c.Key.TenantID, c.Key.AccountID, c.ObsoleteQueued); err != nil {
+			return Result{}, err
+		}
 	}
 	for _, r := range c.Resolutions {
 		if err = resolve(ctx, tx, c.Key, r); err != nil {
@@ -362,7 +401,7 @@ func (s *Store) Apply(ctx context.Context, c Change) (Result, error) {
 	if len(c.Snapshot) > 0 {
 		a.Snapshot = c.Snapshot
 	}
-	if len(c.Enqueue) > 0 && (!a.Ready || !a.Market.Valid) {
+	if len(c.Enqueue) > 0 && (!a.Ready || !a.Market.Valid || a.ObservedSequence != a.ProcessedSequence) {
 		return Result{}, ErrNotReady
 	}
 	for _, i := range c.Enqueue {
@@ -433,9 +472,12 @@ func (s *Store) Apply(ctx context.Context, c Change) (Result, error) {
 			return Result{}, normalized(err)
 		}
 	}
-	_, err = tx.Exec(ctx, `UPDATE accounts SET revision=$3,snapshot=$4,ready=$5,market_valid=$6,market_snapshot_id=$7,instrument_revision=$8 WHERE tenant_id=$1 AND account_id=$2`, c.Key.TenantID, c.Key.AccountID, result.Revision, a.Snapshot, a.Ready, a.Market.Valid, a.Market.SnapshotID, a.Market.InstrumentRevision)
+	updated, err := tx.Exec(ctx, `UPDATE accounts SET revision=$3,snapshot=$4,ready=$5,market_valid=$6,market_snapshot_id=$7,instrument_revision=$8,processed_sequence=$11,pending_observation_bytes=$12 WHERE tenant_id=$1 AND account_id=$2 AND owner_id=$9 AND ownership_epoch=$10 AND lease_until>clock_timestamp()`, c.Key.TenantID, c.Key.AccountID, result.Revision, a.Snapshot, a.Ready, a.Market.Valid, a.Market.SnapshotID, a.Market.InstrumentRevision, c.Ownership.OwnerID, c.Ownership.Epoch, a.ProcessedSequence, a.PendingObservationBytes)
 	if err != nil {
 		return Result{}, err
+	}
+	if updated.RowsAffected() != 1 {
+		return Result{}, ErrOwnership
 	}
 	if err = journal(ctx, tx, c.Key, result.Revision, c.Command.Kind, c); err != nil {
 		return Result{}, err

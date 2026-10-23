@@ -21,6 +21,7 @@ var (
 	ErrExpired           = errors.New("plan or intent has expired")
 	ErrInvalid           = errors.New("invalid durable transition")
 	ErrSchema            = errors.New("migration version or checksum mismatch")
+	ErrInboxFull         = errors.New("durable observation backlog limit reached")
 )
 
 type Key struct {
@@ -97,42 +98,62 @@ type Command struct {
 	ExpectedRevision int64  `json:"expected_revision"`
 }
 
+type CommandRecord struct {
+	Kind             string
+	ExpectedRevision int64
+	Result           Result
+	Snapshot         json.RawMessage
+}
+
 // Change is one atomic account transition. Plan revisions begin at one and must
 // increment exactly once. Balance entries replace their currencies' projections.
 // A queued intent must carry a positive, initially unreflected reservation.
 // Known-final resolutions release reservations; unknown outcomes retain them.
 // Snapshot contains the caller's versioned reducer state, never credentials.
 type Change struct {
-	Key                Key                     `json:"key"`
-	Ownership          Ownership               `json:"ownership"`
-	Command            Command                 `json:"command"`
-	Snapshot           json.RawMessage         `json:"snapshot,omitempty"`
-	Ready              *bool                   `json:"ready,omitempty"`
-	Market             *Market                 `json:"market,omitempty"`
-	Balances           []Balance               `json:"balances,omitempty"`
-	Plan               *Plan                   `json:"plan,omitempty"`
-	Enqueue            []Intent                `json:"enqueue,omitempty"`
-	Reservations       []Reservation           `json:"reservations,omitempty"`
-	ReservationUpdates []ReservationAdjustment `json:"reservation_updates,omitempty"`
-	Resolutions        []Resolution            `json:"resolutions,omitempty"`
-	Execution          *Execution              `json:"execution,omitempty"`
+	Key                       Key                     `json:"key"`
+	Ownership                 Ownership               `json:"ownership"`
+	Command                   Command                 `json:"command"`
+	Snapshot                  json.RawMessage         `json:"snapshot,omitempty"`
+	Ready                     *bool                   `json:"ready,omitempty"`
+	Market                    *Market                 `json:"market,omitempty"`
+	Balances                  []Balance               `json:"balances,omitempty"`
+	Plan                      *Plan                   `json:"plan,omitempty"`
+	Enqueue                   []Intent                `json:"enqueue,omitempty"`
+	Reservations              []Reservation           `json:"reservations,omitempty"`
+	ReservationUpdates        []ReservationAdjustment `json:"reservation_updates,omitempty"`
+	Resolutions               []Resolution            `json:"resolutions,omitempty"`
+	Execution                 *Execution              `json:"execution,omitempty"`
+	ObsoleteQueued            []string                `json:"obsolete_queued,omitempty"`
+	ConsumeObservationThrough int64                   `json:"consume_observation_through,omitempty"`
 }
 type Result struct {
 	Revision  int64 `json:"revision"`
 	Duplicate bool  `json:"duplicate"`
 }
 type Account struct {
-	Key          Key             `json:"key"`
-	Revision     int64           `json:"revision"`
-	Ownership    Ownership       `json:"ownership"`
-	LeaseUntil   time.Time       `json:"lease_until"`
-	Ready        bool            `json:"ready"`
-	Market       Market          `json:"market"`
-	Snapshot     json.RawMessage `json:"snapshot"`
-	Balances     []Balance       `json:"balances"`
-	Plans        []Plan          `json:"plans"`
-	Reservations []Reservation   `json:"reservations"`
-	Intents      []Intent        `json:"intents"`
+	Key                     Key             `json:"key"`
+	Revision                int64           `json:"revision"`
+	Ownership               Ownership       `json:"ownership"`
+	LeaseUntil              time.Time       `json:"lease_until"`
+	Ready                   bool            `json:"ready"`
+	Market                  Market          `json:"market"`
+	Snapshot                json.RawMessage `json:"snapshot"`
+	Balances                []Balance       `json:"balances"`
+	Plans                   []Plan          `json:"plans"`
+	Reservations            []Reservation   `json:"reservations"`
+	Intents                 []Intent        `json:"intents"`
+	ObservedSequence        int64           `json:"observed_sequence"`
+	ProcessedSequence       int64           `json:"processed_sequence"`
+	PendingObservationBytes int64           `json:"pending_observation_bytes"`
+}
+
+type Observation struct {
+	ID         string          `json:"id"`
+	Kind       string          `json:"kind"`
+	Payload    json.RawMessage `json:"payload"`
+	Sequence   int64           `json:"sequence"`
+	ReceivedAt time.Time       `json:"received_at"`
 }
 
 // RecoveryProof records an operational assertion. The database cannot verify that

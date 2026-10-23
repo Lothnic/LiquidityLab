@@ -73,6 +73,46 @@ func Open(ctx context.Context, dsn, schema string) (*Store, error) {
 	return &Store{pool: pool}, nil
 }
 func (s *Store) Close() { s.pool.Close() }
+
+func (s *Store) GetExecution(ctx context.Context, key Key, venue, id string) (Execution, error) {
+	if !validKey(key) || !validID(venue) || !validID(id) {
+		return Execution{}, ErrInvalid
+	}
+	value := Execution{ID: id, Venue: venue}
+	err := s.pool.QueryRow(ctx, "SELECT intent_id,detail FROM executions WHERE tenant_id=$1 AND account_id=$2 AND venue=$3 AND execution_id=$4", key.TenantID, key.AccountID, venue, id).Scan(&value.IntentID, &value.Detail)
+	return value, normalized(err)
+}
+
+func (s *Store) GetIntent(ctx context.Context, key Key, id string) (Intent, error) {
+	if !validKey(key) || !validID(id) {
+		return Intent{}, ErrInvalid
+	}
+	value := Intent{ID: id}
+	err := s.pool.QueryRow(ctx, `SELECT plan_id,plan_revision,expires_at,instrument_revision,payload,state,attempt_id,venue_order_id,authorization_revision,authorization_snapshot FROM outbox WHERE tenant_id=$1 AND account_id=$2 AND intent_id=$3`, key.TenantID, key.AccountID, id).Scan(&value.PlanID, &value.PlanRevision, &value.ExpiresAt, &value.InstrumentRevision, &value.Payload, &value.State, &value.AttemptID, &value.VenueOrderID, &value.AuthorizationRevision, &value.AuthorizationSnapshot)
+	return value, normalized(err)
+}
+
+// LookupCommand returns the immutable result and reducer snapshot of a prior
+// command. It never restores that historical snapshot over current account state.
+func (s *Store) LookupCommand(ctx context.Context, key Key, commandID string) (CommandRecord, error) {
+	if !validKey(key) || !validID(commandID) {
+		return CommandRecord{}, ErrInvalid
+	}
+	var record CommandRecord
+	var result []byte
+	err := s.pool.QueryRow(ctx, `SELECT c.kind,c.expected_revision,c.result,j.detail->'snapshot'
+ FROM commands c LEFT JOIN account_journal j ON j.tenant_id=c.tenant_id AND j.account_id=c.account_id
+ AND j.revision=(c.result->>'revision')::bigint
+ WHERE c.tenant_id=$1 AND c.account_id=$2 AND c.command_id=$3`, key.TenantID, key.AccountID, commandID).Scan(&record.Kind, &record.ExpectedRevision, &result, &record.Snapshot)
+	if err != nil {
+		return CommandRecord{}, normalized(err)
+	}
+	if err := json.Unmarshal(result, &record.Result); err != nil {
+		return CommandRecord{}, err
+	}
+	record.Result.Duplicate = true
+	return record, nil
+}
 func (s *Store) Migrate(ctx context.Context) error {
 	tx, err := s.pool.Begin(ctx)
 	if err != nil {
@@ -201,7 +241,7 @@ func (s *Store) CreateAccount(ctx context.Context, key Key, balances []Balance, 
 func lockAccount(ctx context.Context, tx pgx.Tx, key Key) (Account, error) {
 	a := Account{Key: key}
 	var lease *time.Time
-	err := tx.QueryRow(ctx, `SELECT revision,owner_id,ownership_epoch,lease_until,ready,market_valid,market_snapshot_id,instrument_revision,snapshot FROM accounts WHERE tenant_id=$1 AND account_id=$2 FOR UPDATE`, key.TenantID, key.AccountID).Scan(&a.Revision, &a.Ownership.OwnerID, &a.Ownership.Epoch, &lease, &a.Ready, &a.Market.Valid, &a.Market.SnapshotID, &a.Market.InstrumentRevision, &a.Snapshot)
+	err := tx.QueryRow(ctx, `SELECT revision,owner_id,ownership_epoch,lease_until,ready,market_valid,market_snapshot_id,instrument_revision,snapshot,observed_sequence,processed_sequence,pending_observation_bytes FROM accounts WHERE tenant_id=$1 AND account_id=$2 FOR UPDATE`, key.TenantID, key.AccountID).Scan(&a.Revision, &a.Ownership.OwnerID, &a.Ownership.Epoch, &lease, &a.Ready, &a.Market.Valid, &a.Market.SnapshotID, &a.Market.InstrumentRevision, &a.Snapshot, &a.ObservedSequence, &a.ProcessedSequence, &a.PendingObservationBytes)
 	if lease != nil {
 		a.LeaseUntil = *lease
 	}
@@ -237,7 +277,7 @@ func (s *Store) GetAccount(ctx context.Context, key Key) (Account, error) {
 	defer tx.Rollback(ctx)
 	a := Account{Key: key}
 	var lease *time.Time
-	err = tx.QueryRow(ctx, `SELECT revision,owner_id,ownership_epoch,lease_until,ready,market_valid,market_snapshot_id,instrument_revision,snapshot FROM accounts WHERE tenant_id=$1 AND account_id=$2`, key.TenantID, key.AccountID).Scan(&a.Revision, &a.Ownership.OwnerID, &a.Ownership.Epoch, &lease, &a.Ready, &a.Market.Valid, &a.Market.SnapshotID, &a.Market.InstrumentRevision, &a.Snapshot)
+	err = tx.QueryRow(ctx, `SELECT revision,owner_id,ownership_epoch,lease_until,ready,market_valid,market_snapshot_id,instrument_revision,snapshot,observed_sequence,processed_sequence,pending_observation_bytes FROM accounts WHERE tenant_id=$1 AND account_id=$2`, key.TenantID, key.AccountID).Scan(&a.Revision, &a.Ownership.OwnerID, &a.Ownership.Epoch, &lease, &a.Ready, &a.Market.Valid, &a.Market.SnapshotID, &a.Market.InstrumentRevision, &a.Snapshot, &a.ObservedSequence, &a.ProcessedSequence, &a.PendingObservationBytes)
 	if err != nil {
 		return a, normalized(err)
 	}

@@ -23,6 +23,10 @@ with `ErrSchema`.
   ownership/lease, revision, readiness, market identity, reducer snapshot, balances,
   active parent, pending intents, and held reservations. Final historical rows
   remain durable but are outside this recovery view.
+- `LookupCommand(ctx, Key, commandID)` returns the original command result and
+  its immutable reducer snapshot for retry comparison. It does not restore older
+  state. `GetIntent` and `GetExecution` read durable identities including finalized
+  historical records, without changing account state.
 - `ClaimOwnership(ctx, Key, ownerID, lease, RecoveryProof) (Ownership, error)`
   assigns a new epoch, increments account revision, clears account/market readiness,
   and obsoletes unsent intents. `ownerID` must identify a unique process incarnation,
@@ -87,6 +91,10 @@ to have been resolved first.
 
 Plan revisions, pause/cancel requests, account invalidation, and metadata changes
 transactionally obsolete queued intents and release only their unsent holds.
+`Change.ObsoleteQueued` can invalidate specifically identified queued children
+without fabricating a trader plan revision; attempted children cannot use this
+path. Ownership is checked again at the final account projection update, so a
+lease that expires during the transaction prevents that projection from applying.
 Deadline/intent expiry at authorization also obsoletes the queued plan intents.
 PostgreSQL stores absolute deadlines/expiries with microsecond precision; expiry
 comparison and persistence conservatively truncate submicrosecond fractions.
@@ -106,6 +114,32 @@ previous process/transport, reconcile its outcomes, then claim a new epoch. Rebu
 state from a compatible snapshot and reconcile private balances/orders/executions
 before marking ready. The database component cannot verify process isolation or
 provide exchange fencing; automated live failover is not implemented here.
+
+## Durable observation inbox
+
+`RecordObservation(ctx, Key, Observation)` appends a stable source fact without
+requiring execution ownership. A fill received while an owner loses its lease
+still needs durable storage. This API is for authenticated/trusted ingress; it
+grants no order-submission authority. Stable IDs deduplicate canonical JSON and
+kind; changing the fact behind an existing ID is a conflict. It returns the
+account's ordered observation sequence. `GetObservation` reads the original fact
+even after processing; `PendingObservations` reads an ordered bounded prefix.
+
+The pending inbox is limited to 4,096 facts and 16MiB of original payload bytes
+per account, with at most 1MiB per fact. Full/failed ingress must retain/recover
+source facts and invalidate readiness; it must never drop a financial fact and
+continue sending. Unprocessed facts block new intent admission and dispatch.
+The owning reducer commits its projection with `Change.ConsumeObservationThrough`;
+the cursor and pending-byte budget change in that same transaction. Only the owner
+may advance the cursor, and a snapshot is required. A repeated execution still
+needs its source cursor consumed without applying its economic effect again.
+
+The database persists complete paper transport outcomes, including all fills,
+before a runtime applies the individual executions. If it stops partway through,
+the retained source fact and unique execution IDs allow processing to resume.
+Ingress durability does not replace venue-history reconciliation for a failure
+before a fact reaches this database. Inbox history needs the separate retention,
+backup, restore, and operational work in the migration plan.
 
 ## Executed verification and remaining gates
 

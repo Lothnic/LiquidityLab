@@ -59,7 +59,7 @@ func (s *Store) AuthorizeDispatch(ctx context.Context, request Authorization) (D
 		}
 		return Dispatch{}, ErrExpired
 	}
-	if !a.Ready || !a.Market.Valid || status != "active" {
+	if !a.Ready || !a.Market.Valid || status != "active" || a.ObservedSequence != a.ProcessedSequence {
 		return Dispatch{}, ErrNotReady
 	}
 	if a.Revision != request.ExpectedRevision || revision != request.PlanRevision || i.PlanRevision != revision || i.InstrumentRevision != a.Market.InstrumentRevision || request.InstrumentRevision != a.Market.InstrumentRevision || request.SnapshotID != a.Market.SnapshotID {
