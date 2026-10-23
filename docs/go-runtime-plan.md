@@ -1,6 +1,14 @@
 # LiquidityLab: Go runtime and Python RL migration
 
-Decision plan prepared 23 October 2026; expanded with staged scaling and rollout decisions. Go implementation work has begun in the working tree. The stages below remain acceptance requirements, not claims of production readiness or measured capacity.
+Decision plan updated 23 October 2026 against commit `0dc5cc3`. The Go core, replay bridge, public-data pipeline, and PostgreSQL foundations are committed. Paper runtime and Python inference files are still uncommitted. The stages below remain acceptance requirements, not claims of production readiness or measured capacity.
+
+## Decision in brief
+
+Use Go for the product runtime, financial state, venue connections, and replay engine; retain Python for Gymnasium, training, evaluation, and initially inference. Use React/TypeScript for the trader interface. Start with a modular service, PostgreSQL, and a separately supervised policy worker, then partition execution by account as measured demand grows.
+
+Go is the engineering choice for this boundary. It is not yet demonstrated to be the fastest complete training path: checked-in benchmarks show the current Go/gRPC bridge below Python reference throughput. Runtime account capacity and operational recovery remain unmeasured. Optimize each workload against its own evidence.
+
+The next delivery is a complete durable **paper execution assistant**: create a bounded trade, preview baseline execution, start, observe partial fills, pause/cancel, restart safely, and inspect the execution journal. Ship that workflow with a Go baseline before requiring an RL policy. RL remains the same Go engine behind a Python Gymnasium interface, and a proposal source in the product.
 
 ## Implementation order at a glance
 
@@ -8,7 +16,7 @@ Decision plan prepared 23 October 2026; expanded with staged scaling and rollout
 2. Connect Python Gymnasium to batched Go replay; retain Python training and inference.
 3. Deliver a durable paper assistant with PostgreSQL, account ownership, and bounded queues.
 4. Add the trader interface, evaluated policy proposals, and private venue recovery.
-5. Pass a supervised live pilot, then measure capacity and add account shards when needed.
+5. Demonstrate recovery and bounded capacity before a supervised live pilot; increase admission and add account shards only after further measured validation.
 
 The first usable product is a trader-supervised execution assistant. It accepts a trader's intended trade and helps execute within its quantity, price, and time limits. RL is one replaceable proposal source; the product can operate with its Go baseline while policy evaluation continues.
 
@@ -26,9 +34,17 @@ The product remains an execution assistant: a trader chooses the trade and its s
 
 ## 2. Current implementation and what moves
 
-The starting point is the Python v0.1.0 implementation and its 40 passing checks, including a CPU PPO save/load roundtrip. Those results establish a working foundation, not execution quality or capacity at scale.
+The original starting point was Python v0.1.0 with 40 checks. The repository has since advanced; use the following checkpoint when scheduling remaining work:
 
-Move authoritative behavior into Go:
+- **Committed:** versioned/generated Go and Python protocol bindings; exact Go amounts; shared fees, reservations and observations; ledger/compiler; deterministic replay and common conformance fixtures; public recorder/normalizer; bounded replay RPC; Python Gym/vector/PPO bridge; PostgreSQL account transitions, ownership, inbox, journal and outbox.
+- **Draft implementation:** paper account actor and durable paper transport in `internal/runtime/`; Python policy worker in `src/liquiditylab/inference/`. These files require integration review and their own commits before they become release evidence.
+- **Remaining:** product feed/scheduler wiring, complete passive paper fills, Go policy client and fallback, authenticated API, trader interface, evaluated policy promotion, private venue integration, deployment and operational evidence.
+- **Measured constraint:** the optimized replay bridge delivers about 23k transitions/second at batch 32 versus about 37–46k for Python in the checked-in synthetic comparison. Keep Python as the default training backend until the bridge gate passes. See [benchmark evidence](../benchmarks/README.md).
+- **External gates:** real public capture has failed on this host; private-account access, an authorized live pilot, and design-user evidence are still outstanding.
+
+The existing code and checks establish implementation progress, not execution quality or account capacity at scale.
+
+The responsibility mapping for the rewrite is:
 
 - `contracts.py`: instrument rules, precise amounts, plan constraints, action meanings, and validation.
 - `accounting.py`: balance changes, fees, fill idempotency, remaining quantity, and cost accounting.
@@ -45,7 +61,7 @@ Keep in Python:
 - Model loading/inference, evaluation tooling, analysis, and experiment configuration.
 - The present Python replay implementation as a temporary conformance reference.
 
-Keep the current Python CLI working through the migration. Introduce a Go product CLI/server separately. Remove reference execution code from the default training path only after Go conformance and bridge performance pass. Existing training artifacts are unvalidated and must not be silently promoted to a different engine.
+Keep the current Python CLI working through the migration. Complete the Go product CLI/server separately. Remove reference execution code from the default training path only after Go conformance and bridge performance pass. Existing training artifacts are unvalidated and must not be silently promoted to a different engine.
 
 ## 3. Target architecture
 
@@ -144,6 +160,8 @@ Batch across parallel environments. Do not make one cross-language RPC for every
 
 A replay RPC must carry a request sequence and stable operation identity. A timed-out step may already have advanced the environment, so the server caches the last result or exposes status by request identity; a client cannot blindly retry and advance the same episode twice. Limit environment count, payload size, outstanding work, and report size.
 
+The current methods are unary RPCs. Enforce application-level admission, count/byte limits, and deadline checks explicitly; streaming transport flow control does not provide unary work admission. [gRPC flow control](https://grpc.io/docs/guides/flow-control/)
+
 The Python training guard rejects invalid/unresolved outcomes before they enter PPO rollouts. Policy-independent invalid intervals are excluded identically before evaluation. Policy-dependent failures stay in failure statistics and block promotion.
 
 Keep an explicit `backend="python-reference"` during transition. Make `backend="go"` the new v1 environment only after parity, isolation, cancellation, and throughput gates pass. Avoid cgo/CPython bindings initially; consider a native binding only if profiling shows batched local RPC remains a meaningful bottleneck.
@@ -237,8 +255,9 @@ liquiditylab/
   cmd/liquiditylab/              # Product and offline Go CLI
   internal/domain/              # Exact amounts, contracts, immutable values
   internal/execution/           # Reducer, compiler, reservations, baselines
-  internal/features/            # Versioned observation construction
-  internal/replay/              # Simulation clock, fills, settlement, batch RPC
+  internal/execution/features.go # Shared versioned observation construction
+  internal/replay/              # Simulation clock, fills, settlement
+  internal/replayrpc/           # Bounded replay service and wire mapping
   internal/marketdata/           # Books, recording, fanout and validity
   internal/venue/kraken/         # Protocol parsing and authenticated transport
   internal/runtime/             # Account actors, ownership and recovery
@@ -248,8 +267,9 @@ liquiditylab/
   proto/liquiditylab/v1/         # Language-independent contracts
   gen/go/                       # Generated Go protocol types
   src/liquiditylab/              # Existing Python package, retained
-    proto/                      # Generated Python protocol types
+    v1/                         # Generated Python protocol types
     go_backend.py               # Gym/vector environment adapter
+    go_vector.py                # Batched SB3 adapter
     inference/                  # Python model worker
   apps/web/                     # Trader interface
   migrations/                   # Ordered PostgreSQL migrations
@@ -258,11 +278,15 @@ liquiditylab/
   deploy/                       # Local compose and process configuration
 ```
 
-Pin the Go release, Protobuf compiler/plugins, database driver, and RPC packages in the first milestone. Generated code must be reproducible and checked for schema drift. Credentials and market recordings stay outside version control. This is the intended module layout; the Go module, core, and public-data parsing have begun in the working tree, while several runtime/API/bridge directories remain planned.
+Keep the Go release, Protobuf compiler/plugins, database driver, and RPC packages pinned. Generated code must be reproducible and checked for schema drift. Credentials and market recordings stay outside version control. This layout combines existing modules with planned API, Go policy-client, UI and deployment directories; it does not claim those planned directories are implemented.
 
 ## 12. Migration phases and gates
 
+The estimates below describe the original full effort, not a new estimate of work remaining. Phases 1–4 and the persistence part of phase 5 already have substantial implementation. Complete the remaining exit criteria without rewriting those components again. Development load measurements begin alongside paper execution; the final production-capacity claim follows the complete adapter and workload validation.
+
 ### Phase 1 — specification and fixtures: 2–3 focused days
+
+Current checkpoint: schemas, generated bindings, exact wire mapping and common fixtures are committed; finish the full contract/compatibility audit against the exit criteria.
 
 Freeze v1 amount/time/action contracts, extract common golden cases from the existing tests, and add malformed/overflow/rounding/cancellation fixtures. Record all intentional differences from the Python implementation.
 
@@ -270,11 +294,15 @@ Exit: generated Go/Python messages, an executable schema-conformance harness, an
 
 ### Phase 2 — Go domain core and replay: 4–6 days
 
+Current checkpoint: the core, baselines, replay and four common economic/observation cases are committed; broader event-sequence/fuzz coverage and the full acceptance audit remain gates.
+
 Implement exact amounts, ledger, compiler, order lifecycle, deterministic clock, book/depletion model, features, and settlement. Add scheduled and liquidity-aware baselines.
 
 Exit: Go replays the approved tapes and matches the reference economics/state outcomes; new v1 time behavior is documented. Test generated event sequences, duplicate executions, and cancellation races. Go race tests cover runtime-facing mutable state.
 
 ### Phase 3 — Go public-data pipeline: 2–4 days
+
+Current checkpoint: parser, recorder and normalizer are committed; obtaining and validating a real public recording remains outstanding.
 
 Port raw decoding, CRC validation, capture manifests, normalization, and book validity. Run both normalizers against the same raw recordings. Do not replace a failed real capture with invented live data.
 
@@ -282,17 +310,23 @@ Exit: checksum/source precision cases match; corruption is detected; live captur
 
 ### Phase 4 — Go-backed Gym bridge: 4–6 days
 
+Current checkpoint: the bounded service, Gym/vector adapter and PPO roundtrip are implemented; the measured throughput/default-cutover gate has not passed.
+
 Implement batch RPC and isolated environment handles, then wrap them in Python Gym/vector interfaces. Verify retry/step identities and training failure propagation.
 
 Exit: PPO can train, save, load, and infer against the Go-backed v1 environment. A worker crash cannot silently continue a different episode or reuse an action. Measure batched transport overhead against the Python reference before defaulting to Go.
 
 ### Phase 5 — durable paper execution: 4–6 days
 
+Current checkpoint: persistence is committed and the actor/transport are drafts; complete passive matching, scheduling, feed wiring and process-level recovery evidence.
+
 Implement PostgreSQL migrations, account actor, reservation/outbox transactions, command deduplication, recovery, and current-market paper fills. Keep live transport unavailable in this profile.
 
 Exit: restarting at each intent/ack/cancel boundary preserves the account and parent obligation; unknown outcomes remain reserved. Competing owners cannot make new application state authoritative. Test pause/cancel, deadline expiry, stale revisions, and invalid data against queued-but-unsent outbox orders: obsolete intents must not be newly handed to transport. Test a concurrent fill where transport already began as an in-flight reconciliation case.
 
 ### Phase 6 — Python inference service: 3–4 days
+
+Current checkpoint: the Python worker is a draft; its integration review, the Go client and end-to-end fallback/eligibility gates remain outstanding.
 
 Add bundle/schema verification, bounded worker scheduling, inference deadlines, response binding, and Go fallback/pause behavior.
 
@@ -316,11 +350,11 @@ Measure ingress, actor delay, DB commit latency, inference, queue bounds, memory
 
 Exit: publish the hardware/workload manifest, measured bottlenecks, and the capacity actually supported. Reduce claimed limits when targets fail rather than weakening correctness.
 
-These phases total roughly 31–50 engineering days for an experienced builder before wider product feedback and integration buffer. Budget approximately **8–12 weeks for the migration and narrow supervised beta**, contingent on venue access and the measured bridge/runtime work. A hosted multi-user service or broad multi-venue product requires another scope and estimate.
+The original full-scope estimate was roughly 31–50 engineering days for an experienced builder, or **8–12 weeks for the migration and narrow supervised beta** with integration buffer. It is not a new remaining-work estimate: substantial components now exist, while runtime integration, usability and external venue gates still carry uncertainty. Re-estimate the remaining delivery after the paper actor and policy-client reviews. A hosted multi-user service or broad multi-venue product requires another scope and estimate.
 
 ## 13. Scale targets and benchmark method
 
-No scale benchmark has been run yet. The following are initial engineering test targets, not supported production claims.
+Replay benchmarks and allocation profiles have been recorded; no product account-capacity benchmark or full operational soak has passed. The following are initial engineering test targets, not supported production claims. Replay transitions/second, normalized feed events/second, actor commands/second, venue submissions/second, and active accounts are separate quantities.
 
 Use a pinned reference host with 8 vCPUs and 16 GiB RAM for Go, PostgreSQL, and CPU inference, with the exact CPU, storage, OS, process limits, and model recorded. Use a mock venue for load and fault injection; do not generate load through real trading endpoints.
 
@@ -342,6 +376,8 @@ Proposed service objectives under that workload:
 - Replay at least matches Python reference throughput on identical hardware and semantics. Batched bridge overhead should consume at most 10% of training wall time for the defined reference vector workload.
 
 Measure baseline Python throughput before claiming a Go speedup. Report p50/p95/p99, throughput, allocation rate, GC CPU, max queue age, DB latency, and error counts together. Use profiles to identify bottlenecks. Go's GC has CPU/memory tradeoffs; tune it from observed workload behavior, not an assumption that Go eliminates pauses. [GC guide](https://go.dev/doc/gc-guide) · [Profiling guide](https://go.dev/blog/pprof)
+
+Use a provisional 100 ms inference allocation inside the 150 ms decision target, leaving 50 ms for feature preparation, validation and persistence. The 200 ms validity budget is a hard stale-response cutoff, not a second latency target or permission to queue work for 200 ms. Measure the end-to-end percentile directly; summing individual component p99 values does not establish an end-to-end p99.
 
 Then test 250 and 1,000 accounts to discover the first limiting component. An unmet target is a measured limit, not a reason to send stale actions or relax account ownership. Tune or add a shard only after identifying whether the constraint is the DB, account actor, model workers, memory, or venue budget.
 
@@ -366,6 +402,10 @@ Publish a capacity manifest for each release: maximum active accounts, instrumen
 Admission checks must reserve headroom for recovery bursts and cancellations. Put a deadline and cancellation path on external work and database calls; do not hold an account database transaction open during Python inference or venue network I/O. Read an observation snapshot, perform inference outside the transaction, then revalidate revisions within the durable transition. Bound concurrent DB access across actors instead of allocating one permanent connection per account.
 
 Apply per-account command, mailbox, subscription, and inference quotas as well as process totals. One active parent per account remains the initial limit. Schedule bounded work fairly across runnable actors, with dedicated capacity for control and recovery. A hot account cannot monopolize the worker pool. Private-event overflow invalidates that account's readiness and starts reconciliation; admission pressure rejects new starts before existing accounts lose their operating headroom.
+
+Avoid multiplying feed volume by account count. Apply each public delta once per instrument book. Account decisions consume versioned snapshots at their configured cadence. Deliver ordered trade/order-relevant events only to affected paper actors; those events cannot be replaced by occasional snapshots when simulating passive fills. At 100 accounts and one decision/second, the initial model workload is roughly 100 decisions/second, independently of the 50,000-event/second ingest target. A single Python worker must demonstrate that demand or admission must be lower.
+
+Measure service demand per account and instrument before choosing shard sizes: CPU milliseconds per second, resident bytes, DB transactions/second, journal bytes/day, and inference time/decision. Record fixed ingest cost separately. Budget aggregate database connections across every process; the existing store's bounded pool is per store instance and does not establish a deployment-wide cap. Add a shared concurrency budget or proxy when multiplying instances. Preserve measured headroom for a recovery burst and the loss/draining of a worker before admitting more sessions.
 
 Separate order-create, cancel, account-recovery, and REST-history budgets according to venue rules. Preserve capacity for cancellation and reconciliation during submission pressure. Backoff with jitter on throttling and apply account/global limits at their documented scope. More Go workers or API keys do not imply more venue trading capacity. Kraken documents separate REST counters and trading-engine limits across protocols. [Kraken rate limits](https://docs.kraken.com/exchange/guides/rest/ratelimits)
 
@@ -425,9 +465,23 @@ Use GPT-6.1-sol for integration decisions, ownership/recovery review, arithmetic
 
 ## 16. Implementation checkpoint and next milestone
 
-The committed Python reference remains available. In-progress Go files include the module, exact amounts, accounting/compiler, replay, common fixtures, public-data parsing, and a shared schema draft. They do not yet establish the complete runtime, generated bindings, Gym bridge, durable paper assistant, live connection/recovery, or performance gates. Use [implementation-progress.md](implementation-progress.md) as the requirement ledger; retain exact verification evidence per commit.
+Use [implementation-progress.md](implementation-progress.md) as the requirement ledger and [benchmark evidence](../benchmarks/README.md) for the measured training constraint. Preserve the committed core, bridge and store; integrate the current drafts incrementally. The existing Python trainer stays runnable throughout.
 
-Finish contracts/conformance and review the Go core as the next bounded milestone. Then implement the batched replay bridge and prove a v1 PPO roundtrip. Follow with a complete paper workflow before private trading integration. The existing Python trainer stays runnable throughout.
+### Remaining delivery sequence
+
+1. **Finish and commit the durable paper actor.** Review the draft actor, observation inbox reduction, balances/reservations, dispatch revalidation, and recovery. Close command/internal-event identity collisions, invalid-market readiness persistence, wall-clock discontinuity behavior, and bounded control/fact scheduling. Add shared passive-trade matching and automatic baseline decisions; connect the Go capture/feed path to a paper-session CLI. Exit with an end-to-end public-data paper session and process-level crash/restart evidence at dispatch, fill and cancel boundaries. Synthetic/local feed tests permit development while the real-capture gate stays open.
+2. **Integrate the policy boundary.** Review and commit the draft Python worker separately; implement the Go client separately. Pin bundle/schema hashes and request/account/plan revisions; use the shared observation builder. Exercise expiry, queue saturation, failed inference, state changes during inference, and deterministic baseline/pause fallback. Unvalidated bundles remain explicit paper/shadow inputs. A worker loading a model does not make it live eligible.
+3. **Deliver the trader workflow.** Commit authenticated Go HTTP commands and account-scoped read/update streams, then the React plan form, supervision screen and journal. Separate accepted commands from completed exchange/paper effects. Surface stale data, unresolved orders, partial completion, fees, cancellation progress and model/baseline choice. Exit with design users completing the paper workflow and an authorization/isolation review.
+4. **Build reproducible evaluation and deployment.** Freeze chronological train/validation/holdout datasets, fill assumptions, fee/slippage cases and comparison baselines. Record failures and confidence/variability across sessions and seeds. Promotion must reference immutable evidence, not an editable `live_eligible` manifest flag. Commit build/codegen CI, paper/live configuration separation, process supervision and restore/runbooks. Initial public-data, queue, DB and actor capacity measurements run here as well as during step 1.
+5. **Integrate the private venue and run the operational gates.** Implement the adapter against a mock venue first, including rate budgets, unknown outcomes, stream/snapshot handoff and cancellation races. Before a live pilot, demonstrate load/fault handling and an isolated database restore with reconciliation at the proposed pilot capacity. Then require account access and explicit bounded pilot authorization for the supervised live stage. Publish the final workload manifest, 24-hour soak, backup/restore evidence and reconciliation results before increasing supported admission. Successful paper execution alone does not pass this stage.
+
+Steps 1–3 are the critical path to the first useful paper product. Evaluation, benchmark tooling and packaging can proceed against frozen interfaces in parallel. Split every actor, transport, policy, API, UI, evaluation and operations increment into its own reviewable commit. Do not bundle the existing uncommitted runtime and inference drafts with this planning update.
+
+### Training performance workstream
+
+Keep this separate from the paper-product critical path. Profile batching, serialization, allocation, per-environment sequential work and model/rollout overhead using representative tapes and actions, not only HOLD. Compare the same environment count, semantics, episode lengths and hardware. Include cold start/upload, steady stepping, resets, terminal reports, memory and full PPO wall time.
+
+Improve the bounded RPC implementation first. Consider packed observation buffers, parallel advancement of independent environments, and a native extension only when profiles identify their benefit; preserve exact financial arithmetic and ordered state within an environment. Keep the service boundary if it meets the complete workload objective. Any new transport must retain retry identity, environment isolation, bounds and crash behavior. Default cutover requires exact economic conformance, approved feature tolerance, no regression in invalid-trajectory handling, and the throughput/training-overhead gates in section 13.
 
 ### Cutover, rollback, and removal of the reference path
 

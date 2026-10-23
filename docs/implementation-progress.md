@@ -7,11 +7,27 @@ Scope: `docs/go-runtime-plan.md` plus the trader workflow, policy evaluation/pro
 - Python reference environment, accounting, recorder, baseline CLI, PPO integration, and 40 checks were implemented before this migration.
 - Migration plan is committed as `9851b87`.
 - Go 1.26.8 and Protobuf compiler are available on the implementation host.
-- Docker client exists; its configured daemon socket is unavailable. PostgreSQL runtime verification remains to be provisioned.
-- A previous public Kraken WebSocket handshake timed out. Live capture must be demonstrated before that integration gate can be passed.
+- Docker's configured daemon is unavailable; a local PostgreSQL 18.6 development instance was provisioned instead. Earlier integration work reports passing real-PostgreSQL race checks for account transitions, ownership, reservations, dispatch and the observation inbox. This is development evidence, not a production restore or failover drill.
+- Public Kraken WebSocket attempts obtained no valid recording. Live capture must be demonstrated before that integration gate can be passed.
 - No private exchange credentials, live pilot authorization, or real-money verification has been obtained.
 
+Checkpoint for this planning update: commit `0dc5cc3`, plus uncommitted runtime and inference drafts. No implementation checks were rerun for this documentation change. The original 40-check record is historical; it is not the size of the expanded suite.
+
+## Committed migration components
+
+- Exact amounts, domain contracts, accounting/compiler, deterministic Go replay and common Python economic fixtures.
+- Shared Go fee, reservation and observation construction; feature vectors compared within two float32 ULPs on approved fixtures.
+- Generated Go/Python protobuf contracts with reproducible generation; bounded replay RPC with isolated environment handles and retry identity.
+- Python Go-backed Gymnasium/vector/PPO integration, terminal reports, invalid-trajectory handling and configurable operation budgets.
+- Public Kraken parser, recorder, reconnect/resnapshot logic, normalization and recording bounds. Real capture remains unverified.
+- PostgreSQL migrations and bounded connection pool; transactional account/journal/command/reservation/outbox state; ownership and dispatch fencing; durable ordered observation inbox.
+- Reproducible native/bridge benchmark tooling and recorded profiles. The measured Go bridge remains slower than Python for the checked-in synthetic workload, so Python stays the default training backend.
+
+Representative commits: `d953990` (replay), `7f214d6` (bindings), `6ddb984` (RPC), `d5c1306` (Gym), `c9f221f` (PPO), `3797cda` (benchmarks), `530cb21` (store), `f64a120` (inbox), `ca07992` (shared execution rules), and `0dc5cc3` (operation budgets). See the Git history for their component boundaries; code presence does not pass every phase's exit gate.
+
 ## Requirements ledger
+
+Checkboxes represent full exit criteria, including required integration evidence and the final audit. An unchecked phase can contain substantial committed implementation; it is not an instruction to rebuild those components. Per-phase checkpoints appear in section 12 of the Go runtime plan.
 
 - [ ] Phase 1: versioned shared schemas, generated bindings, contract validation, common conformance vectors, preserved Python checks.
 - [ ] Phase 2: Go exact amounts, domain/ledger/compiler, event ordering, book/depletion, features, settlement, baselines, cross-language economic parity.
@@ -28,8 +44,16 @@ Scope: `docs/go-runtime-plan.md` plus the trader workflow, policy evaluation/pro
 
 ## Current work
 
-The sol integration lead finished a bounded Go core/conformance implementation and preserved it in the working tree. Its report records passing `go test -race ./internal/domain ./internal/execution ./internal/replay ./internal/marketdata ./internal/venue/kraken`, including four Python golden cases. This is worker-reported evidence for that slice; it does not pass entire migration phases. Core arithmetic still needs service-boundary error containment, and the public recorder has no live WebSocket connection loop.
+The latest user request is to plan the Go rewrite for scale. The updated plan retains committed components and defines the remaining delivery sequence; it does not restart the rewrite.
 
-The shared schema is a draft; generated bindings and the Go/Python bridge remain unfinished. Runtime persistence, inference, API/UI, live integration, and capacity evidence remain required. Root coordinates separate component commits.
+Uncommitted drafts are preserved in `internal/runtime/`, `src/liquiditylab/inference/`, and `tests/test_inference.py`. The paper actor draft has durable submission/fill facts, account serialization, reservations and recovery paths; automatic passive fills, feed/scheduler wiring, control fairness and process-level restart evidence still need completion. The Python worker draft has bundle/schema/request validation and bounded local inference. Its worker reports 21 focused checks passing, but it still needs integration review, the Go client, eligibility/fallback handling and a separate commit.
 
-Latest request: expand the Go rewrite plan for scale. The plan now specifies measured extraction triggers, explicit account assignments, resource/fairness limits, capacity cohorts, retention/recovery objectives, and schema-aware cutover/rollback. A cheaper model reviewed these additions for material gaps. No new implementation test was run for this documentation update.
+Next milestones, each split into component commits:
+
+1. Finish the actor, shared passive matcher, baseline scheduler and end-to-end paper CLI; demonstrate recovery at process boundaries.
+2. Integrate Python inference with the Go client and stale-response/fallback behavior.
+3. Deliver authenticated trader commands, React supervision and the execution journal; obtain usability evidence.
+4. Complete immutable evaluation/promotion, reproducible packaging/CI, workload tooling and operational runbooks.
+5. Integrate the private adapter, demonstrate load/fault handling and restore/reconciliation at pilot capacity, then obtain authorization for the bounded live pilot. Complete the final capacity/24-hour soak gates before increasing supported admission.
+
+Account shards, separate ingest/inference deployments and storage partitioning are triggered by measured bottlenecks. Public events are applied once per instrument; account decisions consume shared versioned books. Capacity is admitted from demonstrated latency, recovery and resource headroom. The measured replay-bridge gap has its own optimization workstream and does not block baseline paper-product delivery.
