@@ -17,6 +17,7 @@ def make_go_vec_env(
     endpoint=None,
     binary=None,
     rpc_timeout=5.0,
+    max_operations=100000,
 ):
     """Create an SB3 VecEnv without importing SB3 or the Go backend at module load."""
     try:
@@ -48,6 +49,7 @@ def make_go_vec_env(
                 endpoint=endpoint,
                 binary=binary,
                 rpc_timeout=rpc_timeout,
+                max_operations=max_operations,
             )
             self._actions = None
             self._closed = False

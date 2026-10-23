@@ -66,7 +66,8 @@ because the worker cannot establish binary provenance. A saved policy starts
 `unvalidated`, `live_eligible: false`; holdout evaluation/promotion is still required.
 
 The owned worker permits 100,000 sequenced mutations per batch and is bounded to a
-maximum of one million through the process API's `max_operations` option. The CLI
+maximum of one million through `max_operations` on the batch/environment APIs or
+`--max-batch-operations` on the training CLI. The server CLI
 server default is 10,000; `--max-operations-per-batch` exposes the retained-identity
 memory tradeoff. Exceeding a limit fails the job explicitly. Long training jobs
 need a deliberately selected budget; automatic batch rollover is not implemented.

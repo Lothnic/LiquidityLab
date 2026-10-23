@@ -95,3 +95,10 @@ def test_malformed_monetary_response_invalidates_batch(replay_binary):
             batch.step([0])
         with pytest.raises(ReplayServiceError, match="unresolved"):
             batch.step([0])
+
+
+def test_selected_operation_budget_fails_explicitly(replay_binary):
+    with GoReplayBatch(synthetic_events(), binary=replay_binary, max_operations=1) as batch:
+        batch.reset()
+        with pytest.raises(ReplayServiceError, match="RESOURCE_EXHAUSTED"):
+            batch.step([0])

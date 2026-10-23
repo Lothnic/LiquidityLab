@@ -95,7 +95,7 @@ class GoReplayBatch:
     """One tape upload, isolated handles, and serialized sequenced batch calls."""
 
     def __init__(self, events, plan=None, rules=None, fees=None, config=None, *, count=1,
-                 endpoint=None, binary=None, rpc_timeout=5.0):
+                 endpoint=None, binary=None, rpc_timeout=5.0, max_operations=100000):
         if isinstance(count, bool) or not isinstance(count, int) or not 1 <= count <= 32:
             raise ValueError("batch count must be in [1,32]")
         if not math.isfinite(rpc_timeout) or not 0 < rpc_timeout <= 60:
@@ -118,7 +118,7 @@ class GoReplayBatch:
                 binary = binary or os.environ.get("LIQUIDITYLAB_REPLAY_BINARY")
                 if not binary:
                     raise ValueError("provide binary or endpoint; see docs/go-replay.md")
-                self._owner = GoReplayProcess(binary)
+                self._owner = GoReplayProcess(binary, max_operations=max_operations)
                 endpoint = self._owner.endpoint
             self._channel = grpc.insecure_channel(_local_endpoint(endpoint), options=(
                 ("grpc.max_send_message_length", 8 * 1024 * 1024),
@@ -293,7 +293,8 @@ class GoLiquidityEnv(gym.Env):
     metadata = {"render_modes": ["ansi"], "render_fps": 1}
 
     def __init__(self, events=None, plan=None, rules=None, fees=None, config=None,
-                 render_mode=None, *, endpoint=None, binary=None, rpc_timeout=5.0):
+                 render_mode=None, *, endpoint=None, binary=None, rpc_timeout=5.0,
+                 max_operations=100000):
         super().__init__()
         if render_mode not in (None, "ansi"):
             raise ValueError("only ansi rendering is supported")
@@ -302,7 +303,7 @@ class GoLiquidityEnv(gym.Env):
         self.observation_space = gym.spaces.Box(-1e6, 1e6, shape=(OBSERVATION_SIZE,), dtype=np.float32)
         self._batch = GoReplayBatch(events if events is not None else synthetic_events(),
                                     plan, rules, fees, config, endpoint=endpoint, binary=binary,
-                                    rpc_timeout=rpc_timeout)
+                                    rpc_timeout=rpc_timeout, max_operations=max_operations)
         self._info = {}
 
     def reset(self, *, seed=None, options=None):

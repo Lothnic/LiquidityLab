@@ -72,6 +72,7 @@ def train_policy(
     replay_binary: Path | None = None,
     replay_endpoint: str | None = None,
     num_envs: int = 1,
+    max_batch_operations: int = 100000,
 ) -> dict:
     """Train on an explicit tape and save an unvalidated, replay-only bundle.
 
@@ -84,6 +85,9 @@ def train_policy(
         raise ValueError("seed must be a nonnegative integer")
     if backend not in ("python-reference", "go"):
         raise ValueError("backend must be 'python-reference' or 'go'")
+    if (isinstance(max_batch_operations, bool) or not isinstance(max_batch_operations, int)
+            or not 1 <= max_batch_operations <= 1000000):
+        raise ValueError("max_batch_operations must be in [1,1000000]")
     if isinstance(num_envs, bool) or not isinstance(num_envs, int) or not 1 <= num_envs <= 32:
         raise ValueError("num_envs must be an integer in [1,32]")
     if backend == "python-reference" and num_envs != 1:
@@ -136,6 +140,7 @@ def train_policy(
             config,
             num_envs=num_envs,
             binary=binary_path,
+            max_operations=max_batch_operations,
         )
     else:
         env = TrainingGuard(LiquidityEnv(events, plan=plan, rules=rules, fees=fees, config=config))
@@ -201,6 +206,7 @@ def train_policy(
                 "binary_path": str(binary_path),
                 "binary_sha256": binary_digest,
                 "num_envs": num_envs,
+                "max_batch_operations": max_batch_operations,
             }
         (output_dir / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
         return manifest
@@ -221,6 +227,8 @@ def main(argv=None):
     parser.add_argument("--replay-binary", type=Path, help="owned Go replay executable")
     parser.add_argument("--replay-endpoint", help="local Go replay endpoint (cannot publish without binary provenance)")
     parser.add_argument("--num-envs", type=int, default=1, help="parallel replay environments (Go backend)")
+    parser.add_argument("--max-batch-operations", type=int, default=100000,
+                        help="Go mutation identity budget (1..1000000; increases memory use)")
     args = parser.parse_args(argv)
     try:
         manifest = train_policy(
@@ -235,6 +243,7 @@ def main(argv=None):
             replay_binary=args.replay_binary,
             replay_endpoint=args.replay_endpoint,
             num_envs=args.num_envs,
+            max_batch_operations=args.max_batch_operations,
         )
     except (ValueError, OSError, RuntimeError) as exc:
         parser.exit(2, f"liquiditylab training: {exc}\n")
