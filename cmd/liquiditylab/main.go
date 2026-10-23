@@ -1,5 +1,5 @@
-// Command liquiditylab provides bounded offline tools for public Kraken data.
-// It intentionally has no credentials or private venue operations.
+// Command liquiditylab provides bounded public-data and simulated paper tools.
+// It has no private venue operations.
 package main
 
 import (
@@ -27,20 +27,23 @@ func main() {
 
 func run(args []string, stdout, stderr io.Writer) error {
 	if len(args) == 0 {
-		return errors.New("usage: liquiditylab <capture|normalize> [flags]")
+		return errors.New("usage: liquiditylab <capture|normalize|paper> [flags]")
 	}
 	switch args[0] {
 	case "capture":
 		return capture(args[1:], stdout, stderr)
 	case "normalize":
 		return normalize(args[1:], stdout, stderr)
+	case "paper":
+		return paper(args[1:], stdout, stderr)
 	case "help", "-h", "--help":
-		fmt.Fprintln(stdout, "usage: liquiditylab <capture|normalize> [flags]")
+		fmt.Fprintln(stdout, "usage: liquiditylab <capture|normalize|paper> [flags]")
 		fmt.Fprintln(stdout, "  capture   record Kraken public book and trade streams")
 		fmt.Fprintln(stdout, "  normalize validate a raw recording and emit causal JSONL events")
+		fmt.Fprintln(stdout, "  paper     run a bounded recorded-data session with synthetic balances")
 		return nil
 	default:
-		return fmt.Errorf("unknown command %q (use capture or normalize)", args[0])
+		return fmt.Errorf("unknown command %q (use capture, normalize, or paper)", args[0])
 	}
 }
 
