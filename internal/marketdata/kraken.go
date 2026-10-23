@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"math/big"
 	"os"
 
 	"github.com/liquiditylab/liquiditylab/internal/domain"
@@ -56,6 +55,10 @@ func (r *Recorder) WriteGap(reason, elapsed string) error {
 	return r.write(Receipt{Kind: "gap", Reason: reason, Elapsed: elapsed})
 }
 func (r *Recorder) write(v Receipt) error {
+	_, err := r.writeReceipt(v)
+	return err
+}
+func (r *Recorder) writeReceipt(v Receipt) (Receipt, error) {
 	v.Schema = KrakenSchema
 	v.SessionID = r.session
 	v.Depth = r.depth
@@ -63,15 +66,16 @@ func (r *Recorder) write(v Receipt) error {
 	r.index++
 	b, e := json.Marshal(v)
 	if e != nil {
-		return e
+		return v, e
 	}
 	if _, e = r.w.Write(append(b, '\n')); e != nil {
-		return e
+		return v, e
 	}
-	return r.w.Flush()
+	return v, r.w.Flush()
 }
 
 type Event struct {
+	ReceiptSessionID   string     `json:"receipt_session_id,omitempty"`
 	Kind               string     `json:"kind"`
 	Time               int64      `json:"time_ns"`
 	Type               string     `json:"type"`
@@ -243,7 +247,8 @@ func scalarID(raw json.RawMessage) (string, error) {
 	return string(raw), nil
 }
 
-// Normalize validates causal receipt time and the complete checksum chain. Times are integer nanoseconds.
+// Normalize validates causal receipt time and the complete checksum chain using
+// the same incremental state as capture callbacks. Times are integer nanoseconds.
 func Normalize(path string) ([]Event, error) {
 	f, e := os.Open(path)
 	if e != nil {
@@ -252,35 +257,8 @@ func Normalize(path string) ([]Event, error) {
 	defer f.Close()
 	scan := bufio.NewScanner(f)
 	scan.Buffer(make([]byte, 64*1024), 8*1024*1024)
+	normalizer := NewNormalizer()
 	var out []Event
-	var b *kraken.Book
-	var origin int64
-	haveOrigin := false
-	last := int64(-1)
-	symbol := ""
-	var sessionID string
-	var depth int
-	var haveSession, haveDepth bool
-	var expectedReceipt uint64
-	emit := func(kind string, t int64, row Receipt, extra Event) {
-		if !haveOrigin {
-			return
-		}
-		extra.Kind = kind
-		extra.Type = kind
-		extra.Time = t - origin
-		extra.ReceiptIndex = uint64(len(out))
-		extra.SourceReceiptIndex = row.ReceiptIndex
-		extra.Symbol = symbol
-		extra.Valid = kind != "gap"
-		out = append(out, extra)
-	}
-	identityGap := func(t int64, row Receipt, reason string) {
-		if b != nil {
-			b.Valid = false
-		}
-		emit("gap", t, row, Event{Reason: reason})
-	}
 	line := 0
 	for scan.Scan() {
 		line++
@@ -292,139 +270,21 @@ func Normalize(path string) ([]Event, error) {
 		if e = json.Unmarshal(rawline, &row); e != nil {
 			return nil, fmt.Errorf("line %d: %w", line, e)
 		}
-		t, e := ns(row.Elapsed)
-		if e != nil {
-			return nil, fmt.Errorf("line %d: %w", line, e)
+		events, err := normalizer.Accept(row)
+		if err != nil {
+			return nil, fmt.Errorf("line %d: %w", line, err)
 		}
-		if t < last {
-			return nil, fmt.Errorf("Noncausal receipt time at line %d", line)
-		}
-		last = t
-		identityReason := ""
-		if row.Schema != KrakenSchema {
-			identityReason = "invalid receipt schema"
-		}
-		if identityReason == "" && row.ReceiptIndex != expectedReceipt {
-			identityReason = "noncontiguous receipt index"
-		}
-		if row.SessionID == "" {
-			if identityReason == "" {
-				identityReason = "missing receipt session id"
-			}
-		} else if !haveSession {
-			sessionID, haveSession = row.SessionID, true
-		} else if row.SessionID != sessionID && identityReason == "" {
-			identityReason = "receipt session changed"
-		}
-		if _, err := kraken.NewBook(row.Depth); err != nil {
-			if identityReason == "" {
-				identityReason = "invalid receipt depth"
-			}
-		} else if !haveDepth {
-			depth, haveDepth = row.Depth, true
-		} else if row.Depth != depth && identityReason == "" {
-			identityReason = "receipt depth changed"
-		}
-		expectedReceipt++
-		if identityReason != "" {
-			identityGap(t, row, identityReason)
-			continue
-		}
-		if row.Kind == "gap" {
-			identityGap(t, row, row.Reason)
-			continue
-		}
-		if row.Raw == "" {
-			continue
-		}
-		var msg envelope
-		if e = json.Unmarshal([]byte(row.Raw), &msg); e != nil {
-			return nil, fmt.Errorf("line %d raw: %w", line, e)
-		}
-		if msg.Channel == "book" {
-			for _, it := range msg.Data {
-				if symbol == "" {
-					symbol = it.Symbol
-				}
-				if it.Symbol != symbol {
-					return nil, errors.New("a replay recording must contain one symbol")
-				}
-				if b == nil {
-					b, e = kraken.NewBook(row.Depth)
-					if e != nil {
-						return nil, e
-					}
-				}
-				previousBids := copyLevels(b.Levels("bids"))
-				previousAsks := copyLevels(b.Levels("asks"))
-				bids, e := levels(it.Bids)
-				if e != nil {
-					return nil, e
-				}
-				asks, e := levels(it.Asks)
-				if e != nil {
-					return nil, e
-				}
-				p := kraken.Payload{Symbol: it.Symbol, Bids: bids, Asks: asks, Checksum: it.Checksum, Timestamp: it.Timestamp}
-				snap := msg.Type == "snapshot"
-				if e = b.Apply(p, snap); e != nil {
-					emit("gap", t, row, Event{Reason: e.Error()})
-					continue
-				}
-				if !haveOrigin {
-					origin = t
-					haveOrigin = true
-				}
-				var outB, outA [][]string
-				if snap {
-					outB = b.Levels("bids")
-					outA = b.Levels("asks")
-				} else {
-					outB = diff(previousBids, b.Levels("bids"))
-					outA = diff(previousAsks, b.Levels("asks"))
-				}
-				var c uint64
-				_ = json.Unmarshal(it.Checksum, &c)
-				emit(map[bool]string{true: "snapshot", false: "book"}[snap], t, row, Event{Bids: outB, Asks: outA, Checksum: uint32(c), ExchangeTimestamp: it.Timestamp})
-			}
-		}
-		if msg.Channel == "trade" && b != nil && b.Valid && msg.Type != "snapshot" {
-			for _, it := range msg.Data {
-				if it.Symbol != symbol {
-					continue
-				}
-				price, e := wireString(it.Price)
-				if e != nil {
-					return nil, e
-				}
-				qty, e := wireString(it.Qty)
-				if e != nil {
-					return nil, e
-				}
-				pr, ok := new(big.Rat).SetString(price)
-				if !ok || pr.Sign() <= 0 {
-					return nil, errors.New("Invalid trade event")
-				}
-				q, ok := new(big.Rat).SetString(qty)
-				if !ok || q.Sign() <= 0 || (it.Side != "buy" && it.Side != "sell") {
-					return nil, errors.New("Invalid trade event")
-				}
-				id, e := scalarID(it.TradeID)
-				if e != nil {
-					return nil, e
-				}
-				emit("trade", t, row, Event{Price: price, Quantity: qty, Side: it.Side, TradeID: id, ExchangeTimestamp: it.Timestamp})
-			}
-		}
+		out = append(out, events...)
 	}
 	if e = scan.Err(); e != nil {
 		return nil, e
 	}
-	if len(out) == 0 || !haveOrigin {
+	if !normalizer.haveOrigin {
 		return nil, errors.New("recording contains no valid checksum-verified book snapshot")
 	}
 	return out, nil
 }
+
 func copyLevels(v [][]string) [][]string {
 	o := make([][]string, len(v))
 	for i, x := range v {

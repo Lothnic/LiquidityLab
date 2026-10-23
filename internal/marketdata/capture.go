@@ -38,6 +38,9 @@ type CaptureConfig struct {
 	Depth     int
 	MaxFrames uint64
 	MaxBytes  int64
+	// OnEvent runs synchronously after the source receipt has been flushed and fsynced.
+	// It must honor ctx; failure stops capture and records a terminal gap.
+	OnEvent func(context.Context, Event) error
 }
 
 // CaptureManifest describes one immutable raw JSONL capture.
@@ -70,7 +73,22 @@ type CaptureManifest struct {
 // text frames are persisted unchanged after structural validation. Transport failures,
 // subscription rejection, and invalid book state are represented as explicit
 // receipt gaps so downstream replay cannot treat the recording as continuous.
-func Capture(ctx context.Context, cfg CaptureConfig) (manifest CaptureManifest, retErr error) {
+func Capture(ctx context.Context, cfg CaptureConfig) (CaptureManifest, error) {
+	return capture(ctx, cfg, func(ctx context.Context) (captureSocket, error) {
+		conn, _, err := websocket.Dial(ctx, KrakenPublicURL, &websocket.DialOptions{CompressionMode: websocket.CompressionDisabled})
+		return conn, err
+	})
+}
+
+type captureSocket interface {
+	SetReadLimit(int64)
+	Write(context.Context, websocket.MessageType, []byte) error
+	Read(context.Context) (websocket.MessageType, []byte, error)
+	Close(websocket.StatusCode, string) error
+}
+type captureDial func(context.Context) (captureSocket, error)
+
+func capture(ctx context.Context, cfg CaptureConfig, dial captureDial) (manifest CaptureManifest, retErr error) {
 	if !isPair(cfg.Symbol) {
 		return manifest, errors.New("symbol must be a Kraken v2 pair such as BTC/USD")
 	}
@@ -126,11 +144,17 @@ func Capture(ctx context.Context, cfg CaptureConfig) (manifest CaptureManifest, 
 	recorder := NewRecorder(stream, sessionID, cfg.Depth)
 	book, _ := kraken.NewBook(cfg.Depth)
 	deadline := started.Add(cfg.Duration)
+	callbackCtx, callbackCancel := context.WithDeadline(ctx, deadline)
+	defer callbackCancel()
+	sink := captureSink{recorder: recorder, file: f, started: started, ctx: callbackCtx, onEvent: cfg.OnEvent}
+	if cfg.OnEvent != nil {
+		sink.normalizer = NewNormalizer()
+	}
 	backoffAttempt := 0
 	for manifest.Frames < cfg.MaxFrames && time.Now().Before(deadline) {
 		if err := ctx.Err(); err != nil {
 			manifest.Error = err.Error()
-			retErr = writeGap(recorder, f, started, "capture_cancelled: "+err.Error())
+			retErr = sink.gap("capture_cancelled: " + err.Error())
 			if retErr == nil {
 				retErr = err
 			}
@@ -142,19 +166,19 @@ func Capture(ctx context.Context, cfg CaptureConfig) (manifest CaptureManifest, 
 			dialDeadline = deadline
 		}
 		connCtx, cancel := context.WithDeadline(ctx, dialDeadline)
-		conn, _, dialErr := websocket.Dial(connCtx, KrakenPublicURL, &websocket.DialOptions{CompressionMode: websocket.CompressionDisabled})
+		conn, dialErr := dial(connCtx)
 		if dialErr != nil {
 			cancel()
 			if ctx.Err() != nil {
 				manifest.Error = ctx.Err().Error()
-				retErr = writeGap(recorder, f, started, "capture_cancelled: "+ctx.Err().Error())
+				retErr = sink.gap("capture_cancelled: " + ctx.Err().Error())
 				if retErr == nil {
 					retErr = ctx.Err()
 				}
 				break
 			}
 			manifest.Gaps++
-			if e := writeGap(recorder, f, started, "websocket_connect: "+dialErr.Error()); e != nil {
+			if e := sink.gap("websocket_connect: " + dialErr.Error()); e != nil {
 				retErr = e
 				break
 			}
@@ -195,7 +219,7 @@ func Capture(ctx context.Context, cfg CaptureConfig) (manifest CaptureManifest, 
 			if msgType != websocket.MessageText {
 				book.Valid = false
 				manifest.Gaps++
-				if e := writeGap(recorder, f, started, "unsupported_non_text_frame"); e != nil {
+				if e := sink.gap("unsupported_non_text_frame"); e != nil {
 					retErr = e
 					break
 				}
@@ -212,13 +236,13 @@ func Capture(ctx context.Context, cfg CaptureConfig) (manifest CaptureManifest, 
 			} else {
 				manifest.ValidSnapshots += snapshots
 			}
-			if err := writeRaw(recorder, f, started, raw, valid); err != nil {
+			if err := sink.raw(raw, valid); err != nil {
 				retErr = err
 				break
 			}
 			if validationErr != nil {
 				manifest.Gaps++
-				if err := writeGap(recorder, f, started, validationErr.Error()); err != nil {
+				if err := sink.gap(validationErr.Error()); err != nil {
 					retErr = err
 					break
 				}
@@ -235,7 +259,7 @@ func Capture(ctx context.Context, cfg CaptureConfig) (manifest CaptureManifest, 
 		}
 		if ctx.Err() != nil {
 			manifest.Error = ctx.Err().Error()
-			retErr = writeGap(recorder, f, started, "capture_cancelled: "+ctx.Err().Error())
+			retErr = sink.gap("capture_cancelled: " + ctx.Err().Error())
 			if retErr == nil {
 				retErr = ctx.Err()
 			}
@@ -251,7 +275,7 @@ func Capture(ctx context.Context, cfg CaptureConfig) (manifest CaptureManifest, 
 		if time.Now().Before(deadline) && manifest.Frames < cfg.MaxFrames {
 			book.Valid = false
 			manifest.Gaps++
-			if err := writeGap(recorder, f, started, "connection_ended_resnapshot_required: "+dialErr.Error()); err != nil {
+			if err := sink.gap("connection_ended_resnapshot_required: " + dialErr.Error()); err != nil {
 				retErr = err
 				break
 			}
@@ -262,6 +286,18 @@ func Capture(ctx context.Context, cfg CaptureConfig) (manifest CaptureManifest, 
 		}
 	}
 
+	if sink.failure != nil {
+		book.Valid = false
+		manifest.Gaps++
+		// Even a rejected event cannot be represented as a valid continuing stream.
+		if err := sink.terminalGap("event_delivery_failed"); err != nil {
+			retErr = errors.Join(retErr, err)
+		}
+		manifest.Error = "normalized public event delivery failed"
+	}
+	if retErr != nil {
+		book.Valid = false
+	}
 	if retErr == nil && manifest.ValidSnapshots == 0 {
 		retErr = errors.New("capture ended without a valid checksum-verified book snapshot")
 		manifest.Error = retErr.Error()
@@ -276,7 +312,9 @@ func Capture(ctx context.Context, cfg CaptureConfig) (manifest CaptureManifest, 
 			manifest.Status = "duration_complete"
 		}
 	}
-	if manifest.ValidSnapshots == 0 {
+	if sink.failure != nil {
+		manifest.Status = "incomplete"
+	} else if manifest.ValidSnapshots == 0 {
 		manifest.Status = "no_valid_book"
 	} else if manifest.Error != "" || retErr != nil {
 		manifest.Status = "incomplete"
@@ -388,19 +426,76 @@ func reconnectBackoff(attempt int) time.Duration {
 	return base + time.Duration(mrand.Int63n(int64(base/2)+1))
 }
 
-func writeRaw(r *Recorder, f *os.File, started time.Time, raw string, valid bool) error {
-	err := r.write(Receipt{Raw: raw, Elapsed: elapsed(started), ReceivedAt: time.Now().UTC().Format(time.RFC3339Nano), Valid: valid})
-	if err == nil {
-		err = f.Sync()
-	}
-	return err
+// captureSink is intentionally separate from Recorder: recording alone has no
+// side effects on any consumer. All callbacks follow the exact durable row.
+type captureSink struct {
+	recorder   *Recorder
+	file       *os.File
+	started    time.Time
+	ctx        context.Context
+	normalizer *Normalizer
+	onEvent    func(context.Context, Event) error
+	failure    error
 }
 
-func writeGap(r *Recorder, f *os.File, started time.Time, reason string) error {
-	if err := r.write(Receipt{Kind: "gap", Reason: reason, Elapsed: elapsed(started), ReceivedAt: time.Now().UTC().Format(time.RFC3339Nano), Valid: false}); err != nil {
+func (s *captureSink) persist(row Receipt) (Receipt, error) {
+	row, err := s.recorder.writeReceipt(row)
+	if err == nil {
+		err = s.file.Sync()
+	}
+	return row, err
+}
+func (s *captureSink) deliver(row Receipt) error {
+	if s.normalizer == nil {
+		return nil
+	}
+	events, err := s.normalizer.Accept(row)
+	if err != nil {
+		s.failure = err
+		return fmt.Errorf("public event normalization failed: %w", err)
+	}
+	for _, event := range events {
+		if err = s.ctx.Err(); err == nil {
+			err = s.onEvent(s.ctx, event)
+		}
+		if err != nil {
+			s.failure = err
+			return fmt.Errorf("public event consumer failed: %w", err)
+		}
+	}
+	return nil
+}
+func (s *captureSink) raw(raw string, valid bool) error {
+	row, err := s.persist(Receipt{Raw: raw, Elapsed: elapsed(s.started), ReceivedAt: time.Now().UTC().Format(time.RFC3339Nano), Valid: valid})
+	if err != nil {
 		return err
 	}
-	return f.Sync()
+	return s.deliver(row)
+}
+func (s *captureSink) gap(reason string) error {
+	row, err := s.persist(Receipt{Kind: "gap", Reason: reason, Elapsed: elapsed(s.started), ReceivedAt: time.Now().UTC().Format(time.RFC3339Nano), Valid: false})
+	if err != nil {
+		return err
+	}
+	return s.deliver(row)
+}
+func (s *captureSink) terminalGap(reason string) error {
+	row, err := s.persist(Receipt{Kind: "gap", Reason: reason, Elapsed: elapsed(s.started), ReceivedAt: time.Now().UTC().Format(time.RFC3339Nano), Valid: false})
+	if err != nil {
+		return err
+	}
+	// Best effort delivery of the terminal invalidation. A consumer which cannot
+	// accept it must treat its original error as a stop signal itself.
+	events, err := s.normalizer.Accept(row)
+	if err != nil {
+		return err
+	}
+	for _, event := range events {
+		if err = s.onEvent(s.ctx, event); err != nil {
+			return errors.New("terminal public gap delivery failed")
+		}
+	}
+	return nil
 }
 
 func writeManifest(output string, manifest CaptureManifest) error {
