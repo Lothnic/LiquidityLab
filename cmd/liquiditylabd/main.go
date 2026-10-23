@@ -1,4 +1,4 @@
-// liquiditylabd currently exposes only the local offline replay runtime.
+// liquiditylabd exposes bounded local replay and simulated paper services.
 package main
 
 import (
@@ -27,8 +27,11 @@ func main() {
 	}
 }
 func run(args []string) error {
+	if len(args) > 0 && args[0] == "paper" {
+		return paperServer(args[1:])
+	}
 	if len(args) == 0 || args[0] != "replay" {
-		return fmt.Errorf("usage: liquiditylabd replay [--listen 127.0.0.1:50051|unix:/absolute/path] [--max-environments 128]")
+		return fmt.Errorf("usage: liquiditylabd <replay|paper> [flags]; paper requires an isolated schema, new synthetic account and explicit balances")
 	}
 	flags := flag.NewFlagSet("replay", flag.ContinueOnError)
 	listen := flags.String("listen", "127.0.0.1:50051", "loopback TCP address or unix:/absolute/path")
