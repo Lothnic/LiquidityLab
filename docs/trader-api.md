@@ -122,6 +122,32 @@ revision returns 409 `stale_revision`. HTTP success means a committed command,
 not that a child order is known final. A timeout or `outcome_unknown` response
 must not be interpreted as rejection or used to invent a replacement ID.
 
+## Durable and authority revisions
+
+Account summaries, account projections and previews expose both `revision` and
+`authority_revision`. The former is the durable journal cursor. The latter is
+the durable revision of the last financial/control change. An unchanged-child
+paper trade receipt or already-applied observation cursor can advance the
+journal while preserving authority. Queue depletion, fills, reservations,
+controls, effectful decisions, readiness and actor bootstrap conservatively
+advance financial/control authority. A HOLD decision that changes only the
+explicitly allowed feature/cadence fields preserves it; its decision counter
+and durable journal still advance.
+
+Legacy clients supplying only `expected_revision` retain exact revision checks.
+A client may additionally send `expected_authority_revision`: it must match the
+current authority, and its `expected_revision` must lie between that authority
+revision and the current durable revision. This permits a preview-bound command
+after receipt-only bookkeeping without accepting a command predating a financial
+change. The actor checks the token under its serialized authority and the store
+still compares the actual current durable revision atomically. New market books
+are revalidated by compilation and dispatch; a preview price is an estimate.
+
+Retain both original revisions, command ID and payload for an unknown-outcome
+retry. Changing a token under an existing ID is a payload conflict. Actor restart
+advances authority, including for legacy snapshots without a marker. The token
+does not grant exchange access, bypass readiness or permit a second account owner.
+
 ## Display and preview semantics
 
 Account DTOs include explicit profile, balances, unreflected reserved totals,
@@ -149,7 +175,7 @@ unreflected local reservations, clamped at zero), then uses shared
 `BaselineAction`, `Compile`, `ReservationFor`, and `FeeFor` helpers on a fresh
 ledger. It never calls `Do`, mutates the book, creates a reservation, or promises
 completion. It reports the account revision, observation time, current market
-snapshot, spread/visible depth, first candidate intent and its fee/reservation
+snapshot, authority revision, spread/visible depth, first candidate intent and its fee/reservation
 estimates. A current invalid market or recovery state produces no intent and
 an explicit reason. An existing active, paused, or cancel-requested parent or
 child produces `creation_unavailable` with `ready:false` and no new intent.

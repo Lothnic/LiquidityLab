@@ -19,21 +19,22 @@ type AmountDTO struct {
 	Amount   d.Decimal `json:"amount"`
 }
 type PreviewDTO struct {
-	Revision    int64          `json:"revision"`
-	Profile     rt.Profile     `json:"profile"`
-	ObservedAt  time.Time      `json:"observed_at"`
-	Market      MarketDTO      `json:"market"`
-	Policy      string         `json:"policy"`
-	Ready       bool           `json:"ready"`
-	Reason      string         `json:"reason"`
-	Spread      d.Decimal      `json:"spread"`
-	VisibleBids d.Decimal      `json:"visible_bids"`
-	VisibleAsks d.Decimal      `json:"visible_asks"`
-	Intent      *d.OrderIntent `json:"intent"`
-	Reservation *AmountDTO     `json:"reservation"`
-	MakerFee    *AmountDTO     `json:"estimated_maker_fee"`
-	TakerFee    *AmountDTO     `json:"estimated_taker_fee"`
-	FeeSource   string         `json:"fee_source"`
+	Revision          int64          `json:"revision"`
+	AuthorityRevision int64          `json:"authority_revision"`
+	Profile           rt.Profile     `json:"profile"`
+	ObservedAt        time.Time      `json:"observed_at"`
+	Market            MarketDTO      `json:"market"`
+	Policy            string         `json:"policy"`
+	Ready             bool           `json:"ready"`
+	Reason            string         `json:"reason"`
+	Spread            d.Decimal      `json:"spread"`
+	VisibleBids       d.Decimal      `json:"visible_bids"`
+	VisibleAsks       d.Decimal      `json:"visible_asks"`
+	Intent            *d.OrderIntent `json:"intent"`
+	Reservation       *AmountDTO     `json:"reservation"`
+	MakerFee          *AmountDTO     `json:"estimated_maker_fee"`
+	TakerFee          *AmountDTO     `json:"estimated_taker_fee"`
+	FeeSource         string         `json:"fee_source"`
 	// This projection describes one proposal, never a promise of completion.
 	CompletionGuaranteed bool `json:"completion_guaranteed"`
 }
@@ -108,7 +109,7 @@ func preview(v rt.View, p d.Plan, policy string) (out PreviewDTO, err error) {
 	if !baseFound || !quoteFound {
 		return out, pg.ErrInsufficientFunds
 	}
-	out = PreviewDTO{Revision: v.Account.Revision, Profile: v.State.Profile, ObservedAt: time.Now().UTC(), Market: market(v), Policy: policy, FeeSource: v.State.Fees.Source, Reason: "market_invalid"}
+	out = PreviewDTO{Revision: v.Account.Revision, AuthorityRevision: v.AuthorityRevision(), Profile: v.State.Profile, ObservedAt: time.Now().UTC(), Market: market(v), Policy: policy, FeeSource: v.State.Fees.Source, Reason: "market_invalid"}
 	out.Ready = v.Account.Ready && out.Market.Valid && !v.State.RecoveryRequired && !v.State.ClockDiscontinuity
 	if v.State.Parent != nil && (v.State.Parent.Status == "active" || v.State.Parent.Status == "paused" || v.State.Parent.Status == "cancel_requested") || v.State.Child != nil {
 		out.Ready = false

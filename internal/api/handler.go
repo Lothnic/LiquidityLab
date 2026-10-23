@@ -320,12 +320,13 @@ func (h *Handler) decode(w http.ResponseWriter, r *http.Request, v any) bool {
 }
 
 type commandRequest struct {
-	ID               string  `json:"id"`
-	ExpectedRevision *int64  `json:"expected_revision"`
-	Kind             string  `json:"kind"`
-	PlanID           string  `json:"plan_id,omitempty"`
-	Plan             *d.Plan `json:"plan,omitempty"`
-	Policy           string  `json:"policy,omitempty"`
+	ID                        string  `json:"id"`
+	ExpectedRevision          *int64  `json:"expected_revision"`
+	ExpectedAuthorityRevision *int64  `json:"expected_authority_revision,omitempty"`
+	Kind                      string  `json:"kind"`
+	PlanID                    string  `json:"plan_id,omitempty"`
+	Plan                      *d.Plan `json:"plan,omitempty"`
+	Policy                    string  `json:"policy,omitempty"`
 }
 
 func publicID(id string) bool {
@@ -345,7 +346,7 @@ func (h *Handler) command(w http.ResponseWriter, r *http.Request, a Authority) {
 	if !h.decode(w, r, &body) {
 		return
 	}
-	if !publicID(body.ID) || body.ExpectedRevision == nil || *body.ExpectedRevision < 0 {
+	if !publicID(body.ID) || body.ExpectedRevision == nil || *body.ExpectedRevision < 0 || body.ExpectedAuthorityRevision != nil && *body.ExpectedAuthorityRevision < 0 {
 		fail(w, 400, "invalid_command")
 		return
 	}
@@ -368,7 +369,7 @@ func (h *Handler) command(w http.ResponseWriter, r *http.Request, a Authority) {
 		fail(w, 400, "command_not_allowed")
 		return
 	}
-	result, err := a.Do(r.Context(), rt.Command{ID: body.ID, ExpectedRevision: *body.ExpectedRevision, Kind: body.Kind, PlanID: body.PlanID, Plan: body.Plan, Policy: body.Policy})
+	result, err := a.Do(r.Context(), rt.Command{ID: body.ID, ExpectedRevision: *body.ExpectedRevision, ExpectedAuthorityRevision: body.ExpectedAuthorityRevision, Kind: body.Kind, PlanID: body.PlanID, Plan: body.Plan, Policy: body.Policy})
 	if err != nil {
 		backendError(w, err)
 		return

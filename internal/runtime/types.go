@@ -81,7 +81,10 @@ type Fact struct {
 	Resolved bool   `json:"resolved"`
 }
 type State struct {
-	Version            string            `json:"version"`
+	Version string `json:"version"`
+	// AuthorityRevision is the last durable revision that changed financial or
+	// control authority. Source receipts can advance the journal independently.
+	AuthorityRevision  int64             `json:"authority_revision"`
 	Profile            Profile           `json:"profile"`
 	DataSource         string            `json:"data_source"`
 	Rules              d.InstrumentRules `json:"rules"`
@@ -113,20 +116,31 @@ type State struct {
 	LastObservation    []float32         `json:"last_observation"`
 }
 type Command struct {
-	ID               string    `json:"id"`
-	ExpectedRevision int64     `json:"expected_revision"`
-	Kind             string    `json:"kind"`
-	PlanID           string    `json:"plan_id,omitempty"`
-	Plan             *d.Plan   `json:"plan,omitempty"`
-	Deadline         time.Time `json:"deadline,omitempty"`
-	Action           d.Action  `json:"action,omitempty"`
-	IntentID         string    `json:"intent_id,omitempty"`
-	Policy           string    `json:"policy,omitempty"`
+	ID                        string    `json:"id"`
+	ExpectedRevision          int64     `json:"expected_revision"`
+	ExpectedAuthorityRevision *int64    `json:"expected_authority_revision,omitempty"`
+	Kind                      string    `json:"kind"`
+	PlanID                    string    `json:"plan_id,omitempty"`
+	Plan                      *d.Plan   `json:"plan,omitempty"`
+	Deadline                  time.Time `json:"deadline,omitempty"`
+	Action                    d.Action  `json:"action,omitempty"`
+	IntentID                  string    `json:"intent_id,omitempty"`
+	Policy                    string    `json:"policy,omitempty"`
 }
 type View struct {
 	Account pg.Account
 	State   State
 }
+
+// AuthorityRevision falls back conservatively for snapshots written before the
+// authority marker existed. New actors initialize it at their bootstrap commit.
+func (v View) AuthorityRevision() int64 {
+	if v.State.AuthorityRevision <= 0 {
+		return v.Account.Revision
+	}
+	return v.State.AuthorityRevision
+}
+
 type Reconciliation struct {
 	ID               string
 	ExpectedRevision int64

@@ -147,6 +147,7 @@ func New(ctx context.Context, c Config) (*Actor, error) {
 	ready := false
 	state.LastInputID = "boot-" + c.OwnerID
 	state.LastInputDigest = "bootstrap"
+	state.AuthorityRevision = a.Revision + 1
 	actor.state = state
 	change := pg.Change{Key: c.Key, Ownership: owner, Command: pg.Command{ID: state.LastInputID, Kind: "runtime_bootstrap", ExpectedRevision: a.Revision}, Ready: &ready, Market: &pg.Market{Valid: false, SnapshotID: nonempty(state.MarketID, "awaiting-snapshot"), InstrumentRevision: c.InstrumentRevision}, Snapshot: jsonBytes(state)}
 	if _, err = c.Store.Apply(ctx, change); err != nil {
@@ -524,6 +525,13 @@ func (a *Actor) checkClock(ctx context.Context) error {
 	return nil
 }
 func (a *Actor) persist(ctx context.Context, next State, command pg.Command, extra pg.Change) (pg.Result, error) {
+	return a.persistRevision(ctx, next, command, extra, false)
+}
+
+func (a *Actor) persistRevision(ctx context.Context, next State, command pg.Command, extra pg.Change, preserveAuthority bool) (pg.Result, error) {
+	if !preserveAuthority {
+		next.AuthorityRevision = a.account.Revision + 1
+	}
 	extra.Key = a.config.Key
 	extra.Ownership = a.owner
 	extra.Command = command

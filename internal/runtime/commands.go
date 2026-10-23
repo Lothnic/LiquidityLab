@@ -3,6 +3,7 @@ package runtime
 import (
 	"context"
 	"fmt"
+	"reflect"
 	"time"
 
 	d "github.com/liquiditylab/liquiditylab/internal/domain"
@@ -28,16 +29,43 @@ func (a *Actor) elapsed(state State) int64 {
 	}
 	return max(0, a.elapsedBase+now.Sub(a.elapsedAt).Nanoseconds())
 }
+
+// A HOLD decision records a fresh feature snapshot and its cadence without
+// changing financial/control authority. Allow only the known decision fields;
+// every other state or store mutation conservatively invalidates old commands.
+func decisionBookkeepingOnly(before, after State, change pg.Change) bool {
+	if !reflect.DeepEqual(change, pg.Change{}) {
+		return false
+	}
+	after.LastInputID = before.LastInputID
+	after.LastInputDigest = before.LastInputDigest
+	after.Reason = before.Reason
+	after.ReferenceMid = before.ReferenceMid
+	after.DecisionMids = before.DecisionMids
+	after.NextSlice = before.NextSlice
+	after.NextDecision = before.NextDecision
+	after.DecisionCount = before.DecisionCount
+	after.LastObservation = before.LastObservation
+	return inputDigest(after) == inputDigest(before)
+}
+
 func (a *Actor) command(ctx context.Context, c Command) (pg.Result, error) {
-	if c.ID == "" || len(c.ID) > 128 || c.ExpectedRevision < 0 {
+	if c.ID == "" || len(c.ID) > 128 || c.ExpectedRevision < 0 || c.ExpectedAuthorityRevision != nil && *c.ExpectedAuthorityRevision < 0 {
 		return pg.Result{}, ErrInvalid
 	}
 	digest := inputDigest(c)
 	if result, exists, err := a.duplicate(ctx, c.ID, digest); exists || err != nil {
 		return result, err
 	}
-	if c.ExpectedRevision != a.account.Revision {
-		return pg.Result{}, pg.ErrStaleRevision
+	if c.ExpectedAuthorityRevision == nil {
+		if c.ExpectedRevision != a.account.Revision {
+			return pg.Result{}, pg.ErrStaleRevision
+		}
+	} else {
+		authority := (View{Account: a.account, State: a.state}).AuthorityRevision()
+		if *c.ExpectedAuthorityRevision != authority || c.ExpectedRevision < authority || c.ExpectedRevision > a.account.Revision {
+			return pg.Result{}, pg.ErrStaleRevision
+		}
 	}
 	if !a.account.LeaseUntil.After(a.now()) {
 		a.state.RecoveryRequired = true
@@ -230,7 +258,10 @@ func (a *Actor) command(ctx context.Context, c Command) (pg.Result, error) {
 	default:
 		return pg.Result{}, ErrInvalid
 	}
-	result, err := a.persist(ctx, next, pg.Command{ID: c.ID, Kind: c.Kind, ExpectedRevision: c.ExpectedRevision}, change)
+	// The original request remains in LastInputDigest for exact idempotency;
+	// the store still compares the current durable account revision atomically.
+	preserveAuthority := c.Kind == "decision" && !cancelAfter && decisionBookkeepingOnly(a.state, next, change)
+	result, err := a.persistRevision(ctx, next, pg.Command{ID: c.ID, Kind: c.Kind, ExpectedRevision: a.account.Revision}, change, preserveAuthority)
 	if err != nil {
 		return result, err
 	}
@@ -263,7 +294,7 @@ func (a *Actor) dispatch(ctx context.Context, c Command, digest string) (pg.Resu
 		next.Child = nil
 		next.Reason = "queued_intent_obsolete_after_recompile"
 		a.stamp(&next, c.ID, digest)
-		return a.persist(ctx, next, pg.Command{ID: c.ID, Kind: c.Kind, ExpectedRevision: c.ExpectedRevision}, pg.Change{ObsoleteQueued: []string{id}})
+		return a.persist(ctx, next, pg.Command{ID: c.ID, Kind: c.Kind, ExpectedRevision: a.account.Revision}, pg.Change{ObsoleteQueued: []string{id}})
 	}
 	// Persist the latest market identity without changing the queued intent. The
 	// actor loop remains its sole owner through authorization and physical handoff.

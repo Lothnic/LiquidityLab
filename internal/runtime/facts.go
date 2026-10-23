@@ -130,7 +130,10 @@ func (a *Actor) applyPaperTrade(ctx context.Context, observation pg.Observation,
 	}
 	id := fmt.Sprintf("observation-%d-trade-complete", observation.Sequence)
 	a.stamp(&next, id, fact.InputDigest)
-	_, err = a.persist(ctx, next, pg.Command{ID: id, Kind: "paper_trade", ExpectedRevision: a.account.Revision}, change)
+	// Trade flow and source cursor updates alone do not change account authority.
+	// Queue movement and child/parent completion still invalidate old commands.
+	sourceOnly := change.Plan == nil && inputDigest(next.Child) == inputDigest(a.state.Child)
+	_, err = a.persistRevision(ctx, next, pg.Command{ID: id, Kind: "paper_trade", ExpectedRevision: a.account.Revision}, change, sourceOnly)
 	return err
 }
 
@@ -150,7 +153,7 @@ func (a *Actor) consumeOnly(ctx context.Context, observation pg.Observation) err
 	}
 	id := fmt.Sprintf("observation-%d-complete", observation.Sequence)
 	a.stamp(&next, id, inputDigest(observation.Payload))
-	_, err = a.persist(ctx, next, pg.Command{ID: id, Kind: "observation_consumed", ExpectedRevision: a.account.Revision}, pg.Change{ConsumeObservationThrough: observation.Sequence})
+	_, err = a.persistRevision(ctx, next, pg.Command{ID: id, Kind: "observation_consumed", ExpectedRevision: a.account.Revision}, pg.Change{ConsumeObservationThrough: observation.Sequence}, true)
 	return err
 }
 

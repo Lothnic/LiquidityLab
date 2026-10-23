@@ -10,14 +10,15 @@ import (
 )
 
 type AccountSummary struct {
-	TenantID         string     `json:"tenant_id"`
-	AccountID        string     `json:"account_id"`
-	Profile          rt.Profile `json:"profile"`
-	DataSource       string     `json:"data_source"`
-	Revision         int64      `json:"revision"`
-	Ready            bool       `json:"ready"`
-	RecoveryRequired bool       `json:"recovery_required"`
-	PlanStatus       string     `json:"plan_status,omitempty"`
+	TenantID          string     `json:"tenant_id"`
+	AccountID         string     `json:"account_id"`
+	Profile           rt.Profile `json:"profile"`
+	DataSource        string     `json:"data_source"`
+	Revision          int64      `json:"revision"`
+	AuthorityRevision int64      `json:"authority_revision"`
+	Ready             bool       `json:"ready"`
+	RecoveryRequired  bool       `json:"recovery_required"`
+	PlanStatus        string     `json:"plan_status,omitempty"`
 }
 type MarketDTO struct {
 	Valid              bool      `json:"valid"`
@@ -76,7 +77,7 @@ type ReservedDTO struct {
 }
 
 func summary(v rt.View) AccountSummary {
-	out := AccountSummary{TenantID: v.Account.Key.TenantID, AccountID: v.Account.Key.AccountID, Profile: v.State.Profile, DataSource: v.State.DataSource, Revision: v.Account.Revision, Ready: v.Account.Ready, RecoveryRequired: v.State.RecoveryRequired}
+	out := AccountSummary{TenantID: v.Account.Key.TenantID, AccountID: v.Account.Key.AccountID, Profile: v.State.Profile, DataSource: v.State.DataSource, Revision: v.Account.Revision, AuthorityRevision: v.AuthorityRevision(), Ready: v.Account.Ready, RecoveryRequired: v.State.RecoveryRequired}
 	if v.State.Parent != nil {
 		out.PlanStatus = v.State.Parent.Status
 	}
