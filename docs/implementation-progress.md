@@ -11,7 +11,7 @@ Scope: `docs/go-runtime-plan.md` plus the trader workflow, policy evaluation/pro
 - Public Kraken WebSocket attempts obtained no valid recording. Live capture must be demonstrated before that integration gate can be passed.
 - No private exchange credentials, live pilot authorization, or real-money verification has been obtained.
 
-Checkpoint for this planning update: commit `0dc5cc3`, plus uncommitted runtime and inference drafts. No implementation checks were rerun for this documentation change. The original 40-check record is historical; it is not the size of the expanded suite.
+Checkpoint for this planning update: commit `7a0488d`, plus the uncommitted React interface and its documentation. No implementation checks were rerun for this documentation change. The original 40-check record is historical; it is not the size of the expanded suite.
 
 ## Committed migration components
 
@@ -21,9 +21,13 @@ Checkpoint for this planning update: commit `0dc5cc3`, plus uncommitted runtime 
 - Python Go-backed Gymnasium/vector/PPO integration, terminal reports, invalid-trajectory handling and configurable operation budgets.
 - Public Kraken parser, recorder, reconnect/resnapshot logic, normalization and recording bounds. Real capture remains unverified.
 - PostgreSQL migrations and bounded connection pool; transactional account/journal/command/reservation/outbox state; ownership and dispatch fencing; durable ordered observation inbox.
+- Durable paper account actors, trade-driven passive fills, shared baseline scheduler, persisted source provenance and arrival benchmark.
+- Python policy worker and Go client, with bounded local inference, bundle/schema/request checks and a real PPO proposal-boundary integration. Actor-driven asynchronous inference/fallback remains unfinished.
+- Account-scoped journal metadata, authenticated HTTP commands, exact previews, curated execution projections, recorded-data paper CLI and bounded paper web daemon. Full historical reports/session replay remain unfinished.
+- Shared incremental normalization and durable public receipt callbacks; real public capture remains unverified.
 - Reproducible native/bridge benchmark tooling and recorded profiles. The measured Go bridge remains slower than Python for the checked-in synthetic workload, so Python stays the default training backend.
 
-Representative commits: `d953990` (replay), `7f214d6` (bindings), `6ddb984` (RPC), `d5c1306` (Gym), `c9f221f` (PPO), `3797cda` (benchmarks), `530cb21` (store), `f64a120` (inbox), `ca07992` (shared execution rules), and `0dc5cc3` (operation budgets). See the Git history for their component boundaries; code presence does not pass every phase's exit gate.
+Representative commits: `d953990` (replay), `7f214d6` (bindings), `6ddb984` (RPC), `d5c1306` (Gym), `c9f221f` (PPO), `3797cda` (benchmarks), `530cb21` (store), `f64a120` (inbox), `ca07992` (shared execution rules), `0dc5cc3` (operation budgets), `a5933c1` (paper actors), `9996cd5` (Python worker), `4b2eea6` (Go policy boundary), `e6810af` (baseline scheduling), `49da8a4` (paper CLI), `a030615` (API), `352e29b` (incremental public stream), and `7a0488d` (paper server). See the Git history for their component boundaries; code presence does not pass every phase's exit gate.
 
 ## Requirements ledger
 
@@ -46,14 +50,19 @@ Checkboxes represent full exit criteria, including required integration evidence
 
 The latest user request is to plan the Go rewrite for scale. The updated plan retains committed components and defines the remaining delivery sequence; it does not restart the rewrite.
 
-Uncommitted drafts are preserved in `internal/runtime/`, `src/liquiditylab/inference/`, and `tests/test_inference.py`. The paper actor draft has durable submission/fill facts, account serialization, reservations and recovery paths; automatic passive fills, feed/scheduler wiring, control fairness and process-level restart evidence still need completion. The Python worker draft has bundle/schema/request validation and bounded local inference. Its worker reports 21 focused checks passing, but it still needs integration review, the Go client, eligibility/fallback handling and a separate commit.
+The paper runtime, Python worker, Go client, API and paper CLI/server are committed. React code in `apps/web/` and `docs/trader-ui.md` is present but uncommitted; complete workflow review and evidence are still required. Current HTTP updates poll, journal reads expose metadata, model proposals are not integrated into actor scheduling, and no product capacity benchmark has passed.
 
-Next milestones, each split into component commits:
+Next milestones, each split into component commits (details and gates in the Go runtime plan, section 16):
 
-1. Finish the actor, shared passive matcher, baseline scheduler and end-to-end paper CLI; demonstrate recovery at process boundaries.
-2. Integrate Python inference with the Go client and stale-response/fallback behavior.
-3. Deliver authenticated trader commands, React supervision and the execution journal; obtain usability evidence.
-4. Complete immutable evaluation/promotion, reproducible packaging/CI, workload tooling and operational runbooks.
-5. Integrate the private adapter, demonstrate load/fault handling and restore/reconciliation at pilot capacity, then obtain authorization for the bounded live pilot. Complete the final capacity/24-hour soak gates before increasing supported admission.
+1. Complete/review the paper desk and add full session history/reports/replay.
+2. Define financial/control revisions versus market/source versions; instrument transaction/snapshot/WAL cost before reducing writes.
+3. Integrate asynchronous Python proposals with actor revalidation, admission, cadence staggering and one deterministic fallback per decision slot.
+4. Demonstrate OS process-kill recovery and controlled sender isolation/ownership transfer.
+5. Implement measured shared-ingest/multi-account operation with separate book-view and ordered paper-trade delivery contracts.
+6. Complete immutable evaluation/promotion, packaging/CI, workload tooling, metrics and operator/restore runbooks.
+7. Integrate the private adapter and obtain real venue evidence before an explicitly authorized bounded pilot.
+8. Publish load/fault/24-hour soak/restore evidence, set supported admission, then add account shards only when measured demand requires them.
+
+Product admission, the Go training-default switch, and live authorization each require their own evidence and rollback decision. A successful paper session or replay benchmark cannot pass the other gates. No tests or runtime operations are required by this documentation-only planning update.
 
 Account shards, separate ingest/inference deployments and storage partitioning are triggered by measured bottlenecks. Public events are applied once per instrument; account decisions consume shared versioned books. Capacity is admitted from demonstrated latency, recovery and resource headroom. The measured replay-bridge gap has its own optimization workstream and does not block baseline paper-product delivery.

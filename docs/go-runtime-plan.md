@@ -1,6 +1,6 @@
 # LiquidityLab: Go runtime and Python RL migration
 
-Decision plan updated 23 October 2026 against commit `0dc5cc3`. The Go core, replay bridge, public-data pipeline, and PostgreSQL foundations are committed. Paper runtime and Python inference files are still uncommitted. The stages below remain acceptance requirements, not claims of production readiness or measured capacity.
+Decision plan updated 23 October 2026 against commit `7a0488d`. The Go core, replay bridge, public-data pipeline, PostgreSQL store, durable paper actor, Python inference worker, Go policy client, authenticated API, and paper CLI/server are committed. The React interface is present but uncommitted. This update plans the remaining integration and scale work; the stages below are acceptance requirements, not claims of production readiness or measured capacity.
 
 ## Decision in brief
 
@@ -36,9 +36,9 @@ The product remains an execution assistant: a trader chooses the trade and its s
 
 The original starting point was Python v0.1.0 with 40 checks. The repository has since advanced; use the following checkpoint when scheduling remaining work:
 
-- **Committed:** versioned/generated Go and Python protocol bindings; exact Go amounts; shared fees, reservations and observations; ledger/compiler; deterministic replay and common conformance fixtures; public recorder/normalizer; bounded replay RPC; Python Gym/vector/PPO bridge; PostgreSQL account transitions, ownership, inbox, journal and outbox.
-- **Draft implementation:** paper account actor and durable paper transport in `internal/runtime/`; Python policy worker in `src/liquiditylab/inference/`. These files require integration review and their own commits before they become release evidence.
-- **Remaining:** product feed/scheduler wiring, complete passive paper fills, Go policy client and fallback, authenticated API, trader interface, evaluated policy promotion, private venue integration, deployment and operational evidence.
+- **Committed:** versioned/generated Go and Python protocol bindings; exact amounts; shared ledger/compiler, fees, reservations, observations, passive matching and baselines; deterministic replay/conformance; public recorder and incremental normalizer; bounded replay RPC and Python Gym/vector/PPO bridge; PostgreSQL ownership, inbox, journal and outbox; durable paper actor/scheduler/transport; recorded-data CLI; authenticated API; bounded paper server; Python inference worker and Go policy client.
+- **Present but uncommitted:** React supervision interface in `apps/web/` and `docs/trader-ui.md`. Review and demonstrate the complete browser workflow before its release commit.
+- **Remaining:** asynchronous model integration with actor fallback; full session history/replay; process-kill recovery evidence; scalable shared feed distribution; immutable evaluation/promotion; private venue integration; CI/deployment and measured operational capacity. Current journal reads expose metadata, and the HTTP interface polls; full historical reports and SSE are not implemented.
 - **Measured constraint:** the optimized replay bridge delivers about 23k transitions/second at batch 32 versus about 37–46k for Python in the checked-in synthetic comparison. Keep Python as the default training backend until the bridge gate passes. See [benchmark evidence](../benchmarks/README.md).
 - **External gates:** real public capture has failed on this host; private-account access, an authorized live pilot, and design-user evidence are still outstanding.
 
@@ -208,7 +208,7 @@ Track total/free/locked balances and which local reservations are already reflec
 
 Use durable ownership epochs and leases to reject stale database writes. The sender verifies current ownership before dispatch. However, **a database fencing token does not fence the exchange**: an old process may retain a live connection or already have a request in flight.
 
-Initial failover is controlled: pause new sends, isolate/terminate the previous sender, reconcile its known and unknown intents, then enable the new owner. An expired lease alone is insufficient to authorize a second sender. If old-owner isolation cannot be established, stay paused and require operator recovery. Automated high availability requires a separately verified outbound-fencing design and venue capability analysis.
+Initial failover is controlled: pause new sends, isolate/terminate the previous sender, reconcile its known and unknown intents, then enable the new owner. An expired lease alone is insufficient to authorize a second sender. If old-owner isolation cannot be established, stay paused and require operator recovery. Name the operator/supervisor responsible, record process/connection isolation evidence durably, and link it to the ownership-transfer decision; trusted recovery booleans alone do not demonstrate isolation. Exercise a suspended old owner that resumes after attempted transfer. Measure the maximum interval from a stop request to the last possible outbound handoff, including synchronous transport delays. Automated high availability requires a separately verified outbound-fencing design and venue capability analysis.
 
 Within a healthy deployment, shard accounts deterministically across executor processes. Rebalance only through draining, ownership transfer, and reconciliation. Keep per-account venue message limits and any wider venue limits authoritative across all workers.
 
@@ -278,7 +278,7 @@ liquiditylab/
   deploy/                       # Local compose and process configuration
 ```
 
-Keep the Go release, Protobuf compiler/plugins, database driver, and RPC packages pinned. Generated code must be reproducible and checked for schema drift. Credentials and market recordings stay outside version control. This layout combines existing modules with planned API, Go policy-client, UI and deployment directories; it does not claim those planned directories are implemented.
+Keep the Go release, Protobuf compiler/plugins, database driver, and RPC packages pinned. Generated code must be reproducible and checked for schema drift. Credentials and market recordings stay outside version control. Most runtime directories above now exist. `apps/web/` is present but uncommitted; production deployment packaging and any new shared ingest/account-routing modules remain planned. Inspect Git history before scheduling a component as new work.
 
 ## 12. Migration phases and gates
 
@@ -318,7 +318,7 @@ Exit: PPO can train, save, load, and infer against the Go-backed v1 environment.
 
 ### Phase 5 — durable paper execution: 4–6 days
 
-Current checkpoint: persistence is committed and the actor/transport are drafts; complete passive matching, scheduling, feed wiring and process-level recovery evidence.
+Current checkpoint: store, actor, paper transport, passive matching, baseline scheduling, recorded-data CLI, incremental public-feed integration and paper server are committed. Complete browser integration and process-kill/restart evidence; checkpoint-level recovery coverage does not establish operational failover.
 
 Implement PostgreSQL migrations, account actor, reservation/outbox transactions, command deduplication, recovery, and current-market paper fills. Keep live transport unavailable in this profile.
 
@@ -326,13 +326,15 @@ Exit: restarting at each intent/ack/cancel boundary preserves the account and pa
 
 ### Phase 6 — Python inference service: 3–4 days
 
-Current checkpoint: the Python worker is a draft; its integration review, the Go client and end-to-end fallback/eligibility gates remain outstanding.
+Current checkpoint: Python worker, Go client, strict bundle/request binding and a real Python PPO-to-Go proposal boundary are committed. Actor scheduling, asynchronous completion, deterministic fallback and promotion/eligibility integration remain outstanding.
 
 Add bundle/schema verification, bounded worker scheduling, inference deadlines, response binding, and Go fallback/pause behavior.
 
 Exit: stale, incompatible, delayed, duplicate, and malformed responses cannot produce an unauthorized order. Fast market updates do not cause perpetual rejection of otherwise valid semantic actions.
 
 ### Phase 7 — trader API and interface: 5–8 days
+
+Current checkpoint: scoped authenticated API, exact preview and curated execution projections are committed. React interface is present but uncommitted; full history/session replay, workflow evidence and design-user validation remain outstanding.
 
 Build the plan form, active execution screen, pause/cancel, history, and session replay. Expose actual versus simulated results clearly. Add command authentication for remote deployment.
 
@@ -394,6 +396,16 @@ Then test 250 and 1,000 accounts to discover the first limiting component. An un
 **Stage E — independent API capacity.** Scale authenticated HTTP/UI delivery separately if subscriber or read traffic consumes execution resources. Commands remain revision-checked durable inputs routed to the account owner. Bound subscriptions and coalesce UI snapshots. A history query or slow browser must not block private-event processing.
 
 Stage order after B follows the observed bottleneck. Adding a broker, orchestrator, or service boundary is a separate decision with an owner, failure model, and measured benefit. These are LiquidityLab design choices, not language guarantees.
+
+### Capacity model and database write budget
+
+Use measured service demand to choose admission, rather than deriving capacity from goroutine counts. For A active accounts, cadence D seconds, E durable private/paper facts per account per second, and K durable transitions per decision, estimate decision demand as A/D and DB transition demand as A × (E + K/D), then include command, lease, recovery and retry overhead. Measure E and K from traces; paper passive matching can make E track trade rate even when no fill occurs.
+
+Publish serialized state bytes/transition, journal growth, WAL bytes/second, commit latency and lock waits alongside throughput. Current snapshots include book/state and accumulated fills; bound their growth and measure the cost of rewriting them. Before increasing admission, consider incremental fill/history tables and less frequent bounded checkpoints while retaining atomic balances, reservations, deduplication and outbox transitions. Verify replay from each checkpoint and migration compatibility. Batch ordered source receipts only if every fact remains recoverable and a crash cannot apply a fill twice. Do not replace durable financial facts with coalesced UI state.
+
+A model worker's single-flight client is a concurrency bound, not a 100-decisions/second guarantee. If measured safe worker service time is S seconds, provision from utilization × worker_count / S, with margin below saturation and a measured burst budget. Stagger periodic decisions; a synchronized burst of 100 accounts can overload a worker even if its average rate appears sufficient. Keep latency targets unchanged when scaling worker count.
+
+Acceptance: compare 100 accounts on shared instruments with staggered and synchronized decisions, no-fill trade bursts, one hot account, slow DB, inference loss and private-event recovery bursts. Report total DB connection caps across processes, fairness, oldest event age and rejected admission. Require recovery and control headroom under the advertised limit. Exact numeric capacity remains unknown until those runs pass.
 
 ### Resource budgets and operational measurements
 
@@ -465,17 +477,28 @@ Use GPT-6.1-sol for integration decisions, ownership/recovery review, arithmetic
 
 ## 16. Implementation checkpoint and next milestone
 
-Use [implementation-progress.md](implementation-progress.md) as the requirement ledger and [benchmark evidence](../benchmarks/README.md) for the measured training constraint. Preserve the committed core, bridge and store; integrate the current drafts incrementally. The existing Python trainer stays runnable throughout.
+Use [implementation-progress.md](implementation-progress.md) as the requirement ledger and [benchmark evidence](../benchmarks/README.md) for the measured training constraint. Preserve the committed core, bridge, store and paper runtime; integrate the remaining product/model/operations work incrementally. The existing Python trainer stays runnable throughout.
 
 ### Remaining delivery sequence
 
-1. **Finish and commit the durable paper actor.** Review the draft actor, observation inbox reduction, balances/reservations, dispatch revalidation, and recovery. Close command/internal-event identity collisions, invalid-market readiness persistence, wall-clock discontinuity behavior, and bounded control/fact scheduling. Add shared passive-trade matching and automatic baseline decisions; connect the Go capture/feed path to a paper-session CLI. Exit with an end-to-end public-data paper session and process-level crash/restart evidence at dispatch, fill and cancel boundaries. Synthetic/local feed tests permit development while the real-capture gate stays open.
-2. **Integrate the policy boundary.** Review and commit the draft Python worker separately; implement the Go client separately. Pin bundle/schema hashes and request/account/plan revisions; use the shared observation builder. Exercise expiry, queue saturation, failed inference, state changes during inference, and deterministic baseline/pause fallback. Unvalidated bundles remain explicit paper/shadow inputs. A worker loading a model does not make it live eligible.
-3. **Deliver the trader workflow.** Commit authenticated Go HTTP commands and account-scoped read/update streams, then the React plan form, supervision screen and journal. Separate accepted commands from completed exchange/paper effects. Surface stale data, unresolved orders, partial completion, fees, cancellation progress and model/baseline choice. Exit with design users completing the paper workflow and an authorization/isolation review.
-4. **Build reproducible evaluation and deployment.** Freeze chronological train/validation/holdout datasets, fill assumptions, fee/slippage cases and comparison baselines. Record failures and confidence/variability across sessions and seeds. Promotion must reference immutable evidence, not an editable `live_eligible` manifest flag. Commit build/codegen CI, paper/live configuration separation, process supervision and restore/runbooks. Initial public-data, queue, DB and actor capacity measurements run here as well as during step 1.
-5. **Integrate the private venue and run the operational gates.** Implement the adapter against a mock venue first, including rate budgets, unknown outcomes, stream/snapshot handoff and cancellation races. Before a live pilot, demonstrate load/fault handling and an isolated database restore with reconciliation at the proposed pilot capacity. Then require account access and explicit bounded pilot authorization for the supervised live stage. Publish the final workload manifest, 24-hour soak, backup/restore evidence and reconciliation results before increasing supported admission. Successful paper execution alone does not pass this stage.
+The following are the next reviewable changes, in dependency order. Commit each numbered part separately; split adapter and operations work further as needed. Existing committed modules are retained.
 
-Steps 1–3 are the critical path to the first useful paper product. Evaluation, benchmark tooling and packaging can proceed against frozen interfaces in parallel. Split every actor, transport, policy, API, UI, evaluation and operations increment into its own reviewable commit. Do not bundle the existing uncommitted runtime and inference drafts with this planning update.
+1. **Complete the baseline paper desk.** Review the existing React code and prove preview → create paused → start → partial fills → pause/resume → cancel, including unknown command outcomes, account switching, stale feed and token scope. Add complete session reports/history and causal replay links in a separate follow-up commit; journal metadata is insufficient for this view. Show exact fees, quantities, arrival benchmark and simulated provenance. Exit: a trader can finish and inspect a session without reading runtime logs.
+2. **Separate revisions and instrument the durable path.** Specify command/financial revision, plan revision, market snapshot version and source cursor separately. Audit where no-fill paper trades currently advance the persisted account revision. A current market tick alone must not perpetually invalidate previews or policy responses; fills, holds, readiness and controls still invalidate financial authority. Keep durable deduplication/source ordering when reducing writes. Add transaction, snapshot-byte, WAL and lock-wait measurements before changing persistence. Exit: high-rate no-fill input does not starve valid commands, while any intervening financial/control change rejects obsolete actions.
+3. **Connect asynchronous policy proposals.** Reuse the committed worker and Go client. The actor captures a bound observation, releases its processing slot, and receives a completion event later; it never waits for Python or holds a DB transaction during inference. Allow one outstanding proposal per plan, with a process-wide admission budget. Pin bundle/schema and log observation/execution book identities. Revalidate under the actor before compiling against the latest book. Stagger account cadence, reject excess work and apply the plan's explicit baseline or pause fallback once per decision slot. Exit: delayed/crashed/saturated workers cannot delay cancellation or create a second action after fallback.
+4. **Prove restart and ownership recovery.** Build an OS process-kill harness around intent persistence, attempted send, acknowledgement, fill, pending cancel and observation reduction. Reopen the same account; demonstrate reservations and unknown outcomes survive. Transfer ownership only after old-sender isolation and reconciliation. Exit: one authoritative sender and accounting projection through each injected boundary, with unresolved outcomes remaining paused/reserved.
+5. **Add shared ingest and measured multi-account operation.** Apply public deltas once per instrument; distribute replaceable versioned book views separately from ordered trade events needed for passive paper matching. Bound count/bytes/age, freeze source watermarks for finite drains, and reserve control/recovery capacity. Build a mock venue and load generator. Exit: the section 13 workload has measured end-to-end latency and bounded queues; publish rejected work and paused accounts with latency results. A missed ordered event invalidates the affected consumer rather than silently skipping it.
+6. **Package evaluation and operations.** Separate commits for immutable chronological datasets/evaluation reports, promotion records, generated-code/build CI, profile-specific process packaging, metrics and operator runbooks. Use baseline comparisons, multiple seeds, fill/fee assumptions and complete failure counts. Exit: reproducible bundle provenance, restore into a paused service, and a reviewed release manifest. A mutable bundle flag never grants live eligibility.
+7. **Implement the private venue boundary.** Separate commits for authenticated transport, private stream/snapshot handoff, reconciliation and rate budgets. Exercise unknown acceptance, duplicate fills, cancel/fill races and external activity with the mock venue first. Obtain real public-capture evidence; it remains an open integration gate. Exit: documented account readiness and fault handling with real venue evidence before the separately authorized bounded live pilot.
+8. **Set supported capacity, then shard.** Complete load-plus-fault runs, 24-hour soak and backup/restore drill on pinned hardware. Publish the supported limit from measured bottlenecks and recovery headroom. Add explicit durable account assignments and controlled transfer only when one executor reaches its limit; repeat the same gates after partitioning. Retire reference execution paths only after the cutover gates below pass.
+
+Parts 1–4 establish the useful, recoverable paper product. Revision semantics precede model integration. Measurement tooling can proceed in parallel against frozen interfaces; private transport can be developed against a mock while deployment/evaluation proceeds. Live access, public network capture, pilot approval and design-user evidence are external gates, not assumptions in the schedule.
+
+### Remaining-work estimate and orchestration
+
+Planning allowance for one experienced implementer using reviewed subagents: **3–5 weeks for parts 1–4**, including history and process-boundary recovery; **another 3–6 weeks for parts 5–8 and a narrow operational beta**, with evaluation/tooling partly parallel. These are provisional engineering ranges, not a promise of venue approval or policy profitability. Re-estimate after the paper workflow and persistence profiles expose integration cost. They replace neither the historical full-migration estimate in section 12 nor explicit external gates.
+
+The integration lead owns financial semantics, revision design, async scheduling, ownership and release decisions. Use GPT-6.1-sol for that work when available; cheaper subagents can own disjoint UI components, documentation, fixtures and bounded harnesses against approved contracts. Integration review remains required. Each commit records its scope, evidence and open gates; planning changes do not imply implementation checks were rerun.
 
 ### Training performance workstream
 
@@ -492,7 +515,7 @@ Improve the bounded RPC implementation first. Consider packed observation buffer
 5. **Rollback:** halt new sends and isolate the outgoing sender before transfer. Restore compatible application state and reconcile with the venue. Rolling back a binary or database snapshot does not reverse venue fills. Use expand/migrate/contract database changes: add compatible structures, backfill/checkpoint resumably, deploy readers/writers that support both versions, and remove old structures only after the rollback window. Pin session engine/policy/schema compatibility and block downgrades that cannot read current state. Failed migrations leave execution paused; resume from their checkpoint or apply a forward repair before considering a disaster restore.
 6. **Reference retirement:** remove Python monetary/execution code from supported product/training paths only after conformance, bridge throughput, paper recovery, policy reevaluation, and a documented rollback window pass. Retain versioned fixtures and artifact provenance for old reports.
 
-Each rollout stage needs its own evidence; a fast replay does not establish safe live recovery or account capacity.
+Maintain three independent release decisions: **product admission** (paper/live account limits and operational recovery), **Go training default** (conformance and full training performance), and **live authorization** (venue readiness, eligible policy/baseline and explicit pilot approval). Each record names immutable evidence, approved limits, decision owner and rollback procedure. Each rollout stage needs its own evidence; a fast replay does not establish safe live recovery or account capacity.
 
 ## 17. Evidence boundaries
 
