@@ -17,6 +17,10 @@ func recoveryTestHandoff(t *testing.T, a *Actor, childID string) (pg.Observation
 	t.Helper()
 	ctx, cancel := actorTestContext(t)
 	defer cancel()
+	// Establish the crash checkpoint only after its owner loop has stopped.
+	if err := a.Close(ctx); err != nil {
+		t.Fatal(err)
+	}
 	child := a.state.Child
 	if child == nil || child.ID != childID || child.State != "queued" {
 		t.Fatalf("expected queued child %s, got %#v", childID, child)

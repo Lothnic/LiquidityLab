@@ -3,7 +3,7 @@
 `internal/runtime` provides one serialized paper account authority backed by
 PostgreSQL. It uses the same exact ledger, action compiler, reservation/fee
 rules and passive trade matcher as Go replay. It cannot construct a live
-transport. A trader API, automatic scheduling and product CLI are subsequent
+transport. A trader API and product CLI are subsequent
 integration components; this package alone is not a complete trading product.
 
 ## Lifecycle and commands
@@ -16,7 +16,7 @@ balances before starting a plan. Reconciliation evidence is a caller assertion
 for this simulated profile; it is not a verified private exchange snapshot.
 
 `Do` accepts `create`, `start`, `pause`, `resume`, `cancel`, `deadline`, `action`
-and `dispatch`. Every command has a stable ID and expected account revision.
+and `dispatch`, plus `decision` for a pinned baseline. Every command has a stable ID and expected account revision.
 Identical retries return the original committed receipt; changed payloads under
 the same ID conflict. An accepted request continues with an internal deadline
 if its caller disappears. A caller timeout therefore means outcome unknown;
@@ -35,6 +35,24 @@ Public command/reconciliation IDs cannot use internal receipt prefixes:
 `boot-`, `deadline-`, `dispatch-market-`, `market-invalid-`, `clock-invalid-`,
 `observation-`, `paper-`, `transport-`, or `runtime-`. Fill ingress is trusted
 runtime input and also excludes these event-ID prefixes.
+
+## Baseline scheduling
+
+`Config.AutoExecute` enables automatic decisions and dispatch; its default is
+false for explicit command orchestration. `Config.Baseline` defaults to
+`scheduled`. A create command can choose `scheduled` or `liquidity-aware` and
+pins that choice to its parent. A `decision` command must use the pinned name.
+The account transaction stores the schedule cursor, next decision time, count,
+causal midpoint window, and the exact 20-feature observation used for that
+decision. Identical command retries do not advance the schedule again.
+
+Scheduling runs while the parent is active and the account/book are ready.
+It dispatches a queued intent only after the usual final checks. Pause, expired
+deadlines and recovery prevent new decisions. A restart does not run a burst of
+every missed cadence; the next actual decision establishes its next due time.
+The scheduled baseline still advances its explicit 15-second slice cursor once
+per eligible decision, preserving replay semantics. Model inference is not yet
+wired into this scheduler; its worker/client are separate components.
 
 ## Market data and paper effects
 

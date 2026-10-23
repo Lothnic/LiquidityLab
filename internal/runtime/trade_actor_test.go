@@ -173,6 +173,12 @@ func TestActorPaperTradePendingCursorRecoversAfterFullFillCheckpoint(t *testing.
 	if err := actorTestDispatch(t, old, childID, "dispatch-paper-trade-recovery"); err != nil {
 		t.Fatalf("dispatch passive child: %v", err)
 	}
+	stopCtx, stopCancel := actorTestContext(t)
+	if err := old.Close(stopCtx); err != nil {
+		stopCancel()
+		t.Fatal(err)
+	}
+	stopCancel()
 	child := old.state.Child
 	if child == nil || !child.Order.QueueAhead.Equal(d.MustDecimal("2")) {
 		t.Fatalf("recovery setup child has unexpected queue: %#v", child)

@@ -75,7 +75,17 @@ func (a *Actor) command(ctx context.Context, c Command) (pg.Result, error) {
 			return pg.Result{}, ErrInvalid
 		}
 		p := *c.Plan
+		baseline := c.Policy
+		if baseline == "" {
+			baseline = a.config.Baseline
+		}
+		if err := x.ValidateBaselinePolicy(baseline); err != nil {
+			return pg.Result{}, err
+		}
+		baseFound, quoteFound := false, false
 		for _, balance := range a.account.Balances {
+			baseFound = baseFound || balance.Currency == next.BaseCurrency
+			quoteFound = quoteFound || balance.Currency == next.QuoteCurrency
 			if balance.Currency == next.BaseCurrency && p.BaseBalance.Cmp(balance.Free) > 0 {
 				return pg.Result{}, pg.ErrInsufficientFunds
 			}
@@ -83,13 +93,20 @@ func (a *Actor) command(ctx context.Context, c Command) (pg.Result, error) {
 				return pg.Result{}, pg.ErrInsufficientFunds
 			}
 		}
-		next.Parent = &Parent{ID: c.PlanID, Revision: 1, Status: "paused", Deadline: deadline, Spec: p}
+		if !baseFound || !quoteFound {
+			return pg.Result{}, pg.ErrInsufficientFunds
+		}
+		next.Parent = &Parent{ID: c.PlanID, Revision: 1, Status: "paused", Deadline: deadline, Spec: p, Baseline: baseline}
 		next.Fills = nil
 		next.HasMessage = false
 		next.LastMessage = 0
 		next.TradeFlow = d.Zero
 		next.DecisionMids = nil
 		next.ReferenceMid = d.Zero
+		next.NextSlice = 0
+		next.NextDecision = 0
+		next.DecisionCount = 0
+		next.LastObservation = nil
 		change.Plan = parentRow(next.Parent)
 	case "start", "resume":
 		if next.Parent == nil || next.Parent.Status != "paused" || next.Child != nil || !a.account.Ready || !next.Book.Valid || next.RecoveryRequired || a.overflow.Load() {
@@ -105,6 +122,8 @@ func (a *Actor) command(ctx context.Context, c Command) (pg.Result, error) {
 			next.Parent.Start = a.now().UTC()
 			next.Parent.Started = true
 			next.Parent.Spec.Deadline = next.Parent.Deadline.Sub(next.Parent.Start).Nanoseconds()
+			next.ReferenceMid = next.Book.Mid()
+			next.DecisionMids = []d.Decimal{next.ReferenceMid}
 		}
 		next.Parent.Status = "active"
 		next.Parent.Revision++
@@ -133,7 +152,11 @@ func (a *Actor) command(ctx context.Context, c Command) (pg.Result, error) {
 		next.Parent.Revision++
 		change.Plan = parentRow(next.Parent)
 		cancelAfter = next.Child != nil
-	case "action":
+		if cancelAfter {
+			next.Child.State = "cancel_requested"
+			next.Child.Order.State = "cancel_requested"
+		}
+	case "action", "decision":
 		if next.Parent == nil || next.Parent.Status != "active" || !next.Parent.Started || !a.account.Ready || !next.Book.Valid || next.RecoveryRequired || a.overflow.Load() {
 			return pg.Result{}, ErrRecoveryRequired
 		}
@@ -145,7 +168,30 @@ func (a *Actor) command(ctx context.Context, c Command) (pg.Result, error) {
 		if next.Child != nil {
 			child = &next.Child.Order
 		}
-		compiled, err := x.Compile(c.Action, next.Parent.Spec, next.Rules, next.Fees, next.Execution, ledger, next.Book, child, a.elapsed(next))
+		action := c.Action
+		if c.Kind == "decision" {
+			if c.Policy != next.Parent.Baseline {
+				return pg.Result{}, ErrInvalid
+			}
+			action, next.NextSlice, err = x.BaselineAction(c.Policy, next.Parent.Spec, a.elapsed(next), ledger.Filled, next.NextSlice)
+			if err != nil {
+				return pg.Result{}, err
+			}
+			next.ReferenceMid = next.Book.Mid()
+			if next.DecisionCount > 0 {
+				next.DecisionMids = append(next.DecisionMids, next.ReferenceMid)
+				if len(next.DecisionMids) > 11 {
+					next.DecisionMids = next.DecisionMids[len(next.DecisionMids)-11:]
+				}
+			}
+			next.LastObservation, err = x.BuildObservation(x.FeatureSnapshot{Plan: next.Parent.Spec, Ledger: ledger, Book: next.Book, Child: child, Now: a.elapsed(next), ReferenceMid: next.ReferenceMid, DecisionMids: next.DecisionMids, TradeFlow: next.TradeFlow, AccountValid: a.account.Ready})
+			if err != nil {
+				return pg.Result{}, err
+			}
+			next.DecisionCount++
+			next.NextDecision = a.elapsed(next) + next.Execution.DecisionInterval
+		}
+		compiled, err := x.Compile(action, next.Parent.Spec, next.Rules, next.Fees, next.Execution, ledger, next.Book, child, a.elapsed(next))
 		if err != nil {
 			return pg.Result{}, err
 		}
@@ -174,7 +220,7 @@ func (a *Actor) command(ctx context.Context, c Command) (pg.Result, error) {
 				currency = next.BaseCurrency
 			}
 			id := randomID("child-")
-			next.Child = &Child{ID: id, Action: c.Action, State: "queued", Order: d.ChildOrder{OrderID: id, Intent: *compiled.Intent, SubmittedAt: a.elapsed(next), ArrivalAt: a.elapsed(next), Remaining: compiled.Intent.Quantity, State: "submitting"}}
+			next.Child = &Child{ID: id, Action: action, State: "queued", Order: d.ChildOrder{OrderID: id, Intent: *compiled.Intent, SubmittedAt: a.elapsed(next), ArrivalAt: a.elapsed(next), Remaining: compiled.Intent.Quantity, State: "submitting"}}
 			change.Enqueue = []pg.Intent{{ID: id, PlanID: next.Parent.ID, PlanRevision: next.Parent.Revision, ExpiresAt: next.Parent.Deadline, InstrumentRevision: next.InstrumentRevision, Payload: jsonBytes(compiled.Intent)}}
 			change.Reservations = []pg.Reservation{{IntentID: id, Currency: currency, Amount: reservation}}
 			next.LastMessage = a.elapsed(next)
@@ -320,10 +366,14 @@ func (a *Actor) reconcile(ctx context.Context, r Reconciliation) (pg.Result, err
 		return pg.Result{}, err
 	}
 	resolved := map[string]bool{}
+	affectedParent := false
 	for _, id := range r.ResolvedFactIDs {
 		resolved[id] = true
 	}
 	for i := range next.UnresolvedFacts {
+		if next.Parent != nil && (next.UnresolvedFacts[i].ParentID == "" || next.UnresolvedFacts[i].ParentID == next.Parent.ID) {
+			affectedParent = true
+		}
 		if resolved[next.UnresolvedFacts[i].ID] {
 			next.UnresolvedFacts[i].Resolved = true
 		}
@@ -333,7 +383,7 @@ func (a *Actor) reconcile(ctx context.Context, r Reconciliation) (pg.Result, err
 	}
 	// Reconciled balances alone cannot repair a parent execution ledger that
 	// rejected a contradictory fill. End that obligation before another send.
-	if (len(next.UnresolvedFacts) > 0 || next.ClockDiscontinuity) && next.Parent != nil && (next.Parent.Status == "active" || next.Parent.Status == "paused" || next.Parent.Status == "cancel_requested") && !r.AbortParent {
+	if (affectedParent || next.ClockDiscontinuity) && next.Parent != nil && (next.Parent.Status == "active" || next.Parent.Status == "paused" || next.Parent.Status == "cancel_requested") && !r.AbortParent {
 		return pg.Result{}, ErrRecoveryRequired
 	}
 	if next.Child != nil {

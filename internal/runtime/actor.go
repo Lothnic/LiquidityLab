@@ -59,6 +59,15 @@ func New(ctx context.Context, c Config) (*Actor, error) {
 	if c.OwnerID == "" {
 		c.OwnerID = randomID("process-")
 	}
+	if c.Baseline == "" {
+		c.Baseline = x.BaselineScheduled
+	}
+	if err := x.ValidateBaselinePolicy(c.Baseline); err != nil {
+		return nil, err
+	}
+	if c.Execution.DecisionInterval > 24*time.Hour.Nanoseconds() || len(c.InstrumentRevision) > 128 || len(c.Rules.Symbol) > 64 || len(c.BaseCurrency) > 32 || len(c.QuoteCurrency) > 32 || len(c.Fees.Source) > 256 {
+		return nil, ErrInvalid
+	}
 	a, err := c.Store.GetAccount(ctx, c.Key)
 	if err != nil {
 		return nil, err
@@ -75,6 +84,9 @@ func New(ctx context.Context, c Config) (*Actor, error) {
 		}
 		if state.Version != StateVersion || state.Profile != ProfilePaper || state.Book == nil || state.BaseCurrency != c.BaseCurrency || state.QuoteCurrency != c.QuoteCurrency || state.InstrumentRevision != c.InstrumentRevision || state.Rules.Symbol != c.Rules.Symbol {
 			return nil, ErrInvalid
+		}
+		if state.Parent != nil && state.Parent.Baseline == "" {
+			state.Parent.Baseline = c.Baseline
 		}
 	}
 	owner, err := c.Store.ClaimOwnership(ctx, c.Key, c.OwnerID, c.Lease, c.RecoveryProof)
@@ -245,6 +257,9 @@ func (a *Actor) Close(ctx context.Context) error {
 func (a *Actor) loop() {
 	defer close(a.done)
 	interval := min(a.config.Lease/3, time.Second)
+	if a.config.AutoExecute {
+		interval = min(interval, time.Duration(a.config.Execution.DecisionInterval))
+	}
 	if interval < time.Millisecond {
 		interval = time.Millisecond
 	}
@@ -306,12 +321,17 @@ func (a *Actor) handle(req request) {
 	// caller disappearing. An identical command ID discovers its committed result.
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	if err := a.checkClock(ctx); err != nil && req.kind != "view" && req.kind != "market" && req.kind != "reconcile" {
+	control := false
+	if req.kind == "command" {
+		kind := req.input.(Command).Kind
+		control = kind == "pause" || kind == "cancel" || kind == "deadline"
+	}
+	if err := a.checkClock(ctx); err != nil && req.kind != "view" && req.kind != "market" && req.kind != "reconcile" && !control {
 		result.err = err
 		return
 	}
 	if req.kind != "view" && req.kind != "market" {
-		if err := a.drainFacts(ctx); err != nil && req.kind != "reconcile" {
+		if err := a.drainFacts(ctx); err != nil && req.kind != "reconcile" && !control {
 			result.err = err
 			return
 		}
@@ -372,6 +392,33 @@ func (a *Actor) maintenance() {
 	if p := a.state.Parent; p != nil && !a.now().Before(p.Deadline) && (p.Status == "active" || p.Status == "paused" || p.Status == "cancel_requested") {
 		_, _ = a.command(ctx, Command{ID: fmt.Sprintf("deadline-%s-%d", p.ID, p.Revision), ExpectedRevision: a.account.Revision, Kind: "deadline"})
 	}
+	if a.config.AutoExecute {
+		_ = a.advance(ctx)
+	}
+}
+
+// advance runs under account serialization. Cadence is derived from the last
+// actual decision rather than replaying missed intervals after downtime.
+func (a *Actor) advance(ctx context.Context) error {
+	p := a.state.Parent
+	if p == nil || p.Status != "active" || !a.account.Ready || !a.state.Book.Valid || a.state.RecoveryRequired || a.overflow.Load() || !a.now().Before(p.Deadline) {
+		return nil
+	}
+	if child := a.state.Child; child != nil && child.State == "queued" {
+		_, err := a.command(ctx, Command{ID: randomID("runtime-dispatch-"), Kind: "dispatch", ExpectedRevision: a.account.Revision, IntentID: child.ID})
+		return err
+	}
+	if a.elapsed(a.state) < a.state.NextDecision {
+		return nil
+	}
+	if _, err := a.command(ctx, Command{ID: randomID("runtime-decision-"), Kind: "decision", Policy: p.Baseline, ExpectedRevision: a.account.Revision}); err != nil {
+		return err
+	}
+	if child := a.state.Child; child != nil && child.State == "queued" {
+		_, err := a.command(ctx, Command{ID: randomID("runtime-dispatch-"), Kind: "dispatch", ExpectedRevision: a.account.Revision, IntentID: child.ID})
+		return err
+	}
+	return nil
 }
 func (a *Actor) market(ctx context.Context, input marketInput) error {
 	if input.SnapshotID == "" || len(input.SnapshotID) > 128 || len(input.Event.Bids)+len(input.Event.Asks) > 512 {

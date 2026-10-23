@@ -33,6 +33,8 @@ var (
 )
 
 type Config struct {
+	AutoExecute                                                        bool
+	Baseline                                                           string
 	Store                                                              *pg.Store
 	Key                                                                pg.Key
 	Profile                                                            Profile
@@ -47,7 +49,7 @@ type Config struct {
 }
 
 func DefaultConfig(store *pg.Store, key pg.Key) Config {
-	return Config{Store: store, Key: key, Profile: ProfilePaper, Lease: time.Minute, MailboxCapacity: 64, ControlCapacity: 16, FactCapacity: 64, MaxFills: 2048, MaxFacts: 256, Rules: d.DefaultRules(), Fees: d.DefaultFees(), Execution: d.DefaultConfig(), BaseCurrency: "BTC", QuoteCurrency: "USD", InstrumentRevision: "synthetic-rules-v1"}
+	return Config{Store: store, Key: key, Profile: ProfilePaper, Lease: time.Minute, MailboxCapacity: 64, ControlCapacity: 16, FactCapacity: 64, MaxFills: 2048, MaxFacts: 256, Rules: d.DefaultRules(), Fees: d.DefaultFees(), Execution: d.DefaultConfig(), BaseCurrency: "BTC", QuoteCurrency: "USD", InstrumentRevision: "synthetic-rules-v1", Baseline: x.BaselineScheduled}
 }
 
 type Parent struct {
@@ -58,6 +60,7 @@ type Parent struct {
 	Start    time.Time `json:"start"`
 	Deadline time.Time `json:"deadline"`
 	Spec     d.Plan    `json:"spec"`
+	Baseline string    `json:"baseline"`
 }
 type Child struct {
 	ID          string       `json:"id"`
@@ -69,6 +72,7 @@ type Child struct {
 }
 type Fact struct {
 	ID       string `json:"id"`
+	ParentID string `json:"parent_id,omitempty"`
 	IntentID string `json:"intent_id"`
 	Fill     d.Fill `json:"fill"`
 	Reason   string `json:"reason,omitempty"`
@@ -100,6 +104,10 @@ type State struct {
 	TradeFlow          d.Decimal         `json:"trade_flow"`
 	DecisionMids       []d.Decimal       `json:"decision_mids"`
 	ReferenceMid       d.Decimal         `json:"reference_mid"`
+	NextSlice          int64             `json:"next_slice_ns"`
+	NextDecision       int64             `json:"next_decision_ns"`
+	DecisionCount      uint64            `json:"decision_count"`
+	LastObservation    []float32         `json:"last_observation"`
 }
 type Command struct {
 	ID               string    `json:"id"`
@@ -110,6 +118,7 @@ type Command struct {
 	Deadline         time.Time `json:"deadline,omitempty"`
 	Action           d.Action  `json:"action,omitempty"`
 	IntentID         string    `json:"intent_id,omitempty"`
+	Policy           string    `json:"policy,omitempty"`
 }
 type View struct {
 	Account pg.Account

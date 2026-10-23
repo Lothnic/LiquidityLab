@@ -10,6 +10,19 @@ import (
 	d "github.com/liquiditylab/liquiditylab/internal/domain"
 )
 
+// DecodeSnapshot reads a trusted versioned database projection using the wider
+// internal decimal envelope. It is not the public plan or amount JSON decoder.
+func DecodeSnapshot(raw json.RawMessage) (State, error) {
+	var state State
+	if err := decodeInternal(raw, &state); err != nil {
+		return State{}, err
+	}
+	if state.Version != StateVersion || state.Profile != ProfilePaper || state.Book == nil {
+		return State{}, ErrInvalid
+	}
+	return state, nil
+}
+
 // Trusted persisted state has a wider decimal envelope than public JSON. This
 // decoder is local to versioned snapshots; external Decimal decoding stays strict.
 func decodeInternal(data []byte, dst any) error {

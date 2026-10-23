@@ -155,6 +155,9 @@ func (a *Actor) consumeOnly(ctx context.Context, observation pg.Observation) err
 }
 
 func (a *Actor) unresolved(ctx context.Context, observation pg.Observation, fact Fact) error {
+	if fact.ParentID == "" && a.state.Parent != nil {
+		fact.ParentID = a.state.Parent.ID
+	}
 	for _, prior := range a.state.UnresolvedFacts {
 		if prior.ID == fact.ID {
 			if prior.Resolved {
