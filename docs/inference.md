@@ -4,8 +4,8 @@ The worker serves the versioned `liquiditylab.v1.PolicyService` contract for
 offline replay and paper/shadow integration. It loads one immutable policy
 bundle at startup and returns a proposed action. It has no exchange credentials
 or order-submission capability. Go must still validate the echoed request
-binding and current account state before using a proposal. The Go client and
-its fallback behavior are separate integration work; this worker alone does
+binding and current account state before using a proposal. The Go client is in
+`internal/inference`; actor integration and fallback remain separate work. This worker alone does
 not establish a safe live decision path.
 
 ## Install and run
@@ -87,3 +87,38 @@ model hot reload, or Go-side stale-response/fallback handling. The 200 ms
 expiry is a stale-request cutoff, not a latency guarantee. Capacity and
 end-to-end latency must be measured with the Go client and target deployment
 before any paper or live admission decision.
+
+## Go policy client
+
+`inference.New(ctx, Config{...})` verifies the worker's pinned policy digest,
+observation version/fields and reported eligibility. Set `Profile` to `paper`
+or `shadow` and explicitly set `AllowUnvalidated: true`; live construction is
+rejected regardless of manifest status. Only absolute Unix paths or literal
+loopback TCP endpoints are accepted. The client uses one fail-fast proposal
+slot, 8 KiB request and 4 KiB response limits, a default 100 ms RPC budget, and
+a maximum 200 ms request validity window. It does not retry or queue excess
+inference work.
+
+`Propose` verifies the complete echoed binding, action enum, mode, field order,
+shape and finite features. `Proposal.ValidateCurrent` must then run under the
+account authority before action compilation: plan/account identity/revisions,
+policy/schema, active status, account readiness, market validity and expiry must
+still match. A newer market snapshot is permitted; the action must be compiled
+against that latest valid book. These methods provide the boundary checks;
+they do not themselves enqueue account commands, dispatch orders or choose a
+fallback.
+
+The optional real boundary check trains an eight-step PPO bundle, starts the
+Python worker, sends real Go replay features through the Go client and compiles
+the returned action in Go. Both absolute executable environment variables are
+required; otherwise this check skips explicitly:
+
+```sh
+LIQUIDITYLAB_PYTHON="$PWD/.venv/bin/python" \
+LIQUIDITYLAB_REPLAY_BINARY="$PWD/build/liquiditylabd" \
+  go test -race -count=1 ./internal/inference -run TestPythonPPOWorkerBoundary -v
+```
+
+The subprocesses use bounded startup/execution/cleanup, private Unix socket
+directories, and process-group cleanup. Passing this integration does not
+provide holdout evaluation or live eligibility.
