@@ -1,6 +1,6 @@
 # LiquidityLab: Go runtime and Python RL migration
 
-Decision plan updated 23 October 2026 against commit `7a0488d`. The Go core, replay bridge, public-data pipeline, PostgreSQL store, durable paper actor, Python inference worker, Go policy client, authenticated API, and paper CLI/server are committed. The React interface is present but uncommitted. This update plans the remaining integration and scale work; the stages below are acceptance requirements, not claims of production readiness or measured capacity.
+Decision plan updated 23 October 2026 against commit `dc521e5`. The Go core, replay bridge, public-data pipeline, PostgreSQL store, durable paper actor, Python inference worker, Go policy client, authenticated API, and paper CLI/server are committed. The React paper desk is committed and its synthetic browser workflow has been exercised; full session history and replay remain unfinished. This update plans the remaining integration and scale work; the stages below are acceptance requirements, not claims of production readiness or measured capacity.
 
 ## Decision in brief
 
@@ -37,7 +37,7 @@ The product remains an execution assistant: a trader chooses the trade and its s
 The original starting point was Python v0.1.0 with 40 checks. The repository has since advanced; use the following checkpoint when scheduling remaining work:
 
 - **Committed:** versioned/generated Go and Python protocol bindings; exact amounts; shared ledger/compiler, fees, reservations, observations, passive matching and baselines; deterministic replay/conformance; public recorder and incremental normalizer; bounded replay RPC and Python Gym/vector/PPO bridge; PostgreSQL ownership, inbox, journal and outbox; durable paper actor/scheduler/transport; recorded-data CLI; authenticated API; bounded paper server; Python inference worker and Go policy client.
-- **Present but uncommitted:** React supervision interface in `apps/web/` and `docs/trader-ui.md`. Review and demonstrate the complete browser workflow before its release commit.
+- **Paper desk committed:** React supervision interface in `apps/web/` and `docs/trader-ui.md`, exact preview/command binding, retained uncertain retries, API payload validation and responsive layouts. Synthetic browser verification covers create/start/fills/pause/resume/cancel; it is not design-user or live venue evidence. Account authority revisions now distinguish receipt/HOLD bookkeeping from financial/control changes; persistence throughput instrumentation remains outstanding.
 - **Remaining:** asynchronous model integration with actor fallback; full session history/replay; process-kill recovery evidence; scalable shared feed distribution; immutable evaluation/promotion; private venue integration; CI/deployment and measured operational capacity. Current journal reads expose metadata, and the HTTP interface polls; full historical reports and SSE are not implemented.
 - **Measured constraint:** the optimized replay bridge delivers about 23k transitions/second at batch 32 versus about 37–46k for Python in the checked-in synthetic comparison. Keep Python as the default training backend until the bridge gate passes. See [benchmark evidence](../benchmarks/README.md).
 - **External gates:** real public capture has failed on this host; private-account access, an authorized live pilot, and design-user evidence are still outstanding.
@@ -278,7 +278,7 @@ liquiditylab/
   deploy/                       # Local compose and process configuration
 ```
 
-Keep the Go release, Protobuf compiler/plugins, database driver, and RPC packages pinned. Generated code must be reproducible and checked for schema drift. Credentials and market recordings stay outside version control. Most runtime directories above now exist. `apps/web/` is present but uncommitted; production deployment packaging and any new shared ingest/account-routing modules remain planned. Inspect Git history before scheduling a component as new work.
+Keep the Go release, Protobuf compiler/plugins, database driver, and RPC packages pinned. Generated code must be reproducible and checked for schema drift. Credentials and market recordings stay outside version control. Most runtime directories above now exist. `apps/web/` is committed; production deployment packaging and any new shared ingest/account-routing modules remain planned. Inspect Git history before scheduling a component as new work.
 
 ## 12. Migration phases and gates
 
@@ -334,7 +334,7 @@ Exit: stale, incompatible, delayed, duplicate, and malformed responses cannot pr
 
 ### Phase 7 — trader API and interface: 5–8 days
 
-Current checkpoint: scoped authenticated API, exact preview and curated execution projections are committed. React interface is present but uncommitted; full history/session replay, workflow evidence and design-user validation remain outstanding.
+Current checkpoint: scoped authenticated API, exact preview and curated execution projections are committed. React interface and synthetic browser workflow are committed/recorded; full history/session replay and design-user validation remain outstanding.
 
 Build the plan form, active execution screen, pause/cancel, history, and session replay. Expose actual versus simulated results clearly. Add command authentication for remote deployment.
 
@@ -481,7 +481,7 @@ Use [implementation-progress.md](implementation-progress.md) as the requirement 
 
 ### Remaining delivery sequence
 
-The following are the next reviewable changes, in dependency order. Commit each numbered part separately; split adapter and operations work further as needed. Existing committed modules are retained.
+The following are the remaining workstreams, in dependency order. Checkpoint: the baseline desk workflow in part 1 and authority-revision distinction in part 2 are implemented; full history, persistence measurements and the later workstreams remain open. Commit each numbered part separately; split adapter and operations work further as needed. Existing committed modules are retained.
 
 1. **Complete the baseline paper desk.** Review the existing React code and prove preview → create paused → start → partial fills → pause/resume → cancel, including unknown command outcomes, account switching, stale feed and token scope. Add complete session reports/history and causal replay links in a separate follow-up commit; journal metadata is insufficient for this view. Show exact fees, quantities, arrival benchmark and simulated provenance. Exit: a trader can finish and inspect a session without reading runtime logs.
 2. **Separate revisions and instrument the durable path.** Specify command/financial revision, plan revision, market snapshot version and source cursor separately. Audit where no-fill paper trades currently advance the persisted account revision. A current market tick alone must not perpetually invalidate previews or policy responses; fills, holds, readiness and controls still invalidate financial authority. Keep durable deduplication/source ordering when reducing writes. Add transaction, snapshot-byte, WAL and lock-wait measurements before changing persistence. Exit: high-rate no-fill input does not starve valid commands, while any intervening financial/control change rejects obsolete actions.

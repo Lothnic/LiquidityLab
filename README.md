@@ -1,14 +1,21 @@
 # LiquidityLab
 
-LiquidityLab is an initial execution-environment implementation for bounded crypto spot orders. It pairs a causal market replay with a Gymnasium execution environment and transparent baseline policies. A trader supplies the side, base quantity, hard limit, and deadline; the environment models child orders and reports fills, fees, and any remaining quantity.
+LiquidityLab is a paper spot-execution system and research environment. It includes a deterministic Go execution runtime with durable PostgreSQL account state, an authenticated HTTP API and local paper server, a React operator desk, and Python replay, Gymnasium, training, and inference tools.
 
-## Quick start
+The paper runtime simulates balances, orders, and fills. It does not send private exchange orders. Public market data, when available, changes the market input only; it does not turn paper execution into live execution. Synthetic feed events and default rules or fees are assumptions, not exchange observations.
 
-Use Python 3.12 and `uv`:
+## Run the local paper desk
+
+The supported local operator flow uses the bounded Go daemon and a new PostgreSQL schema/account. Install the web dependencies, build the UI, and start the daemon with an isolated development database and a fresh bearer token. Follow [paper-server.md](docs/paper-server.md) for the complete command, database requirements, source options, shutdown behavior, and recovery limits. The daemon serves the built UI and authenticated API on the same loopback origin.
+
+The [trader UI guide](docs/trader-ui.md) covers the Vite development server, operator flow, exact amount handling, preview and command semantics, freshness, and presentation limits. The UI labels the execution profile as Paper and identifies the data source separately.
+
+## Python replay and training
+
+Use Python 3.12 and `uv` for the Python environment:
 
 ```sh
 uv sync --extra dev --python 3.12
-uv run --extra dev pytest
 ```
 
 Run a deterministic generated demo or replay the checked-in fixtures:
@@ -20,40 +27,18 @@ uv run liquiditylab replay examples/synthetic.jsonl --plan examples/buy-plan.jso
 uv run liquiditylab replay examples/synthetic.jsonl --plan examples/sell-plan.json --policy scheduled --output artifacts/sell-report.json
 ```
 
-Capture and inspect public data:
-
-```sh
-uv run liquiditylab capture --symbol BTC/USD --duration 10 --output data/capture.jsonl --depth 10
-uv run liquiditylab inspect examples/synthetic.jsonl
-uv run liquiditylab normalize data/capture.jsonl --output data/replay.jsonl
-```
-
-Optional PPO training uses a separate dependency extra because PyTorch is large. The default install does not install it; Linux and Windows use CPU wheels for this extra:
+Optional PPO training uses the separate RL extra because PyTorch is large:
 
 ```sh
 uv run --extra rl python -m liquiditylab.training examples/training-tape.jsonl --plan examples/buy-plan.json --output artifacts/policy-001 --timesteps 2048 --seed 0
 ```
 
-Training aborts on an invalid or unresolved episode. Bundles record the policy, implementation, dependency lock and dataset checksums, dependencies, schemas and configuration, and begin with `status: unvalidated` and `live_eligible: false`. A 128-step CPU PPO smoke run completed, and the automated suite verifies training, saving, reloading, and inference. This checks the integration, not policy quality.
+Bundles start as unvalidated and are not live eligible. Training and replay checks establish software behavior, not policy quality or execution performance. The Go execution core is the durable runtime and also supports replay and Python Gymnasium/SB3 integration; see [Go replay setup](docs/go-replay.md) and the [inference worker and Go client](docs/inference.md).
 
-The Gymnasium environment is registered as `LiquidityLab-SpotExecution-v0` and can be created after `import liquiditylab`, with `gym.make("LiquidityLab-SpotExecution-v0")`. By default it uses an internally generated synthetic episode. Provide an explicit recorded episode when evaluating against market data.
+## Current scope and limits
 
-## Fixture outcomes
+The Go paper runtime, durable store and actor, authenticated API, bounded local server, Python inference worker/client, and React desk are implemented. Model proposals are not yet integrated into actor scheduling; the runtime continues to use its baseline behavior. Public capture and normalization code exists, but a usable real Kraken recording has not been verified on the implementation host. The paper server's synthetic source generates demo market events and must not be described as live market data.
 
-`examples/buy-plan.json` is a short buy that can complete during the 30-second decision horizon on the included tape. `examples/sell-plan.json` fills its first slice at the minimum price. The bid falls below that boundary before the next scheduled slice, so half the target remains at the deadline. Both examples use synthetic balances, fee settings, and instrument assumptions.
+Live private exchange access and order transport are unavailable. Model actor integration, full session history, process-kill recovery evidence, design-user acceptance, deployment hardening, and measured product capacity remain outstanding. Replay throughput benchmarks do not establish supported account capacity. See the [implementation status](docs/implementation-progress.md), [runtime plan](docs/go-runtime-plan.md), and [verification evidence](docs/verification.md) for current progress and limitations.
 
-The JSONL tape is intentionally small and deterministic. It covers relative receipt times from 0 through 64 seconds, including a snapshot, absolute quantity book updates, trades, and a feed gap. `valid` and monotonically increasing `receipt_index` make ordering and data-health state explicit. The 30-second plan deadline is followed by the default 30-second settlement allowance.
-
-## Current scope
-
-This first implementation provides replay, accounting, baseline execution and the Gymnasium contract. The fixtures and generated demo support implementation and validation; they do not establish execution quality or profitability. An optional PPO training entry point is included. A live private exchange connector, a trader UI, durable application persistence and policy promotion are not included yet. `capture` is public market-data capture only; it does not place orders or access private account state.
-
-The Go execution core, deterministic replay, public recorder, and local batched replay service are implemented. Python's v1 Gymnasium and SB3 vector adapters use that Go core for PPO training; v0 remains the reference/default path during migration. See [Go replay setup](docs/go-replay.md) and the [migration plan](docs/go-runtime-plan.md). Durable product runtime, trader UI, private exchange integration, and policy promotion remain in progress.
-
-See [simulation assumptions](docs/simulation.md) and the [implementation plan](docs/implementation-plan.md) before interpreting reports.
-
-## Validation and remaining integration
-
-The Python suite passes **57 tests** with the Go/RL extras and a built replay binary configured, including real-process Gym/PPO integration and failure handling. Go race checks cover the core, conformance, public parser, and replay service. See [verification.md](docs/verification.md) for evidence and commands. Optional checks skip explicitly without their runtime dependencies. Public Kraken connection attempts from the implementation host have not obtained a usable recording; capture retains a failure manifest and exits unsuccessfully when no valid snapshot arrives.
-
-Default rules and fees are synthetic. Supply account-confirmed values using `replay --rules rules.json --fees fees.json`; inspect the recorded assumptions in each report. The feasibility decision for the future exchange engine is in [engine-feasibility.md](docs/engine-feasibility.md).
+The JSONL fixture is intentionally small and deterministic. It covers relative receipt times from 0 through 64 seconds, including a snapshot, absolute quantity book updates, trades, and a feed gap. Its generated demo outcomes, balances, fee settings, and instrument assumptions do not establish execution quality or profitability. See [simulation assumptions](docs/simulation.md) before interpreting reports.
