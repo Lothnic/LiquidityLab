@@ -1,33 +1,26 @@
 package replay
 
 import (
-	"errors"
 	d "github.com/liquiditylab/liquiditylab/internal/domain"
+	x "github.com/liquiditylab/liquiditylab/internal/execution"
 )
 
 type ScheduledPolicy struct{ NextSlice int64 }
 
 func (p *ScheduledPolicy) Act(e *Engine) d.Action {
-	if e.Now < p.NextSlice {
-		return d.Hold
-	}
-	p.NextSlice += 15 * d.Second
-	return d.AggressiveNormal
+	action, next := x.ScheduledAction(e.Now, p.NextSlice)
+	p.NextSlice = next
+	return action
 }
 
 type LiquidityAwarePolicy struct{}
 
 func (LiquidityAwarePolicy) Act(e *Engine) d.Action {
-	elapsed := float64(e.Now) / float64(e.Plan.Deadline)
-	filled := e.Ledger.Filled.Quo(e.Plan.Quantity).Float64()
-	if elapsed-filled > 0.1 || elapsed >= 0.75 {
-		return d.AggressiveNormal
-	}
-	return d.PassiveNormal
+	return x.LiquidityAwareAction(e.Plan, e.Now, e.Ledger.Filled)
 }
 func RunPolicy(e *Engine, name string) (Report, error) {
-	if name != "scheduled" && name != "liquidity-aware" {
-		return nil, errors.New("unknown baseline policy")
+	if err := x.ValidateBaselinePolicy(name); err != nil {
+		return nil, err
 	}
 	if _, err := e.Reset(); err != nil {
 		return nil, err

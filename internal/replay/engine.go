@@ -215,20 +215,12 @@ func (e *Engine) event(event d.MarketEvent) error {
 		e.tradeFlow = e.tradeFlow.Sub(event.Quantity)
 	}
 	c := e.Child
-	if c == nil || (c.State != "open" && c.State != "cancel_requested") {
+	if c == nil {
 		return nil
 	}
-	qualifying := c.Intent.Side == "buy" && event.Side == "sell" || c.Intent.Side == "sell" && event.Side == "buy"
-	if !qualifying || !event.Price.Equal(c.Intent.Price) {
-		return nil
-	}
-	ahead := d.Min(event.Quantity, c.QueueAhead)
-	c.QueueAhead = c.QueueAhead.Sub(ahead)
-	volume := event.Quantity.Sub(ahead)
-	if volume.Sign() > 0 {
-		return e.fill(d.Min(volume, c.Remaining), c.Intent.Price, true)
-	}
-	return nil
+	match := x.MatchPassiveTrade(*c, event)
+	c.QueueAhead = match.QueueAhead
+	return e.fill(match.Quantity, c.Intent.Price, true)
 }
 func (e *Engine) fill(q, p d.Decimal, maker bool) error {
 	c := e.Child
