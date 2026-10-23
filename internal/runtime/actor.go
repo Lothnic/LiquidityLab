@@ -62,6 +62,12 @@ func New(ctx context.Context, c Config) (*Actor, error) {
 	if c.Baseline == "" {
 		c.Baseline = x.BaselineScheduled
 	}
+	if c.DataSource == "" {
+		c.DataSource = "manual"
+	}
+	if c.DataSource != "manual" && c.DataSource != "synthetic" && c.DataSource != "recorded" && c.DataSource != "kraken-public" {
+		return nil, ErrInvalid
+	}
 	if err := x.ValidateBaselinePolicy(c.Baseline); err != nil {
 		return nil, err
 	}
@@ -77,7 +83,7 @@ func New(ctx context.Context, c Config) (*Actor, error) {
 	}
 	var state State
 	if string(a.Snapshot) == "{}" && len(a.Plans) == 0 && len(a.Intents) == 0 {
-		state = State{Version: StateVersion, Profile: ProfilePaper, Rules: c.Rules, Fees: c.Fees, Execution: c.Execution, BaseCurrency: c.BaseCurrency, QuoteCurrency: c.QuoteCurrency, InstrumentRevision: c.InstrumentRevision, Book: x.NewBook()}
+		state = State{Version: StateVersion, Profile: ProfilePaper, DataSource: c.DataSource, Rules: c.Rules, Fees: c.Fees, Execution: c.Execution, BaseCurrency: c.BaseCurrency, QuoteCurrency: c.QuoteCurrency, InstrumentRevision: c.InstrumentRevision, Book: x.NewBook()}
 	} else {
 		if err = decodeInternal(a.Snapshot, &state); err != nil {
 			return nil, err
@@ -87,6 +93,12 @@ func New(ctx context.Context, c Config) (*Actor, error) {
 		}
 		if state.Parent != nil && state.Parent.Baseline == "" {
 			state.Parent.Baseline = c.Baseline
+		}
+		if state.DataSource == "" {
+			state.DataSource = "manual"
+		}
+		if state.DataSource != c.DataSource {
+			return nil, ErrInvalid
 		}
 	}
 	owner, err := c.Store.ClaimOwnership(ctx, c.Key, c.OwnerID, c.Lease, c.RecoveryProof)

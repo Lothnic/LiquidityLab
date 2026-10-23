@@ -405,6 +405,7 @@ func runPaper(ctx context.Context, opt paperOptions, dsn string, stdout, stderr 
 		CommandReceipts: []paperCommandReceipt{}, Journal: []paperJournalCount{},
 	}
 	config := rt.DefaultConfig(store, key)
+	config.DataSource = "recorded"
 	config.AutoExecute, config.Baseline = true, opt.policy
 	op, cancel = paperOperation()
 	actor, err := rt.New(op, config)

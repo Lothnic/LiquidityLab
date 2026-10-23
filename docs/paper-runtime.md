@@ -6,6 +6,11 @@ rules and passive trade matcher as Go replay. It cannot construct a live
 transport. A trader API and product CLI are subsequent
 integration components; this package alone is not a complete trading product.
 
+The persisted `data_source` identifies `manual`, `synthetic`, `recorded` or
+`kraken-public` input independently of the paper execution profile. Recovery
+cannot silently relabel an existing account to a different source. Prices from
+an actual public feed still produce simulated paper orders, fills and balances.
+
 ## Lifecycle and commands
 
 Create/migrate a store, create an account with synthetic balances, then call
@@ -25,6 +30,10 @@ retain and retry the same ID and payload.
 Creating a parent starts it paused. Starting pins its UTC deadline and relative
 execution horizon. There is one active parent per account, including paused and
 cancel-requested parents. A queued child and its reservation commit atomically.
+Starting also freezes `Parent.ArrivalMid`. Subsequent decision observations
+use the current midpoint; the arrival reference remains unchanged on resume.
+Executed cost against that arrival reference includes filled slippage and
+quote-valued fees, and excludes any marking of unfilled quantity or P&L.
 Dispatch recompiles against the current book and validates readiness, lease,
 revisions, metadata, balances and deadline before physical transport handoff.
 Obsolete unsent children release their reservation. Attempted or unknown

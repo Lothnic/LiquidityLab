@@ -123,6 +123,7 @@ func (a *Actor) command(ctx context.Context, c Command) (pg.Result, error) {
 			next.Parent.Started = true
 			next.Parent.Spec.Deadline = next.Parent.Deadline.Sub(next.Parent.Start).Nanoseconds()
 			next.ReferenceMid = next.Book.Mid()
+			next.Parent.ArrivalMid = next.ReferenceMid
 			next.DecisionMids = []d.Decimal{next.ReferenceMid}
 		}
 		next.Parent.Status = "active"

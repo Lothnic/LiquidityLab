@@ -33,6 +33,7 @@ var (
 )
 
 type Config struct {
+	DataSource                                                         string
 	AutoExecute                                                        bool
 	Baseline                                                           string
 	Store                                                              *pg.Store
@@ -53,14 +54,15 @@ func DefaultConfig(store *pg.Store, key pg.Key) Config {
 }
 
 type Parent struct {
-	ID       string    `json:"id"`
-	Revision int64     `json:"revision"`
-	Status   string    `json:"status"`
-	Started  bool      `json:"started"`
-	Start    time.Time `json:"start"`
-	Deadline time.Time `json:"deadline"`
-	Spec     d.Plan    `json:"spec"`
-	Baseline string    `json:"baseline"`
+	ID         string    `json:"id"`
+	Revision   int64     `json:"revision"`
+	Status     string    `json:"status"`
+	Started    bool      `json:"started"`
+	Start      time.Time `json:"start"`
+	Deadline   time.Time `json:"deadline"`
+	Spec       d.Plan    `json:"spec"`
+	Baseline   string    `json:"baseline"`
+	ArrivalMid d.Decimal `json:"arrival_mid"`
 }
 type Child struct {
 	ID          string       `json:"id"`
@@ -81,6 +83,7 @@ type Fact struct {
 type State struct {
 	Version            string            `json:"version"`
 	Profile            Profile           `json:"profile"`
+	DataSource         string            `json:"data_source"`
 	Rules              d.InstrumentRules `json:"rules"`
 	Fees               d.FeeConfig       `json:"fees"`
 	Execution          d.ReplayConfig    `json:"execution"`
