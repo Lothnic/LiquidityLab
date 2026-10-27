@@ -31,6 +31,9 @@ func validJSON(v json.RawMessage) bool { return len(v) > 0 && len(v) <= 1<<20 &&
 func normalized(err error) error {
 	var e *pgconn.PgError
 	if errors.As(err, &e) {
+		if e.ConstraintName == "ll_paper_observation_owner" {
+			return ErrOwnership
+		}
 		switch e.Code {
 		case "23505":
 			return fmt.Errorf("%w: durable uniqueness constraint", ErrConflict)
@@ -241,7 +244,7 @@ func (s *Store) CreateAccount(ctx context.Context, key Key, balances []Balance, 
 func lockAccount(ctx context.Context, tx pgx.Tx, key Key) (Account, error) {
 	a := Account{Key: key}
 	var lease *time.Time
-	err := tx.QueryRow(ctx, `SELECT revision,owner_id,ownership_epoch,lease_until,ready,market_valid,market_snapshot_id,instrument_revision,snapshot,observed_sequence,processed_sequence,pending_observation_bytes FROM accounts WHERE tenant_id=$1 AND account_id=$2 FOR UPDATE`, key.TenantID, key.AccountID).Scan(&a.Revision, &a.Ownership.OwnerID, &a.Ownership.Epoch, &lease, &a.Ready, &a.Market.Valid, &a.Market.SnapshotID, &a.Market.InstrumentRevision, &a.Snapshot, &a.ObservedSequence, &a.ProcessedSequence, &a.PendingObservationBytes)
+	err := tx.QueryRow(ctx, `SELECT revision,owner_id,ownership_epoch,lease_until,ready,market_valid,market_snapshot_id,instrument_revision,snapshot,observed_sequence,processed_sequence,pending_observation_bytes,paper_transport_contract FROM accounts WHERE tenant_id=$1 AND account_id=$2 FOR UPDATE`, key.TenantID, key.AccountID).Scan(&a.Revision, &a.Ownership.OwnerID, &a.Ownership.Epoch, &lease, &a.Ready, &a.Market.Valid, &a.Market.SnapshotID, &a.Market.InstrumentRevision, &a.Snapshot, &a.ObservedSequence, &a.ProcessedSequence, &a.PendingObservationBytes, &a.PaperTransportContract)
 	if lease != nil {
 		a.LeaseUntil = *lease
 	}
@@ -275,9 +278,19 @@ func (s *Store) GetAccount(ctx context.Context, key Key) (Account, error) {
 		return Account{}, err
 	}
 	defer tx.Rollback(ctx)
+	a, err := readAccount(ctx, tx, key)
+	if err != nil {
+		return Account{}, err
+	}
+	return a, tx.Commit(ctx)
+}
+
+// readAccount reads a complete projection in the caller's transaction. A caller
+// making a transition must hold the account lock before using the projection.
+func readAccount(ctx context.Context, tx pgx.Tx, key Key) (Account, error) {
 	a := Account{Key: key}
 	var lease *time.Time
-	err = tx.QueryRow(ctx, `SELECT revision,owner_id,ownership_epoch,lease_until,ready,market_valid,market_snapshot_id,instrument_revision,snapshot,observed_sequence,processed_sequence,pending_observation_bytes FROM accounts WHERE tenant_id=$1 AND account_id=$2`, key.TenantID, key.AccountID).Scan(&a.Revision, &a.Ownership.OwnerID, &a.Ownership.Epoch, &lease, &a.Ready, &a.Market.Valid, &a.Market.SnapshotID, &a.Market.InstrumentRevision, &a.Snapshot, &a.ObservedSequence, &a.ProcessedSequence, &a.PendingObservationBytes)
+	err := tx.QueryRow(ctx, `SELECT revision,owner_id,ownership_epoch,lease_until,ready,market_valid,market_snapshot_id,instrument_revision,snapshot,observed_sequence,processed_sequence,pending_observation_bytes,paper_transport_contract FROM accounts WHERE tenant_id=$1 AND account_id=$2`, key.TenantID, key.AccountID).Scan(&a.Revision, &a.Ownership.OwnerID, &a.Ownership.Epoch, &lease, &a.Ready, &a.Market.Valid, &a.Market.SnapshotID, &a.Market.InstrumentRevision, &a.Snapshot, &a.ObservedSequence, &a.ProcessedSequence, &a.PendingObservationBytes, &a.PaperTransportContract)
 	if err != nil {
 		return a, normalized(err)
 	}
@@ -370,5 +383,5 @@ func (s *Store) GetAccount(ctx context.Context, key Key) (Account, error) {
 	if err != nil {
 		return a, err
 	}
-	return a, tx.Commit(ctx)
+	return a, nil
 }

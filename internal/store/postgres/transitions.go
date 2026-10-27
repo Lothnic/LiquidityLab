@@ -34,6 +34,9 @@ func (s *Store) ClaimOwnership(ctx context.Context, key Key, owner string, lease
 	if err != nil {
 		return Ownership{}, err
 	}
+	if a.PaperTransportContract != "" {
+		return Ownership{}, ErrIsolationRequired
+	}
 	now, err := databaseNow(ctx, tx)
 	if err != nil {
 		return Ownership{}, err

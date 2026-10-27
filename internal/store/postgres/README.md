@@ -141,6 +141,39 @@ Ingress durability does not replace venue-history reconciliation for a failure
 before a fact reaches this database. Inbox history needs the separate retention,
 backup, restore, and operational work in the migration plan.
 
+## PostgreSQL paper-effect ownership foundation
+
+`ClaimPaperOwnership(ctx, key, owner, lease) (Account, error)` declares a
+`postgres-paper-v1` transport contract and returns the complete account from its
+claim transaction, including its recovery observation watermark. It advances
+ownership/revision, clears readiness/market validity and obsoletes queued intents.
+Attempted/unknown/acknowledged intents retain their holds. It does not reconcile
+those outcomes or make the account ready. Existing populated accounts must
+explicitly declare the paper profile; an unmarked empty snapshot qualifies only
+on a genuinely new account. A marked empty snapshot remains reclaimable after a
+crash between the initial paper claim and runtime bootstrap.
+
+`RecordPaperObservation(ctx, key, ownership, observation)` admits only simulated
+`transport` and `paper_trade` facts. It checks owner ID, epoch and lease under the
+same account row lock used by takeover. Migration 0004 additionally guards inserts
+for marked accounts, so an older binary's unowned insert cannot bypass the new
+method. Either the old paper effect committed before takeover and is included in
+the returned watermark, or its delayed append fails. Transaction-local tokens
+do not survive a connection-pool return. Generic ownership claims refuse marked
+accounts; renewals still require the current token.
+
+This guarantee applies to a simulated venue whose only persistent effect is the
+PostgreSQL observation. It provides no isolation of external exchange connections.
+Actual private facts, such as fills arriving during owner recovery, continue to
+use `RecordObservation` independently of the execution lease. They cannot be
+discarded because an owner is unavailable.
+
+These methods are an additive foundation. The current daemon/actor still use
+generic ownership and observation calls; wiring the paper contract, existing-
+account CLI recovery and the actual process-kill harness remain required before
+operational resume is supported. Do not mark an account manually and then try to
+run the old generic runtime against it.
+
 ## Executed verification and remaining gates
 
 With `LIQUIDITYLAB_TEST_POSTGRES_DSN` pointing to the isolated local PostgreSQL

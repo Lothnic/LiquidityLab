@@ -133,6 +133,7 @@ type Result struct {
 }
 type Account struct {
 	Key                     Key             `json:"key"`
+	PaperTransportContract  string          `json:"paper_transport_contract,omitempty"`
 	Revision                int64           `json:"revision"`
 	Ownership               Ownership       `json:"ownership"`
 	LeaseUntil              time.Time       `json:"lease_until"`

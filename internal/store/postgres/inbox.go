@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"math"
+	"strconv"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -15,6 +16,10 @@ import (
 // The ingress caller is trusted/authenticated by the runtime, never a model. An
 // event ID is stable across retries; reusing it for changed facts is a conflict.
 func (s *Store) RecordObservation(ctx context.Context, key Key, observation Observation) (int64, error) {
+	return s.recordObservation(ctx, key, nil, observation)
+}
+
+func (s *Store) recordObservation(ctx context.Context, key Key, ownership *Ownership, observation Observation) (int64, error) {
 	if !validKey(key) || !validID(observation.ID) || !validID(observation.Kind) || !validJSON(observation.Payload) {
 		return 0, ErrInvalid
 	}
@@ -41,6 +46,23 @@ func (s *Store) RecordObservation(ctx context.Context, key Key, observation Obse
 	a, err := lockAccount(ctx, tx, key)
 	if err != nil {
 		return 0, err
+	}
+	if ownership != nil {
+		if a.PaperTransportContract != PaperTransportContract {
+			return 0, ErrInvalid
+		}
+		now, err := databaseNow(ctx, tx)
+		if err != nil {
+			return 0, err
+		}
+		if err = checkOwner(a, *ownership, now); err != nil {
+			return 0, err
+		}
+		if _, err = tx.Exec(ctx, `SELECT set_config('liquiditylab.paper_owner_id',$1,true),set_config('liquiditylab.paper_owner_epoch',$2,true)`, ownership.OwnerID, strconv.FormatInt(ownership.Epoch, 10)); err != nil {
+			return 0, err
+		}
+	} else if a.PaperTransportContract != "" && paperObservationKind(observation.Kind) {
+		return 0, ErrOwnership
 	}
 	var prior []byte
 	var sequence int64
