@@ -335,7 +335,7 @@ func TestActorManualOverfillDoesNotChangeProjection(t *testing.T) {
 }
 
 func TestActorRecoveryRequiresPaperProfileProofNewBookAndReconciliation(t *testing.T) {
-	store, key, _, a := actorTestReady(t, 0)
+	_, _, _, a := actorTestReady(t, 0)
 	actorTestCreateAndStart(t, a, "plan-restart-first")
 	queued := actorTestQueue(t, a, d.AggressiveNormal, "action-restart-first")
 	if err := actorTestDispatch(t, a, queued.State.Child.ID, "dispatch-restart-first"); err != nil {
@@ -352,7 +352,7 @@ func TestActorRecoveryRequiresPaperProfileProofNewBookAndReconciliation(t *testi
 	}
 	cancel()
 	for _, profile := range []Profile{ProfileLive, ProfileReplay} {
-		cfg := DefaultConfig(store, key)
+		cfg := a.config
 		cfg.Profile = profile
 		cfg.OwnerID = "profile-" + string(profile)
 		ctx, cancel = actorTestContext(t)
@@ -362,7 +362,7 @@ func TestActorRecoveryRequiresPaperProfileProofNewBookAndReconciliation(t *testi
 			t.Fatalf("New profile %s error=%v, want ErrProfile", profile, err)
 		}
 	}
-	cfg := DefaultConfig(store, key)
+	cfg := a.config
 	cfg.OwnerID = "paper-process-without-proof"
 	ctx, cancel = actorTestContext(t)
 	_, err := New(ctx, cfg)

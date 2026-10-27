@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"reflect"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -50,6 +51,43 @@ func randomID(prefix string) string {
 	}
 	return prefix + hex.EncodeToString(raw[:])
 }
+
+// bootstrapState validates immutable execution inputs before ownership changes,
+// and reconstructs state again after the claim from the current durable account.
+// A pre-claim read never supplies the snapshot written by the new owner.
+func bootstrapState(c Config, account pg.Account, bundle *PolicyBundle) (State, error) {
+	var state State
+	if string(account.Snapshot) == "{}" && len(account.Plans) == 0 && len(account.Intents) == 0 {
+		state = State{Version: StateVersion, Profile: ProfilePaper, DataSource: c.DataSource, Rules: c.Rules, Fees: c.Fees, Execution: c.Execution, BaseCurrency: c.BaseCurrency, QuoteCurrency: c.QuoteCurrency, InstrumentRevision: c.InstrumentRevision, Book: x.NewBook()}
+	} else {
+		if err := decodeInternal(account.Snapshot, &state); err != nil {
+			return State{}, err
+		}
+		if state.Version != StateVersion || state.Profile != ProfilePaper || state.Book == nil || state.BaseCurrency != c.BaseCurrency || state.QuoteCurrency != c.QuoteCurrency || state.InstrumentRevision != c.InstrumentRevision || !reflect.DeepEqual(state.Rules, c.Rules) || !reflect.DeepEqual(state.Fees, c.Fees) || !reflect.DeepEqual(state.Execution, c.Execution) {
+			return State{}, ErrInvalid
+		}
+		// Older snapshots omitted these defaults. Existing parent baselines stay
+		// pinned independently of the default selected for future sessions.
+		if state.Parent != nil && state.Parent.Baseline == "" {
+			state.Parent.Baseline = c.Baseline
+		}
+		if state.DataSource == "" {
+			state.DataSource = "manual"
+		}
+		if state.DataSource != c.DataSource {
+			return State{}, ErrInvalid
+		}
+	}
+	if !sameBundle(state.PolicyBundle, bundle) && !canReplacePolicyBundle(state, account) {
+		return State{}, ErrInvalid
+	}
+	state.PolicyBundle = bundle
+	if !terminalPolicyParent(state.Parent) && !sameBundle(state.Parent.PolicyBundle, bundle) {
+		return State{}, ErrInvalid
+	}
+	return state, nil
+}
+
 func New(ctx context.Context, c Config) (*Actor, error) {
 	if c.Profile != ProfilePaper {
 		return nil, ErrProfile
@@ -95,38 +133,21 @@ func New(ctx context.Context, c Config) (*Actor, error) {
 	if a.Ownership.OwnerID == c.OwnerID {
 		return nil, pg.ErrOwnership
 	}
-	var state State
-	if string(a.Snapshot) == "{}" && len(a.Plans) == 0 && len(a.Intents) == 0 {
-		state = State{Version: StateVersion, Profile: ProfilePaper, DataSource: c.DataSource, Rules: c.Rules, Fees: c.Fees, Execution: c.Execution, BaseCurrency: c.BaseCurrency, QuoteCurrency: c.QuoteCurrency, InstrumentRevision: c.InstrumentRevision, Book: x.NewBook()}
-	} else {
-		if err = decodeInternal(a.Snapshot, &state); err != nil {
-			return nil, err
-		}
-		if state.Version != StateVersion || state.Profile != ProfilePaper || state.Book == nil || state.BaseCurrency != c.BaseCurrency || state.QuoteCurrency != c.QuoteCurrency || state.InstrumentRevision != c.InstrumentRevision || state.Rules.Symbol != c.Rules.Symbol {
-			return nil, ErrInvalid
-		}
-		if state.Parent != nil && state.Parent.Baseline == "" {
-			state.Parent.Baseline = c.Baseline
-		}
-		if state.DataSource == "" {
-			state.DataSource = "manual"
-		}
-		if state.DataSource != c.DataSource {
-			return nil, ErrInvalid
-		}
-	}
-	if !sameBundle(state.PolicyBundle, bundle) && !canReplacePolicyBundle(state, a) {
-		return nil, ErrInvalid
-	}
-	state.PolicyBundle = bundle
-	if !terminalPolicyParent(state.Parent) && !sameBundle(state.Parent.PolicyBundle, bundle) {
-		return nil, ErrInvalid
+	if _, err = bootstrapState(c, a, bundle); err != nil {
+		return nil, err
 	}
 	owner, err := c.Store.ClaimOwnership(ctx, c.Key, c.OwnerID, c.Lease, c.RecoveryProof)
 	if err != nil {
 		return nil, err
 	}
 	a, err = c.Store.GetAccount(ctx, c.Key)
+	if err != nil {
+		return nil, err
+	}
+	if a.Ownership != owner {
+		return nil, pg.ErrOwnership
+	}
+	state, err := bootstrapState(c, a, bundle)
 	if err != nil {
 		return nil, err
 	}
@@ -160,6 +181,13 @@ func New(ctx context.Context, c Config) (*Actor, error) {
 		}
 	}
 	var bootstrapPlan *pg.Plan
+	// Recovery always needs an explicit resume after fresh market data and
+	// reconciliation, including baseline sessions without pending inference.
+	if state.Parent != nil && state.Parent.Status == "active" {
+		state.Parent.Status = "paused"
+		state.Parent.Revision++
+		bootstrapPlan = parentRow(state.Parent)
+	}
 	// An old owner's pending request cannot authorize a recovered sender.
 	if state.PolicyPending != nil {
 		state.PolicyPending.Result, state.PolicyPending.Reason = "fallback_pause", "owner_restart"
@@ -167,11 +195,6 @@ func New(ctx context.Context, c Config) (*Actor, error) {
 		state.DecisionCount = max(state.DecisionCount, state.PolicyPending.Slot)
 		state.LastPolicyDecision = state.PolicyPending
 		state.PolicyPending = nil
-		if state.Parent != nil && state.Parent.Status == "active" {
-			state.Parent.Status = "paused"
-			state.Parent.Revision++
-			bootstrapPlan = parentRow(state.Parent)
-		}
 	}
 	for _, f := range state.UnresolvedFacts {
 		if !f.Resolved {

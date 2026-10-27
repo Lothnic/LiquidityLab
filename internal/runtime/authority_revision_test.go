@@ -153,7 +153,7 @@ func TestActorAuthorityRevisionRejectsStaleFinancialAndReadinessCommands(t *test
 }
 
 func TestActorAuthorityRevisionBootstrapsLegacySnapshotAndFencesPreviousOwner(t *testing.T) {
-	store, key, schema, old := actorTestReady(t, 0)
+	_, key, schema, old := actorTestReady(t, 0)
 	before := actorTestView(t, old)
 	ctx, cancel := actorTestContext(t)
 	defer cancel()
@@ -169,7 +169,7 @@ func TestActorAuthorityRevisionBootstrapsLegacySnapshotAndFencesPreviousOwner(t 
 	if err != nil {
 		t.Fatal(err)
 	}
-	cfg := DefaultConfig(store, key)
+	cfg := old.config
 	cfg.OwnerID = "authority-new-owner"
 	cfg.RecoveryProof = pg.RecoveryProof{PreviousSenderIsolated: true, Reconciled: true, Reference: "authority-owner-proof"}
 	recovered, err := New(ctx, cfg)

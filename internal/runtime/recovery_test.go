@@ -63,11 +63,24 @@ func recoveryTestHandoff(t *testing.T, a *Actor, childID string) (pg.Observation
 
 func recoveryTestNew(t *testing.T, store *pg.Store, key pg.Key, owner string) *Actor {
 	t.Helper()
-	cfg := DefaultConfig(store, key)
-	cfg.OwnerID = owner
-	cfg.RecoveryProof = pg.RecoveryProof{PreviousSenderIsolated: true, Reconciled: true, Reference: "recovery-test-operator-proof"}
 	ctx, cancel := actorTestContext(t)
 	defer cancel()
+	account, err := store.GetAccount(ctx, key)
+	if err != nil {
+		t.Fatal(err)
+	}
+	state, err := DecodeSnapshot(account.Snapshot)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Restart must use the retained execution contract, including fixture-specific
+	// message intervals, rather than silently replacing it with fresh defaults.
+	cfg := DefaultConfig(store, key)
+	cfg.Rules, cfg.Fees, cfg.Execution = state.Rules, state.Fees, state.Execution
+	cfg.BaseCurrency, cfg.QuoteCurrency = state.BaseCurrency, state.QuoteCurrency
+	cfg.InstrumentRevision, cfg.DataSource = state.InstrumentRevision, state.DataSource
+	cfg.OwnerID = owner
+	cfg.RecoveryProof = pg.RecoveryProof{PreviousSenderIsolated: true, Reconciled: true, Reference: "recovery-test-operator-proof"}
 	a, err := New(ctx, cfg)
 	if err != nil {
 		t.Fatalf("New recovery owner %s: %v", owner, err)
@@ -217,9 +230,8 @@ func TestActorViewReturnsDeepCopies(t *testing.T) {
 }
 
 func TestActorRejectsConcurrentSecondInstanceWithSameOwner(t *testing.T) {
-	store, key, _, first := actorTestReady(t, 0)
-	_ = first
-	cfg := DefaultConfig(store, key)
+	_, _, _, first := actorTestReady(t, 0)
+	cfg := first.config
 	cfg.OwnerID = "paper-process-a"
 	ctx, cancel := actorTestContext(t)
 	defer cancel()
