@@ -33,6 +33,8 @@ var (
 )
 
 type Config struct {
+	Policy *PolicyConfig
+
 	DataSource                                                         string
 	AutoExecute                                                        bool
 	Baseline                                                           string
@@ -54,6 +56,8 @@ func DefaultConfig(store *pg.Store, key pg.Key) Config {
 }
 
 type Parent struct {
+	PolicyBundle *PolicyBundle `json:"policy_bundle,omitempty"`
+
 	ID         string    `json:"id"`
 	Revision   int64     `json:"revision"`
 	Status     string    `json:"status"`
@@ -81,6 +85,11 @@ type Fact struct {
 	Resolved bool   `json:"resolved"`
 }
 type State struct {
+	PolicyBundle       *PolicyBundle   `json:"policy_bundle,omitempty"`
+	PolicyPending      *PolicyDecision `json:"policy_pending,omitempty"`
+	LastPolicyDecision *PolicyDecision `json:"last_policy_decision,omitempty"`
+	PolicyLateOutcome  *PolicyDecision `json:"policy_late_outcome,omitempty"`
+
 	Version string `json:"version"`
 	// AuthorityRevision is the last durable revision that changed financial or
 	// control authority. Source receipts can advance the journal independently.
@@ -116,6 +125,8 @@ type State struct {
 	LastObservation    []float32         `json:"last_observation"`
 }
 type Command struct {
+	policy *policyResolution
+
 	ID                        string    `json:"id"`
 	ExpectedRevision          int64     `json:"expected_revision"`
 	ExpectedAuthorityRevision *int64    `json:"expected_authority_revision,omitempty"`

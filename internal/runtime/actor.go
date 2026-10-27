@@ -18,6 +18,12 @@ import (
 )
 
 type Actor struct {
+	policyResults chan policyResult
+	policyBusy    bool
+	policyCancel  context.CancelFunc
+	policyTimer   *time.Timer
+	policyExpiry  <-chan time.Time
+
 	config               Config
 	state                State
 	account              pg.Account
@@ -74,6 +80,14 @@ func New(ctx context.Context, c Config) (*Actor, error) {
 	if c.Execution.DecisionInterval > 24*time.Hour.Nanoseconds() || len(c.InstrumentRevision) > 128 || len(c.Rules.Symbol) > 64 || len(c.BaseCurrency) > 32 || len(c.QuoteCurrency) > 32 || len(c.Fees.Source) > 256 {
 		return nil, ErrInvalid
 	}
+	if c.Policy != nil {
+		copied := *c.Policy
+		c.Policy = &copied
+	}
+	bundle, err := policyBundle(c.Policy)
+	if err != nil {
+		return nil, err
+	}
 	a, err := c.Store.GetAccount(ctx, c.Key)
 	if err != nil {
 		return nil, err
@@ -100,6 +114,13 @@ func New(ctx context.Context, c Config) (*Actor, error) {
 		if state.DataSource != c.DataSource {
 			return nil, ErrInvalid
 		}
+	}
+	if !sameBundle(state.PolicyBundle, bundle) && !canReplacePolicyBundle(state, a) {
+		return nil, ErrInvalid
+	}
+	state.PolicyBundle = bundle
+	if !terminalPolicyParent(state.Parent) && !sameBundle(state.Parent.PolicyBundle, bundle) {
+		return nil, ErrInvalid
 	}
 	owner, err := c.Store.ClaimOwnership(ctx, c.Key, c.OwnerID, c.Lease, c.RecoveryProof)
 	if err != nil {
@@ -138,18 +159,32 @@ func New(ctx context.Context, c Config) (*Actor, error) {
 			}
 		}
 	}
+	var bootstrapPlan *pg.Plan
+	// An old owner's pending request cannot authorize a recovered sender.
+	if state.PolicyPending != nil {
+		state.PolicyPending.Result, state.PolicyPending.Reason = "fallback_pause", "owner_restart"
+		state.PolicyPending.ResolvedAt = time.Now().UTC()
+		state.DecisionCount = max(state.DecisionCount, state.PolicyPending.Slot)
+		state.LastPolicyDecision = state.PolicyPending
+		state.PolicyPending = nil
+		if state.Parent != nil && state.Parent.Status == "active" {
+			state.Parent.Status = "paused"
+			state.Parent.Revision++
+			bootstrapPlan = parentRow(state.Parent)
+		}
+	}
 	for _, f := range state.UnresolvedFacts {
 		if !f.Resolved {
 			state.RecoveryRequired = true
 		}
 	}
-	actor := &Actor{config: c, state: state, account: a, owner: owner, transport: newPaperTransport(c.Store, c.Key), control: make(chan request, c.ControlCapacity), work: make(chan request, c.MailboxCapacity), facts: make(chan request, c.FactCapacity), stop: make(chan struct{}), done: make(chan struct{}), now: time.Now}
+	actor := &Actor{config: c, state: state, account: a, owner: owner, transport: newPaperTransport(c.Store, c.Key), control: make(chan request, c.ControlCapacity), work: make(chan request, c.MailboxCapacity), facts: make(chan request, c.FactCapacity), stop: make(chan struct{}), done: make(chan struct{}), now: time.Now, policyResults: make(chan policyResult, 1)}
 	ready := false
 	state.LastInputID = "boot-" + c.OwnerID
 	state.LastInputDigest = "bootstrap"
 	state.AuthorityRevision = a.Revision + 1
 	actor.state = state
-	change := pg.Change{Key: c.Key, Ownership: owner, Command: pg.Command{ID: state.LastInputID, Kind: "runtime_bootstrap", ExpectedRevision: a.Revision}, Ready: &ready, Market: &pg.Market{Valid: false, SnapshotID: nonempty(state.MarketID, "awaiting-snapshot"), InstrumentRevision: c.InstrumentRevision}, Snapshot: jsonBytes(state)}
+	change := pg.Change{Key: c.Key, Ownership: owner, Command: pg.Command{ID: state.LastInputID, Kind: "runtime_bootstrap", ExpectedRevision: a.Revision}, Ready: &ready, Market: &pg.Market{Valid: false, SnapshotID: nonempty(state.MarketID, "awaiting-snapshot"), InstrumentRevision: c.InstrumentRevision}, Snapshot: jsonBytes(state), Plan: bootstrapPlan}
 	if _, err = c.Store.Apply(ctx, change); err != nil {
 		return nil, err
 	}
@@ -269,12 +304,22 @@ func (a *Actor) Close(ctx context.Context) error {
 
 func (a *Actor) loop() {
 	defer close(a.done)
+	defer func() {
+		if a.policyCancel != nil {
+			a.policyCancel()
+		}
+	}()
 	interval := min(a.config.Lease/3, time.Second)
 	if a.config.AutoExecute {
 		interval = min(interval, time.Duration(a.config.Execution.DecisionInterval))
 	}
 	if interval < time.Millisecond {
 		interval = time.Millisecond
+	}
+	if a.config.Policy != nil {
+		a.policyTimer = time.NewTimer(time.Hour)
+		a.policyTimer.Stop()
+		defer a.policyTimer.Stop()
 	}
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
@@ -295,6 +340,16 @@ func (a *Actor) loop() {
 		default:
 		}
 		select {
+		case <-a.policyExpiry:
+			a.handlePolicyExpiry()
+			continue
+		default:
+		}
+		select {
+		case <-a.policyExpiry:
+			a.handlePolicyExpiry()
+		case result := <-a.policyResults:
+			a.receivePolicy(result)
 		case r := <-a.facts:
 			a.handle(r)
 		case r := <-a.control:
@@ -423,6 +478,9 @@ func (a *Actor) advance(ctx context.Context) error {
 	}
 	if a.elapsed(a.state) < a.state.NextDecision {
 		return nil
+	}
+	if a.config.Policy != nil {
+		return a.startPolicy(ctx)
 	}
 	if _, err := a.command(ctx, Command{ID: randomID("runtime-decision-"), Kind: "decision", Policy: p.Baseline, ExpectedRevision: a.account.Revision}); err != nil {
 		return err

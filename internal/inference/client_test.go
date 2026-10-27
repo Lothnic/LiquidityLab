@@ -147,6 +147,7 @@ func TestNewRejectsIncompatiblePolicyInfo(t *testing.T) {
 		{"schema order", func(i *pb.PolicyInfoResponse) { i.FieldNames[0], i.FieldNames[1] = i.FieldNames[1], i.FieldNames[0] }},
 		{"schema length", func(i *pb.PolicyInfoResponse) { i.FieldNames = i.FieldNames[1:] }},
 		{"live eligible", func(i *pb.PolicyInfoResponse) { i.LiveEligible = true }},
+		{"live status", func(i *pb.PolicyInfoResponse) { i.PromotionStatus = "live" }},
 		{"missing status", func(i *pb.PolicyInfoResponse) { i.PromotionStatus = "" }},
 		{"oversized status", func(i *pb.PolicyInfoResponse) { i.PromotionStatus = strings.Repeat("s", 65) }},
 	} {
@@ -282,12 +283,12 @@ func TestProposeExpiryDeadlinesAndCancellation(t *testing.T) {
 		return nil, ctx.Err()
 	}}, 20*time.Millisecond)
 	start := time.Now()
-	if _, err := slow.Propose(context.Background(), testRequest()); status.Code(err) != codes.DeadlineExceeded || time.Since(start) > 150*time.Millisecond {
+	if _, err := slow.Propose(context.Background(), testRequest()); !errors.Is(err, context.DeadlineExceeded) || status.Code(err) != codes.DeadlineExceeded || time.Since(start) > 150*time.Millisecond {
 		t.Fatalf("inference timeout did not bound slow worker: %v duration=%v", err, time.Since(start))
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
-	if _, err := client.Propose(ctx, testRequest()); status.Code(err) != codes.Canceled {
+	if _, err := client.Propose(ctx, testRequest()); !errors.Is(err, context.Canceled) || status.Code(err) != codes.Canceled {
 		t.Fatalf("cancelled context reached successful proposal: %v", err)
 	}
 	// The client must shorten its own timeout to the proposal's expiry.
@@ -295,6 +296,41 @@ func TestProposeExpiryDeadlinesAndCancellation(t *testing.T) {
 	expiring.Binding.ExpiresAtUnixNs = time.Now().Add(10 * time.Millisecond).UnixNano()
 	if _, err := slow.Propose(context.Background(), expiring); status.Code(err) != codes.DeadlineExceeded && !errors.Is(err, ErrStale) {
 		t.Fatalf("expired slow proposal accepted: %v", err)
+	}
+}
+
+func TestProposeClassifiesWorkerStatusWithoutLosingTransportCause(t *testing.T) {
+	for _, tc := range []struct {
+		name  string
+		code  codes.Code
+		cause error
+	}{
+		{"busy", codes.ResourceExhausted, ErrBusy},
+		{"deadline", codes.DeadlineExceeded, context.DeadlineExceeded},
+		{"cancelled", codes.Canceled, context.Canceled},
+		{"invalid", codes.InvalidArgument, ErrInvalid},
+		{"unavailable", codes.Unavailable, nil},
+		{"internal", codes.Internal, nil},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			var calls atomic.Int32
+			client := testClient(t, &testPolicyService{predict: func(_ context.Context, req *pb.DecisionRequest) (*pb.DecisionResponse, error) {
+				if calls.Add(1) == 1 {
+					return nil, status.Error(tc.code, "worker failure")
+				}
+				return &pb.DecisionResponse{Binding: req.Binding, Action: pb.Action(d.Hold), Mode: "unvalidated"}, nil
+			}}, 0)
+			proposal, err := client.Propose(context.Background(), testRequest())
+			if err == nil || status.Code(err) != tc.code || tc.cause != nil && !errors.Is(err, tc.cause) || proposal.Binding != nil {
+				t.Fatalf("worker status lost classification or returned a proposal: proposal=%+v err=%v", proposal, err)
+			}
+			if tc.cause == nil && (errors.Is(err, ErrBusy) || errors.Is(err, ErrInvalid) || errors.Is(err, context.DeadlineExceeded) || errors.Is(err, context.Canceled)) {
+				t.Fatalf("unavailable worker was assigned an unrelated cause: %v", err)
+			}
+			if _, err := client.Propose(context.Background(), testRequest()); err != nil || calls.Load() != 2 {
+				t.Fatalf("worker error retained admission slot: calls=%d err=%v", calls.Load(), err)
+			}
+		})
 	}
 }
 

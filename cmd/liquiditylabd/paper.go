@@ -29,6 +29,7 @@ import (
 
 	"github.com/liquiditylab/liquiditylab/internal/api"
 	d "github.com/liquiditylab/liquiditylab/internal/domain"
+	"github.com/liquiditylab/liquiditylab/internal/inference"
 	"github.com/liquiditylab/liquiditylab/internal/marketdata"
 	rt "github.com/liquiditylab/liquiditylab/internal/runtime"
 	pg "github.com/liquiditylab/liquiditylab/internal/store/postgres"
@@ -40,6 +41,10 @@ var paperDaemonSchema = regexp.MustCompile(`^[a-z][a-z0-9_]{0,62}$`)
 var paperDaemonAccount = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,127}$`)
 
 type paperServerOptions struct {
+	policyTarget, policyHash, policyFallback, policyProfile string
+	policyAllowUnvalidated                                  bool
+	policyTimeout                                           time.Duration
+
 	listen, schema, account, source, webDir, captureOutput string
 	initialBase, initialQuote                              d.Decimal
 	duration                                               time.Duration
@@ -50,24 +55,31 @@ type paperServerOptions struct {
 type paperSource func(context.Context, func(context.Context, marketdata.Event) error) error
 
 type paperDaemon struct {
-	store       *pg.Store
-	actor       *rt.Actor
-	key         pg.Key
-	handler     http.Handler
-	log         io.Writer
-	stopSource  context.CancelFunc
-	sourceDone  chan struct{}
-	closing     atomic.Bool
-	ingress     sync.Mutex
-	reconciled  bool
-	gapSeen     bool
-	closeOnce   sync.Once
-	closeResult error
+	policyClient *inference.Client
+	store        *pg.Store
+	actor        *rt.Actor
+	key          pg.Key
+	handler      http.Handler
+	log          io.Writer
+	stopSource   context.CancelFunc
+	sourceDone   chan struct{}
+	closing      atomic.Bool
+	ingress      sync.Mutex
+	reconciled   bool
+	gapSeen      bool
+	closeOnce    sync.Once
+	closeResult  error
 }
 
 func paperServer(args []string) error {
 	flags := flag.NewFlagSet("paper", flag.ContinueOnError)
 	var opt paperServerOptions
+	flags.StringVar(&opt.policyTarget, "policy-target", os.Getenv("LIQUIDITYLAB_POLICY_TARGET"), "opt-in local Python policy RPC target (loopback IP:port or unix:/absolute/path)")
+	flags.StringVar(&opt.policyHash, "policy-sha256", os.Getenv("LIQUIDITYLAB_POLICY_SHA256"), "exact pinned policy bundle SHA-256")
+	flags.StringVar(&opt.policyFallback, "policy-fallback", os.Getenv("LIQUIDITYLAB_POLICY_FALLBACK"), "explicit policy failure fallback: baseline or pause")
+	flags.StringVar(&opt.policyProfile, "policy-profile", "paper", "paper executes accepted proposals; shadow records proposals and executes the pinned baseline")
+	flags.BoolVar(&opt.policyAllowUnvalidated, "policy-allow-unvalidated", os.Getenv("LIQUIDITYLAB_POLICY_ALLOW_UNVALIDATED") == "true", "explicit opt-in to unevaluated policy in paper/shadow only")
+	flags.DurationVar(&opt.policyTimeout, "policy-timeout", 100*time.Millisecond, "policy response budget (0 < timeout <= 200ms)")
 	flags.StringVar(&opt.listen, "listen", "127.0.0.1:8080", "literal loopback HTTP address")
 	flags.StringVar(&opt.schema, "schema", "", "explicit isolated PostgreSQL schema (required)")
 	flags.StringVar(&opt.account, "account", "", "NEW synthetic account ID (required)")
@@ -109,6 +121,14 @@ func paperTokenValid(token string) bool {
 }
 
 func (o paperServerOptions) validate() error {
+	if o.policyTarget != "" {
+		hash, err := hex.DecodeString(o.policyHash)
+		if err != nil || len(hash) != 32 || strings.ToLower(o.policyHash) != o.policyHash || !o.policyAllowUnvalidated || (o.policyFallback != "baseline" && o.policyFallback != "pause") || (o.policyProfile != "paper" && o.policyProfile != "shadow") || o.policyTimeout <= 0 || o.policyTimeout > inference.MaxValidity {
+			return errors.New("policy requires pinned lowercase SHA-256, explicit allow-unvalidated, baseline/pause fallback, paper/shadow profile and timeout up to 200ms")
+		}
+	} else if o.policyHash != "" || o.policyFallback != "" || o.policyAllowUnvalidated {
+		return errors.New("policy configuration requires a local --policy-target")
+	}
 	host, port, err := net.SplitHostPort(o.listen)
 	ip := net.ParseIP(host)
 	if err != nil || ip == nil || !ip.IsLoopback() {
@@ -246,6 +266,21 @@ func newPaperDaemon(ctx context.Context, opt paperServerOptions, dsn, token stri
 	if err != nil {
 		return fail("migrate isolated paper database", err)
 	}
+	var policyClient *inference.Client
+	if opt.policyTarget != "" {
+		op, cancel = paperServerOperation()
+		policyClient, err = inference.New(op, inference.Config{Target: opt.policyTarget, PolicySHA256: opt.policyHash, Profile: opt.policyProfile, AllowUnvalidated: opt.policyAllowUnvalidated, Timeout: opt.policyTimeout})
+		cancel()
+		if err != nil {
+			return fail("connect and verify pinned paper policy", err)
+		}
+	}
+	policyOwned := false
+	defer func() {
+		if policyClient != nil && !policyOwned {
+			_ = policyClient.Close()
+		}
+	}()
 	key := pg.Key{TenantID: paperDaemonTenant, AccountID: opt.account}
 	initial := []pg.Balance{{Currency: "BTC", Total: opt.initialBase, Free: opt.initialBase}, {Currency: "USD", Total: opt.initialQuote, Free: opt.initialQuote}}
 	op, cancel = paperServerOperation()
@@ -260,6 +295,9 @@ func newPaperDaemon(ctx context.Context, opt paperServerOptions, dsn, token stri
 	}
 	config := rt.DefaultConfig(store, key)
 	config.AutoExecute = true
+	if policyClient != nil {
+		config.Policy = &rt.PolicyConfig{Worker: policyClient, PolicySHA256: opt.policyHash, ExpectedMode: policyClient.PromotionStatus(), Profile: opt.policyProfile, AllowUnvalidated: opt.policyAllowUnvalidated, Fallback: opt.policyFallback, Timeout: opt.policyTimeout}
+	}
 	config.DataSource = "synthetic"
 	if opt.source == "kraken" {
 		config.DataSource = "kraken-public"
@@ -278,7 +316,7 @@ func newPaperDaemon(ctx context.Context, opt paperServerOptions, dsn, token stri
 		return fail("configure authenticated trader API", err)
 	}
 	sourceCtx, stopSource := context.WithCancel(ctx)
-	daemon := &paperDaemon{store: store, actor: actor, key: key, log: output, stopSource: stopSource, sourceDone: make(chan struct{})}
+	daemon := &paperDaemon{policyClient: policyClient, store: store, actor: actor, key: key, log: output, stopSource: stopSource, sourceDone: make(chan struct{})}
 	daemon.handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("Referrer-Policy", "no-referrer")
@@ -294,6 +332,7 @@ func newPaperDaemon(ctx context.Context, opt paperServerOptions, dsn, token stri
 		}
 		static.ServeHTTP(w, r)
 	})
+	policyOwned = true
 	go func() {
 		defer close(daemon.sourceDone)
 		err := source(sourceCtx, daemon.Ingest)
@@ -521,6 +560,9 @@ func (p *paperDaemon) Close() error {
 			p.closeResult = errors.New("paper shutdown outcome not known final; retain durable account for operator recovery")
 		}
 		fmt.Fprintf(p.log, "PAPER stopped account=%s/%s known_final=%t; durable state retained\n", p.key.TenantID, p.key.AccountID, knownFinal)
+		if p.policyClient != nil {
+			_ = p.policyClient.Close()
+		}
 		p.store.Close()
 	})
 	return p.closeResult

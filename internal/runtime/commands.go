@@ -46,6 +46,8 @@ func decisionBookkeepingOnly(before, after State, change pg.Change) bool {
 	after.NextDecision = before.NextDecision
 	after.DecisionCount = before.DecisionCount
 	after.LastObservation = before.LastObservation
+	after.PolicyPending = before.PolicyPending
+	after.LastPolicyDecision = before.LastPolicyDecision
 	return inputDigest(after) == inputDigest(before)
 }
 
@@ -73,6 +75,16 @@ func (a *Actor) command(ctx context.Context, c Command) (pg.Result, error) {
 		a.account.Ready = false
 		return pg.Result{}, pg.ErrOwnership
 	}
+	if c.Kind == "decision" && c.policy == nil && a.config.Policy != nil {
+		return pg.Result{}, ErrInvalid
+	}
+	// A terminal parent must settle its inference slot before the next session
+	// replaces its snapshot and resets decision counters.
+	if c.Kind == "create" && a.state.PolicyPending != nil && a.state.Parent != nil && (a.state.Parent.Status == "completed" || a.state.Parent.Status == "cancelled" || a.state.Parent.Status == "expired") {
+		if err := a.resolvePolicy(ctx, "fallback", "session_replaced", nil); err != nil {
+			return pg.Result{}, err
+		}
+	}
 	if c.Kind == "dispatch" {
 		return a.dispatch(ctx, c, digest)
 	}
@@ -82,6 +94,22 @@ func (a *Actor) command(ctx context.Context, c Command) (pg.Result, error) {
 	}
 	a.stamp(&next, c.ID, digest)
 	change := pg.Change{}
+	controlAudit := false
+	if c.policy != nil && c.Kind == "pause" {
+		next.PolicyPending = nil
+		next.LastPolicyDecision = &c.policy.audit
+		next.DecisionCount = max(next.DecisionCount, c.policy.audit.Slot)
+		next.NextDecision = a.elapsed(next) + next.Execution.DecisionInterval
+		controlAudit = true
+	} else if next.PolicyPending != nil && (c.Kind == "pause" || c.Kind == "cancel" || c.Kind == "deadline") {
+		audit := *next.PolicyPending
+		audit.Result, audit.Reason, audit.Action = "fallback_pause", "control_"+c.Kind, d.Hold
+		audit.ResolvedAt, audit.AppliedMarketSnapshotID = a.now(), next.MarketID
+		next.PolicyPending, next.LastPolicyDecision = nil, &audit
+		next.DecisionCount = max(next.DecisionCount, audit.Slot)
+		next.NextDecision = a.elapsed(next) + next.Execution.DecisionInterval
+		controlAudit = true
+	}
 	cancelAfter := false
 	switch c.Kind {
 	case "create":
@@ -124,7 +152,7 @@ func (a *Actor) command(ctx context.Context, c Command) (pg.Result, error) {
 		if !baseFound || !quoteFound {
 			return pg.Result{}, pg.ErrInsufficientFunds
 		}
-		next.Parent = &Parent{ID: c.PlanID, Revision: 1, Status: "paused", Deadline: deadline, Spec: p, Baseline: baseline}
+		next.Parent = &Parent{ID: c.PlanID, Revision: 1, Status: "paused", Deadline: deadline, Spec: p, Baseline: baseline, PolicyBundle: next.PolicyBundle}
 		next.Fills = nil
 		next.HasMessage = false
 		next.LastMessage = 0
@@ -135,6 +163,8 @@ func (a *Actor) command(ctx context.Context, c Command) (pg.Result, error) {
 		next.NextDecision = 0
 		next.DecisionCount = 0
 		next.LastObservation = nil
+		next.LastPolicyDecision = nil
+		next.PolicyLateOutcome = nil
 		change.Plan = parentRow(next.Parent)
 	case "start", "resume":
 		if next.Parent == nil || next.Parent.Status != "paused" || next.Child != nil || !a.account.Ready || !next.Book.Valid || next.RecoveryRequired || a.overflow.Load() {
@@ -199,12 +229,19 @@ func (a *Actor) command(ctx context.Context, c Command) (pg.Result, error) {
 		}
 		action := c.Action
 		if c.Kind == "decision" {
-			if c.Policy != next.Parent.Baseline {
+			if c.policy == nil && c.Policy != next.Parent.Baseline {
 				return pg.Result{}, ErrInvalid
 			}
-			action, next.NextSlice, err = x.BaselineAction(c.Policy, next.Parent.Spec, a.elapsed(next), ledger.Filled, next.NextSlice)
-			if err != nil {
-				return pg.Result{}, err
+			if c.policy == nil || c.policy.baseline {
+				action, next.NextSlice, err = x.BaselineAction(next.Parent.Baseline, next.Parent.Spec, a.elapsed(next), ledger.Filled, next.NextSlice)
+				if err != nil {
+					return pg.Result{}, err
+				}
+			}
+			if c.policy != nil {
+				next.PolicyPending = nil
+				c.policy.audit.Action = action
+				next.LastPolicyDecision = &c.policy.audit
 			}
 			next.ReferenceMid = next.Book.Mid()
 			if next.DecisionCount > 0 {
@@ -264,6 +301,12 @@ func (a *Actor) command(ctx context.Context, c Command) (pg.Result, error) {
 	result, err := a.persistRevision(ctx, next, pg.Command{ID: c.ID, Kind: c.Kind, ExpectedRevision: a.account.Revision}, change, preserveAuthority)
 	if err != nil {
 		return result, err
+	}
+	if controlAudit {
+		a.stopPolicyTimer()
+	}
+	if controlAudit && a.policyCancel != nil {
+		a.policyCancel()
 	}
 	if cancelAfter {
 		if err = a.cancelChild(ctx); err != nil {

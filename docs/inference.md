@@ -5,8 +5,9 @@ offline replay and paper/shadow integration. It loads one immutable policy
 bundle at startup and returns a proposed action. It has no exchange credentials
 or order-submission capability. Go must still validate the echoed request
 binding and current account state before using a proposal. The Go client is in
-`internal/inference`; actor integration and fallback remain separate work. This worker alone does
-not establish a safe live decision path.
+`internal/inference`; the Go actor's opt-in asynchronous paper/shadow integration
+and fallback are described in [policy-runtime.md](policy-runtime.md). This worker
+alone does not establish a safe live decision path.
 
 ## Install and run
 

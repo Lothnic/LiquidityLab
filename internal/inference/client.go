@@ -21,7 +21,9 @@ import (
 	d "github.com/liquiditylab/liquiditylab/internal/domain"
 	x "github.com/liquiditylab/liquiditylab/internal/execution"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -118,13 +120,17 @@ func New(ctx context.Context, config Config) (*Client, error) {
 		conn.Close()
 		return nil, err
 	}
-	if info.PolicySha256 != config.PolicySHA256 || info.ObservationVersion != x.ObservationVersion || !slices.Equal(info.FieldNames, x.ObservationFields) || info.LiveEligible || info.PromotionStatus == "" || len(info.PromotionStatus) > 64 {
+	if info.PolicySha256 != config.PolicySHA256 || info.ObservationVersion != x.ObservationVersion || !slices.Equal(info.FieldNames, x.ObservationFields) || info.LiveEligible || info.PromotionStatus == "" || info.PromotionStatus == "live" || len(info.PromotionStatus) > 64 {
 		conn.Close()
 		return nil, ErrIncompatible
 	}
 	client.status = info.PromotionStatus
 	return client, nil
 }
+
+// PromotionStatus is the immutable, verified worker status pinned at connection.
+// It reports provenance and grants no live authority.
+func (c *Client) PromotionStatus() string { return c.status }
 
 func (c *Client) Close() error { return c.connection.Close() }
 
@@ -173,6 +179,22 @@ func (c *Client) Propose(ctx context.Context, request *pb.DecisionRequest) (Prop
 	defer cancel()
 	response, err := c.rpc.Predict(rpcCtx, input)
 	if err != nil {
+		// Preserve the transport status while exposing stable causes to runtime
+		// fallback classification. Worker messages never become durable reasons.
+		var cause error
+		switch status.Code(err) {
+		case codes.ResourceExhausted:
+			cause = ErrBusy
+		case codes.DeadlineExceeded:
+			cause = context.DeadlineExceeded
+		case codes.Canceled:
+			cause = context.Canceled
+		case codes.InvalidArgument:
+			cause = ErrInvalid
+		}
+		if cause != nil {
+			err = fmt.Errorf("%w: %w", cause, err)
+		}
 		return Proposal{}, fmt.Errorf("policy inference unavailable: %w", err)
 	}
 	if err := rpcCtx.Err(); err != nil || !time.Now().Before(expires) {
