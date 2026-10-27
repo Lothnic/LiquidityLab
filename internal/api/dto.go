@@ -54,6 +54,7 @@ type ChildDTO struct {
 	CancelRequested bool          `json:"cancel_requested"`
 }
 type AccountDTO struct {
+	PolicyRuntime *PolicyRuntimeDTO `json:"policy_runtime,omitempty"`
 	AccountSummary
 	BaseCurrency       string            `json:"base_currency"`
 	QuoteCurrency      string            `json:"quote_currency"`
@@ -111,6 +112,7 @@ func project(v rt.View) (out AccountDTO, err error) {
 		}
 		out.Reserved = append(out.Reserved, ReservedDTO{Currency: balance.Currency, Amount: reserved})
 	}
+	out.PolicyRuntime = policyProjection(v.State)
 	if p := v.State.Parent; p != nil {
 		ledger := x.NewLedger(p.Spec)
 		for _, fill := range v.State.Fills {

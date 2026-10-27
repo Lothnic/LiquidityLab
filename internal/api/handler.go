@@ -43,6 +43,7 @@ type Config struct {
 	Accounts       map[pg.Key]Authority
 	Credentials    []Credential
 	Journal        JournalReader
+	Sessions       SessionReader
 	MaxBodyBytes   int64
 	RequestTimeout time.Duration
 	MaxConcurrent  int
@@ -55,6 +56,7 @@ type Handler struct {
 	accounts    map[pg.Key]Authority
 	credentials []credential
 	journal     JournalReader
+	sessions    SessionReader
 	maxBody     int64
 	timeout     time.Duration
 	slots       chan struct{}
@@ -86,6 +88,10 @@ func New(c Config) (*Handler, error) {
 			return nil, errConfig
 		}
 		h.accounts[k] = a
+	}
+	h.sessions = c.Sessions
+	if h.sessions == nil {
+		h.sessions, _ = c.Journal.(SessionReader)
 	}
 	seen := map[[32]byte]bool{}
 	for _, v := range c.Credentials {
@@ -179,13 +185,21 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	parts := strings.Split(strings.TrimPrefix(r.URL.Path, "/"), "/")
-	if len(parts) < 4 || len(parts) > 5 || parts[0] != "v1" || parts[1] != "accounts" || !identifier(parts[2]) || !identifier(parts[3]) {
+	if len(parts) < 4 || len(parts) > 7 || parts[0] != "v1" || parts[1] != "accounts" || !identifier(parts[2]) || !identifier(parts[3]) {
 		fail(w, 404, "not_found")
 		return
 	}
 	key := pg.Key{TenantID: parts[2], AccountID: parts[3]}
 	authority, exists := h.accounts[key]
 	if !auth.scopes[key] || !exists {
+		fail(w, 404, "not_found")
+		return
+	}
+	if len(parts) >= 5 && parts[4] == "sessions" {
+		h.sessionsEndpoint(w, r, key, parts)
+		return
+	}
+	if len(parts) > 5 {
 		fail(w, 404, "not_found")
 		return
 	}

@@ -23,6 +23,7 @@ type Config struct {
     Accounts map[postgres.Key]Authority
     Credentials []Credential
     Journal JournalReader
+    Sessions SessionReader // optional; inferred from Journal when supported
     MaxBodyBytes int64
     RequestTimeout time.Duration
     MaxConcurrent int
@@ -72,8 +73,10 @@ paths and absent accounts both return 404. Missing/invalid credentials return
   tenant filter or detail payload.
 
 Tenant and account path segments contain 1–128 ASCII letters, digits, `_`, `-`
-or `.` and cannot equal `.` or `..`. Only journal accepts query parameters;
-unknown, repeated, malformed and out-of-range journal parameters are rejected.
+or `.` and cannot equal `.` or `..`. Journal and the session-history routes accept
+only their documented query parameters; unknown, repeated, malformed and
+out-of-range parameters are rejected. The revision-pinned session list, report
+and timeline routes are documented in [session-history.md](session-history.md).
 
 All POSTs require `Content-Type: application/json`. Unknown JSON fields,
 trailing JSON, invalid exact decimals, missing required fields and over-limit
@@ -162,6 +165,12 @@ snapshots without a positive arrival benchmark show an unavailable cost.
 A paused parent can still have a child requesting cancellation. A recovery flag
 is independent of cancellation: unknown effects remain unresolved. Paper
 profile fills and fees are simulated, never exchange-confirmed executions.
+
+When a session pins a policy worker, `policy_runtime` exposes its hash, profile,
+fallback, current result/reason and observation/applied snapshot identities.
+It contains no feature vector, worker endpoint, ownership identity or raw error.
+The trader cannot change the pinned model through a command. See
+[policy-runtime.md](policy-runtime.md) for the explicit paper/shadow opt-in.
 
 Only the latest 2,048 fills appear in an account response; `fill_count` and
 `fills_truncated` expose truncation. Totals use the complete retained parent
