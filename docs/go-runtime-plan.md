@@ -1,6 +1,6 @@
 # LiquidityLab: Go runtime and Python RL migration
 
-Decision plan updated 28 October 2026 against committed HEAD `0e80812` and a read-only inventory of the working tree. The Go core, replay bridge, public-data pipeline, PostgreSQL store, durable paper actor, Python inference worker, Go policy client, authenticated API, paper CLI/server and React desk are committed. Asynchronous policy integration and session-history reports/UI exist as uncommitted work; they require integration review and component commits. Historical market counterfactual replay remains separate unfinished work. [Section 16](#16-current-go-delivery-and-scale-plan) is the current implementation sequence and supersedes older scheduling estimates below. This planning update makes no new verification or capacity claim.
+Decision plan and implementation checkpoint updated 28 October 2026 through `6433711`. The Go core, replay bridge, public-data pipeline, PostgreSQL store, durable paper actor, Python inference worker/client, authenticated API, paper CLI/server, React desk, asynchronous paper policy integration and revision-pinned history are committed. Historical market counterfactual replay remains separate unfinished work. [Section 16](#16-current-go-delivery-and-scale-plan) is the current implementation sequence and supersedes older scheduling estimates below. See [verification.md](verification.md) for the executed checks; product capacity and operational failover remain unproven.
 
 ## Decision in brief
 
@@ -38,8 +38,8 @@ The original starting point was Python v0.1.0 with 40 checks. The repository has
 
 - **Committed:** versioned/generated Go and Python protocol bindings; exact amounts; shared ledger/compiler, fees, reservations, observations, passive matching and baselines; deterministic replay/conformance; public recorder and incremental normalizer; bounded replay RPC and Python Gym/vector/PPO bridge; PostgreSQL ownership, inbox, journal and outbox; durable paper actor/scheduler/transport; recorded-data CLI; authenticated API; bounded paper server; Python inference worker and Go policy client.
 - **Paper desk committed:** React supervision interface in `apps/web/` and `docs/trader-ui.md`, exact preview/command binding, retained uncertain retries, API payload validation and responsive layouts. Synthetic browser verification covers create/start/fills/pause/resume/cancel; it is not design-user or live venue evidence. Account authority revisions now distinguish receipt/HOLD bookkeeping from financial/control changes; persistence throughput instrumentation remains outstanding.
-- **Uncommitted integration:** `internal/runtime/policy.go` and daemon wiring implement asynchronous proposals/fallback; session-store/API files, migration `0003_session_history.sql` and React History files implement revision-pinned reports. Preserve and review these changes before creating replacements. Their presence is not a committed release or fresh verification result.
-- **Remaining:** integration acceptance for that work; historical market counterfactual replay; resume-existing-account operations and process-kill recovery evidence; multi-account supervision/routing; scalable shared feed distribution; immutable evaluation/promotion; private venue integration; CI/deployment and measured capacity. Committed HTTP updates poll and journal reads expose metadata; SSE remains optional future work.
+- **Policy/history committed:** `f9125d7` adds revision-pinned store reads, `ec293eb` integrates asynchronous proposals/fallback, `18eeea0` adds scoped reports/provenance, and `6433711` adds bounded history UI. The real Python worker → actor browser run exercised accepted proposals, worker-loss fallback and exact retained reports on synthetic input. This is software integration evidence, not model quality or capacity evidence.
+- **Remaining:** historical market counterfactual replay; resume-existing-account operations and process-kill recovery evidence; multi-account supervision/routing; scalable shared feed distribution; immutable evaluation/promotion; private venue integration; CI/deployment and measured capacity. HTTP updates poll; SSE remains optional future work.
 - **Measured constraint:** the optimized replay bridge delivers about 23k transitions/second at batch 32 versus about 37–46k for Python in the checked-in synthetic comparison. Keep Python as the default training backend until the bridge gate passes. See [benchmark evidence](../benchmarks/README.md).
 - **External gates:** real public capture has failed on this host; private-account access, an authorized live pilot, and design-user evidence are still outstanding.
 
@@ -327,7 +327,7 @@ Exit: restarting at each intent/ack/cancel boundary preserves the account and pa
 
 ### Phase 6 — Python inference service: 3–4 days
 
-Current checkpoint: Python worker, Go client, strict bundle/request binding and a real Python PPO-to-Go proposal boundary are committed. Actor scheduling, asynchronous completion and fallback exist as uncommitted integration work. Complete their review and acceptance, then immutable promotion/eligibility integration.
+Current checkpoint: Python worker/client, strict bundle/request binding, asynchronous actor scheduling and deterministic baseline/pause fallback are committed and covered by race/integration checks. Real Python worker loss exercised baseline fallback through the paper desk. Immutable evaluation/promotion and operational capacity remain outstanding.
 
 Add bundle/schema verification, bounded worker scheduling, inference deadlines, response binding, and Go fallback/pause behavior.
 
@@ -335,7 +335,7 @@ Exit: stale, incompatible, delayed, duplicate, and malformed responses cannot pr
 
 ### Phase 7 — trader API and interface: 5–8 days
 
-Current checkpoint: scoped authenticated API, exact preview, curated execution projections, React interface and synthetic browser workflow are committed/recorded. Session reports/history exist as uncommitted work. Historical market counterfactual replay and design-user validation remain outstanding; revision inspection does not satisfy counterfactual replay.
+Current checkpoint: scoped authenticated API, exact preview, curated execution projections, React interface and revision-pinned reports/history are committed with synthetic browser and component evidence. Historical market counterfactual replay and design-user validation remain outstanding; revision inspection does not satisfy counterfactual replay.
 
 Build the plan form, active execution screen, pause/cancel, history, and session replay. Expose actual versus simulated results clearly. Add command authentication for remote deployment.
 
@@ -498,6 +498,8 @@ Keep these interfaces narrow; implementation details remain inside their modules
 - **Venue adapter:** translates authorized intents, emits stable private observations and supplies reconciliation queries. Credential access and outbound trading capability remain exclusively in the Go runtime. Transport acceptance, fills and cancel finality are distinct facts.
 
 ### Stage 0 — land the existing integration work
+
+**Completed checkpoint:** component commits `f9125d7`, `ec293eb`, `18eeea0` and `6433711`, with the executed checks and synthetic browser outcome in [verification.md](verification.md). The sequence below records the delivered scope. Stage 1 remains open.
 
 **Scope:** review the current dirty files, correct documentation against behavior, and commit by part. Preserve unrelated work. Do not recreate modules that already exist.
 

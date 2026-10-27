@@ -1,5 +1,101 @@
 # Verification record
 
+## Asynchronous policy and retained history — 28 October 2026
+
+Component checkpoints: `f9125d7` (store), `ec293eb` (policy runtime),
+`18eeea0` (API reports) and `6433711` (history UI). Host tools remain
+Go 1.26.8, PostgreSQL 18.6, Python 3.12.11, Node 26.5.0 and npm 11.17.0.
+The local PostgreSQL tests use isolated randomized schemas.
+
+Executed checks:
+
+- `go test -race -count=1 ./...`, with development PostgreSQL DSN, absolute
+  `LIQUIDITYLAB_PYTHON` and `LIQUIDITYLAB_REPLAY_BINARY` configured: all packages
+  passed. The inference suite included the actual Python worker boundary.
+- Focused pending-policy recovery checks passed under PostgreSQL with
+  `-race -count=3`: a stopped worker returning after restart and an old actor
+  still running after a mocked ownership transfer cannot change recovered
+  financial state. Mocked isolation assertions prove database fencing behavior;
+  these checks are not OS process-kill or actual sender-isolation evidence.
+- `LIQUIDITYLAB_REPLAY_BINARY=<built daemon> .venv/bin/python -m pytest -q`:
+  87 passed, no skips; one existing Gymnasium v0 deprecation warning.
+- `npm test -- --run` in `apps/web`: six files, 46 checks passed. New coverage
+  includes history scope/cursor validation, deferred responses across plan
+  selection/refresh/return-to-latest, timeout labels, not-started records,
+  and a 450-fill fixture that never renders more than 200 rows per page.
+- `npm run build`: TypeScript and Vite production build passed.
+- `.venv/bin/ruff check src tests scripts`: passed.
+- `scripts/generate_protocol.py --check`, with the pinned Go plugin paths:
+  generated bindings matched.
+- Real gRPC status regression checks preserve stable busy/deadline/cancel/
+  invalid causes for audit classification and release the client's admission
+  slot after failure.
+
+### Real worker, actor, browser and durable result
+
+An eight-step PPO smoke bundle trained through the Go replay backend was loaded
+by the actual Python inference process. Bundle SHA-256:
+`0e73f473892a2939910ea17420eb36d22b8f38c8e479b1b95e0a79d47fad7e6b`.
+It remains unvalidated and live-ineligible. Eight training steps establish an
+integration artifact, not a useful learned policy.
+
+The built Go daemon and React desk used a new isolated paper account
+`synthetic-paper-daemon/model_preview_01`, schema
+`ll_model_preview_20261028_01`, generated market input and explicit initial
+balances of 0 BTC and 20 USD. The browser previewed and created a paused 0.05 BTC
+buy with a 102 USD ceiling, 0.01 BTC maximum child and a two-minute deadline.
+Starting later preserved that original deadline.
+
+The worker returned accepted semantic proposals, and four 0.005 BTC simulated
+fills occurred before its deliberate termination. The actor then used the
+configured baseline fallback; three 0.01 BTC fills completed the parent. Its
+last policy projection reported `fallback_baseline` / `worker_unavailable`.
+A cancellation attempted during the final transition was rejected as stale
+and the refreshed desk correctly displayed completed state.
+
+Authoritative final values:
+
+- Seven unique simulated fills, 0.05 BTC total, average 100.01 USD.
+- Frozen arrival midpoint 100 USD; quote fees 0.010001 USD.
+- Executed cost 0.010501 USD; zero remaining quantity/residual estimate.
+- Final balances 0.05 BTC and 14.989499 USD; zero held local reservations.
+- All seven outbox intents final; observed/processed inbox cursors equal.
+- Seventeen durable policy requests and seventeen decision records.
+- First terminal report reference at revision 295; later source receipts did
+  not move that reference.
+
+The History panel loaded a known-final report, inspected creation revision 84
+showing not-started/zero fills, returned to the final report and downloaded JSON.
+The export retained all seven fills and explicitly identified its partial
+100-event timeline. Browser error logs were empty. API assertions compared the
+exact report totals, finality, creation revision and reservations. Subsequent
+SQL inspection confirmed final intents, drained inbox and zero held reservations.
+The daemon shut down with `known_final=true`; both daemon and worker stopped,
+retaining their database state.
+
+Local ignored evidence files under `artifacts/` include
+`policy-history-20261028-before-stop.json`,
+`policy-history-20261028-final.json`, `policy-history-20261028-export.json`,
+and `policy-history-final-20261028.png`. They are implementation-host artifacts,
+not checked-in benchmark or deployment evidence. Browser verification used
+seven fills; the 450-fill bound is exercised by the component test.
+
+### Remaining recovery and release gates
+
+The new history views inspect stored revisions; they do not implement historical
+market counterfactual replay. The current daemon still creates one new account,
+and automatic existing-account resume is not implemented. Stage 1 review found
+that the current paper transport appends simulated observations without an owner
+token and actor bootstrap retains its pre-claim snapshot. These require enforced
+paper-effect fencing and fresh post-takeover reconstruction before operational
+restart can be claimed. Database fencing for this simulated venue must not be
+represented as external exchange fencing.
+
+Real public capture, private order transport, design-user validation, immutable
+policy evaluation/promotion, multi-account capacity, process-kill recovery,
+load/fault/24-hour soak and backup/restore gates remain open. The full objective
+has not passed its completion audit.
+
 ## Paper desk checkpoint — 23 October 2026
 
 Implementation checkpoint `dc521e5`, with authority revision correction

@@ -7,6 +7,12 @@ orders: balances, rules, fees, decisions, orders and fills are simulated. A
 Kraken public-market-data source does not enable private exchange access or a
 live order adapter.
 
+The scheduled baseline is the default. A local Python policy can be explicitly
+enabled in paper/shadow mode with a pinned bundle and baseline/pause fallback;
+see [policy-runtime.md](policy-runtime.md). The desk also serves retained
+[session history](session-history.md). Neither feature enables live transport
+or makes an unvalidated policy eligible for live use.
+
 ## Start a synthetic session
 
 Use a dedicated development PostgreSQL database. Build the UI and daemon, then
