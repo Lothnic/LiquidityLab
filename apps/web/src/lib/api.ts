@@ -23,6 +23,7 @@ export type Fill = {
   maker: boolean;
 };
 export type Account = AccountSummary & {
+  policy_runtime?: { policy_sha256: string; profile: string; fallback: string; result: string; reason: string };
   base_currency: string;
   quote_currency: string;
   clock_discontinuity: boolean;
@@ -65,7 +66,7 @@ export class ApiError extends Error {
   constructor(readonly status: number, readonly code: string) { super(code); }
 }
 
-async function request<T>(path: string, token: string, init: RequestInit = {}, signal?: AbortSignal): Promise<T> {
+export async function request<T>(path: string, token: string, init: RequestInit = {}, signal?: AbortSignal): Promise<T> {
   const response = await fetch(path, {
     ...init,
     signal,
@@ -123,7 +124,10 @@ function validArray(value: unknown, item: (entry: unknown) => boolean): boolean 
 }
 function validAccount(value: unknown, tenant?: string, account?: string): value is Account {
   if (!record(value) || !validSummary(value) || (tenant !== undefined && value.tenant_id !== tenant) || (account !== undefined && value.account_id !== account)) return false;
-  return validString(value.base_currency) && validString(value.quote_currency) && validBoolean(value.clock_discontinuity) &&
+  return (value.policy_runtime === undefined || (record(value.policy_runtime) &&
+    typeof value.policy_runtime.policy_sha256 === 'string' && /^[0-9a-f]{64}$/.test(value.policy_runtime.policy_sha256) &&
+    typeof value.policy_runtime.profile === 'string' && typeof value.policy_runtime.fallback === 'string' &&
+    typeof value.policy_runtime.result === 'string' && typeof value.policy_runtime.reason === 'string')) && validString(value.base_currency) && validString(value.quote_currency) && validBoolean(value.clock_discontinuity) &&
     validMarket(value.market) &&
     record(value.rules) && validString(value.rules.symbol) && validDecimal(value.rules.tick_size) && validDecimal(value.rules.lot_size) &&
     validDecimal(value.rules.min_quantity) && validDecimal(value.rules.min_notional) &&

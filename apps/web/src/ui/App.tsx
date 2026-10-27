@@ -4,6 +4,7 @@ import {
   CircleHelp, Command as CommandIcon, LoaderCircle, LockKeyhole,
   LogOut, RefreshCw, ShieldCheck, X,
 } from 'lucide-react';
+import { History } from './History';
 import { api, ApiError, type Account, type AccountSummary, type Command, type JournalEntry, type PlanInput, type Preview } from '../lib/api';
 import { createPlanInput, holdCommand, retryBody, type PendingCommand } from '../lib/commands';
 import { bindPreview, captureScope, formatElapsedNanoseconds, isLatestRequest, previewMatches, requestMayClearIndicator, scopeMatches, snapshotIsFresh, type BoundPreview, type ScopeBinding } from '../lib/bindings';
@@ -397,6 +398,7 @@ export function App() {
             <div className="panel-heading"><div><div className="eyebrow">CURRENT SESSION</div><h2>{account?.plan?.id ?? 'No active order'}</h2></div><span className={`state-tag ${stateClass(account?.plan?.status)}`}>{(account?.plan?.status ?? 'STANDBY').replaceAll('_', ' ').toUpperCase()}</span></div>
             {account?.plan ? <>
               <div className="session-topline"><div className="session-asset"><span className="asset-mark">₿</span><div><strong>{account.plan.spec.side.toUpperCase()} {account.plan.spec.symbol}</strong><small>{account.plan.policy} policy <i>·</i> {formatDuration(account.plan.spec.deadline_ns)}</small></div></div><div className="deadline"><span>DEADLINE</span><strong>{isoClock(account.plan.deadline)}</strong></div></div>
+              {account.policy_runtime && <p className="panel-note">{account.policy_runtime.profile.toUpperCase()} MODEL · {account.policy_runtime.result.replaceAll('_', ' ')} · fallback {account.policy_runtime.fallback}{account.policy_runtime.reason ? ` · ${account.policy_runtime.reason.replaceAll('_', ' ')}` : ''}</p>}
               <div className="progress-block"><div className="progress-label"><span>BASE QUANTITY FILLED</span><strong>{account.plan.filled}<small> / {account.plan.spec.quantity} {account.base_currency}</small></strong></div><div className="progress-track" role="progressbar" aria-label="Filled quantity" aria-valuenow={ratio(account.plan.filled, account.plan.spec.quantity)} aria-valuemin={0} aria-valuemax={100}><div style={{ width: `${ratio(account.plan.filled, account.plan.spec.quantity)}%` }} /></div><div className="progress-foot"><span>{account.plan.remaining} {account.base_currency} remaining</span><span>{account.plan.spec.limit_price} hard {account.plan.spec.side === 'buy' ? 'ceiling' : 'floor'}</span></div></div>
               <div className="session-metrics">
                 <Metric label="AVERAGE FILL" value={account.plan.filled === '0' ? '—' : account.plan.average_price} suffix={account.quote_currency} />
@@ -443,6 +445,7 @@ export function App() {
             {journalMore && <button className="load-more" disabled={journalBusy} onClick={() => void loadJournalPage()}>{journalBusy ? 'Loading…' : 'Load next journal page'} <ArrowDownRight size={14} /></button>}
             <p className="panel-note">Pages are chronological and bounded. Raw snapshots and journal detail are not exposed by this API.</p>
           </section>
+          {accountPath && <History key={`${accountPath.tenant}/${accountPath.account}`} token={token} tenant={accountPath.tenant} account={accountPath.account} />}
         </div>
 
         <aside className="ticket-column">

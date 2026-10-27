@@ -55,6 +55,16 @@ makes no third-party font or analytics requests.
    holds, and chronological journal metadata. Pause requests cancellation of
    the child. The UI keeps `cancel_requested` visible until the server reports
    known-final state.
+6. Refresh Session history and select a retained session. Inspect exact totals,
+   frozen benchmark estimates and stored event revisions, or export its report.
+   Fill navigation renders at most 200 rows per page. Timeline export explicitly
+   indicates whether its bounded event set is complete. See
+   [session-history.md](session-history.md) for cursor and financial semantics.
+
+A configured Python policy shows its actual proposal/fallback status in the
+current session. The deterministic baseline remains the default. Worker loss
+uses the explicitly configured baseline or pause behavior; no model gains live
+eligibility through this interface.
 
 The prominent Paper badge describes the execution profile. A separate source
 badge identifies the server's `data_source` (`KRAKEN PUBLIC`, `RECORDED`,
