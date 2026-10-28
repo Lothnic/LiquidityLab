@@ -4,8 +4,9 @@ The paper daemon can write one bounded, process-local telemetry snapshot at
 shutdown. The recorder has fixed metric IDs, fixed histogram buckets, and no
 dynamic labels or account identifiers. It is diagnostic data for a run; it does
 not establish supported account capacity, production readiness, or live-execution
-safety. No fresh daemon metrics baseline has been collected for this guide. The
-separate durable workload benchmark and its limits are described in
+safety. One metrics-bearing real public capture is preserved, but it is a single
+short capture rather than a repeatable paper-runtime baseline. The separate
+durable workload benchmark and its limits are described in
 [benchmarks/runtime/README.md](../benchmarks/runtime/README.md).
 
 ## Enable a local export
@@ -124,9 +125,14 @@ Instrumented Kraken capture additionally supplies local source timing:
 - `public_ingress_requests`/`public_ingress_errors` and `public_ingress_ns` describe the daemon's normalized callback, including ingress serialization, conversion, actor work and any initial readiness recovery. `public_receipt_to_book_ns` samples valid snapshot/book acknowledgements from the native local read origin, including recording and queues, before subsequent initial readiness recovery.
 - `public_receipt_origin_missing` counts daemon callbacks with no native origin. Synthetic and offline inputs never manufacture receive-to-book latency from a wall timestamp. The origin is a process-local monotonic `time.Time` carried only in the callback context; it is absent from recordings, normalized event JSON, account snapshots and cross-process messages. It does not measure exchange-to-host or kernel socket backlog.
 
-The first [durable baseline evidence](../benchmarks/results/durable-runtime-20261028/README.md)
-preserves its original executable and report schema; those runs predate these
-capture collectors and do not establish public recording performance.
+The [real Kraken BTC/USD capture](../examples/recordings/kraken-btcusd-20261028/README.md)
+preserves a 50-frame, 3.92-second run and its daemon telemetry. Its native
+receipt-to-book p99 lands in the 200 ms histogram upper-bound bucket, and the
+recorded persistence maximum is 180.386 ms for encoding, flush, and `Sync`
+together. These are single-run observations, not an SLO pass or capacity claim.
+The [durable baseline evidence](../benchmarks/results/durable-runtime-20261028/README.md)
+preserves its original executable and v1 report schema; those synthetic runs
+predate the public capture and do not measure recording performance.
 
 These aggregate snapshots do not measure real private-event age. They also do
 not establish inference load behavior, browser rendering latency, or a full

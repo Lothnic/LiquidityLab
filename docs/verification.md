@@ -1,5 +1,67 @@
 # Verification record
 
+## Public capture and durable workload evidence — 28 October 2026
+
+Commits `2917994`, `929522c`, `8c7e329`, `5d0113a`, `81ea498` and `4e4838c` add native
+receive timing, HTTP/inference/profiling workloads, a real capture fixture,
+separate bounded Go blocking profiles and retained workload results.
+
+- The [Kraken BTC/USD fixture](../examples/recordings/kraken-btcusd-20261028/README.md)
+  contains 50 actual public frames, one valid snapshot, 45 normalized events and
+  no gaps. Go and Python agree on exact normalized prices, quantities, levels,
+  trade identity and ordering. The short capture's receive-to-book p99 is a
+  histogram upper bound of 200 ms; recording persistence reached 180.386 ms.
+  These timings combine several operations and do not isolate disk fsync.
+- The [original durable baseline](../benchmarks/results/durable-runtime-20261028/README.md)
+  retains 11 schema-v1 reports, including unsuccessful load trials. Three
+  metrics-enabled/disabled pairs are descriptive comparisons; differing
+  wall-clock decisions prevent a causal instrumentation-overhead claim.
+- The [v2 envelope bundle](../benchmarks/results/runtime-envelope-20261028/README.md)
+  retains seven exact reports plus CPU/allocation profiles from the clean
+  `929522c` binary. Six workloads completed; the allocation-profile trial
+  rejected 375 of 2,500 source offers and remains invalid. Final financial
+  conservation and a drained cursor do not repair those missing offers.
+- HTTP baseline measurement completed 1,000 market updates and 400 reads.
+  The real unvalidated Python worker completed 100 measured RPCs alongside
+  1,000 market updates and 400 reads; its 107 fills cover the full lifecycle.
+  The controlled timeout/baseline trial had 50 measured expiries. The
+  timeout/pause trial paused during warmup and had zero measured policy calls.
+  The short timeout/baseline and CPU/allocation measurements contain no later
+  scheduled fill; their fills occurred in warmup.
+- An independent inspection verified all seven compressed/uncompressed report
+  hashes against the originals, all 14 input-manifest hashes, both profile
+  hashes, exact signed fill/fee cash flows and final unlocked balances.
+  Shutdown gauges, policy calls in flight and durable source debt were zero.
+  The original HTTP checker consumed bounded JSON but did not assert response
+  identity; the archived reports retain that limitation.
+- Separate blocking-profile checks cover fresh-file refusal before database
+  use, mutual exclusion with CPU/allocation capture, the 32 MiB cap, parseable
+  nonempty samples, cleanup on write failure and real PostgreSQL execution.
+  Sampling is enabled only around measurement/drain; output remains cumulative
+  Go synchronization history and does not measure database server fsync.
+- Python passed 88 checks without skips with the replay binary configured.
+  Ruff passed and generated protocol bindings matched. Existing frontend
+  evidence remains 46 checks and a production build; no UI code changed here.
+- The first fresh full Go race run passed all product packages but exposed a
+  workload-test fixture with only two read slots and an all-success assertion.
+  Its fixture now admits all ten offered reads through 16 bounded slots; the
+  unchanged success/route assertions passed 25 real-PostgreSQL race repetitions.
+  The subsequent full uncached Go race suite passed with development PostgreSQL
+  and the actual Python/replay paths configured: workload package 6.026 s,
+  daemon 39.535 s, runtime 13.561 s, store 4.352 s and inference 6.246 s.
+  These package times are suite durations, not execution latency.
+
+The evidence review also identified two runner audit gaps: HTTP response
+identity was not validated and a falsely completed parent with residual quantity
+could pass conservation. Commit `4e4838c` corrects both with dedicated
+regressions and records explicit validation-contract versions. Tests also cover
+valid derived decimals with repeating 72-place average prices, preserving
+precision without changing public input parsing. The old reports remain immutable. Shared multi-account execution, load-plus-fault
+headroom, measured restart/restore under demand, policy quality, private venue
+integration, design-user acceptance, deployment and operational gates remain
+open. The [shared runtime design](shared-runtime-design.md) is preparation, not
+an implemented or admitted multi-account product.
+
 ## Owned paper recovery and process boundaries — 28 October 2026
 
 Checkpoints: `50f7294`, `e0d68ba`, `59e9ff7`, `d710fce`, `c27bbec` and
@@ -67,9 +129,10 @@ contain inert functions and cannot enable those faults through environment
 settings. All child processes were reaped; test schemas alone were removed.
 Existing manual verification accounts were retained.
 
-Remaining work includes persistence metrics/load tooling, shared multi-account
-feeds and supervision, historical market counterfactual replay, evaluation and
-promotion, real public capture, private transport/readiness, design-user evidence,
+Remaining work at that earlier checkpoint included persistence metrics/load
+tooling and real public capture, now covered in the newer bounded section above.
+Shared multi-account feeds and supervision, historical market counterfactual replay,
+evaluation and promotion, private transport/readiness, design-user evidence,
 CI/deployment, load-plus-fault capacity, 24-hour soak and backup/restore. Local
 paper recovery does not establish private venue failover or completion of the
 full implementation goal.

@@ -8,10 +8,14 @@ Scope: `docs/go-runtime-plan.md` plus the trader workflow, policy evaluation/pro
 - Migration plan is committed as `9851b87`.
 - Go 1.26.8 and Protobuf compiler are available on the implementation host.
 - Docker's configured daemon is unavailable; a local PostgreSQL 18.6 development instance was provisioned instead. Earlier integration work reports passing real-PostgreSQL race checks for account transitions, ownership, reservations, dispatch and the observation inbox. This is development evidence, not a production restore or failover drill.
-- Public Kraken WebSocket attempts obtained no valid recording. Live capture must be demonstrated before that integration gate can be passed.
+- A bounded real public Kraken BTC/USD capture is committed in `8c7e329`, with Go/Python normalization conformance. It verifies this capture slice only; broader corruption/recovery coverage and operational gates remain.
 - No private exchange credentials, live pilot authorization, or real-money verification has been obtained.
 
-Checkpoint: 28 October 2026 through `2d54659`. The full uncached Go race suite passed with development PostgreSQL and the real Python/replay paths configured; Python passed 87 checks, UI passed 46 checks and a production build, Ruff and generated binding drift checks passed. A real Python worker drove the Go paper actor; worker loss triggered its configured baseline and the session completed. Session history/creation-revision inspection and JSON export were exercised in the browser. Local paper create/resume and OS crash-boundary recovery are now committed, including exact accepted-effect reconstruction and suspended-old-sender fencing. These are synthetic software checks, not policy quality, real venue or capacity evidence. See the verification record for scope and remaining gates.
+Checkpoint: 28 October 2026 through `4e4838c`. The fresh uncached Go race suite passed with development PostgreSQL, the real Python worker and replay binary configured. Python passed 88 checks without skips; Ruff and generated binding drift checks passed. Existing frontend evidence remains 46 checks and a production build.
+
+Recent delivery includes the real 50-frame Kraken capture with 45-event Go/Python conformance, bounded runtime instrumentation, seven retained HTTP/inference/profiling workload reports, a separate Go blocking profiler, and stronger response/terminal-state audit checks. Six workload reports completed; the allocation-profile trial rejected 375 source offers and remains invalid. See the [envelope evidence](../benchmarks/results/runtime-envelope-20261028/README.md) and [verification record](verification.md) for scope, checker versions and limits.
+
+Earlier browser evidence exercised the real Python worker, worker-loss fallback, session history and JSON export on synthetic input. Paper create/resume and OS crash recovery preserve accepted effects and fence suspended old senders. These observations do not establish policy quality, venue execution or supported capacity.
 
 ## Committed migration components
 
@@ -19,13 +23,13 @@ Checkpoint: 28 October 2026 through `2d54659`. The full uncached Go race suite p
 - Shared Go fee, reservation and observation construction; feature vectors compared within two float32 ULPs on approved fixtures.
 - Generated Go/Python protobuf contracts with reproducible generation; bounded replay RPC with isolated environment handles and retry identity.
 - Python Go-backed Gymnasium/vector/PPO integration, terminal reports, invalid-trajectory handling and configurable operation budgets.
-- Public Kraken parser, recorder, reconnect/resnapshot logic, normalization and recording bounds. Real capture remains unverified.
+- Public Kraken parser, recorder, reconnect/resnapshot logic, normalization and recording bounds. Commit `8c7e329` preserves one real 50-frame BTC/USD capture (3.922 s, 44 book messages, one valid snapshot, zero gaps) and a passing 45-event Go/Python conformance record. This verifies normalization on that recording; it is not an SLO, capacity, private-stream, or live-order result.
 - PostgreSQL migrations and bounded connection pool; transactional account/journal/command/reservation/outbox state; ownership and dispatch fencing; durable ordered observation inbox.
 - Durable paper account actors, trade-driven passive fills, shared baseline scheduler, persisted source provenance and arrival benchmark.
 - Owned PostgreSQL paper effects, fresh post-takeover reconstruction, exact configuration compatibility, create/resume CLI and OS process crash/suspended-sender evidence. Private exchange fencing remains separate.
 - Python policy worker and Go client, with bounded local inference, bundle/schema/request checks and a real PPO proposal-boundary integration. Actor-driven asynchronous inference/fallback, pinned parent bundles and durable request/outcome audit are committed.
 - Account-scoped journal metadata, authenticated HTTP commands, exact previews, curated execution projections, recorded-data paper CLI and bounded paper web daemon. Revision-pinned session reports and scoped timeline reads are committed; historical market counterfactual replay remains unfinished.
-- Shared incremental normalization and durable public receipt callbacks; real public capture remains unverified.
+- Shared incremental normalization and durable public receipt callbacks; the committed real capture exercises this path with native receive timing and a local paper daemon, without a plan or private-order stream.
 - Financial/control authority revisions separate from receipt/HOLD journal bookkeeping, preserving exact command retries and legacy revision checks.
 - Committed React paper desk, validated account/preview/command/journal payloads, scope/request isolation, exact plan bindings, unknown-outcome retry, stale-view gating and responsive layouts. Synthetic create/start/fills/pause/resume/cancel workflow and a waiting first-slice plan were exercised in a real browser; design-user evidence remains missing.
 - Reproducible native/bridge benchmark tooling and recorded profiles. The measured Go bridge remains slower than Python for the checked-in synthetic workload, so Python stays the default training backend.
@@ -60,9 +64,9 @@ The active goal continues full implementation of both plans with component commi
 
 Local paper recovery now adds `50f7294` (fresh post-claim bootstrap), `e0d68ba` (paper effect store fence), `59e9ff7` (owned runtime/recovery), `d710fce` (create/resume CLI), `c27bbec` (ordinary-binary SIGKILL/reap/resume), and `2d54659` (ten controlled crash/suspended-sender scenarios). Recovered parents stay paused; accepted facts determine exact fills/fees/balances, attempted orders are not resubmitted, and no initial balance flag is accepted on resume. Private exchange fencing remains unimplemented.
 
-Next work follows section 16 of the Go runtime plan. The Stage 2 backlog now specifies five separate commits: bounded telemetry, store instrumentation, actor/inference instrumentation, a durable paper workload runner, and reproducible baseline evidence. Stage 3 follows with supervisor/routing, shared books, ordered paper facts, and bounded scheduling/admission. These are planned changes, not passed capacity gates.
+Next work follows section 16 of the Go runtime plan. Stage 2 instrumentation and the v2 durable runner are committed, including optional HTTP polling, controlled inference, and profiling. The checked-in 11-report baseline remains schema v1; it includes three metrics-off/on baseline trials and five ramp trials, with invalid source-delivery outcomes retained. Seven v2 reports now exercise HTTP reads, controlled healthy/expired inference, the real unvalidated Python worker, and separate CPU/allocation profiles. Six completed; the allocation-profile trial rejected 375 of 2,500 offered source events and is invalid. These single trials leave the Stage 2 recovery/headroom and attribution exit gate open. Stage 3 still requires supervisor/routing, shared books, ordered paper facts, and bounded scheduling/admission. Committed implementation and narrow capture evidence do not pass the capacity gates.
 
-1. Instrument transaction/snapshot/WAL cost, recovery debt, control latency and inference before reducing durable writes.
+1. Extend measured transaction/snapshot/WAL, control and inference evidence with blocking profiles and load-plus-recovery checks before reducing durable writes.
 2. Add shared books, ordered paper-trade delivery, account supervision/routing, worker-pool admission and staggered multi-account schedules.
 3. Optimize measured persistence/inference constraints while preserving exact accounting and recoverable source ordering.
 4. Complete historical market replay, immutable evaluation/promotion and design-user validation.
