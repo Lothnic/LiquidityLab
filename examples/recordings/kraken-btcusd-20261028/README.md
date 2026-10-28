@@ -1,0 +1,7 @@
+# Kraken BTC/USD public market capture — 2026-10-28
+
+This example contains one real public market-data capture from Kraken BTC/USD only. The raw stream, original capture manifest, normalized events, daemon metrics, daemon log, and Go/Python conformance result are included. `provenance.json` records SHA-256 and byte size for every copied source artifact, plus the source commit and the exact daemon binary build metadata. The original capture manifest is byte-for-byte unchanged, including its original absolute output path.
+
+The capture contains 50 frames over 3.922431170 seconds before the source frame cap ended it: 44 book messages, one valid snapshot, and zero gaps. The daemon then invalidated readiness and shut down with the final account state known. The daemon used synthetic paper balances, rules, fees, and fills. There was no active plan and no private-order stream; no exchange orders were placed.
+
+The conformance record covers 45 events and reports exact decimal/field agreement. Its legacy floating-point timestamp mapping had a maximum observed error of 0 ns (1 ns tolerance). Metrics show native book latency p99 in the 200 ms upper-bound histogram bucket and persistence maximum 180.386 ms. The persistence sample measures encode, flush, and `Sync` together; it is not a pure filesystem-sync measurement. These are single-capture observations, not an SLO pass or capacity claim.

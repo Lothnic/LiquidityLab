@@ -1,0 +1,68 @@
+{
+  "daemon_binary": {
+    "build_metadata": [
+      "/home/lothnic/Documents/Codex/2026-10-23/i-x20/work/bin/liquiditylabd: go1.26.8",
+      "\tpath\tgithub.com/liquiditylab/liquiditylab/cmd/liquiditylabd",
+      "\tmod\tgithub.com/liquiditylab/liquiditylab\tv0.0.0-20261028134029-929522ced593\t",
+      "\tdep\tgithub.com/coder/websocket\tv1.8.15\th1:6B2JPeOGlpff2Uz6vOEH1Vzpi0iUz20A+lPVhPHtNUA=",
+      "\tdep\tgithub.com/jackc/pgpassfile\tv1.0.0\th1:/6Hmqy13Ss2zCq62VdNG8tM1wchn8zjSGOBJ6icpsIM=",
+      "\tdep\tgithub.com/jackc/pgservicefile\tv0.0.0-20240606120523-5a60cdf6a761\th1:iCEnooe7UlwOQYpKFhBabPMi4aNAfoODPEFNiAnClxo=",
+      "\tdep\tgithub.com/jackc/pgx/v5\tv5.11.0\th1:IzBBtyK9AHqf98cctWFifYSci2hgQR/cd56wB4p+ogg=",
+      "\tdep\tgithub.com/jackc/puddle/v2\tv2.2.2\th1:PR8nw+E/1w0GLuRFSmiioY6UooMp6KJv0/61nB7icHo=",
+      "\tdep\tgolang.org/x/net\tv0.57.0\th1:K5+3DljvIuDG9/Jv9rvyMywYNFCQ9RSUY6OOTTkT+tE=",
+      "\tdep\tgolang.org/x/sync\tv0.22.0\th1:SZjpbeLmrCk4xhRSZFNZW5gFUeCeFgjekvI/+gfScek=",
+      "\tdep\tgolang.org/x/sys\tv0.47.0\th1:o7XGOvZQCADBQQ4Y7VNq2dRWQR7JmOUW8Kxx4ZsNgWs=",
+      "\tdep\tgolang.org/x/text\tv0.40.0\th1:Ub2Z6/xjgF1WrYQz2nuITOEegKFtiIy+rieRJ5lHZKs=",
+      "\tdep\tgoogle.golang.org/genproto/googleapis/rpc\tv0.0.0-20260706201446-f0a921348800\th1:qEHAMpSaUhtD0p3NbEEI83HwNGFxEwaSJ1G9PLnCBZE=",
+      "\tdep\tgoogle.golang.org/grpc\tv1.84.0\th1:soMyaPJ8pAak5PIQ0DGBUir0XRo2fRoMqhNWMLlLxO0=",
+      "\tdep\tgoogle.golang.org/protobuf\tv1.36.12\th1:pJOKDDOyeXErUroCihFAd5LQuwXBSpVnKGrj5o/fwxc=",
+      "\tbuild\t-buildmode=exe",
+      "\tbuild\t-compiler=gc",
+      "\tbuild\tCGO_ENABLED=1",
+      "\tbuild\tCGO_CFLAGS=",
+      "\tbuild\tCGO_CPPFLAGS=",
+      "\tbuild\tCGO_CXXFLAGS=",
+      "\tbuild\tCGO_LDFLAGS=",
+      "\tbuild\tGOARCH=amd64",
+      "\tbuild\tGOOS=linux",
+      "\tbuild\tGOAMD64=v1",
+      "\tbuild\tvcs=git",
+      "\tbuild\tvcs.revision=929522ced593d89aaa7fed7574c0d9e83d02b7b0",
+      "\tbuild\tvcs.time=2026-10-28T13:40:29Z",
+      "\tbuild\tvcs.modified=false"
+    ],
+    "go_version": "go1.26.8",
+    "sha256": "91158556cd4c49598aac5b4b9e8d15aa179525b48976387109f79ee731fcbbb0",
+    "source_path": "/home/lothnic/Documents/Codex/2026-10-23/i-x20/work/bin/liquiditylabd"
+  },
+  "files": {
+    "daemon-metrics.jsonl": {
+      "bytes": 25142,
+      "sha256": "ca002e48ee077a0d47fd15e15903b7fb4bed78f6708c70a1381c328d816f1e38"
+    },
+    "daemon.log": {
+      "bytes": 469,
+      "sha256": "5f857ed17c35ccb4121225b706ed3bfab4f229e6cf36470bb467316a6c2aa1dd"
+    },
+    "normalization-conformance.json": {
+      "bytes": 729,
+      "sha256": "319a27262420b12f63a763e312651d14457ae66763ff29bf4bbb32f6edd65281"
+    },
+    "normalized-events.jsonl": {
+      "bytes": 14069,
+      "sha256": "bc5e8f923c8cf2c777930c2c4ded27d93bc81387695cc5b461b081ba88b74c50"
+    },
+    "public-capture.jsonl": {
+      "bytes": 31817,
+      "sha256": "d13f0af7da5c57ee9d058a62f439ec8ffc7f396ab924ecbfe2694ad8f5e876eb"
+    },
+    "public-capture.manifest.json": {
+      "bytes": 778,
+      "sha256": "8fbe63380820bcf49a5ee892829b9360f5f3ecde6112d5fad896299f56a294a3"
+    }
+  },
+  "parent_native_capture_code": "2917994",
+  "schema_version": 1,
+  "source_commit": "929522ced593d89aaa7fed7574c0d9e83d02b7b0",
+  "source_directory": "/home/lothnic/Documents/Codex/2026-10-23/i-x20/work/runtime/20261028-public-retry-01"
+}

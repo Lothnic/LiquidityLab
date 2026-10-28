@@ -1,0 +1,23 @@
+{
+  "schema": "liquiditylab.kraken.raw.v1",
+  "session_id": "9d410b7c-b78e-4330-972e-16111e7b0700",
+  "venue": "kraken",
+  "endpoint": "wss://ws.kraken.com/v2",
+  "symbol": "BTC/USD",
+  "depth": 10,
+  "output": "/home/lothnic/Documents/Codex/2026-10-23/i-x20/work/runtime/20261028-public-retry-01/capture.jsonl",
+  "started_at": "2026-10-28T13:41:16.113155377Z",
+  "finished_at": "2026-10-28T13:41:20.035583041Z",
+  "requested_duration_seconds": "20.000000000",
+  "duration_seconds": "3.922431170",
+  "max_frames": 50,
+  "frames": 50,
+  "book_messages": 44,
+  "valid_snapshots": 1,
+  "gaps": 0,
+  "connections": 1,
+  "book_valid_at_end": true,
+  "sha256": "d13f0af7da5c57ee9d058a62f439ec8ffc7f396ab924ecbfe2694ad8f5e876eb",
+  "bytes": 31817,
+  "status": "frame_limit_reached"
+}

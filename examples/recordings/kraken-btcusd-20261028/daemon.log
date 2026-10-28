@@ -1,0 +1,4 @@
+PAPER server http://127.0.0.1:40689 account=synthetic-paper-daemon/capture_20261028_01 source=kraken; balances, rules, fees and fills are SYNTHETIC; no exchange orders
+PAPER startup state=ready; recovered plans remain paused until explicit trader resume
+PAPER public-data source ended; readiness invalidated; account remains available for inspection/cancellation
+PAPER stopped account=synthetic-paper-daemon/capture_20261028_01 known_final=true; durable state retained

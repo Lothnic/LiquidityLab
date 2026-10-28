@@ -1,0 +1,25 @@
+{
+  "schema": "real-public-normalization-conformance-v1",
+  "raw_sha256": "d13f0af7da5c57ee9d058a62f439ec8ffc7f396ab924ecbfe2694ad8f5e876eb",
+  "normalized_go_sha256": "bc5e8f923c8cf2c777930c2c4ded27d93bc81387695cc5b461b081ba88b74c50",
+  "events": 45,
+  "exact_fields": [
+    "kind",
+    "type",
+    "receipt_index",
+    "source_receipt_index",
+    "symbol",
+    "valid",
+    "checksum",
+    "exchange_timestamp",
+    "price",
+    "quantity",
+    "side",
+    "trade_id",
+    "decimal-keyed bid/ask levels with raw text preserved"
+  ],
+  "legacy_python_time_mapping": "round(float_seconds*1e9), tolerance <=1 ns; Go uses exact integer ns",
+  "max_legacy_time_difference_ns": 0,
+  "python_version": "3.12.11",
+  "result": "pass"
+}
