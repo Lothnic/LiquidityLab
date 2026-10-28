@@ -4,6 +4,7 @@ Usage: uv run python conformance/regenerate.py
 All fixture times use integer nanoseconds; report time fields are normalized too.
 """
 
+import argparse
 import json
 from decimal import ROUND_HALF_EVEN, Decimal, localcontext
 from pathlib import Path
@@ -108,7 +109,7 @@ def report_case(name, events, plan, *, actions=None, policy=None, config=None, f
     }
 
 
-def main():
+def build_vectors():
     buy_plan = Plan(**json.loads((ROOT.parent / "examples/buy-plan.json").read_text()))
     buy = report_case(
         "full_buy", synthetic_events(), buy_plan, policy="scheduled",
@@ -156,14 +157,28 @@ def main():
         actions=[0],
     )
 
-    (ROOT / "golden.json").write_text(json.dumps({
+    return {
         "schema": "liquiditylab-python-reference-v1",
         "time_unit": "nanoseconds",
         "decimal_encoding": "base-10 strings",
         "action_mapping": {"0": "HOLD", "1": "CANCEL", "2": "PASSIVE_SMALL",
             "3": "PASSIVE_NORMAL", "4": "AGGRESSIVE_SMALL", "5": "AGGRESSIVE_NORMAL"},
         "cases": [buy, partial, race, gap],
-    }, indent=2) + "\n")
+    }
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--check", action="store_true", help="verify without rewriting golden.json")
+    args = parser.parse_args()
+    expected = json.dumps(build_vectors(), indent=2) + "\n"
+    path = ROOT / "golden.json"
+    if args.check:
+        if not path.is_file() or path.read_text() != expected:
+            parser.exit(1, "Python-reference conformance vectors differ; inspect the semantic change before regenerating.\n")
+        print("Python-reference conformance vectors match")
+    else:
+        path.write_text(expected)
 
 
 if __name__ == "__main__":
