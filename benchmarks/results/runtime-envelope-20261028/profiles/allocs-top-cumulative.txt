@@ -1,0 +1,33 @@
+File: durable-runtime-v2
+Build ID: c8e46fbf0f90a9ef1c90d32191aa3d5b37e12935
+Type: alloc_space
+Time: 2026-10-28 19:38:42 IST
+Showing nodes accounting for 71.96MB, 28.91% of 248.96MB total
+Dropped 97 nodes (cum <= 1.24MB)
+Showing top 25 nodes out of 139
+      flat  flat%   sum%        cum   cum%
+         0     0%     0%   229.68MB 92.26%  github.com/liquiditylab/liquiditylab/internal/runtime.(*Actor).loop
+         0     0%     0%   218.67MB 87.84%  github.com/liquiditylab/liquiditylab/internal/runtime.(*Actor).handle
+         0     0%     0%   214.17MB 86.03%  github.com/liquiditylab/liquiditylab/internal/runtime.(*Actor).market
+    0.50MB   0.2%   0.2%   195.16MB 78.39%  github.com/liquiditylab/liquiditylab/internal/runtime.(*Actor).drainFacts
+         0     0%   0.2%   144.63MB 58.10%  github.com/liquiditylab/liquiditylab/internal/runtime.(*Actor).applyPaperTrade
+   26.50MB 10.65% 10.85%    78.56MB 31.56%  encoding/json.Unmarshal
+       2MB   0.8% 11.65%    78.54MB 31.55%  github.com/liquiditylab/liquiditylab/internal/runtime.cloneState
+         0     0% 11.65%    76.03MB 30.54%  github.com/liquiditylab/liquiditylab/internal/runtime.decodeInternal
+       2MB   0.8% 12.45%    76.03MB 30.54%  github.com/liquiditylab/liquiditylab/internal/runtime.decodeValue
+       1MB   0.4% 12.86%    72.11MB 28.96%  github.com/liquiditylab/liquiditylab/internal/runtime.(*Actor).persistRevision
+         0     0% 12.86%    59.03MB 23.71%  github.com/liquiditylab/liquiditylab/internal/store/postgres.(*Store).GetAccount
+   10.50MB  4.22% 17.07%    53.03MB 21.30%  github.com/liquiditylab/liquiditylab/internal/store/postgres.readAccount
+       1MB   0.4% 17.48%    50.09MB 20.12%  github.com/liquiditylab/liquiditylab/internal/store/postgres.(*Store).Apply
+         0     0% 17.48%    50.06MB 20.11%  encoding/json.(*decodeState).unmarshal
+         0     0% 17.48%    50.06MB 20.11%  encoding/json.(*decodeState).value
+    2.50MB  1.00% 18.48%    47.06MB 18.90%  encoding/json.(*decodeState).object
+         0     0% 18.48%    37.57MB 15.09%  github.com/jackc/pgx/v5.(*Conn).Exec
+         0     0% 18.48%    37.57MB 15.09%  github.com/jackc/pgx/v5.(*Conn).exec
+         0     0% 18.48%    33.54MB 13.47%  github.com/jackc/pgx/v5/pgconn.(*PgConn).ExecStatement
+         0     0% 18.48%    31.07MB 12.48%  github.com/jackc/pgx/v5.(*Conn).execPrepared
+         0     0% 18.48%    31.07MB 12.48%  github.com/jackc/pgx/v5.(*dbTx).Exec
+       9MB  3.62% 22.10%    30.53MB 12.27%  github.com/jackc/pgx/v5.(*baseRows).Scan
+   16.95MB  6.81% 28.91%    27.94MB 11.22%  encoding/json.Marshal
+         0     0% 28.91%    25.03MB 10.06%  github.com/jackc/pgx/v5.(*connRow).Scan
+         0     0% 28.91%       24MB  9.64%  github.com/jackc/pgx/v5.(*Conn).Query

@@ -1,0 +1,33 @@
+File: durable-runtime-v2
+Build ID: c8e46fbf0f90a9ef1c90d32191aa3d5b37e12935
+Type: alloc_space
+Time: 2026-10-28 19:38:42 IST
+Showing nodes accounting for 201.72MB, 81.03% of 248.96MB total
+Dropped 97 nodes (cum <= 1.24MB)
+Showing top 25 nodes out of 139
+      flat  flat%   sum%        cum   cum%
+   26.50MB 10.65% 10.65%    78.56MB 31.56%  encoding/json.Unmarshal
+   22.02MB  8.85% 19.49%    22.02MB  8.85%  reflect.mapassign_faststr0
+   20.03MB  8.05% 27.54%    20.03MB  8.05%  encoding/json.(*RawMessage).UnmarshalJSON
+      17MB  6.83% 34.37%       24MB  9.64%  github.com/jackc/pgx/v5/pgconn/ctxwatch.(*ContextWatcher).Watch
+   16.95MB  6.81% 41.18%    27.94MB 11.22%  encoding/json.Marshal
+   10.50MB  4.22% 45.40%    53.03MB 21.30%  github.com/liquiditylab/liquiditylab/internal/store/postgres.readAccount
+       9MB  3.62% 49.01%    30.53MB 12.27%  github.com/jackc/pgx/v5.(*baseRows).Scan
+       8MB  3.21% 52.23%        8MB  3.21%  github.com/jackc/pgx/v5.(*Conn).getRows
+    7.52MB  3.02% 55.25%     7.52MB  3.02%  github.com/jackc/pgx/v5/pgtype.encodePlanJSONCodecEitherFormatByteSlice.Encode
+       7MB  2.81% 58.06%        7MB  2.81%  context.AfterFunc
+    6.52MB  2.62% 60.68%     7.02MB  2.82%  github.com/jackc/pgx/v5/pgproto3.(*Bind).Encode
+       6MB  2.41% 63.09%        6MB  2.41%  strings.NewReader (inline)
+    5.50MB  2.21% 65.30%     5.50MB  2.21%  reflect.unsafe_New
+    5.02MB  2.02% 67.31%     5.02MB  2.02%  github.com/jackc/pgx/v5/internal/pgio.AppendUint32 (inline)
+    4.50MB  1.81% 69.12%     4.50MB  1.81%  strings.genSplit
+    3.98MB  1.60% 70.72%     3.98MB  1.60%  bytes.growSlice
+    3.51MB  1.41% 72.13%     3.51MB  1.41%  github.com/jackc/pgx/v5/pgtype.encodePlanJSONCodecEitherFormatJSONRawMessage.Encode
+    3.01MB  1.21% 73.34%     3.01MB  1.21%  runtime.mallocgc
+       3MB  1.21% 74.54%    13.01MB  5.23%  github.com/liquiditylab/liquiditylab/internal/store/postgres.lockAccount
+       3MB  1.21% 75.75%        3MB  1.21%  encoding/json.(*scanner).pushParseState
+       3MB  1.21% 76.95%        3MB  1.21%  github.com/jackc/pgx/v5/pgconn.(*PgConn).makeCommandTag (inline)
+    2.64MB  1.06% 78.01%     3.64MB  1.46%  main.schedule
+    2.50MB  1.01% 79.02%     2.50MB  1.01%  github.com/jackc/pgx/v5/pgproto3.(*Frontend).Flush
+    2.50MB  1.00% 80.02%     2.50MB  1.00%  reflect.growslice
+    2.50MB  1.00% 81.03%       14MB  5.62%  github.com/liquiditylab/liquiditylab/internal/domain.ParseInternalDecimal

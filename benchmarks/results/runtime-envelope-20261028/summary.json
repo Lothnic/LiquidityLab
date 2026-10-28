@@ -1,0 +1,438 @@
+{
+  "binary_sha256": "f3c90c5194b8fd6168d95f75daa9dbf7f59ed3b055c0c89053d8629d81b47896",
+  "complete_valid_count": 6,
+  "invalid_count": 1,
+  "limits": [
+    "Synthetic one-account/one-instrument shared-host development workloads; not a supported-capacity or production claim.",
+    "HTTP includes scoped API body consumption and JSON validation; no React rendering.",
+    "CPU and allocation profiles are separate runs, not a causal profiler comparison; the allocation run is invalid (375 market rejects).",
+    "External worker policy bundle is unvalidated; 100 measured RPCs succeeded and 107 fills occurred over the full run lifecycle. No model quality or worker resource claim.",
+    "Cluster-wide WAL and resource-delta boundaries include unrelated/observer work."
+  ],
+  "profile_observations": {
+    "allocation_cumulative_postgres_get_account_pct": 23.71,
+    "allocation_cumulative_runtime_clone_state_pct": 31.55,
+    "cpu_cumulative_json_unmarshal_pct": 24.57,
+    "cpu_cumulative_postgres_get_account_pct": 28.88,
+    "cpu_flat_syscall6_pct": 22.84,
+    "cpu_profile_sampled_cpu_seconds": 2.32,
+    "cpu_profile_wall_seconds": 10.24,
+    "cumulative_functions_overlap": true
+  },
+  "quantile_notes": [
+    "Runner latency p99s are per-call offered-to-success summaries for that measurement phase.",
+    "Telemetry histogram snapshots are cumulative: difference counters, histogram bucket counts, and sums only when endpoints are valid; never difference min/max or quantile fields."
+  ],
+  "run_count": 7,
+  "runs": [
+    {
+      "financial": {
+        "audit_valid": true,
+        "durable_fills": 1,
+        "fill_quantity": "0.01",
+        "shutdown_gauges_zero": true,
+        "source_debt": 0
+      },
+      "http_route_p99": {},
+      "launch_context": {
+        "worktree_dirty": true,
+        "worktree_revision": "8c7e32982914ac792dd37ec26d2e44332e8867e5"
+      },
+      "market_offered_to_success_p99_ns": 395593770,
+      "offered_load": {
+        "market_completed": 2125,
+        "market_offered": 2500,
+        "market_per_second": 250,
+        "market_rejected": 375,
+        "read_mode": "actor",
+        "reads_completed": 20,
+        "reads_per_second": 2
+      },
+      "policy": {
+        "fallback": "baseline",
+        "in_flight_at_shutdown": 0,
+        "kind": "none",
+        "measured_rpc_delta": {
+          "expired": 0,
+          "failed": 0,
+          "rejected": 0,
+          "requests": 0,
+          "succeeded": 0
+        },
+        "promotion_status": null,
+        "sha256": null
+      },
+      "profile": "allocs",
+      "read_offered_to_success_p99_ns": 17323232,
+      "report": "actor-baseline-allocs.json.gz",
+      "resources": {
+        "rss_endpoint_bytes": 5476352,
+        "system_cpu_us": 738738,
+        "total_alloc_bytes": 203442456,
+        "user_cpu_us": 1725253
+      },
+      "status": "invalid",
+      "valid": false
+    },
+    {
+      "financial": {
+        "audit_valid": true,
+        "durable_fills": 1,
+        "fill_quantity": "0.01",
+        "shutdown_gauges_zero": true,
+        "source_debt": 0
+      },
+      "http_route_p99": {},
+      "launch_context": {
+        "worktree_dirty": true,
+        "worktree_revision": "8c7e32982914ac792dd37ec26d2e44332e8867e5"
+      },
+      "market_offered_to_success_p99_ns": 232589681,
+      "offered_load": {
+        "market_completed": 2500,
+        "market_offered": 2500,
+        "market_per_second": 250,
+        "market_rejected": 0,
+        "read_mode": "actor",
+        "reads_completed": 20,
+        "reads_per_second": 2
+      },
+      "policy": {
+        "fallback": "baseline",
+        "in_flight_at_shutdown": 0,
+        "kind": "none",
+        "measured_rpc_delta": {
+          "expired": 0,
+          "failed": 0,
+          "rejected": 0,
+          "requests": 0,
+          "succeeded": 0
+        },
+        "promotion_status": null,
+        "sha256": null
+      },
+      "profile": "cpu",
+      "read_offered_to_success_p99_ns": 9800142,
+      "report": "actor-baseline-cpu.json.gz",
+      "resources": {
+        "rss_endpoint_bytes": 9674752,
+        "system_cpu_us": 838387,
+        "total_alloc_bytes": 239232688,
+        "user_cpu_us": 1830867
+      },
+      "status": "complete",
+      "valid": true
+    },
+    {
+      "financial": {
+        "audit_valid": true,
+        "durable_fills": 2,
+        "fill_quantity": "0.02",
+        "shutdown_gauges_zero": true,
+        "source_debt": 0
+      },
+      "http_route_p99": {
+        "report": {
+          "count": 80,
+          "p99_ns": 3145673
+        },
+        "sessions": {
+          "count": 80,
+          "p99_ns": 2683577
+        },
+        "state": {
+          "count": 240,
+          "p99_ns": 11153480
+        }
+      },
+      "launch_context": {
+        "worktree_dirty": false,
+        "worktree_revision": "8c7e32982914ac792dd37ec26d2e44332e8867e5"
+      },
+      "market_offered_to_success_p99_ns": 11345676,
+      "offered_load": {
+        "market_completed": 1000,
+        "market_offered": 1000,
+        "market_per_second": 50,
+        "market_rejected": 0,
+        "read_mode": "http",
+        "reads_completed": 400,
+        "reads_per_second": 20
+      },
+      "policy": {
+        "fallback": "baseline",
+        "in_flight_at_shutdown": 0,
+        "kind": "none",
+        "measured_rpc_delta": {
+          "expired": 0,
+          "failed": 0,
+          "rejected": 0,
+          "requests": 0,
+          "succeeded": 0
+        },
+        "promotion_status": null,
+        "sha256": null
+      },
+      "profile": "none",
+      "read_offered_to_success_p99_ns": 11078061,
+      "report": "http-baseline.json.gz",
+      "resources": {
+        "rss_endpoint_bytes": 3354624,
+        "system_cpu_us": 640741,
+        "total_alloc_bytes": 155198608,
+        "user_cpu_us": 1732630
+      },
+      "status": "complete",
+      "valid": true
+    },
+    {
+      "financial": {
+        "audit_valid": true,
+        "durable_fills": 0,
+        "fill_quantity": "0",
+        "shutdown_gauges_zero": true,
+        "source_debt": 0
+      },
+      "http_route_p99": {
+        "report": {
+          "count": 40,
+          "p99_ns": 2797702
+        },
+        "sessions": {
+          "count": 40,
+          "p99_ns": 2567074
+        },
+        "state": {
+          "count": 120,
+          "p99_ns": 11229869
+        }
+      },
+      "launch_context": {
+        "worktree_dirty": false,
+        "worktree_revision": "8c7e32982914ac792dd37ec26d2e44332e8867e5"
+      },
+      "market_offered_to_success_p99_ns": 14321408,
+      "offered_load": {
+        "market_completed": 500,
+        "market_offered": 500,
+        "market_per_second": 50,
+        "market_rejected": 0,
+        "read_mode": "http",
+        "reads_completed": 200,
+        "reads_per_second": 20
+      },
+      "policy": {
+        "fallback": "baseline",
+        "in_flight_at_shutdown": 0,
+        "kind": "controlled_local_grpc",
+        "measured_rpc_delta": {
+          "expired": 0,
+          "failed": 0,
+          "rejected": 0,
+          "requests": 50,
+          "succeeded": 50
+        },
+        "promotion_status": "unvalidated",
+        "sha256": "30284c406f20ec1bf994a32806632a084fd87ddbfca974178bf379deb50dedd0"
+      },
+      "profile": "none",
+      "read_offered_to_success_p99_ns": 11146704,
+      "report": "http-controlled-healthy.json.gz",
+      "resources": {
+        "rss_endpoint_bytes": 2256896,
+        "system_cpu_us": 319750,
+        "total_alloc_bytes": 104637600,
+        "user_cpu_us": 1068569
+      },
+      "status": "complete",
+      "valid": true
+    },
+    {
+      "financial": {
+        "audit_valid": true,
+        "durable_fills": 1,
+        "fill_quantity": "0.01",
+        "shutdown_gauges_zero": true,
+        "source_debt": 0
+      },
+      "http_route_p99": {
+        "report": {
+          "count": 40,
+          "p99_ns": 3615879
+        },
+        "sessions": {
+          "count": 40,
+          "p99_ns": 2691881
+        },
+        "state": {
+          "count": 120,
+          "p99_ns": 21402886
+        }
+      },
+      "launch_context": {
+        "worktree_dirty": true,
+        "worktree_revision": "8c7e32982914ac792dd37ec26d2e44332e8867e5"
+      },
+      "market_offered_to_success_p99_ns": 18688396,
+      "offered_load": {
+        "market_completed": 500,
+        "market_offered": 500,
+        "market_per_second": 50,
+        "market_rejected": 0,
+        "read_mode": "http",
+        "reads_completed": 200,
+        "reads_per_second": 20
+      },
+      "policy": {
+        "fallback": "baseline",
+        "in_flight_at_shutdown": 0,
+        "kind": "controlled_local_grpc",
+        "measured_rpc_delta": {
+          "expired": 50,
+          "failed": 50,
+          "rejected": 0,
+          "requests": 50,
+          "succeeded": 0
+        },
+        "promotion_status": "unvalidated",
+        "sha256": "30284c406f20ec1bf994a32806632a084fd87ddbfca974178bf379deb50dedd0"
+      },
+      "profile": "none",
+      "read_offered_to_success_p99_ns": 21094337,
+      "report": "http-controlled-timeout-baseline.json.gz",
+      "resources": {
+        "rss_endpoint_bytes": 2338816,
+        "system_cpu_us": 377530,
+        "total_alloc_bytes": 136698664,
+        "user_cpu_us": 1272856
+      },
+      "status": "complete",
+      "valid": true
+    },
+    {
+      "financial": {
+        "audit_valid": true,
+        "durable_fills": 0,
+        "fill_quantity": "0",
+        "shutdown_gauges_zero": true,
+        "source_debt": 0
+      },
+      "http_route_p99": {
+        "report": {
+          "count": 20,
+          "p99_ns": 3338997
+        },
+        "sessions": {
+          "count": 20,
+          "p99_ns": 2447880
+        },
+        "state": {
+          "count": 60,
+          "p99_ns": 13098298
+        }
+      },
+      "launch_context": {
+        "worktree_dirty": true,
+        "worktree_revision": "8c7e32982914ac792dd37ec26d2e44332e8867e5"
+      },
+      "market_offered_to_success_p99_ns": 11450163,
+      "offered_load": {
+        "market_completed": 250,
+        "market_offered": 250,
+        "market_per_second": 50,
+        "market_rejected": 0,
+        "read_mode": "http",
+        "reads_completed": 100,
+        "reads_per_second": 20
+      },
+      "policy": {
+        "fallback": "pause",
+        "in_flight_at_shutdown": 0,
+        "kind": "controlled_local_grpc",
+        "measured_rpc_delta": {
+          "expired": 0,
+          "failed": 0,
+          "rejected": 0,
+          "requests": 0,
+          "succeeded": 0
+        },
+        "promotion_status": "unvalidated",
+        "sha256": "30284c406f20ec1bf994a32806632a084fd87ddbfca974178bf379deb50dedd0"
+      },
+      "profile": "none",
+      "read_offered_to_success_p99_ns": 11385741,
+      "report": "http-controlled-timeout-pause.json.gz",
+      "resources": {
+        "rss_endpoint_bytes": 987136,
+        "system_cpu_us": 169209,
+        "total_alloc_bytes": 43146160,
+        "user_cpu_us": 434671
+      },
+      "status": "complete",
+      "valid": true
+    },
+    {
+      "financial": {
+        "audit_valid": true,
+        "durable_fills": 107,
+        "fill_quantity": "0.997",
+        "shutdown_gauges_zero": true,
+        "source_debt": 0
+      },
+      "http_route_p99": {
+        "report": {
+          "count": 80,
+          "p99_ns": 4559271
+        },
+        "sessions": {
+          "count": 80,
+          "p99_ns": 2435686
+        },
+        "state": {
+          "count": 240,
+          "p99_ns": 24647172
+        }
+      },
+      "launch_context": {
+        "worktree_dirty": true,
+        "worktree_revision": "8c7e32982914ac792dd37ec26d2e44332e8867e5"
+      },
+      "market_offered_to_success_p99_ns": 40418870,
+      "offered_load": {
+        "market_completed": 1000,
+        "market_offered": 1000,
+        "market_per_second": 50,
+        "market_rejected": 0,
+        "read_mode": "http",
+        "reads_completed": 400,
+        "reads_per_second": 20
+      },
+      "policy": {
+        "fallback": "baseline",
+        "in_flight_at_shutdown": 0,
+        "kind": "external_local_worker",
+        "measured_rpc_delta": {
+          "expired": 0,
+          "failed": 0,
+          "rejected": 0,
+          "requests": 100,
+          "succeeded": 100
+        },
+        "promotion_status": "unvalidated",
+        "sha256": "0e73f473892a2939910ea17420eb36d22b8f38c8e479b1b95e0a79d47fad7e6b"
+      },
+      "profile": "none",
+      "read_offered_to_success_p99_ns": 24353992,
+      "report": "http-python-unvalidated.json.gz",
+      "resources": {
+        "rss_endpoint_bytes": 5955584,
+        "system_cpu_us": 862159,
+        "total_alloc_bytes": 1146490240,
+        "user_cpu_us": 5440212
+      },
+      "status": "complete",
+      "valid": true
+    }
+  ],
+  "schema": "runtime-envelope-summary-v1"
+}

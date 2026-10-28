@@ -1,0 +1,34 @@
+File: durable-runtime-v2
+Build ID: c8e46fbf0f90a9ef1c90d32191aa3d5b37e12935
+Type: cpu
+Time: 2026-10-28 19:38:20 IST
+Duration: 10.24s, Total samples = 2.32s (22.66%)
+Showing nodes accounting for 1.45s, 62.50% of 2.32s total
+Dropped 154 nodes (cum <= 0.01s)
+Showing top 25 nodes out of 239
+      flat  flat%   sum%        cum   cum%
+     0.53s 22.84% 22.84%      0.53s 22.84%  internal/runtime/syscall/linux.Syscall6
+     0.13s  5.60% 28.45%      0.21s  9.05%  encoding/json.checkValid
+     0.08s  3.45% 31.90%      0.08s  3.45%  encoding/json.stateInString
+     0.07s  3.02% 34.91%      0.08s  3.45%  encoding/json.appendCompact
+     0.06s  2.59% 37.50%      0.06s  2.59%  runtime.nextFreeFast (inline)
+     0.05s  2.16% 39.66%      0.11s  4.74%  encoding/json.(*decodeState).skip
+     0.04s  1.72% 41.38%      0.04s  1.72%  internal/runtime/gc/scan.scanSpanPackedAVX512
+     0.04s  1.72% 43.10%      0.30s 12.93%  runtime.mallocgc
+     0.04s  1.72% 44.83%      0.04s  1.72%  runtime.memclrNoHeapPointers
+     0.04s  1.72% 46.55%      0.06s  2.59%  runtime.scanObject
+     0.03s  1.29% 47.84%      0.03s  1.29%  encoding/json.appendString[go.shape.string]
+     0.03s  1.29% 49.14%      0.05s  2.16%  encoding/json.stateBeginValue
+     0.03s  1.29% 50.43%      0.03s  1.29%  runtime.(*mspan).writeHeapBitsSmall
+     0.03s  1.29% 51.72%      0.03s  1.29%  runtime.memmove
+     0.03s  1.29% 53.02%      0.03s  1.29%  runtime.newArenaMayUnlock
+     0.03s  1.29% 54.31%      0.03s  1.29%  runtime.stealWork
+     0.03s  1.29% 55.60%      0.03s  1.29%  unicode/utf8.DecodeRune
+     0.02s  0.86% 56.47%      0.02s  0.86%  context.parentCancelCtx
+     0.02s  0.86% 57.33%      0.02s  0.86%  encoding/json.(*decodeState).rescanLiteral
+     0.02s  0.86% 58.19%      0.02s  0.86%  encoding/json.stateEndValue
+     0.02s  0.86% 59.05%      0.02s  0.86%  indexbytebody
+     0.02s  0.86% 59.91%      0.02s  0.86%  internal/sync.(*Mutex).Lock
+     0.02s  0.86% 60.78%      0.42s 18.10%  runtime.findRunnable
+     0.02s  0.86% 61.64%      0.02s  0.86%  runtime.findfunc
+     0.02s  0.86% 62.50%      0.22s  9.48%  runtime.mallocgcSmallScanNoHeader
