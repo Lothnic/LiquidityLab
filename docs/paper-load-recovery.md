@@ -77,6 +77,17 @@ successfully with `known_final=true`, be reaped, and leave a cancelled residual
 parent with independently reconciled finances. Failure cleanup also kills and
 reaps any surviving child.
 
+Recovered readiness and terminal financial finality are checked at explicit,
+separate boundaries. The recovered paused account must be ready with a valid
+market and book, and `recovery_required=false`. After a process has been reaped
+and its graceful log confirms known finality, a cancelled parent may retain the
+precise stopped-source state: `reason=market_invalid`,
+`market_id=web-source-ended`, invalid market/book and account not ready. Source
+termination can persist that readiness invalidation before final cancellation.
+The final audit records the actual flags and reason. Every financial obligation,
+source cursor, fill, fee and unlocked balance must still reconcile; any other
+recovery reason, clock discontinuity or outstanding obligation fails the audit.
+
 ## Evidence and interpretation
 
 The JSON records binary hash and build identity, account and schema identities,

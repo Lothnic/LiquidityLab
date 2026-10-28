@@ -28,6 +28,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/liquiditylab/liquiditylab/internal/api"
 	d "github.com/liquiditylab/liquiditylab/internal/domain"
+	x "github.com/liquiditylab/liquiditylab/internal/execution"
 	rt "github.com/liquiditylab/liquiditylab/internal/runtime"
 	pg "github.com/liquiditylab/liquiditylab/internal/store/postgres"
 )
@@ -83,7 +84,27 @@ type loadRecoveryFact struct {
 	SHA256   string `json:"payload_sha256"`
 }
 
+type loadRecoveryAuditBoundary struct {
+	Phase         string `json:"phase"`
+	ProcessReaped bool   `json:"process_reaped"`
+	KnownFinal    bool   `json:"known_final"`
+}
+
+const (
+	loadRecoveryPausedBoundary   = "recovered_ready_paused"
+	loadRecoveryShutdownBoundary = "after_reaped_known_final_shutdown"
+)
+
 type loadRecoveryAudit struct {
+	Boundary           loadRecoveryAuditBoundary `json:"boundary"`
+	Ready              bool                      `json:"account_ready"`
+	MarketValid        bool                      `json:"market_valid"`
+	BookValid          bool                      `json:"book_valid"`
+	ClockDiscontinuity bool                      `json:"clock_discontinuity"`
+	RecoveryRequired   bool                      `json:"recovery_required"`
+	Reason             string                    `json:"reason"`
+	MarketID           string                    `json:"market_id"`
+
 	Valid        bool         `json:"valid"`
 	Issues       []string     `json:"issues"`
 	Status       string       `json:"status"`
@@ -338,16 +359,18 @@ func loadRecoveryFacts(t *testing.T, dsn string, opt paperServerOptions) []loadR
 
 // Compute cash flows from independently accepted venue observations, then compare
 // both the reducer snapshot and durable execution rows. No execution ledger is used.
-func auditLoadRecovery(t *testing.T, dsn string, opt paperServerOptions, account pg.Account, original rt.State) loadRecoveryAudit {
+func auditLoadRecovery(t *testing.T, dsn string, opt paperServerOptions, account pg.Account, original rt.State, boundary loadRecoveryAuditBoundary) loadRecoveryAudit {
 	t.Helper()
-	out := loadRecoveryAudit{Valid: true, Issues: []string{}, Epoch: account.Ownership.Epoch, Observed: account.ObservedSequence, Processed: account.ProcessedSequence, Balances: account.Balances, Accepted: []d.Fill{}}
+	out := loadRecoveryAudit{Boundary: boundary, Ready: account.Ready, MarketValid: account.Market.Valid, Valid: true, Issues: []string{}, Epoch: account.Ownership.Epoch, Observed: account.ObservedSequence, Processed: account.ProcessedSequence, Balances: account.Balances, Accepted: []d.Fill{}}
 	fail := func(issue string) { out.Valid = false; out.Issues = append(out.Issues, issue) }
 	state, err := rt.DecodeSnapshot(account.Snapshot)
 	if err != nil || state.Parent == nil || original.Parent == nil {
 		fail("parent snapshot unavailable")
 		return out
 	}
-	out.Status = state.Parent.Status
+	out.Status, out.RecoveryRequired, out.Reason, out.MarketID = state.Parent.Status, state.RecoveryRequired, loadRecoverySafeReason(state.Reason), state.MarketID
+	out.BookValid = state.Book != nil && state.Book.Valid
+	out.ClockDiscontinuity = state.ClockDiscontinuity
 	out.PinsRetained = state.Parent.ID == original.Parent.ID && state.Parent.Start.Equal(original.Parent.Start) && state.Parent.Deadline.Equal(original.Parent.Deadline) && state.Parent.ArrivalMid.Equal(original.Parent.ArrivalMid) && reflect.DeepEqual(state.Parent.Spec, original.Parent.Spec) && state.Parent.Baseline == original.Parent.Baseline && reflect.DeepEqual(state.Parent.PolicyBundle, original.Parent.PolicyBundle) && reflect.DeepEqual(state.PolicyBundle, original.PolicyBundle) && reflect.DeepEqual(state.Rules, original.Rules) && reflect.DeepEqual(state.Fees, original.Fees) && reflect.DeepEqual(state.Execution, original.Execution) && state.BaseCurrency == original.BaseCurrency && state.QuoteCurrency == original.QuoteCurrency && state.InstrumentRevision == original.InstrumentRevision && state.DataSource == original.DataSource && state.Profile == original.Profile
 	if !out.PinsRetained {
 		fail("original execution pins changed")
@@ -394,8 +417,8 @@ func auditLoadRecovery(t *testing.T, dsn string, opt paperServerOptions, account
 		}
 		seenCurrency[balance.Currency] = true
 	}
-	if state.Child != nil || len(account.Intents) != 0 || len(account.Reservations) != 0 || account.ObservedSequence != account.ProcessedSequence || state.RecoveryRequired || len(state.PendingFacts) != 0 || len(state.UnresolvedFacts) != 0 || state.PolicyPending != nil {
-		fail("unresolved financial or source obligation")
+	for _, issue := range loadRecoveryBoundaryIssues(account, state, boundary) {
+		fail(issue)
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -668,7 +691,7 @@ func TestPaperProcessLoadRecoveryWithBystanderDemand(t *testing.T) {
 	if err != nil {
 		t.Fatal("recovered durable account unavailable")
 	}
-	report.Recovered = auditLoadRecovery(t, dsn, opt, retained, victimPins)
+	report.Recovered = auditLoadRecovery(t, dsn, opt, retained, victimPins, loadRecoveryAuditBoundary{Phase: loadRecoveryPausedBoundary})
 	if !report.Recovered.Valid || retained.Ownership.Epoch != crashed.Ownership.Epoch+1 || !reflect.DeepEqual(acceptedBefore, loadRecoveryAcceptedFills(t, dsn, opt)) || !loadRecoveryExactProjection(recovered, report.Recovered) {
 		t.Fatal("recovered accepted finances, epoch, pins or residual disagree")
 	}
@@ -723,14 +746,14 @@ func TestPaperProcessLoadRecoveryWithBystanderDemand(t *testing.T) {
 		if err != nil {
 			t.Fatal("final durable account unavailable")
 		}
-		pins := victimPins
+		pins, process := victimPins, restarted
 		if role == "bystander" {
-			pins = bystanderPins
+			pins, process = bystanderPins, bystander
 		}
-		audit := auditLoadRecovery(t, dsn, options, final, pins)
+		audit := auditLoadRecovery(t, dsn, options, final, pins, loadRecoveryAuditBoundary{Phase: loadRecoveryShutdownBoundary, ProcessReaped: process.waited, KnownFinal: report.KnownFinal[role]})
 		report.Final[role] = audit
 		if !audit.Valid || audit.Status != "cancelled" || !report.KnownFinal[role] {
-			t.Errorf("%s final accounting or graceful finality failed", role)
+			t.Errorf("%s final accounting or graceful finality failed: issues=%v status=%s known_final=%t ready=%t book_valid=%t recovery_required=%t reason=%s", role, audit.Issues, audit.Status, report.KnownFinal[role], audit.Ready, audit.BookValid, audit.RecoveryRequired, loadRecoverySafeReason(audit.Reason))
 		}
 	}
 	if !reflect.DeepEqual(acceptedBefore, loadRecoveryAcceptedFills(t, dsn, opt)) {
@@ -951,7 +974,7 @@ func loadRecoveryReportIssues(report loadRecoveryReport) []string {
 	if err != nil || len(decoded) != sha256.Size || report.Binary["fault_hooks"] != false || report.Binary["race_instrumented"] != false {
 		issues = append(issues, "ordinary daemon identity incomplete")
 	}
-	if !report.PollersDrained || !report.StartRetry || !report.Recovered.Valid || report.Recovered.Status != "paused" || report.CrashDebt < 0 || report.CrashDebt != report.CrashObserved-report.CrashProcessed || report.Recovered.Epoch != report.CrashEpoch+1 || len(report.CrashFacts) == 0 {
+	if !report.PollersDrained || !report.StartRetry || !report.Recovered.Valid || report.Recovered.Status != "paused" || report.Recovered.Boundary.Phase != loadRecoveryPausedBoundary || !report.Recovered.Ready || !report.Recovered.BookValid || !report.Recovered.MarketValid || report.Recovered.RecoveryRequired || report.Recovered.ClockDiscontinuity || report.CrashDebt < 0 || report.CrashDebt != report.CrashObserved-report.CrashProcessed || report.Recovered.Epoch != report.CrashEpoch+1 || len(report.CrashFacts) == 0 {
 		issues = append(issues, "recovery evidence incomplete")
 	}
 	if report.Events.KillIssuedNS <= 0 || report.Events.ReapedNS < report.Events.KillIssuedNS || report.Events.LaunchNS < report.Events.ReapedNS || report.Events.ListenerNS < report.Events.LaunchNS || report.Events.ReadyNS < report.Events.ListenerNS || report.Events.ProofEndNS-report.Events.ReadyNS < int64(1100*time.Millisecond) || report.Events.ProofEndNS >= int64(loadRecoveryDuration) || report.Events.LoadDrainedNS < int64(loadRecoveryDuration) || report.Events.ProcessesReapedNS < report.Events.LoadDrainedNS {
@@ -979,7 +1002,11 @@ func loadRecoveryReportIssues(report loadRecoveryReport) []string {
 				break
 			}
 		}
-		if !report.KnownFinal[role] || !report.Final[role].Valid || report.Final[role].Status != "cancelled" {
+		final := report.Final[role]
+		if final.RecoveryRequired && (final.Reason != "market_invalid" || final.MarketID != "web-source-ended" || final.Ready || final.MarketValid || final.BookValid) {
+			issues = append(issues, role+" final audit retains unexplained recovery requirement")
+		}
+		if !report.KnownFinal[role] || !report.Final[role].Valid || report.Final[role].Status != "cancelled" || report.Final[role].Boundary.Phase != loadRecoveryShutdownBoundary || !report.Final[role].Boundary.ProcessReaped || !report.Final[role].Boundary.KnownFinal || report.Final[role].ClockDiscontinuity {
 			issues = append(issues, role+" final audit incomplete")
 		}
 	}
@@ -1100,7 +1127,7 @@ func TestPaperLoadRecoveryProjectionRejectsWrongIdentityAndResidualCompletion(t 
 func TestPaperLoadRecoveryReportRejectsMissingOrFailedEvidence(t *testing.T) {
 	// Load a wholly synthetic complete report so this guard has no database or
 	// filesystem dependency and can exercise each required evidence boundary.
-	report := loadRecoveryReport{Binary: map[string]any{"sha256": strings.Repeat("01", sha256.Size), "fault_hooks": false, "race_instrumented": false}, PollersDrained: true, StartRetry: true, CrashEpoch: 1, Recovered: loadRecoveryAudit{Valid: true, Status: "paused", Epoch: 2}, CrashFacts: []loadRecoveryFact{{Sequence: 1}}, Counts: map[string]loadRecoveryCounts{}, Samples: map[string][]loadRecoverySample{}, KnownFinal: map[string]bool{"victim": true, "bystander": true}, Reaped: map[string]bool{"victim_sigkill": true, "victim_resumed": true, "bystander": true}, Final: map[string]loadRecoveryAudit{"victim": {Valid: true, Status: "cancelled"}, "bystander": {Valid: true, Status: "cancelled"}}, BystanderBefore: 1, BystanderAfter: 2, Events: loadRecoveryEvents{KillIssuedNS: int64(3 * time.Second), ReapedNS: int64(3 * time.Second), LaunchNS: int64(3250 * time.Millisecond), ListenerNS: int64(3290 * time.Millisecond), ReadyNS: int64(3300 * time.Millisecond), ProofEndNS: int64(4400 * time.Millisecond), LoadDrainedNS: int64(loadRecoveryDuration), ProcessesReapedNS: int64(loadRecoveryDuration + time.Millisecond)}}
+	report := loadRecoveryReport{Binary: map[string]any{"sha256": strings.Repeat("01", sha256.Size), "fault_hooks": false, "race_instrumented": false}, PollersDrained: true, StartRetry: true, CrashEpoch: 1, Recovered: loadRecoveryAudit{Valid: true, Status: "paused", Epoch: 2, Ready: true, BookValid: true, MarketValid: true, Boundary: loadRecoveryAuditBoundary{Phase: loadRecoveryPausedBoundary}}, CrashFacts: []loadRecoveryFact{{Sequence: 1}}, Counts: map[string]loadRecoveryCounts{}, Samples: map[string][]loadRecoverySample{}, KnownFinal: map[string]bool{"victim": true, "bystander": true}, Reaped: map[string]bool{"victim_sigkill": true, "victim_resumed": true, "bystander": true}, Final: map[string]loadRecoveryAudit{"victim": {Valid: true, Status: "cancelled", Boundary: loadRecoveryAuditBoundary{Phase: loadRecoveryShutdownBoundary, ProcessReaped: true, KnownFinal: true}}, "bystander": {Valid: true, Status: "cancelled", Boundary: loadRecoveryAuditBoundary{Phase: loadRecoveryShutdownBoundary, ProcessReaped: true, KnownFinal: true}}}, BystanderBefore: 1, BystanderAfter: 2, Events: loadRecoveryEvents{KillIssuedNS: int64(3 * time.Second), ReapedNS: int64(3 * time.Second), LaunchNS: int64(3250 * time.Millisecond), ListenerNS: int64(3290 * time.Millisecond), ReadyNS: int64(3300 * time.Millisecond), ProofEndNS: int64(4400 * time.Millisecond), LoadDrainedNS: int64(loadRecoveryDuration), ProcessesReapedNS: int64(loadRecoveryDuration + time.Millisecond)}}
 	for _, role := range []string{"victim", "bystander"} {
 		samples := make([]loadRecoverySample, int(loadRecoveryDuration/(time.Second/loadRecoveryRate)))
 		for index := range samples {
@@ -1152,6 +1179,10 @@ func TestPaperLoadRecoveryReportRejectsMissingOrFailedEvidence(t *testing.T) {
 		func(r *loadRecoveryReport) { r.StartRetry = false },
 		func(r *loadRecoveryReport) { r.Recovered.Epoch = 1 },
 		func(r *loadRecoveryReport) { r.Recovered.Valid = false },
+		func(r *loadRecoveryReport) { r.Recovered.Ready = false },
+		func(r *loadRecoveryReport) { r.Recovered.BookValid = false },
+		func(r *loadRecoveryReport) { r.Recovered.RecoveryRequired = true },
+		func(r *loadRecoveryReport) { r.Recovered.Boundary.Phase = loadRecoveryShutdownBoundary },
 		func(r *loadRecoveryReport) { r.Binary = nil },
 		func(r *loadRecoveryReport) { r.Counts = nil },
 		func(r *loadRecoveryReport) { r.Samples = nil },
@@ -1198,5 +1229,90 @@ func TestPaperLoadRecoveryOutageAllowsOnlyExplicitAvailabilityFailures(t *testin
 	rejection := loadRecoverySample{AttemptNS: 15, EndNS: 20, Outcome: "http_rejected", Status: http.StatusOK, Bytes: 10, AdmittedNS: &admitted, CallNS: &call}
 	if loadRecoveryReadExpected("victim", rejection, events) {
 		t.Fatal("availability classification concealed a successful HTTP status")
+	}
+}
+
+func loadRecoverySafeReason(reason string) string {
+	switch reason {
+	case "market_invalid", "paper_reconciliation_asserted", "hold", "":
+		return reason
+	}
+	return "other"
+}
+
+func loadRecoveryBoundaryIssues(account pg.Account, state rt.State, boundary loadRecoveryAuditBoundary) []string {
+	issues := []string{}
+	if state.Child != nil || len(account.Intents) != 0 || len(account.Reservations) != 0 || account.ObservedSequence != account.ProcessedSequence || len(state.PendingFacts) != 0 || len(state.UnresolvedFacts) != 0 || state.PolicyPending != nil || state.ClockDiscontinuity {
+		issues = append(issues, "unresolved financial or source obligation")
+	}
+	if state.Parent == nil || !state.Parent.Started || state.Book == nil {
+		return append(issues, "audit parent or book unavailable")
+	}
+	switch boundary.Phase {
+	case loadRecoveryPausedBoundary:
+		if state.Parent.Status != "paused" || !account.Ready || !account.Market.Valid || !state.Book.Valid || state.RecoveryRequired {
+			issues = append(issues, "recovered paused account is not ready with a valid source")
+		}
+	case loadRecoveryShutdownBoundary:
+		if !boundary.ProcessReaped || !boundary.KnownFinal || state.Parent.Status != "cancelled" {
+			issues = append(issues, "shutdown boundary lacks reaped known-final cancelled parent")
+		}
+		// Stopping the public source can persist readiness invalidation before
+		// final cancellation. This exact flag describes stopped source readiness;
+		// financial obligations above must still be completely settled.
+		stoppedSource := state.Reason == "market_invalid" && state.MarketID == "web-source-ended" && !account.Ready && !account.Market.Valid && !state.Book.Valid
+		if state.RecoveryRequired && !stoppedSource {
+			issues = append(issues, "shutdown retains unexplained recovery requirement")
+		}
+	default:
+		issues = append(issues, "audit boundary unknown")
+	}
+	return issues
+}
+
+func TestPaperLoadRecoveryAuditSeparatesStoppedSourceReadinessFromFinality(t *testing.T) {
+	account := pg.Account{Ready: true, Market: pg.Market{Valid: true}, ObservedSequence: 25, ProcessedSequence: 25}
+	state := rt.State{Parent: &rt.Parent{Status: "paused", Started: true}, Book: &x.Book{Valid: true}}
+	paused := loadRecoveryAuditBoundary{Phase: loadRecoveryPausedBoundary}
+	shutdown := loadRecoveryAuditBoundary{Phase: loadRecoveryShutdownBoundary, ProcessReaped: true, KnownFinal: true}
+	if issues := loadRecoveryBoundaryIssues(account, state, paused); len(issues) != 0 {
+		t.Fatalf("ready paused recovery rejected: %v", issues)
+	}
+	// Reproduce the persisted source-ended transition before shutdown's cancel.
+	account.Ready, account.Market.Valid = false, false
+	state.Book.Valid, state.RecoveryRequired = false, true
+	state.Reason, state.MarketID = "market_invalid", "web-source-ended"
+	if len(loadRecoveryBoundaryIssues(account, state, paused)) == 0 {
+		t.Fatal("source-ended readiness was admitted as recovered ready paused")
+	}
+	if len(loadRecoveryBoundaryIssues(account, state, shutdown)) == 0 {
+		t.Fatal("nonterminal source-ended parent was admitted as final")
+	}
+	state.Parent.Status = "cancelled"
+	if issues := loadRecoveryBoundaryIssues(account, state, shutdown); len(issues) != 0 {
+		t.Fatalf("reaped known-final cancelled parent with only source-ended unreadiness rejected: %v", issues)
+	}
+	for _, mutate := range []func(*pg.Account, *rt.State, *loadRecoveryAuditBoundary){
+		func(_ *pg.Account, s *rt.State, _ *loadRecoveryAuditBoundary) { s.Reason = "transport_outcome_unknown" },
+		func(_ *pg.Account, s *rt.State, _ *loadRecoveryAuditBoundary) { s.MarketID = "unexplained-gap" },
+		func(a *pg.Account, _ *rt.State, _ *loadRecoveryAuditBoundary) { a.Ready = true },
+		func(a *pg.Account, _ *rt.State, _ *loadRecoveryAuditBoundary) { a.Market.Valid = true },
+		func(_ *pg.Account, s *rt.State, _ *loadRecoveryAuditBoundary) { s.Book = &x.Book{Valid: true} },
+		func(a *pg.Account, _ *rt.State, _ *loadRecoveryAuditBoundary) { a.ObservedSequence++ },
+		func(a *pg.Account, _ *rt.State, _ *loadRecoveryAuditBoundary) { a.Intents = []pg.Intent{{}} },
+		func(a *pg.Account, _ *rt.State, _ *loadRecoveryAuditBoundary) { a.Reservations = []pg.Reservation{{}} },
+		func(_ *pg.Account, s *rt.State, _ *loadRecoveryAuditBoundary) { s.Child = &rt.Child{} },
+		func(_ *pg.Account, s *rt.State, _ *loadRecoveryAuditBoundary) { s.PendingFacts = []rt.Fact{{}} },
+		func(_ *pg.Account, s *rt.State, _ *loadRecoveryAuditBoundary) { s.UnresolvedFacts = []rt.Fact{{}} },
+		func(_ *pg.Account, s *rt.State, _ *loadRecoveryAuditBoundary) { s.ClockDiscontinuity = true },
+		func(_ *pg.Account, s *rt.State, _ *loadRecoveryAuditBoundary) { s.PolicyPending = &rt.PolicyDecision{} },
+		func(_ *pg.Account, _ *rt.State, b *loadRecoveryAuditBoundary) { b.ProcessReaped = false },
+		func(_ *pg.Account, _ *rt.State, b *loadRecoveryAuditBoundary) { b.KnownFinal = false },
+	} {
+		alteredAccount, alteredState, alteredBoundary := account, state, shutdown
+		mutate(&alteredAccount, &alteredState, &alteredBoundary)
+		if len(loadRecoveryBoundaryIssues(alteredAccount, alteredState, alteredBoundary)) == 0 {
+			t.Fatal("unexplained recovery flag, financial debt or unestablished finality was admitted")
+		}
 	}
 }
