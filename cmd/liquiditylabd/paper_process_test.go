@@ -30,7 +30,7 @@ type paperTestProcess struct {
 	waited       bool
 }
 
-func startPaperTestProcess(t *testing.T, binary, dsn string, opt paperServerOptions, mode string) *paperTestProcess {
+func startPaperTestProcess(t *testing.T, binary, dsn string, opt paperServerOptions, mode string, gates ...*paperTestGate) *paperTestProcess {
 	t.Helper()
 	logPath := filepath.Join(t.TempDir(), "daemon.log")
 	log, err := os.Create(logPath)
@@ -39,21 +39,33 @@ func startPaperTestProcess(t *testing.T, binary, dsn string, opt paperServerOpti
 	}
 	args := []string{"paper", mode, "--listen", "127.0.0.1:0", "--schema", opt.schema, "--account", opt.account, "--source", "synthetic", "--web-dir", opt.webDir, "--duration", "1m"}
 	if mode == "create" {
-		args = append(args, "--initial-base", "0", "--initial-quote", "20")
+		args = append(args, "--initial-base", opt.initialBase.String(), "--initial-quote", opt.initialQuote.String())
+	}
+	if opt.policyTarget != "" {
+		args = append(args, "--policy-target", opt.policyTarget, "--policy-sha256", opt.policyHash, "--policy-profile", "paper", "--policy-fallback", "pause", "--policy-timeout", "100ms", "--policy-allow-unvalidated")
 	}
 	command := exec.Command(binary, args...)
 	for _, e := range os.Environ() {
-		if !strings.HasPrefix(e, "LIQUIDITYLAB_POLICY_") && !strings.HasPrefix(e, "LIQUIDITYLAB_DATABASE_URL=") && !strings.HasPrefix(e, "LIQUIDITYLAB_API_TOKEN=") {
+		if !strings.HasPrefix(e, "LIQUIDITYLAB_POLICY_") && !strings.HasPrefix(e, "LIQUIDITYLAB_DATABASE_URL=") && !strings.HasPrefix(e, "LIQUIDITYLAB_API_TOKEN=") && !strings.HasPrefix(e, "LIQUIDITYLAB_TEST_FAULT_POINT=") {
 			command.Env = append(command.Env, e)
 		}
 	}
 	command.Env = append(command.Env, "LIQUIDITYLAB_DATABASE_URL="+dsn, "LIQUIDITYLAB_API_TOKEN="+daemonTestToken)
+	if len(gates) > 0 {
+		gate := gates[0]
+		command.Env = append(command.Env, "LIQUIDITYLAB_TEST_FAULT_POINT="+gate.point)
+		command.ExtraFiles = []*os.File{gate.childEvents, gate.childRelease}
+	}
 	command.Stderr = log
 	if err = command.Start(); err != nil {
 		log.Close()
 		t.Fatal(err)
 	}
 	log.Close()
+	if len(gates) > 0 {
+		gates[0].childEvents.Close()
+		gates[0].childRelease.Close()
+	}
 	p := &paperTestProcess{command: command, done: make(chan error, 1), logPath: logPath}
 	go func() { p.done <- command.Wait() }()
 	t.Cleanup(func() {

@@ -11,6 +11,7 @@ import (
 	pb "github.com/liquiditylab/liquiditylab/gen/go/liquiditylab/v1"
 	d "github.com/liquiditylab/liquiditylab/internal/domain"
 	x "github.com/liquiditylab/liquiditylab/internal/execution"
+	"github.com/liquiditylab/liquiditylab/internal/faultpoint"
 	"github.com/liquiditylab/liquiditylab/internal/inference"
 	pg "github.com/liquiditylab/liquiditylab/internal/store/postgres"
 	"google.golang.org/protobuf/proto"
@@ -149,6 +150,7 @@ func (a *Actor) startPolicy(ctx context.Context) error {
 	if _, err = a.persistRevision(ctx, next, pg.Command{ID: pending.RequestID, Kind: "policy_request", ExpectedRevision: a.account.Revision}, pg.Change{}, true); err != nil {
 		return err
 	}
+	faultpoint.Hit("policy_pending")
 	a.resetPolicyTimer(pending.ExpiresAt)
 	if a.policyBusy {
 		return a.resolvePolicy(ctx, "fallback", "worker_busy", nil)

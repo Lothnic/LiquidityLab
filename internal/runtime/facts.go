@@ -7,6 +7,7 @@ import (
 
 	d "github.com/liquiditylab/liquiditylab/internal/domain"
 	x "github.com/liquiditylab/liquiditylab/internal/execution"
+	"github.com/liquiditylab/liquiditylab/internal/faultpoint"
 	pg "github.com/liquiditylab/liquiditylab/internal/store/postgres"
 )
 
@@ -307,6 +308,9 @@ func (a *Actor) applyFill(ctx context.Context, observation pg.Observation, fact 
 	id := fmt.Sprintf("observation-%d-fill-%d", observation.Sequence, index)
 	a.stamp(&next, id, inputDigest(fact))
 	_, err = a.persist(ctx, next, pg.Command{ID: id, Kind: "execution", ExpectedRevision: a.account.Revision}, change)
+	if err == nil {
+		faultpoint.Hit("fill_committed")
+	}
 	return err
 }
 
@@ -396,5 +400,8 @@ func (a *Actor) applyTransport(ctx context.Context, observation pg.Observation, 
 	}
 	a.stamp(&next, fact.OperationID, fact.InputDigest)
 	_, err = a.persist(ctx, next, pg.Command{ID: fact.OperationID, Kind: "transport_outcome", ExpectedRevision: a.account.Revision}, change)
+	if err == nil && outcome.Accepted && !outcome.KnownFinal {
+		faultpoint.Hit("resting_ack_committed")
+	}
 	return err
 }

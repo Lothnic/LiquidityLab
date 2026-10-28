@@ -8,6 +8,7 @@ import (
 
 	d "github.com/liquiditylab/liquiditylab/internal/domain"
 	x "github.com/liquiditylab/liquiditylab/internal/execution"
+	"github.com/liquiditylab/liquiditylab/internal/faultpoint"
 	pg "github.com/liquiditylab/liquiditylab/internal/store/postgres"
 )
 
@@ -302,6 +303,9 @@ func (a *Actor) command(ctx context.Context, c Command) (pg.Result, error) {
 	if err != nil {
 		return result, err
 	}
+	if len(change.Enqueue) > 0 {
+		faultpoint.Hit("intent_committed")
+	}
 	if controlAudit {
 		a.stopPolicyTimer()
 	}
@@ -359,6 +363,7 @@ func (a *Actor) dispatch(ctx context.Context, c Command, digest string) (pg.Resu
 		return pg.Result{}, err
 	}
 	a.account.Revision = authorized.Revision
+	faultpoint.Hit("dispatch_authorized")
 	child.State = "attempted"
 	a.state.Child = child
 	// No database transaction is held here. Any pause/cancel waits behind this
@@ -374,6 +379,7 @@ func (a *Actor) dispatch(ctx context.Context, c Command, digest string) (pg.Resu
 		return pg.Result{}, err
 	}
 	outcome, transportErr := a.transport.Handoff(handoffCtx, Submission{ID: child.ID, Intent: child.Order.Intent, Book: bookState.Book, Fees: a.state.Fees, Now: a.elapsed(a.state), OperationID: c.ID, InputDigest: digest})
+	faultpoint.Note("handoff_returned")
 	if transportErr != nil {
 		a.state.RecoveryRequired = true
 		a.state.Reason = "transport_outcome_unknown"

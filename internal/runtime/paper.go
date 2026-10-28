@@ -6,9 +6,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 
 	d "github.com/liquiditylab/liquiditylab/internal/domain"
 	x "github.com/liquiditylab/liquiditylab/internal/execution"
+	"github.com/liquiditylab/liquiditylab/internal/faultpoint"
 	pg "github.com/liquiditylab/liquiditylab/internal/store/postgres"
 )
 
@@ -126,6 +128,9 @@ func (p *paperTransport) ObserveTrade(ctx context.Context, sourceID string, even
 		}
 		return paperTradeFact{}, fmt.Errorf("%w: paper trade observation persistence: %w", ErrOutcomeUnknown, err)
 	}
+	if fact.IntentID != "" {
+		faultpoint.Hit("trade_fact_committed")
+	}
 	return fact, nil
 }
 
@@ -193,6 +198,11 @@ func (p *paperTransport) persist(ctx context.Context, observationID string, fact
 		ID: observationID, Kind: paperTransportKind, Payload: payload,
 	}); err != nil {
 		return unknownPaperOutcome(err)
+	}
+	if strings.HasPrefix(observationID, "paper-cancel-") {
+		faultpoint.Hit("cancel_effect_committed")
+	} else {
+		faultpoint.Hit("submit_effect_committed")
 	}
 	return fact.Outcome, nil
 }
