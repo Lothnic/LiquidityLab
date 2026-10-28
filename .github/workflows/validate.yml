@@ -1,0 +1,100 @@
+name: Validate
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend-validation:
+    name: Backend, Python, and replay validation (PostgreSQL 18.6)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    services:
+      postgres:
+        image: postgres:18.6
+        env:
+          POSTGRES_USER: liquiditylab_dev
+          POSTGRES_PASSWORD: ci-dev-only
+          POSTGRES_DB: liquiditylab_dev
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U liquiditylab_dev -d liquiditylab_dev"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      LIQUIDITYLAB_TEST_POSTGRES_DSN: postgres://liquiditylab_dev:ci-dev-only@127.0.0.1:5432/liquiditylab_dev?sslmode=disable
+      CGO_ENABLED: "1"
+      GOMAXPROCS: "2"
+      GOFLAGS: -p=2
+      GORACE: history_size=1
+      OMP_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Set up Go
+        uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # v6.3.0
+        with:
+          go-version: 1.26.8
+          cache: true
+          cache-dependency-path: go.sum
+      - name: Set up Python
+        id: python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: 3.12.11
+      - name: Set up uv
+        uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+        with:
+          version: 0.13.5
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+      - name: Install locked Python extras
+        run: uv sync --locked --extra dev --extra go --extra codegen --extra rl --python "${{ steps.python.outputs.python-path }}"
+      - name: Install pinned Go protobuf generators
+        run: |
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.12
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.6.2
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+      - name: Build replay daemon and export integration paths
+        run: |
+          go build -o "$RUNNER_TEMP/liquiditylabd" ./cmd/liquiditylabd
+          test -x "$GITHUB_WORKSPACE/.venv/bin/python"
+          echo "LIQUIDITYLAB_PYTHON=$GITHUB_WORKSPACE/.venv/bin/python" >> "$GITHUB_ENV"
+          echo "LIQUIDITYLAB_REPLAY_BINARY=$RUNNER_TEMP/liquiditylabd" >> "$GITHUB_ENV"
+      - name: Run all Go tests with the race detector
+        run: go test -race -count=1 ./...
+      - name: Check schemas, bindings, fixtures, Go replay, and Python suite
+        run: uv run --locked --extra dev --extra go --extra codegen --extra rl python scripts/check_conformance.py
+
+  frontend:
+    name: Trader desk tests and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Set up Node.js
+        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
+        with:
+          node-version: 26.5.0
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - name: Install locked frontend dependencies
+        run: npm ci
+      - name: Run frontend tests
+        run: npm test
+      - name: Build frontend
+        run: npm run build
