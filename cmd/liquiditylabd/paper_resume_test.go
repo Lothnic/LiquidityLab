@@ -144,3 +144,22 @@ func TestPaperResumeMissingAccountNeverCreatesIt(t *testing.T) {
 		t.Fatalf("resume changed absent identity: %v", err)
 	}
 }
+
+func TestPaperResumeIncompatibleSourceLeavesOldAuthorityUnchanged(t *testing.T) {
+	opt := daemonOptions(t)
+	dsn := daemonPostgres(t, &opt)
+	old := daemonNewTest(t, opt, dsn, resumeTestSource("retained-source"))
+	before := daemonWait(t, old, func(v rt.View) bool { return v.Account.Ready })
+	static, err := paperStatic(opt.webDir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	opt.resume, opt.source = true, "kraken"
+	if daemon, err := newPaperDaemon(context.Background(), opt, dsn, daemonTestToken, static, io.Discard, resumeTestSource("incompatible-source")); err == nil || daemon != nil {
+		t.Fatal("source mismatch claimed an existing account")
+	}
+	after := daemonView(t, old)
+	if after.Account.Ownership != before.Account.Ownership || after.Account.Revision != before.Account.Revision || !after.Account.Ready || !reflect.DeepEqual(after.Account.Balances, before.Account.Balances) {
+		t.Fatal("rejected resume changed the active paper authority")
+	}
+}

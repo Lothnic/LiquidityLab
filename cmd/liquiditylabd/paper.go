@@ -340,7 +340,7 @@ func newPaperDaemon(ctx context.Context, opt paperServerOptions, dsn, token stri
 	actor, err := rt.New(op, config)
 	cancel()
 	if err != nil {
-		return fail("start durable paper actor; retained account left not-ready", err)
+		return fail("start compatible durable paper actor; existing account retained", err)
 	}
 	if opt.resume {
 		fmt.Fprintln(output, "PAPER startup state=recovering; retained balances and original deadline preserved")
