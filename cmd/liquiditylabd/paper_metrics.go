@@ -12,6 +12,8 @@ import (
 	"github.com/liquiditylab/liquiditylab/internal/telemetry"
 )
 
+type paperMetricsContextKey struct{}
+
 type paperMetricsReport struct {
 	Version      string              `json:"version"`
 	CaptureState string              `json:"capture_state"`

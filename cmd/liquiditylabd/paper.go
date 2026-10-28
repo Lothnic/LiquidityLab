@@ -378,6 +378,9 @@ func newPaperDaemon(ctx context.Context, opt paperServerOptions, dsn, token stri
 		return fail("configure authenticated trader API", err)
 	}
 	sourceCtx, stopSource := context.WithCancel(ctx)
+	if metrics != nil {
+		sourceCtx = context.WithValue(sourceCtx, paperMetricsContextKey{}, metrics)
+	}
 	daemon := &paperDaemon{policyClient: policyClient, store: store, actor: actor, key: key, log: output, stopSource: stopSource, sourceDone: make(chan struct{})}
 	daemon.metrics, daemon.metricsOutput = metrics, metricsOutput
 	metricsOwned = true
@@ -417,8 +420,10 @@ func productionPaperSource(opt paperServerOptions) paperSource {
 		return syntheticPaperSource
 	}
 	return func(ctx context.Context, deliver func(context.Context, marketdata.Event) error) error {
+		metrics, _ := ctx.Value(paperMetricsContextKey{}).(*telemetry.Recorder)
 		_, err := marketdata.Capture(ctx, marketdata.CaptureConfig{
-			Symbol: "BTC/USD", Output: opt.captureOutput, Duration: opt.duration, Depth: 10,
+			Telemetry: metrics,
+			Symbol:    "BTC/USD", Output: opt.captureOutput, Duration: opt.duration, Depth: 10,
 			MaxFrames: opt.maxFrames, MaxBytes: opt.maxCaptureBytes, OnEvent: deliver,
 		})
 		return err
@@ -497,7 +502,24 @@ func serverMarketEvent(wire marketdata.Event) (d.MarketEvent, error) {
 	return event, err
 }
 
-func (p *paperDaemon) Ingest(ctx context.Context, wire marketdata.Event) error {
+func (p *paperDaemon) Ingest(ctx context.Context, wire marketdata.Event) (resultErr error) {
+	var started time.Time
+	if p.metrics != nil {
+		started = time.Now()
+	}
+	p.metrics.Add(telemetry.PublicIngressRequests, 1)
+	defer func() {
+		if !started.IsZero() {
+			p.metrics.Observe(telemetry.PublicIngressNS, uint64(max(0, time.Since(started).Nanoseconds())))
+		}
+		if resultErr != nil {
+			p.metrics.Add(telemetry.PublicIngressErrors, 1)
+		}
+	}()
+	received, hasOrigin := marketdata.SourceReceiptStart(ctx)
+	if !hasOrigin {
+		p.metrics.Add(telemetry.PublicReceiptOriginMissing, 1)
+	}
 	if err := ctx.Err(); err != nil {
 		return err
 	}
@@ -524,6 +546,9 @@ func (p *paperDaemon) Ingest(ctx context.Context, wire marketdata.Event) error {
 	if err != nil {
 		_ = p.invalidateLocked()
 		return paperServerError("paper public market ingress", err)
+	}
+	if hasOrigin && !event.Invalid && (event.Kind == "snapshot" || event.Kind == "book") {
+		p.metrics.Observe(telemetry.PublicReceiptToBookNS, uint64(max(0, time.Since(received).Nanoseconds())))
 	}
 	if event.Invalid || event.Kind == "gap" {
 		p.gapSeen = true

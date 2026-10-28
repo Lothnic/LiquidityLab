@@ -36,6 +36,15 @@ const (
 	MarketErrors
 	PolicyDecisions
 	PolicyFallbacks
+	CaptureFrames
+	CaptureInputBytes
+	CapturePersistAttempts
+	CapturePersistErrors
+	CaptureDeliveryAttempts
+	CaptureDeliveryErrors
+	PublicIngressRequests
+	PublicIngressErrors
+	PublicReceiptOriginMissing
 	CounterCount
 )
 
@@ -68,6 +77,11 @@ const (
 	ObservationBytes
 	JournalBytes
 	ActorQueueDepth
+	CapturePersistNS
+	CaptureReadToDurableNS
+	CaptureReceiptToConsumerNS
+	PublicIngressNS
+	PublicReceiptToBookNS
 	DistributionCount
 )
 
@@ -79,12 +93,14 @@ var (
 
 type CounterSnapshot struct {
 	Name     string `json:"name"`
+	Unit     string `json:"unit"`
 	Value    uint64 `json:"value"`
 	Overflow bool   `json:"overflow"`
 }
 
 type GaugeSnapshot struct {
 	Name     string `json:"name"`
+	Unit     string `json:"unit"`
 	Value    int64  `json:"value"`
 	Overflow bool   `json:"overflow"`
 }
@@ -244,10 +260,14 @@ func (r *Recorder) Snapshot() Snapshot {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	for id := Counter(0); id < CounterCount; id++ {
-		out.Counters = append(out.Counters, CounterSnapshot{Name: counterNames[id], Value: r.counters[id], Overflow: r.counterOverflow[id]})
+		unit := "count"
+		if id == CaptureInputBytes {
+			unit = "bytes"
+		}
+		out.Counters = append(out.Counters, CounterSnapshot{Name: counterNames[id], Unit: unit, Value: r.counters[id], Overflow: r.counterOverflow[id]})
 	}
 	for id := Gauge(0); id < GaugeCount; id++ {
-		out.Gauges = append(out.Gauges, GaugeSnapshot{Name: gaugeNames[id], Value: r.gauges[id], Overflow: r.gaugeOverflow[id]})
+		out.Gauges = append(out.Gauges, GaugeSnapshot{Name: gaugeNames[id], Unit: "items", Value: r.gauges[id], Overflow: r.gaugeOverflow[id]})
 	}
 	for id := Distribution(0); id < DistributionCount; id++ {
 		s := r.distributions[id]
@@ -336,6 +356,6 @@ func unitFor(id Distribution) string {
 	}
 }
 
-var counterNames = [...]string{"actor_admitted", "actor_rejected", "actor_completed", "actor_failed", "db_transactions_started", "db_transactions_committed", "db_transactions_rolled_back", "db_commit_errors", "db_rollback_errors", "db_acquire_errors", "db_queries", "db_query_errors", "db_durable_transitions", "db_observation_writes", "db_observation_duplicates", "inference_requests", "inference_rejected", "inference_rpcs", "inference_errors", "market_events", "market_errors", "policy_decisions", "policy_fallbacks"}
+var counterNames = [...]string{"actor_admitted", "actor_rejected", "actor_completed", "actor_failed", "db_transactions_started", "db_transactions_committed", "db_transactions_rolled_back", "db_commit_errors", "db_rollback_errors", "db_acquire_errors", "db_queries", "db_query_errors", "db_durable_transitions", "db_observation_writes", "db_observation_duplicates", "inference_requests", "inference_rejected", "inference_rpcs", "inference_errors", "market_events", "market_errors", "policy_decisions", "policy_fallbacks", "capture_frames", "capture_input_bytes", "capture_persist_attempts", "capture_persist_errors", "capture_delivery_attempts", "capture_delivery_errors", "public_ingress_requests", "public_ingress_errors", "public_receipt_origin_missing"}
 var gaugeNames = [...]string{"actor_queued", "actor_handling", "db_transactions_in_flight", "inference_in_flight"}
-var distributionNames = [...]string{"actor_queue_wait_ns", "actor_handle_ns", "control_ack_ns", "public_market_apply_ns", "inference_rpc_ns", "decision_commit_ns", "db_acquire_ns", "db_begin_ns", "db_transaction_ns", "db_commit_ns", "db_rollback_ns", "db_account_for_update_roundtrip_ns", "db_snapshot_write_attempt_bytes", "db_observation_write_attempt_bytes", "db_journal_write_attempt_bytes", "actor_queue_depth"}
+var distributionNames = [...]string{"actor_queue_wait_ns", "actor_handle_ns", "control_ack_ns", "public_market_apply_ns", "inference_rpc_ns", "decision_commit_ns", "db_acquire_ns", "db_begin_ns", "db_transaction_ns", "db_commit_ns", "db_rollback_ns", "db_account_for_update_roundtrip_ns", "db_snapshot_write_attempt_bytes", "db_observation_write_attempt_bytes", "db_journal_write_attempt_bytes", "actor_queue_depth", "capture_persist_ns", "capture_read_to_durable_ns", "capture_receipt_to_consumer_ns", "public_ingress_ns", "public_receipt_to_book_ns"}

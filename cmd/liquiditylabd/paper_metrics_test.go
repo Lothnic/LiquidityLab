@@ -88,6 +88,9 @@ func TestPaperMetricsShutdownSnapshotIsLocalAndRedacted(t *testing.T) {
 	if report.Metrics.Counters[telemetry.ActorAdmitted].Value == 0 || report.Metrics.Counters[telemetry.DBTransactionsCommitted].Value == 0 || report.Metrics.Gauges[telemetry.ActorQueued].Value != 0 || report.Metrics.Gauges[telemetry.ActorHandling].Value != 0 {
 		t.Fatal("shutdown diagnostics missed real actor/store work or did not drain")
 	}
+	if report.Metrics.Counters[telemetry.PublicIngressRequests].Value != 1 || report.Metrics.Counters[telemetry.PublicReceiptOriginMissing].Value != 1 || report.Metrics.Counters[telemetry.PublicIngressErrors].Value != 0 || report.Metrics.Distributions[telemetry.PublicIngressNS].Count != 1 || report.Metrics.Distributions[telemetry.PublicReceiptToBookNS].Count != 0 {
+		t.Fatal("synthetic daemon ingress fabricated a native source latency")
+	}
 	for _, secret := range []string{dsn, daemonTestToken, opt.account, opt.schema, "SELECT ", "INSERT INTO"} {
 		if strings.Contains(string(data), secret) {
 			t.Fatal("diagnostics contain account, credentials, DSN or SQL")

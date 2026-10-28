@@ -18,6 +18,7 @@ import (
 	"time"
 
 	"github.com/coder/websocket"
+	"github.com/liquiditylab/liquiditylab/internal/telemetry"
 	"github.com/liquiditylab/liquiditylab/internal/venue/kraken"
 )
 
@@ -32,6 +33,7 @@ const (
 // CaptureConfig bounds both wall time and the number of received WebSocket frames.
 // A caller-supplied context can impose an earlier deadline or cancellation.
 type CaptureConfig struct {
+	Telemetry *telemetry.Recorder
 	Symbol    string
 	Output    string
 	Duration  time.Duration
@@ -146,7 +148,7 @@ func capture(ctx context.Context, cfg CaptureConfig, dial captureDial) (manifest
 	deadline := started.Add(cfg.Duration)
 	callbackCtx, callbackCancel := context.WithDeadline(ctx, deadline)
 	defer callbackCancel()
-	sink := captureSink{recorder: recorder, file: f, started: started, ctx: callbackCtx, onEvent: cfg.OnEvent}
+	sink := captureSink{recorder: recorder, file: f, started: started, ctx: callbackCtx, onEvent: cfg.OnEvent, telemetry: cfg.Telemetry}
 	if cfg.OnEvent != nil {
 		sink.normalizer = NewNormalizer()
 	}
@@ -215,6 +217,12 @@ func capture(ctx context.Context, cfg CaptureConfig, dial captureDial) (manifest
 				dialErr = readErr
 				break
 			}
+			var received time.Time
+			if cfg.Telemetry != nil {
+				received = time.Now()
+				cfg.Telemetry.Add(telemetry.CaptureFrames, 1)
+				cfg.Telemetry.Add(telemetry.CaptureInputBytes, uint64(len(payload)))
+			}
 			manifest.Frames++
 			if msgType != websocket.MessageText {
 				book.Valid = false
@@ -236,7 +244,7 @@ func capture(ctx context.Context, cfg CaptureConfig, dial captureDial) (manifest
 			} else {
 				manifest.ValidSnapshots += snapshots
 			}
-			if err := sink.raw(raw, valid); err != nil {
+			if err := sink.rawAt(raw, valid, received); err != nil {
 				retErr = err
 				break
 			}
@@ -429,6 +437,7 @@ func reconnectBackoff(attempt int) time.Duration {
 // captureSink is intentionally separate from Recorder: recording alone has no
 // side effects on any consumer. All callbacks follow the exact durable row.
 type captureSink struct {
+	telemetry  *telemetry.Recorder
 	recorder   *Recorder
 	file       *os.File
 	started    time.Time
@@ -438,7 +447,20 @@ type captureSink struct {
 	failure    error
 }
 
-func (s *captureSink) persist(row Receipt) (Receipt, error) {
+func (s *captureSink) persist(row Receipt) (out Receipt, resultErr error) {
+	var started time.Time
+	if s.telemetry != nil {
+		started = time.Now()
+	}
+	s.telemetry.Add(telemetry.CapturePersistAttempts, 1)
+	defer func() {
+		if !started.IsZero() {
+			s.telemetry.Observe(telemetry.CapturePersistNS, uint64(max(0, time.Since(started).Nanoseconds())))
+		}
+		if resultErr != nil {
+			s.telemetry.Add(telemetry.CapturePersistErrors, 1)
+		}
+	}()
 	row, err := s.recorder.writeReceipt(row)
 	if err == nil {
 		err = s.file.Sync()
@@ -446,6 +468,9 @@ func (s *captureSink) persist(row Receipt) (Receipt, error) {
 	return row, err
 }
 func (s *captureSink) deliver(row Receipt) error {
+	return s.deliverAt(row, time.Time{})
+}
+func (s *captureSink) deliverAt(row Receipt, received time.Time) error {
 	if s.normalizer == nil {
 		return nil
 	}
@@ -455,10 +480,19 @@ func (s *captureSink) deliver(row Receipt) error {
 		return fmt.Errorf("public event normalization failed: %w", err)
 	}
 	for _, event := range events {
+		s.telemetry.Add(telemetry.CaptureDeliveryAttempts, 1)
 		if err = s.ctx.Err(); err == nil {
-			err = s.onEvent(s.ctx, event)
+			callbackCtx := s.ctx
+			if !received.IsZero() {
+				callbackCtx = context.WithValue(callbackCtx, receiptStartKey{}, received)
+			}
+			err = s.onEvent(callbackCtx, event)
+		}
+		if !received.IsZero() {
+			s.telemetry.Observe(telemetry.CaptureReceiptToConsumerNS, uint64(max(0, time.Since(received).Nanoseconds())))
 		}
 		if err != nil {
+			s.telemetry.Add(telemetry.CaptureDeliveryErrors, 1)
 			s.failure = err
 			return fmt.Errorf("public event consumer failed: %w", err)
 		}
@@ -466,11 +500,17 @@ func (s *captureSink) deliver(row Receipt) error {
 	return nil
 }
 func (s *captureSink) raw(raw string, valid bool) error {
+	return s.rawAt(raw, valid, time.Time{})
+}
+func (s *captureSink) rawAt(raw string, valid bool, received time.Time) error {
 	row, err := s.persist(Receipt{Raw: raw, Elapsed: elapsed(s.started), ReceivedAt: time.Now().UTC().Format(time.RFC3339Nano), Valid: valid})
 	if err != nil {
 		return err
 	}
-	return s.deliver(row)
+	if !received.IsZero() {
+		s.telemetry.Observe(telemetry.CaptureReadToDurableNS, uint64(max(0, time.Since(received).Nanoseconds())))
+	}
+	return s.deliverAt(row, received)
 }
 func (s *captureSink) gap(reason string) error {
 	row, err := s.persist(Receipt{Kind: "gap", Reason: reason, Elapsed: elapsed(s.started), ReceivedAt: time.Now().UTC().Format(time.RFC3339Nano), Valid: false})
@@ -491,7 +531,9 @@ func (s *captureSink) terminalGap(reason string) error {
 		return err
 	}
 	for _, event := range events {
+		s.telemetry.Add(telemetry.CaptureDeliveryAttempts, 1)
 		if err = s.onEvent(s.ctx, event); err != nil {
+			s.telemetry.Add(telemetry.CaptureDeliveryErrors, 1)
 			return errors.New("terminal public gap delivery failed")
 		}
 	}

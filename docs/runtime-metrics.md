@@ -115,10 +115,23 @@ samples for that purpose.
 
 ## Limits and remaining measurements
 
-These aggregate snapshots do not measure source receipt-to-actor lag,
-private-event age, or recording write lag. They also do not establish inference
-load behavior, UI latency, or a full process/storage/worker fault envelope. Those
-need dedicated Stage 2 workloads and fault runs. Do not use these counters or
+Instrumented Kraken capture additionally supplies local source timing:
+
+- `capture_frames` and `capture_input_bytes` count successful WebSocket reads and payload bytes, including non-text frames; bytes exclude WebSocket/network framing. The byte counter has unit `bytes`; other counters use `count` and gauges use `items`.
+- `capture_persist_attempts`/`capture_persist_errors` count source-row writes, flushes and file `Sync` attempts, including explicit gaps. `capture_persist_ns` spans each attempt, including failures. The final `capture_end` footer is outside this source-row measurement.
+- `capture_read_to_durable_ns` spans successful text-frame read completion through validation, recording/flush and acknowledged `Sync`. Failed persistence produces no successful durability sample. A successful `Sync` is not a storage-device durability proof.
+- `capture_delivery_attempts`/`capture_delivery_errors` count normalized delivery attempts, including terminal gap delivery. A raw frame can emit multiple events or none. `capture_receipt_to_consumer_ns` spans a raw frame's local read completion through each normalized callback outcome, including earlier callbacks for that frame; it excludes standalone gap deliveries with no raw-frame origin.
+- `public_ingress_requests`/`public_ingress_errors` and `public_ingress_ns` describe the daemon's normalized callback, including ingress serialization, conversion, actor work and any initial readiness recovery. `public_receipt_to_book_ns` samples valid snapshot/book acknowledgements from the native local read origin, including recording and queues, before subsequent initial readiness recovery.
+- `public_receipt_origin_missing` counts daemon callbacks with no native origin. Synthetic and offline inputs never manufacture receive-to-book latency from a wall timestamp. The origin is a process-local monotonic `time.Time` carried only in the callback context; it is absent from recordings, normalized event JSON, account snapshots and cross-process messages. It does not measure exchange-to-host or kernel socket backlog.
+
+The first [durable baseline evidence](../benchmarks/results/durable-runtime-20261028/README.md)
+preserves its original executable and report schema; those runs predate these
+capture collectors and do not establish public recording performance.
+
+These aggregate snapshots do not measure real private-event age. They also do
+not establish inference load behavior, browser rendering latency, or a full
+process/storage/worker fault envelope. Those need dedicated Stage 2 workloads
+and fault runs. Do not use these counters or
 histogram estimates alone to set concurrency limits or claim a supported
 capacity. Run repeated durable workload measurements and review their scope and
 interpretation in [benchmarks/runtime/README.md](../benchmarks/runtime/README.md).
