@@ -29,32 +29,33 @@ import (
 	"github.com/liquiditylab/liquiditylab/internal/telemetry"
 )
 
-const reportVersion = "durable-runtime-benchmark-v1"
+const reportVersion = "durable-runtime-benchmark-v2"
 const maxInputs = 10000
 
 type config struct {
-	Development  bool          `json:"development_database_acknowledged"`
-	DSNEnv       string        `json:"-"`
-	Schema       string        `json:"schema"`
-	Output       string        `json:"-"`
-	Storage      string        `json:"storage_description"`
-	Baseline     string        `json:"baseline"`
-	Seed         uint64        `json:"seed"`
-	Warmup       time.Duration `json:"warmup_ns"`
-	Duration     time.Duration `json:"measurement_ns"`
-	MarketRate   float64       `json:"market_events_per_second"`
-	ReadRate     float64       `json:"views_per_second"`
-	TradePercent int           `json:"trade_percent"`
-	MaxLag       time.Duration `json:"maximum_generator_lag_ns"`
-	Cadence      time.Duration `json:"decision_cadence_ns"`
-	Queue        int           `json:"ordered_source_queue_capacity"`
-	InFlight     int           `json:"view_in_flight_capacity"`
-	Pool         int           `json:"pool_max_connections"`
-	Metrics      bool          `json:"metrics_enabled"`
+	envelopeConfig `json:"envelope"`
+	Development    bool          `json:"development_database_acknowledged"`
+	DSNEnv         string        `json:"-"`
+	Schema         string        `json:"schema"`
+	Output         string        `json:"-"`
+	Storage        string        `json:"storage_description"`
+	Baseline       string        `json:"baseline"`
+	Seed           uint64        `json:"seed"`
+	Warmup         time.Duration `json:"warmup_ns"`
+	Duration       time.Duration `json:"measurement_ns"`
+	MarketRate     float64       `json:"market_events_per_second"`
+	ReadRate       float64       `json:"views_per_second"`
+	TradePercent   int           `json:"trade_percent"`
+	MaxLag         time.Duration `json:"maximum_generator_lag_ns"`
+	Cadence        time.Duration `json:"decision_cadence_ns"`
+	Queue          int           `json:"ordered_source_queue_capacity"`
+	InFlight       int           `json:"view_in_flight_capacity"`
+	Pool           int           `json:"pool_max_connections"`
+	Metrics        bool          `json:"metrics_enabled"`
 }
 
 func flags() config {
-	c := config{}
+	c := config{envelopeConfig: defaultEnvelope()}
 	flag.BoolVar(&c.Development, "development", false, "acknowledge that the selected database is for development benchmarking")
 	flag.StringVar(&c.DSNEnv, "dsn-env", "LIQUIDITYLAB_BENCH_POSTGRES_DSN", "environment variable containing explicit development DSN (never written to report)")
 	flag.StringVar(&c.Schema, "schema", "", "explicit development schema; migrations only, no reset")
@@ -73,11 +74,15 @@ func flags() config {
 	flag.IntVar(&c.InFlight, "view-in-flight", 4, "concurrent actor view calls (1..64)")
 	flag.IntVar(&c.Pool, "pool", 4, "shared store pool connections (1..64)")
 	flag.BoolVar(&c.Metrics, "metrics", true, "record internal actor/store telemetry")
+	envelopeFlags(&c)
 	flag.Parse()
 	return c
 }
 
 func (c config) validate() error {
+	if e := c.validateEnvelope(); e != nil {
+		return e
+	}
 	if e := x.ValidateBaselinePolicy(c.Baseline); e != nil {
 		return e
 	}
@@ -105,20 +110,25 @@ func (c config) validate() error {
 }
 
 type input struct {
+	ReadRoute  string        `json:"read_route,omitempty"`
 	Kind       string        `json:"kind"`
 	IntendedNS int64         `json:"intended_ns"`
 	Event      d.MarketEvent `json:"event"`
 	ID         string        `json:"id"`
 }
 type sample struct {
-	Kind        string `json:"kind"`
-	ID          string `json:"id"`
-	IntendedNS  int64  `json:"intended_ns"`
-	AttemptNS   int64  `json:"generator_attempt_ns"`
-	AdmittedNS  *int64 `json:"runner_admitted_ns"`
-	CallNS      *int64 `json:"actor_call_started_ns"`
-	CompletedNS *int64 `json:"actor_call_returned_ns"`
-	Outcome     string `json:"outcome"`
+	ServiceBoundary string `json:"service_boundary"`
+	ReadRoute       string `json:"read_route,omitempty"`
+	HTTPStatus      int    `json:"http_status,omitempty"`
+	ResponseBytes   int64  `json:"response_bytes,omitempty"`
+	Kind            string `json:"kind"`
+	ID              string `json:"id"`
+	IntendedNS      int64  `json:"intended_ns"`
+	AttemptNS       int64  `json:"generator_attempt_ns"`
+	AdmittedNS      *int64 `json:"runner_admitted_ns"`
+	CallNS          *int64 `json:"service_call_started_ns"`
+	CompletedNS     *int64 `json:"service_call_returned_ns"`
+	Outcome         string `json:"outcome"`
 }
 type summary struct {
 	Offered    uint64 `json:"offered"`
@@ -129,19 +139,22 @@ type summary struct {
 	Unresolved uint64 `json:"unresolved"`
 }
 type phase struct {
-	Name            string             `json:"name"`
-	Started         time.Time          `json:"started_utc"`
-	ElapsedNS       int64              `json:"elapsed_including_drain_ns"`
-	Valid           bool               `json:"source_delivery_valid"`
-	Market          summary            `json:"market"`
-	Views           summary            `json:"views"`
-	ManifestSHA256  string             `json:"input_manifest_sha256"`
-	InputBytes      int                `json:"source_event_json_bytes"`
-	Manifest        []input            `json:"input_manifest"`
-	MarketLatencies map[string]latency `json:"market_latencies"`
-	ViewLatencies   map[string]latency `json:"view_latencies"`
-	Latencies       map[string]latency `json:"latencies"`
-	Samples         []sample           `json:"samples"`
+	ReadBoundary      string             `json:"read_service_boundary"`
+	ReadResponseBytes int64              `json:"read_response_bytes"`
+	RouteCounts       map[string]summary `json:"http_route_counts,omitempty"`
+	Name              string             `json:"name"`
+	Started           time.Time          `json:"started_utc"`
+	ElapsedNS         int64              `json:"elapsed_including_drain_ns"`
+	Valid             bool               `json:"source_delivery_valid"`
+	Market            summary            `json:"market"`
+	Views             summary            `json:"views"`
+	ManifestSHA256    string             `json:"input_manifest_sha256"`
+	InputBytes        int                `json:"source_event_json_bytes"`
+	Manifest          []input            `json:"input_manifest"`
+	MarketLatencies   map[string]latency `json:"market_latencies"`
+	ViewLatencies     map[string]latency `json:"view_latencies"`
+	Latencies         map[string]latency `json:"latencies"`
+	Samples           []sample           `json:"samples"`
 }
 
 // schedule uses integer offsets from rate and index, never prior completion.
@@ -171,6 +184,9 @@ func schedule(c config, duration time.Duration, prefix string) []input {
 			}
 			id := fmt.Sprintf("%s-%s-%d", prefix, kind, i)
 			v := input{Kind: kind, IntendedNS: ns, ID: id}
+			if kind == "view" {
+				v.ReadRoute = c.readRoute(i)
+			}
 			if kind == "market" {
 				r := next()
 				quantity := d.MustDecimal([]string{"0.01", "0.02", "0.03", "0.04"}[r%4])
@@ -192,11 +208,22 @@ type phaseActor interface {
 	View(context.Context) (ar.View, error)
 }
 
-func runPhase(ctx context.Context, c config, name string, duration time.Duration, a phaseActor) phase {
+func runPhase(ctx context.Context, c config, name string, duration time.Duration, a phaseActor, readers ...readFunc) phase {
+	read := func(ctx context.Context, in input) (readResult, error) {
+		_, err := a.View(ctx)
+		return readResult{}, err
+	}
+	if len(readers) > 0 && readers[0] != nil {
+		read = readers[0]
+	}
 	inputs := schedule(c, duration, name)
 	b, _ := json.Marshal(inputs)
 	hash := sha256.Sum256(b)
 	p := phase{Name: name, Started: time.Now().UTC(), Valid: true, ManifestSHA256: hex.EncodeToString(hash[:]), Manifest: inputs, Samples: make([]sample, len(inputs))}
+	p.ReadBoundary = "actor.View completion"
+	if c.ReadMode == "http" {
+		p.ReadBoundary = "HTTP response fully consumed and JSON validated; HTTP polling, no React rendering"
+	}
 	start := time.Now()
 	queue := make(chan int, c.Queue)
 	slots := make(chan struct{}, c.InFlight)
@@ -228,7 +255,14 @@ func runPhase(ctx context.Context, c config, name string, duration time.Duration
 			timer.Stop()
 		}
 		s := &p.Samples[idx]
-		*s = sample{Kind: in.Kind, ID: in.ID, IntendedNS: in.IntendedNS, AttemptNS: time.Since(start).Nanoseconds(), Outcome: "runner_rejected"}
+		*s = sample{Kind: in.Kind, ID: in.ID, ReadRoute: in.ReadRoute, IntendedNS: in.IntendedNS, AttemptNS: time.Since(start).Nanoseconds(), Outcome: "runner_rejected"}
+		s.ServiceBoundary = "actor.MarketFromSession"
+		if in.Kind == "view" {
+			s.ServiceBoundary = "actor.View"
+			if c.ReadMode == "http" {
+				s.ServiceBoundary = "HTTP full response and JSON validation"
+			}
+		}
 		if in.Kind == "market" {
 			encoded, _ := json.Marshal(in.Event)
 			p.InputBytes += len(encoded)
@@ -255,18 +289,20 @@ func runPhase(ctx context.Context, c config, name string, duration time.Duration
 			case slots <- struct{}{}:
 				s.AdmittedNS = &admitted
 				reads.Add(1)
-				go func(s *sample) {
+				go func(s *sample, in input) {
 					defer reads.Done()
 					defer func() { <-slots }()
 					t := time.Since(start).Nanoseconds()
 					s.CallNS = &t
 					callCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
-					_, err := a.View(callCtx)
+					out, err := read(callCtx, in)
+					s.HTTPStatus = out.Status
+					s.ResponseBytes = out.Bytes
 					cancel()
 					end := time.Since(start).Nanoseconds()
 					s.CompletedNS = &end
 					s.Outcome = classify(err)
-				}(s)
+				}(s, in)
 			default:
 			}
 		}
@@ -296,7 +332,7 @@ func runPhase(ctx context.Context, c config, name string, duration time.Duration
 		switch s.Outcome {
 		case "completed":
 			target.Completed++
-		case "runner_rejected", "actor_rejected", "not_attempted_cancelled", "generator_late":
+		case "runner_rejected", "service_rejected", "not_attempted_cancelled", "generator_late":
 			target.Rejected++
 		case "outcome_unknown":
 			target.Unresolved++
@@ -305,6 +341,28 @@ func runPhase(ctx context.Context, c config, name string, duration time.Duration
 		}
 		if s.Kind == "market" && s.Outcome != "completed" {
 			p.Valid = false
+		}
+	}
+	p.RouteCounts = map[string]summary{}
+	for _, s := range p.Samples {
+		p.ReadResponseBytes += s.ResponseBytes
+		if s.ReadRoute != "" {
+			counts := p.RouteCounts[s.ReadRoute]
+			counts.Offered++
+			if s.AdmittedNS != nil {
+				counts.Admitted++
+			}
+			switch s.Outcome {
+			case "completed":
+				counts.Completed++
+			case "runner_rejected", "service_rejected", "generator_late", "not_attempted_cancelled":
+				counts.Rejected++
+			case "outcome_unknown":
+				counts.Unresolved++
+			default:
+				counts.Failed++
+			}
+			p.RouteCounts[s.ReadRoute] = counts
 		}
 	}
 	p.Latencies = latencies(p.Samples)
@@ -328,8 +386,8 @@ func classify(err error) string {
 	if errors.Is(err, ar.ErrOutcomeUnknown) || errors.Is(err, context.DeadlineExceeded) || errors.Is(err, context.Canceled) || errors.Is(err, ar.ErrClosed) {
 		return "outcome_unknown"
 	}
-	if errors.Is(err, ar.ErrMailboxFull) {
-		return "actor_rejected"
+	if errors.Is(err, ar.ErrMailboxFull) || errors.Is(err, errReadRejected) {
+		return "service_rejected"
 	}
 	return "failed"
 }
@@ -417,12 +475,41 @@ func execute(c config) (resultErr error) {
 			resultErr = fmt.Errorf("sync report: %w", e)
 		}
 	}()
+	prof, err := reserveProfile(c)
+	if err != nil {
+		return err
+	}
+	r.Profile = prof.report
+	defer func() { prof.Close(); r.Profile = prof.report }()
 	ctx, cancel := context.WithTimeout(context.Background(), c.Warmup+c.Duration+2*time.Minute)
 	defer cancel()
 	var rec *telemetry.Recorder
 	if c.Metrics {
 		rec = telemetry.New()
 	}
+	r.Policy = policyReport{Kind: "none"}
+	if c.PolicyTarget != "" || c.MockPolicyDelay >= 0 {
+		r.Policy = policyReport{Kind: "external_local_worker", SHA256: c.PolicySHA256, Profile: c.PolicyProfile, Fallback: c.PolicyFallback, TimeoutNS: int64(c.PolicyTimeout), Quiescence: "not_started", Caveat: "worker verification not completed; no account created"}
+		if c.MockPolicyDelay >= 0 {
+			r.Policy.Kind = "controlled_local_grpc"
+			r.Policy.SHA256 = mockPolicySHA256()
+		}
+	}
+	policy, err := startPolicy(ctx, c, rec)
+	if err != nil {
+		return err
+	}
+	r.Policy = policy.report
+	defer func() {
+		if e := policy.Close(); e != nil {
+			r.Valid = false
+			r.Policy.Quiescence = "unresolved"
+			if resultErr == nil {
+				resultErr = e
+			}
+		}
+		r.Policy.Quiescent = policy.worker.Snapshot()
+	}()
 	store, err := pg.OpenWithOptions(ctx, dsn, c.Schema, pg.Options{Telemetry: rec, MaxConnections: int32(c.Pool)})
 	if err != nil {
 		return errors.New("open development database failed (details withheld to protect DSN)")
@@ -454,6 +541,7 @@ func execute(c config) (resultErr error) {
 	}
 	cfg := ar.DefaultConfig(store, key)
 	cfg.Telemetry = rec
+	cfg.Policy = policy.Config(c)
 	cfg.AutoExecute = true
 	cfg.DataSource = "synthetic"
 	cfg.Execution.DecisionInterval = int64(c.Cadence)
@@ -488,20 +576,47 @@ func execute(c config) (resultErr error) {
 	if err = command(ctx, a, ar.Command{ID: "benchmark-start", Kind: "start"}); err != nil {
 		return errors.New("start baseline plan failed")
 	}
+	var poller *httpPoller
+	var read readFunc
+	if c.ReadMode == "http" {
+		poller, err = startHTTPPoller(c, key, a, store, store)
+		if err != nil {
+			return err
+		}
+		defer func() {
+			if e := poller.Close(); e != nil {
+				r.Valid = false
+				if resultErr == nil {
+					resultErr = errors.New("HTTP polling shutdown incomplete")
+				}
+			}
+		}()
+		read = poller.Read
+	}
 	if c.Warmup > 0 {
-		r.Warmup = runPhase(ctx, c, "warmup", c.Warmup, a)
+		r.Warmup = runPhase(ctx, c, "warmup", c.Warmup, a, read)
 	} else {
 		r.Warmup = phase{Name: "warmup", Valid: true}
 	}
+	r.Policy.Before = policy.worker.Snapshot()
 	r.BeforeTelemetry = rec.Snapshot()
 	r.BeforePool = store.PoolStats()
 	r.BeforeResources = resourceSnapshot()
 	r.BeforeDB = dbSnapshot(ctx, observer, c.Schema)
-	r.Measurement = runPhase(ctx, c, "measurement", c.Duration, a)
+	if err = prof.StartMeasurement(); err != nil {
+		return err
+	}
+	r.Measurement = runPhase(ctx, c, "measurement", c.Duration, a, read)
+	prof.StopCPU()
 	r.AfterResources = resourceSnapshot()
 	r.AfterPool = store.PoolStats()
 	r.AfterTelemetry = rec.Snapshot()
 	r.AfterDB = dbSnapshot(ctx, observer, c.Schema)
+	r.Policy.After = policy.worker.Snapshot()
+	if err = prof.FinishMeasurement(); err != nil {
+		return err
+	}
+	r.Profile = prof.report
 	r.ResourceDelta = resourceDelta(r.BeforeResources, r.AfterResources)
 	var wal string
 	if r.BeforeDB.WALLSN != "" && r.AfterDB.WALLSN != "" {
@@ -520,6 +635,11 @@ func execute(c config) (resultErr error) {
 		r.Cleanup = "cancel_acknowledged"
 	}
 	r.ControlCleanupNS = time.Since(cleanupStart).Nanoseconds()
+	if poller != nil {
+		if e := poller.Close(); e != nil {
+			r.Valid = false
+		}
+	}
 	closeCtx, closeCancel := context.WithTimeout(context.Background(), 15*time.Second)
 	err = a.Close(closeCtx)
 	closeCancel()
@@ -528,6 +648,13 @@ func execute(c config) (resultErr error) {
 		r.Status = "shutdown_unresolved"
 		return errors.New("actor shutdown did not become quiescent")
 	}
+	if err = policy.Close(); err != nil {
+		r.Valid = false
+		r.Policy.Quiescence = "unresolved"
+	} else {
+		r.Policy.Quiescence = "client_calls_drained"
+	}
+	r.Policy.Quiescent = policy.worker.Snapshot()
 	account, err := store.GetAccount(ctx, key)
 	if err != nil {
 		r.Valid = false
@@ -555,7 +682,7 @@ func execute(c config) (resultErr error) {
 	}
 
 	r.SourceDebt = v.Account.ObservedSequence - v.Account.ProcessedSequence
-	if v.State.Parent == nil || v.State.Parent.Status != "cancelled" && v.State.Parent.Status != "completed" && v.State.Parent.Status != "expired" || v.State.RecoveryRequired || len(v.State.UnresolvedFacts) > 0 || r.SourceDebt != 0 || len(v.Account.Reservations) > 0 || len(v.Account.Intents) > 0 || r.Measurement.Market.Unresolved+r.Measurement.Views.Unresolved > 0 {
+	if v.State.Parent == nil || v.State.Parent.Status != "cancelled" && v.State.Parent.Status != "completed" && v.State.Parent.Status != "expired" || v.State.RecoveryRequired || len(v.State.UnresolvedFacts) > 0 || r.SourceDebt != 0 || len(v.Account.Reservations) > 0 || len(v.Account.Intents) > 0 || r.Measurement.Market.Unresolved+r.Measurement.Views.Unresolved+r.Warmup.Market.Unresolved+r.Warmup.Views.Unresolved > 0 || r.Measurement.Views.Failed+r.Warmup.Views.Failed > 0 || v.State.PolicyPending != nil {
 		r.Valid = false
 	}
 	r.Status = "complete"

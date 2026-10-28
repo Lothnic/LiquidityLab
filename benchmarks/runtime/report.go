@@ -18,16 +18,16 @@ import (
 )
 
 var limitations = []string{
-	"One synthetic paper account and one instrument; no exchange, HTTP/UI, Python inference, recovery restart, or supported-capacity claim.",
+	"One synthetic paper account and one instrument; no exchange, React render, recovery restart, or supported-capacity claim. HTTP polling and inference are explicit optional workload variants.",
 	"Input identities and values are seed deterministic. Wall-clock decisions, admission, source/order binding, and resulting economics can vary between repetitions.",
 	"Open-loop offered scheduling is independent of completions. The ordered source worker is serial; actor call durations are service-call components with queue/persistence work, not a separate closed-loop maximum-throughput run.",
-	"runner_admitted_ns is bounded runner queue/slot admission; actor admission happens between actor_call_started_ns and actor_call_returned_ns and has no exact per-call public timestamp. A successful return acknowledges completion; rejected and uncertain returns never count as completed.",
-	"All sample offsets use the phase's local monotonic start. generator_attempt_ns minus intended_ns is generator lag; completed minus intended is offered-to-response latency; completed minus call started is actor call latency.",
+	"runner_admitted_ns is bounded runner queue/slot admission; actor admission happens between service_call_started_ns and service_call_returned_ns and has no exact per-call public timestamp. A successful return acknowledges completion; rejected and uncertain returns never count as completed.",
+	"All sample offsets use the phase's local monotonic start. generator_attempt_ns minus intended_ns is generator lag; completed minus intended is offered-to-response latency; completed minus call started is service call latency; HTTP read calls include network/API/body/JSON work, while market calls remain actor methods.",
 	"Warmup drains before the measurement schedule starts. Telemetry snapshots are cumulative before/after measurement (including drain); subtract counts, sums and buckets for interval data. Snapshot min/max and quantiles are cumulative and cannot be subtracted.",
 	"Database WAL delta is cluster-wide and may contain concurrent activity. Database size and schema relation bytes include PostgreSQL storage behavior and retained prior benchmark accounts; relation statistics may lag.",
 	"Source loss or any failed source call invalidates the workload even when subsequent calls complete. No lost fact is silently treated as harmless coalescing.",
 	"Resource deltas include the generator, JSON manifest hashing, observer queries, runner samples, and actor. RSS/heap changes are endpoint differences; peak RSS is process lifetime high-water mark; GC CPU fraction is cumulative.",
-	"No restart/restore recovery duration, recording write lag, private-event age, blocked-lock duration, or policy inference latency is measured by this runner. Source debt is the final durable observed-minus-processed cursor count; local cleanup latency is not exchange cancellation latency.",
+	"No restart/restore recovery duration, recording write lag, private-event age, or pure blocked-lock duration is measured. Inference RPC latency is measured only for an explicitly selected worker. Source debt is the final durable observed-minus-processed cursor count; local cleanup latency is not exchange cancellation latency.",
 }
 
 type dbState struct {
@@ -37,6 +37,8 @@ type dbState struct {
 	Available     bool   `json:"available"`
 }
 type report struct {
+	Policy             policyReport       `json:"policy_worker"`
+	Profile            profileReport      `json:"profiling"`
 	QuiescentTelemetry telemetry.Snapshot `json:"telemetry_after_actor_shutdown"`
 	QuiescentPool      pg.PoolStatistics  `json:"pool_after_actor_shutdown"`
 	FinancialAudit     financialAudit     `json:"financial_conservation"`
@@ -117,7 +119,11 @@ func hostInfo() map[string]any {
 	return h
 }
 func cfgInfo(c ar.Config) map[string]any {
-	return map[string]any{"profile": c.Profile, "data_source": c.DataSource, "accounts": 1, "instruments": 1, "instrument_revision": c.InstrumentRevision, "rules": c.Rules, "fees": c.Fees, "execution": c.Execution, "baseline": c.Baseline, "scheduled_slice_interval_ns": x.BaselineSliceInterval, "bundle_identity": "none; Go baseline without inference", "auto_execute": c.AutoExecute, "mailbox_capacity": c.MailboxCapacity, "control_capacity": c.ControlCapacity, "fact_capacity": c.FactCapacity, "max_fills": c.MaxFills, "max_facts": c.MaxFacts, "lease_ns": int64(c.Lease)}
+	bundle := "none; Go baseline without inference"
+	if c.Policy != nil {
+		bundle = c.Policy.PolicySHA256
+	}
+	return map[string]any{"profile": c.Profile, "data_source": c.DataSource, "accounts": 1, "instruments": 1, "instrument_revision": c.InstrumentRevision, "rules": c.Rules, "fees": c.Fees, "execution": c.Execution, "baseline": c.Baseline, "scheduled_slice_interval_ns": x.BaselineSliceInterval, "bundle_identity": bundle, "auto_execute": c.AutoExecute, "mailbox_capacity": c.MailboxCapacity, "control_capacity": c.ControlCapacity, "fact_capacity": c.FactCapacity, "max_fills": c.MaxFills, "max_facts": c.MaxFacts, "lease_ns": int64(c.Lease)}
 }
 func resourceDelta(a, b resources) map[string]any {
 	return map[string]any{"user_cpu_us": b.UserCPUUS - a.UserCPUUS, "system_cpu_us": b.SystemCPUUS - a.SystemCPUUS, "total_alloc_bytes": b.TotalAlloc - a.TotalAlloc, "mallocs": b.Mallocs - a.Mallocs, "gc_cycles": b.NumGC - a.NumGC, "gc_pause_ns": b.GCPauseNS - a.GCPauseNS, "rss_endpoint_bytes": b.RSS - a.RSS, "heap_alloc_endpoint_bytes": int64(b.HeapAlloc) - int64(a.HeapAlloc), "elapsed_ns": b.Wall.Sub(a.Wall).Nanoseconds()}
@@ -167,7 +173,7 @@ type latency struct {
 func latencies(samples []sample) map[string]latency {
 	values := map[string][]int64{}
 	for _, prefix := range []string{"", "market_", "view_"} {
-		for _, name := range []string{"generator_lag", "runner_queue_wait", "actor_call_success", "offered_to_success", "actor_call_all_returns"} {
+		for _, name := range []string{"generator_lag", "runner_queue_wait", "service_call_success", "offered_to_success", "service_call_all_returns"} {
 			values[prefix+name] = []int64{}
 		}
 	}
@@ -178,10 +184,10 @@ func latencies(samples []sample) map[string]latency {
 				values[prefix+"runner_queue_wait"] = append(values[prefix+"runner_queue_wait"], *s.CallNS-*s.AdmittedNS)
 			}
 			if s.CompletedNS != nil && s.CallNS != nil {
-				values[prefix+"actor_call_all_returns"] = append(values[prefix+"actor_call_all_returns"], *s.CompletedNS-*s.CallNS)
+				values[prefix+"service_call_all_returns"] = append(values[prefix+"service_call_all_returns"], *s.CompletedNS-*s.CallNS)
 			}
 			if s.Outcome == "completed" && s.CompletedNS != nil && s.CallNS != nil {
-				values[prefix+"actor_call_success"] = append(values[prefix+"actor_call_success"], *s.CompletedNS-*s.CallNS)
+				values[prefix+"service_call_success"] = append(values[prefix+"service_call_success"], *s.CompletedNS-*s.CallNS)
 				values[prefix+"offered_to_success"] = append(values[prefix+"offered_to_success"], *s.CompletedNS-s.IntendedNS)
 			}
 		}

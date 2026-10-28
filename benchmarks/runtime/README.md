@@ -62,17 +62,17 @@ One worker applies market inputs in source order. Its source queue is bounded;
 views use separate bounded concurrent slots. Runner admission timestamps refer
 to those queue/slot boundaries. Actor admission is only observable between call
 start and return through the public actor API. Actor telemetry separately
-records internal admission, wait, and service work. A successful actor return
-counts as completed. A timeout/unknown outcome never counts as completed.
+records internal admission, wait, and service work. A successful actor return counts as completed. In HTTP mode, completion requires
+a successful response, full bounded body consumption, and valid JSON. A timeout/unknown outcome never counts as completed.
 
 Every input retains its intended offset, generator attempt, runner admission,
-actor call start, response time, and outcome where available. Offsets are local
+service call start, response time, and outcome where available. Offsets are local
 monotonic nanoseconds from the phase start. `generator_lag` is attempt minus
 intended; `runner_queue_wait` is call start minus runner admission;
-`offered_to_success` includes generation, queue, and actor delay. Exact nearest
+`offered_to_success` includes generation, queue, and the selected service delay. Exact nearest
 rank percentiles are calculated from the retained bounded samples, separately
 for market and view calls. Rejected and uncertain work are counted alongside
-latencies. `actor_call_all_returns` includes error responses; success-only
+latencies. `service_call_all_returns` includes error responses; success-only
 latencies never imply that rejected work completed.
 
 A full source queue, actor market error, cancellation, or dispatch later than
@@ -82,7 +82,7 @@ offered slots and outcomes. Subsequent successful calls cannot repair a missing
 source fact or make that run valid. The final parent is cancelled, and the
 command exits nonzero. This runner is unsuitable for treating source loss as
 acceptable load shedding. View admission rejections remain visible without
-invalidating source delivery; uncertain view outcomes invalidate the final run.
+invalidating source delivery; failed or uncertain reads invalidate the final run.
 
 The ordered source worker serializes its calls, but does not throttle the
 offered schedule. Actor call durations describe a service component, not a
@@ -157,8 +157,9 @@ benchmark observation activity. Storage description is supplied by the operator;
 fsync enabled does not prove device durability. No cluster isolation is assumed.
 
 The report explicitly lists missing measurements: private-event age, recording
-write lag, actual restart/replay/restore duration, inference, UI, and pure blocked
-lock time. Final cursor debt and local cancellation acknowledgement do not
+write lag, actual restart/replay/restore duration, React rendering, and pure blocked
+lock time. Inference RPC timing is present only when a policy worker is selected;
+external worker CPU, memory, and server-side idleness are unmeasured. Final cursor debt and local cancellation acknowledgement do not
 substitute for those measurements. Derive candidate admission only after
 separate fault/drain evidence and a saturation analysis.
 
@@ -176,3 +177,131 @@ its unique development schema/accounts for audit. Unit checks cover bounded
 configuration, deterministic manifests, independent offered counts under
 overload, ordered market calls, uncertain completion handling, and refusal to
 overwrite reports.
+
+## Optional HTTP and policy workloads (report v2)
+
+Current binaries write `durable-runtime-benchmark-v2`. Stored v1 reports remain
+immutable evidence for their original binary and workload. V2 uses
+`service_call_started_ns`, `service_call_returned_ns`, `service_call_success`,
+and `service_call_all_returns` in place of v1's `actor_call_*` names. Every sample
+states its `service_boundary`; market calls remain `actor.MarketFromSession`,
+while reads are `actor.View` or an HTTP round trip including body/JSON work.
+The baseline defaults remain direct actor views and Go execution without Python.
+`--view-rate` sets the offered rate of the selected read operation in either mode.
+
+`--read-mode http` starts the real scoped trader API on a random literal loopback
+port. It generates a private random bearer credential scoped to this run's
+account. The credential and listener address never enter the report. HTTP reads
+use the same bounded runner slots as actor reads, an explicit client/API deadline
+(`--http-timeout`, default 1s, range 10ms–2s), no proxies/redirects/compression, and
+a maximum 1 MiB response. The client consumes the body and validates JSON before
+recording completion; response status and consumed bytes remain in each sample.
+The server and idle connections are shut down before final actor quiescence.
+This measures **HTTP polling, not React rendering**.
+
+The explicit HTTP route mix defaults to 60% account state, 20% session list
+(`limit=1`), and 20% current session report. Set `--http-state-percent`,
+`--http-sessions-percent`, and `--http-report-percent` to integers totaling 100.
+A deterministic coprime stride spreads each 100-read cycle across that mix;
+short runs report their actual route counts and can differ from the percentages.
+Routes are scoped to the new account and its `benchmark-plan`. Samples include
+route, status, and bytes; `http_route_counts` and `read_response_bytes` summarize
+actual demand. Rejection and error results remain visible alongside successful
+latencies. HTTP timeouts are unresolved responses and never count as completed.
+
+The controlled gRPC worker is enabled only by an explicit
+`--mock-policy-delay 0` (immediate) through `--mock-policy-delay 5s`. It exposes
+real loopback gRPC, a pinned synthetic policy hash, the real observation schema,
+`unvalidated` mode, and semantic HOLD proposals that echo the frozen request
+binding. It admits one Predict at a time, rejects excess requests, and honors
+context cancellation. It exercises serialization/RPC/deadline machinery, not
+Python or model quality. A healthy HOLD worker normally produces no fills;
+a timeout with baseline fallback exercises actual baseline order execution.
+
+For example, run a controlled worker plus the default HTTP polling mix with:
+
+```sh
+../../work/runtime/durable-runtime \
+  --development --schema ll_runtime_bench \
+  --storage-description 'Local development PostgreSQL; shared host; WAL cluster-wide' \
+  --seed 42 --warmup 2s --duration 20s \
+  --market-rate 10 --view-rate 2 --trade-percent 50 \
+  --baseline scheduled --cadence 100ms --pool 4 \
+  --source-queue 64 --view-in-flight 4 --read-mode http \
+  --mock-policy-delay 150ms --policy-timeout 100ms \
+  --policy-profile paper --policy-fallback baseline \
+  --out ../../work/runtime/controlled-http-01.json
+```
+
+`--policy-timeout` is pinned at 1–200ms, `--policy-fallback` is `baseline` or
+`pause`, and `--policy-profile` is `paper` or `shadow`. Paper applies eligible
+proposals; shadow records them and executes the pinned Go baseline. No option
+permits live operation or validates/promotes a model. The `pause` fallback stops
+further decision demand after its first failure, so it is a different offered
+policy workload from continuing baseline fallback.
+
+For a real Python target, first start a compatible worker with a preexisting
+Go replay policy bundle as described in [inference.md](../../docs/inference.md):
+
+```sh
+uv run python -m liquiditylab.inference /absolute/path/to/policy-bundle \
+  --listen 127.0.0.1:50052
+```
+
+In the benchmark invocation, replace `--mock-policy-delay ...` with
+`--policy-target 127.0.0.1:50052 --policy-sha256 <exact-lowercase-policy-sha256>`.
+A local Unix target (`unix:/absolute/socket`) also works. Real and controlled
+selectors are mutually exclusive. `inference.New` verifies bundle identity,
+ordered schema, promotion mode, and non-live eligibility **before database
+opening, migration, account creation, or ownership acquisition**. Verification
+failure writes a sanitized setup failure report and creates no account. Raw
+worker/network errors, target addresses, and DSNs are not retained. The external
+worker is managed separately; the runner closes only its client.
+
+`policy_worker` records verified hash/mode/profile/fallback/deadline, controlled
+fixture delay/action where applicable, and before/after client request counters.
+These counters count calls reaching the client wrapper; they do not count every
+scheduler slot. Failures include the `rejected`/`expired` subsets. Snapshot
+maximum in-flight values are cumulative. Runtime/inference telemetry additionally
+records decision demand, fallback, rejection, and RPC latency when `--metrics` is
+enabled. Metrics-disabled runs still track client completion for cleanup. After
+actor shutdown, the wrapper closes admission under a mutex, closes the client,
+and waits up to 2s for registered calls to finish, including a late actor
+Propose goroutine. `client_calls_drained` proves only this process's client
+quiescence, not external worker idleness. Remaining calls or policy slots make
+the run invalid.
+
+## Separate profiling runs
+
+CPU and allocation capture perturb measurements. Use fresh accounts/reports and
+separate comparable runs; never combine both profilers. Both output flags reserve
+new files with `O_EXCL`, mode `0600`, before database mutation. Existing profile
+paths fail before account creation. Files are capped at 32 MiB and always closed;
+setup/interrupted capture is marked incomplete, and write failures fail the run.
+Only the profile basename, kind, boundary, byte length and SHA-256 enter the
+report. Profiles contain stack/sample metadata, never heap object contents.
+
+Add exactly one flag to the same explicit workload invocation, using a new report
+pathname for each run:
+
+```sh
+--cpu-profile ../../work/runtime/baseline-cpu-01.pprof
+--alloc-profile ../../work/runtime/baseline-allocs-01.pprof
+```
+
+The first captures CPU only from immediately before measured schedule construction
+through measurement and accepted-call drain; CPU profiler stop/flush completes
+before the resource endpoint read and can add overhead to its elapsed window.
+The second writes Go's sampled cumulative `allocs` profile after measured resource
+endpoints. Allocation history includes process startup, warmup, runner, HTTP/mock
+work and measurement; it is **not an interval allocation delta**. No forced GC is
+inserted into measurement. Use the report's allocation deltas for the measured
+resource interval. Profile capture time and boundaries are recorded explicitly.
+Neither profile includes CPU/allocations in an external Python process.
+
+Inspect files against the exact checksummed executable used for that report:
+
+```sh
+go tool pprof -top ../../work/runtime/durable-runtime ../../work/runtime/baseline-cpu-01.pprof
+go tool pprof -top -alloc_space ../../work/runtime/durable-runtime ../../work/runtime/baseline-allocs-01.pprof
+```

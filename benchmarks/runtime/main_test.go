@@ -21,7 +21,7 @@ import (
 )
 
 func testConfig() config {
-	return config{Development: true, Baseline: "scheduled", DSNEnv: "LIQUIDITYLAB_TEST_POSTGRES_DSN", Schema: "ll_benchmark_test", Output: "report.json", Storage: "test development database", Seed: 42, Warmup: 0, Duration: 100 * time.Millisecond, MarketRate: 50, ReadRate: 50, TradePercent: 50, MaxLag: time.Second, Cadence: 20 * time.Millisecond, Queue: 2, InFlight: 2, Pool: 2, Metrics: true}
+	return config{envelopeConfig: defaultEnvelope(), Development: true, Baseline: "scheduled", DSNEnv: "LIQUIDITYLAB_TEST_POSTGRES_DSN", Schema: "ll_benchmark_test", Output: "report.json", Storage: "test development database", Seed: 42, Warmup: 0, Duration: 100 * time.Millisecond, MarketRate: 50, ReadRate: 50, TradePercent: 50, MaxLag: time.Second, Cadence: 20 * time.Millisecond, Queue: 2, InFlight: 2, Pool: 2, Metrics: true}
 }
 
 func TestConfigRejectsUnboundedOrImplicitWorkload(t *testing.T) {
@@ -121,10 +121,10 @@ func TestUncertainReturnsNeverCountAsCompleted(t *testing.T) {
 	c.ReadRate = 0
 	f := &fakeActor{err: ar.ErrOutcomeUnknown}
 	p := runPhase(context.Background(), c, "measurement", 100*time.Millisecond, f)
-	if p.Valid || p.Market.Completed != 0 || p.Market.Unresolved != 1 || p.Latencies["actor_call_success"].Count != 0 {
+	if p.Valid || p.Market.Completed != 0 || p.Market.Unresolved != 1 || p.Latencies["service_call_success"].Count != 0 {
 		t.Fatalf("uncertain accounting: %+v", p)
 	}
-	if classify(errors.New("database failure")) != "failed" || classify(ar.ErrMailboxFull) != "actor_rejected" {
+	if classify(errors.New("database failure")) != "failed" || classify(ar.ErrMailboxFull) != "service_rejected" {
 		t.Fatal("failure classification")
 	}
 }
