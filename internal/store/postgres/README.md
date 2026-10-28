@@ -168,11 +168,13 @@ Actual private facts, such as fills arriving during owner recovery, continue to
 use `RecordObservation` independently of the execution lease. They cannot be
 discarded because an owner is unavailable.
 
-These methods are an additive foundation. The current daemon/actor still use
-generic ownership and observation calls; wiring the paper contract, existing-
-account CLI recovery and the actual process-kill harness remain required before
-operational resume is supported. Do not mark an account manually and then try to
-run the old generic runtime against it.
+The paper actor activates this contract through `ClaimPaperOwnership`, and its
+simulated submit/cancel/trade paths use the owned observation method. Its
+serialized `RecoverPaper` drains accepted facts, cancels retained paper children
+without resubmission and waits for a fresh valid book before restoring readiness
+from retained balances. Recovered active parents stay paused. Quarantined facts
+remain a recovery requirement. Older generic runtimes cannot take over a marked
+account; use the compatible paper runtime and documented daemon recovery flow.
 
 ## Executed verification and remaining gates
 

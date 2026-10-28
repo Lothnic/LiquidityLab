@@ -136,17 +136,13 @@ func New(ctx context.Context, c Config) (*Actor, error) {
 	if _, err = bootstrapState(c, a, bundle); err != nil {
 		return nil, err
 	}
-	owner, err := c.Store.ClaimOwnership(ctx, c.Key, c.OwnerID, c.Lease, c.RecoveryProof)
+	// The paper venue's only effects are owned database observations. Claiming
+	// its epoch fences the old simulator and returns one atomic recovery view.
+	a, err = c.Store.ClaimPaperOwnership(ctx, c.Key, c.OwnerID, c.Lease)
 	if err != nil {
 		return nil, err
 	}
-	a, err = c.Store.GetAccount(ctx, c.Key)
-	if err != nil {
-		return nil, err
-	}
-	if a.Ownership != owner {
-		return nil, pg.ErrOwnership
-	}
+	owner := a.Ownership
 	state, err := bootstrapState(c, a, bundle)
 	if err != nil {
 		return nil, err
@@ -201,7 +197,7 @@ func New(ctx context.Context, c Config) (*Actor, error) {
 			state.RecoveryRequired = true
 		}
 	}
-	actor := &Actor{config: c, state: state, account: a, owner: owner, transport: newPaperTransport(c.Store, c.Key), control: make(chan request, c.ControlCapacity), work: make(chan request, c.MailboxCapacity), facts: make(chan request, c.FactCapacity), stop: make(chan struct{}), done: make(chan struct{}), now: time.Now, policyResults: make(chan policyResult, 1)}
+	actor := &Actor{config: c, state: state, account: a, owner: owner, transport: newPaperTransport(c.Store, c.Key, owner), control: make(chan request, c.ControlCapacity), work: make(chan request, c.MailboxCapacity), facts: make(chan request, c.FactCapacity), stop: make(chan struct{}), done: make(chan struct{}), now: time.Now, policyResults: make(chan policyResult, 1)}
 	ready := false
 	state.LastInputID = "boot-" + c.OwnerID
 	state.LastInputDigest = "bootstrap"
@@ -297,6 +293,14 @@ func (a *Actor) Reconcile(ctx context.Context, r Reconciliation) (pg.Result, err
 	}
 	out, err := a.submit(ctx, "reconcile", r, true)
 	return out.result, err
+}
+
+// RecoverPaper settles only this runtime's database-backed simulated venue.
+// It never supplies new balances or claims isolation of an exchange sender.
+// A fresh valid snapshot is required before readiness can be restored.
+func (a *Actor) RecoverPaper(ctx context.Context) error {
+	_, err := a.submit(ctx, "recover_paper", nil, true)
+	return err
 }
 
 // Public command IDs cannot collide with reducer and paper-source receipts.
@@ -436,6 +440,8 @@ func (a *Actor) handle(req request) {
 		result.err = a.drainFacts(ctx)
 	case "reconcile":
 		result.result, result.err = a.reconcile(ctx, req.input.(Reconciliation))
+	case "recover_paper":
+		result.err = a.recoverPaper(ctx)
 	case "view":
 		state, err := cloneState(a.state)
 		if err != nil {

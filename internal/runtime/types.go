@@ -48,7 +48,9 @@ type Config struct {
 	Fees                                                               d.FeeConfig
 	Execution                                                          d.ReplayConfig
 	BaseCurrency, QuoteCurrency, InstrumentRevision                    string
-	RecoveryProof                                                      pg.RecoveryProof
+	// RecoveryProof is retained for source compatibility. Paper ownership uses a
+	// database fence and never asserts isolation of an external venue sender.
+	RecoveryProof pg.RecoveryProof
 }
 
 func DefaultConfig(store *pg.Store, key pg.Key) Config {

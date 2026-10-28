@@ -66,6 +66,11 @@ func (p *paperTransport) storedTrade(ctx context.Context, id, digest string) (pa
 	if observation.Kind != paperTradeKind || decodeInternal(observation.Payload, &fact) != nil || fact.ID != id || fact.InputDigest != digest {
 		return paperTradeFact{}, false, pg.ErrConflict
 	}
+	// Retrying an existing effect still requires the current paper epoch. The
+	// store checks ownership before deduplication and never appends this retry.
+	if _, err := p.store.RecordPaperObservation(ctx, p.key, p.owner, observation); err != nil {
+		return paperTradeFact{}, false, err
+	}
 	return fact, true, nil
 }
 
@@ -108,7 +113,10 @@ func (p *paperTransport) ObserveTrade(ctx context.Context, sourceID string, even
 			})
 		}
 	}
-	if _, err := p.store.RecordObservation(ctx, p.key, pg.Observation{ID: id, Kind: paperTradeKind, Payload: jsonBytes(fact)}); err != nil {
+	if _, err := p.store.RecordPaperObservation(ctx, p.key, p.owner, pg.Observation{ID: id, Kind: paperTradeKind, Payload: jsonBytes(fact)}); err != nil {
+		if errors.Is(err, pg.ErrOwnership) {
+			return paperTradeFact{}, err
+		}
 		// A concurrent or uncertain first write may have committed a result based
 		// on earlier child state. Its durable result wins over any recomputation.
 		if prior, found, readErr := p.storedTrade(ctx, id, digest); readErr == nil && found {
@@ -116,7 +124,7 @@ func (p *paperTransport) ObserveTrade(ctx context.Context, sourceID string, even
 		} else if errors.Is(readErr, pg.ErrConflict) {
 			return paperTradeFact{}, readErr
 		}
-		return paperTradeFact{}, fmt.Errorf("%w: paper trade observation persistence: %v", ErrOutcomeUnknown, err)
+		return paperTradeFact{}, fmt.Errorf("%w: paper trade observation persistence: %w", ErrOutcomeUnknown, err)
 	}
 	return fact, nil
 }
@@ -127,10 +135,11 @@ func (p *paperTransport) ObserveTrade(ctx context.Context, sourceID string, even
 type paperTransport struct {
 	store *pg.Store
 	key   pg.Key
+	owner pg.Ownership
 }
 
-func newPaperTransport(store *pg.Store, key pg.Key) *paperTransport {
-	return &paperTransport{store: store, key: key}
+func newPaperTransport(store *pg.Store, key pg.Key, owner pg.Ownership) *paperTransport {
+	return &paperTransport{store: store, key: key, owner: owner}
 }
 
 func (*paperTransport) Profile() Profile { return ProfilePaper }
@@ -144,7 +153,7 @@ func unknownPaperOutcome(err error) (TransportResult, error) {
 		Handoff:    PotentiallyInFlight,
 		KnownFinal: false,
 		Reason:     "paper_transport_observation_unknown",
-	}, fmt.Errorf("%w: paper transport fact persistence or lookup: %v", ErrOutcomeUnknown, err)
+	}, fmt.Errorf("%w: paper transport fact persistence or lookup: %w", ErrOutcomeUnknown, err)
 }
 
 func rejectedPaper(reason string) TransportResult {
@@ -169,6 +178,9 @@ func (p *paperTransport) stored(ctx context.Context, id, intentID string) (trans
 	if fact.IntentID != intentID {
 		return transportFact{}, false, pg.ErrConflict
 	}
+	if _, err := p.store.RecordPaperObservation(ctx, p.key, p.owner, observation); err != nil {
+		return transportFact{}, false, err
+	}
 	return fact, true, nil
 }
 
@@ -177,7 +189,7 @@ func (p *paperTransport) persist(ctx context.Context, observationID string, fact
 	if err != nil {
 		return unknownPaperOutcome(err)
 	}
-	if _, err = p.store.RecordObservation(ctx, p.key, pg.Observation{
+	if _, err = p.store.RecordPaperObservation(ctx, p.key, p.owner, pg.Observation{
 		ID: observationID, Kind: paperTransportKind, Payload: payload,
 	}); err != nil {
 		return unknownPaperOutcome(err)

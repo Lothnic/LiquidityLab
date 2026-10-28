@@ -334,7 +334,7 @@ func TestActorManualOverfillDoesNotChangeProjection(t *testing.T) {
 	}
 }
 
-func TestActorRecoveryRequiresPaperProfileProofNewBookAndReconciliation(t *testing.T) {
+func TestActorRecoveryUsesPaperFenceAndRequiresNewBookAndReconciliation(t *testing.T) {
 	_, _, _, a := actorTestReady(t, 0)
 	actorTestCreateAndStart(t, a, "plan-restart-first")
 	queued := actorTestQueue(t, a, d.AggressiveNormal, "action-restart-first")
@@ -363,20 +363,15 @@ func TestActorRecoveryRequiresPaperProfileProofNewBookAndReconciliation(t *testi
 		}
 	}
 	cfg := a.config
-	cfg.OwnerID = "paper-process-without-proof"
-	ctx, cancel = actorTestContext(t)
-	_, err := New(ctx, cfg)
-	cancel()
-	if !errors.Is(err, pg.ErrIsolationRequired) {
-		t.Fatalf("restart without proof error=%v, want isolation proof", err)
-	}
 	cfg.OwnerID = "paper-process-recovered"
-	cfg.RecoveryProof = pg.RecoveryProof{PreviousSenderIsolated: true, Reconciled: true, Reference: "operator-proof-test"}
+	// This simulated venue is fenced at its PostgreSQL effect boundary. No
+	// operator assertion about isolation of an external sender is manufactured.
+	cfg.RecoveryProof = pg.RecoveryProof{}
 	ctx, cancel = actorTestContext(t)
 	recovered, err := New(ctx, cfg)
 	cancel()
 	if err != nil {
-		t.Fatalf("New with explicit recovery proof: %v", err)
+		t.Fatalf("New with owned paper effect fencing: %v", err)
 	}
 	t.Cleanup(func() {
 		ctx, cancel := actorTestContext(t)

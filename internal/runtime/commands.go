@@ -413,7 +413,7 @@ func (a *Actor) acceptOutcome(ctx context.Context, outcome TransportResult, id, 
 		return pg.Result{}, ErrInvalid
 	}
 	fact := transportFact{IntentID: a.state.Child.ID, OperationID: id, InputDigest: digest, Outcome: outcome}
-	if _, err := a.config.Store.RecordObservation(ctx, a.config.Key, pg.Observation{ID: "transport-" + id, Kind: paperTransportKind, Payload: jsonBytes(fact)}); err != nil {
+	if _, err := a.config.Store.RecordPaperObservation(ctx, a.config.Key, a.owner, pg.Observation{ID: "transport-" + id, Kind: paperTransportKind, Payload: jsonBytes(fact)}); err != nil {
 		return pg.Result{}, err
 	}
 	if err := a.drainFacts(ctx); err != nil {

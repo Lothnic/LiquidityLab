@@ -10,6 +10,7 @@ import (
 	"os"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	d "github.com/liquiditylab/liquiditylab/internal/domain"
@@ -17,7 +18,7 @@ import (
 	pg "github.com/liquiditylab/liquiditylab/internal/store/postgres"
 )
 
-func paperTestStore(t *testing.T) (*pg.Store, pg.Key) {
+func paperTestStore(t *testing.T) (*pg.Store, pg.Key, pg.Ownership) {
 	t.Helper()
 	dsn := os.Getenv("LIQUIDITYLAB_TEST_POSTGRES_DSN")
 	if dsn == "" {
@@ -52,10 +53,14 @@ func paperTestStore(t *testing.T) (*pg.Store, pg.Key) {
 	key := pg.Key{TenantID: "paper-tenant", AccountID: "paper-account"}
 	if _, err := store.CreateAccount(ctx, key,
 		[]pg.Balance{{Currency: "USD", Total: d.MustDecimal("1000"), Free: d.MustDecimal("1000")}},
-		json.RawMessage(`{"schema":"paper-test-v1"}`)); err != nil {
+		json.RawMessage(`{}`)); err != nil {
 		t.Fatal(err)
 	}
-	return store, key
+	account, err := store.ClaimPaperOwnership(ctx, key, "paper-transport-test-owner", time.Minute)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return store, key, account.Ownership
 }
 
 func paperTestBook(t *testing.T) *x.Book {
@@ -81,8 +86,8 @@ func paperTestFees() d.FeeConfig {
 }
 
 func TestPaperTransportHandoffPersistsAtomicExactIOCOutcome(t *testing.T) {
-	store, key := paperTestStore(t)
-	transport := newPaperTransport(store, key)
+	store, key, owner := paperTestStore(t)
+	transport := newPaperTransport(store, key, owner)
 	if transport.Profile() != ProfilePaper {
 		t.Fatalf("paper transport profile=%q", transport.Profile())
 	}
@@ -146,8 +151,8 @@ func TestPaperTransportHandoffPersistsAtomicExactIOCOutcome(t *testing.T) {
 }
 
 func TestPaperTransportPassivePostOnlyAndCancellationFacts(t *testing.T) {
-	store, key := paperTestStore(t)
-	transport := newPaperTransport(store, key)
+	store, key, owner := paperTestStore(t)
+	transport := newPaperTransport(store, key, owner)
 	book := paperTestBook(t)
 	passive := Submission{
 		ID: "child-passive", OperationID: "dispatch-passive", InputDigest: "sha256:passive",
@@ -243,8 +248,8 @@ func TestPaperTradeStableIdentity(t *testing.T) {
 }
 
 func TestPaperTradePersistsQueueAndExactMakerFillBeforeReduction(t *testing.T) {
-	store, key := paperTestStore(t)
-	transport := newPaperTransport(store, key)
+	store, key, owner := paperTestStore(t)
+	transport := newPaperTransport(store, key, owner)
 	child := &Child{ID: "child-maker", Order: d.ChildOrder{
 		OrderID: "child-maker", State: "cancel_requested", Remaining: d.MustDecimal("0.5"), QueueAhead: d.MustDecimal("0.7"),
 		Intent: d.OrderIntent{Side: "buy", Price: d.MustDecimal("99"), Quantity: d.MustDecimal("0.5"), Passive: true},
@@ -273,7 +278,7 @@ func TestPaperTradePersistsQueueAndExactMakerFillBeforeReduction(t *testing.T) {
 	child.Order.QueueAhead = d.Zero
 	trade.ReceiptIndex++
 	trade.Time++
-	retry, err := newPaperTransport(store, key).ObserveTrade(context.Background(), "reconnected-session", trade, child, paperTestFees())
+	retry, err := newPaperTransport(store, key, owner).ObserveTrade(context.Background(), "reconnected-session", trade, child, paperTestFees())
 	if err != nil || !reflect.DeepEqual(retry, fact) {
 		t.Fatalf("restart duplicate rematched against later child: %+v err=%v", retry, err)
 	}
@@ -284,8 +289,8 @@ func TestPaperTradePersistsQueueAndExactMakerFillBeforeReduction(t *testing.T) {
 }
 
 func TestPaperTradeIgnoredAndQueueOnlyObservationsDeduplicate(t *testing.T) {
-	store, key := paperTestStore(t)
-	transport := newPaperTransport(store, key)
+	store, key, owner := paperTestStore(t)
+	transport := newPaperTransport(store, key, owner)
 	trade := d.MarketEvent{Kind: "trade", Symbol: "BTC/USD", Time: 123, ReceiptIndex: 5, Side: "sell", Price: d.MustDecimal("99"), Quantity: d.MustDecimal("0.4")}
 	ignored, err := transport.ObserveTrade(context.Background(), "session-1", trade, nil, paperTestFees())
 	if err != nil || ignored.IntentID != "" || len(ignored.Fills) != 0 {
