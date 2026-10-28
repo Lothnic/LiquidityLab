@@ -15,6 +15,8 @@ Checkpoint: 28 October 2026 through `4e4838c`. The fresh uncached Go race suite 
 
 Recent delivery includes the real 50-frame Kraken capture with 45-event Go/Python conformance, bounded runtime instrumentation, seven retained HTTP/inference/profiling workload reports, a separate Go blocking profiler, and stronger response/terminal-state audit checks. Six workload reports completed; the allocation-profile trial rejected 375 source offers and remains invalid. See the [envelope evidence](../benchmarks/results/runtime-envelope-20261028/README.md) and [verification record](verification.md) for scope, checker versions and limits.
 
+Three [follow-up audited workloads](../benchmarks/results/runtime-audited-20261028/README.md) exercise the stronger checks from a clean build. Baseline and real Python HTTP runs each completed 1,000 source updates and 400 reads. The separate blocking-profile trial rejected 290 source offers and remains invalid. Across both v2 bundles there are eight complete and two invalid trials; neither bundle establishes supported admission or load-plus-recovery headroom.
+
 Earlier browser evidence exercised the real Python worker, worker-loss fallback, session history and JSON export on synthetic input. Paper create/resume and OS crash recovery preserve accepted effects and fence suspended old senders. These observations do not establish policy quality, venue execution or supported capacity.
 
 ## Committed migration components

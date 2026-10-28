@@ -1,0 +1,19 @@
+File: durable-runtime-audited
+Build ID: 9e6d3a8a469089dbfcfabe4ffbf468940409ef7c
+Type: delay
+Time: 2026-10-28 19:54:20 IST
+Showing nodes accounting for 20.77s, 100% of 20.77s total
+Dropped 4 nodes (cum <= 0.10s)
+      flat  flat%   sum%        cum   cum%
+    20.34s 97.94% 97.94%     20.34s 97.94%  runtime.selectgo
+         0     0% 97.94%     10.28s 49.51%  main.runPhase.func2
+         0     0% 97.94%     10.27s 49.44%  main.execute
+         0     0% 97.94%     10.27s 49.44%  main.main
+         0     0% 97.94%     10.27s 49.44%  main.runPhase
+         0     0% 97.94%     10.27s 49.44%  runtime.main
+         0     0% 97.94%     10.24s 49.31%  github.com/liquiditylab/liquiditylab/internal/runtime.(*Actor).submit
+         0     0% 97.94%     10.16s 48.91%  github.com/liquiditylab/liquiditylab/internal/runtime.(*Actor).MarketFromSession
+     0.30s  1.46% 99.39%      0.30s  1.46%  sync.(*WaitGroup).Wait
+         0     0% 99.39%      0.13s  0.64%  github.com/liquiditylab/liquiditylab/internal/runtime.(*Actor).loop
+         0     0% 99.39%      0.13s  0.64%  github.com/liquiditylab/liquiditylab/internal/runtime.New.gowrap1
+     0.13s  0.61%   100%      0.13s  0.61%  runtime.chanrecv2

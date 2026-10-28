@@ -1,0 +1,409 @@
+{
+  "binary_sha256": "0678f239813e12572bdb06b5dd45306268ef8b4af786abd6270757c0170bd930",
+  "block_profile_observations": {
+    "contentions_top_runtime_selectgo_pct": 99.46,
+    "contentions_total": 6856,
+    "delay_top_runtime_selectgo_pct": 97.94,
+    "delay_total_s": 20.77,
+    "interpretation": "Cumulative aggregate Go channel/synchronization blocking stacks/counts over the enabled profile window, not wall-clock wait or an interval delta; excludes PostgreSQL fsync and external worker blocking."
+  },
+  "caveats": [
+    "Single synthetic account/instrument trials on a shared development host; no capacity or production claim.",
+    "HTTP validation used scoped-account-plan-v1 and every observed HTTP response status was 200; it does not test React rendering.",
+    "Python policy bundle is unvalidated; RPC success and fills do not imply policy quality. Worker CPU/memory and server idleness are unmeasured.",
+    "Fill count is whole-session terminal state, not phase-attributed; do not infer measured-phase fill coverage.",
+    "Block profiles are cumulative snapshots. Aggregate wait may exceed elapsed wall time because goroutines can wait concurrently; it is not wall-clock latency.",
+    "Telemetry histogram counters/buckets/sums may be differenced only across valid endpoints; cumulative min/max/quantile fields cannot be differenced. WAL is cluster-wide; resource deltas include runner/observer work."
+  ],
+  "complete_valid_count": 2,
+  "invalid_count": 1,
+  "report_count": 3,
+  "runs": [
+    {
+      "failure": "workload invalid; inspect report source delivery, unresolved work, and final state",
+      "financial": {
+        "durable_execution_count": 1,
+        "durable_execution_quantity": "0.01",
+        "final_source_debt": 0,
+        "shutdown_gauges_zero": true,
+        "valid": true
+      },
+      "http_status_counts": {},
+      "latency_p99_ns": {
+        "http_route_offered_to_success": {},
+        "market_offered_to_success": 394052705,
+        "view_offered_to_success": 8065488
+      },
+      "market_rate": 250,
+      "phases": {
+        "measurement": {
+          "elapsed_including_drain_ns": 10303027071,
+          "http_route_counts": null,
+          "market": {
+            "completed": 2210,
+            "failed": 0,
+            "offered": 2500,
+            "rejected": 290,
+            "runner_admitted": 2210,
+            "unresolved": 0
+          },
+          "source_delivery_valid": false,
+          "views": {
+            "completed": 20,
+            "failed": 0,
+            "offered": 20,
+            "rejected": 0,
+            "runner_admitted": 20,
+            "unresolved": 0
+          }
+        },
+        "warmup": {
+          "elapsed_including_drain_ns": 2000334705,
+          "http_route_counts": null,
+          "market": {
+            "completed": 500,
+            "failed": 0,
+            "offered": 500,
+            "rejected": 0,
+            "runner_admitted": 500,
+            "unresolved": 0
+          },
+          "source_delivery_valid": true,
+          "views": {
+            "completed": 4,
+            "failed": 0,
+            "offered": 4,
+            "rejected": 0,
+            "runner_admitted": 4,
+            "unresolved": 0
+          }
+        }
+      },
+      "policy": {
+        "bundle_sha256": null,
+        "kind": "none",
+        "measurement_delta": {
+          "expired": 0,
+          "failed": 0,
+          "rejected": 0,
+          "requests": 0,
+          "succeeded": 0
+        },
+        "promotion_status": null,
+        "total_lifecycle_requests": 0,
+        "total_lifecycle_successes": 0
+      },
+      "profile": "block",
+      "read_mode": "actor",
+      "read_rate": 2,
+      "report": "actor-baseline-block.json.gz",
+      "status": "invalid",
+      "valid": false,
+      "validation_contracts": {
+        "financial": "exact-cashflow-terminal-v2",
+        "http": "not-requested"
+      }
+    },
+    {
+      "failure": null,
+      "financial": {
+        "durable_execution_count": 2,
+        "durable_execution_quantity": "0.02",
+        "final_source_debt": 0,
+        "shutdown_gauges_zero": true,
+        "valid": true
+      },
+      "http_status_counts": {
+        "200": 400
+      },
+      "latency_p99_ns": {
+        "http_route_offered_to_success": {
+          "report": {
+            "count": 80,
+            "p99_ns": 3406212
+          },
+          "sessions": {
+            "count": 80,
+            "p99_ns": 2462363
+          },
+          "state": {
+            "count": 240,
+            "p99_ns": 11115953
+          }
+        },
+        "market_offered_to_success": 11540446,
+        "view_offered_to_success": 10970506
+      },
+      "market_rate": 50,
+      "phases": {
+        "measurement": {
+          "elapsed_including_drain_ns": 20000126648,
+          "http_route_counts": {
+            "report": {
+              "completed": 80,
+              "failed": 0,
+              "offered": 80,
+              "rejected": 0,
+              "runner_admitted": 80,
+              "unresolved": 0
+            },
+            "sessions": {
+              "completed": 80,
+              "failed": 0,
+              "offered": 80,
+              "rejected": 0,
+              "runner_admitted": 80,
+              "unresolved": 0
+            },
+            "state": {
+              "completed": 240,
+              "failed": 0,
+              "offered": 240,
+              "rejected": 0,
+              "runner_admitted": 240,
+              "unresolved": 0
+            }
+          },
+          "market": {
+            "completed": 1000,
+            "failed": 0,
+            "offered": 1000,
+            "rejected": 0,
+            "runner_admitted": 1000,
+            "unresolved": 0
+          },
+          "source_delivery_valid": true,
+          "views": {
+            "completed": 400,
+            "failed": 0,
+            "offered": 400,
+            "rejected": 0,
+            "runner_admitted": 400,
+            "unresolved": 0
+          }
+        },
+        "warmup": {
+          "elapsed_including_drain_ns": 2000781534,
+          "http_route_counts": {
+            "report": {
+              "completed": 7,
+              "failed": 0,
+              "offered": 7,
+              "rejected": 0,
+              "runner_admitted": 7,
+              "unresolved": 0
+            },
+            "sessions": {
+              "completed": 9,
+              "failed": 0,
+              "offered": 9,
+              "rejected": 0,
+              "runner_admitted": 9,
+              "unresolved": 0
+            },
+            "state": {
+              "completed": 24,
+              "failed": 0,
+              "offered": 24,
+              "rejected": 0,
+              "runner_admitted": 24,
+              "unresolved": 0
+            }
+          },
+          "market": {
+            "completed": 100,
+            "failed": 0,
+            "offered": 100,
+            "rejected": 0,
+            "runner_admitted": 100,
+            "unresolved": 0
+          },
+          "source_delivery_valid": true,
+          "views": {
+            "completed": 40,
+            "failed": 0,
+            "offered": 40,
+            "rejected": 0,
+            "runner_admitted": 40,
+            "unresolved": 0
+          }
+        }
+      },
+      "policy": {
+        "bundle_sha256": null,
+        "kind": "none",
+        "measurement_delta": {
+          "expired": 0,
+          "failed": 0,
+          "rejected": 0,
+          "requests": 0,
+          "succeeded": 0
+        },
+        "promotion_status": null,
+        "total_lifecycle_requests": 0,
+        "total_lifecycle_successes": 0
+      },
+      "profile": "none",
+      "read_mode": "http",
+      "read_rate": 20,
+      "report": "http-baseline-audited.json.gz",
+      "status": "complete",
+      "valid": true,
+      "validation_contracts": {
+        "financial": "exact-cashflow-terminal-v2",
+        "http": "scoped-account-plan-v1"
+      }
+    },
+    {
+      "failure": null,
+      "financial": {
+        "durable_execution_count": 107,
+        "durable_execution_quantity": "0.997",
+        "final_source_debt": 0,
+        "shutdown_gauges_zero": true,
+        "valid": true
+      },
+      "http_status_counts": {
+        "200": 400
+      },
+      "latency_p99_ns": {
+        "http_route_offered_to_success": {
+          "report": {
+            "count": 80,
+            "p99_ns": 5445141
+          },
+          "sessions": {
+            "count": 80,
+            "p99_ns": 2227199
+          },
+          "state": {
+            "count": 240,
+            "p99_ns": 37293545
+          }
+        },
+        "market_offered_to_success": 32505809,
+        "view_offered_to_success": 35111580
+      },
+      "market_rate": 50,
+      "phases": {
+        "measurement": {
+          "elapsed_including_drain_ns": 20000795455,
+          "http_route_counts": {
+            "report": {
+              "completed": 80,
+              "failed": 0,
+              "offered": 80,
+              "rejected": 0,
+              "runner_admitted": 80,
+              "unresolved": 0
+            },
+            "sessions": {
+              "completed": 80,
+              "failed": 0,
+              "offered": 80,
+              "rejected": 0,
+              "runner_admitted": 80,
+              "unresolved": 0
+            },
+            "state": {
+              "completed": 240,
+              "failed": 0,
+              "offered": 240,
+              "rejected": 0,
+              "runner_admitted": 240,
+              "unresolved": 0
+            }
+          },
+          "market": {
+            "completed": 1000,
+            "failed": 0,
+            "offered": 1000,
+            "rejected": 0,
+            "runner_admitted": 1000,
+            "unresolved": 0
+          },
+          "source_delivery_valid": true,
+          "views": {
+            "completed": 400,
+            "failed": 0,
+            "offered": 400,
+            "rejected": 0,
+            "runner_admitted": 400,
+            "unresolved": 0
+          }
+        },
+        "warmup": {
+          "elapsed_including_drain_ns": 2000021290,
+          "http_route_counts": {
+            "report": {
+              "completed": 7,
+              "failed": 0,
+              "offered": 7,
+              "rejected": 0,
+              "runner_admitted": 7,
+              "unresolved": 0
+            },
+            "sessions": {
+              "completed": 9,
+              "failed": 0,
+              "offered": 9,
+              "rejected": 0,
+              "runner_admitted": 9,
+              "unresolved": 0
+            },
+            "state": {
+              "completed": 24,
+              "failed": 0,
+              "offered": 24,
+              "rejected": 0,
+              "runner_admitted": 24,
+              "unresolved": 0
+            }
+          },
+          "market": {
+            "completed": 100,
+            "failed": 0,
+            "offered": 100,
+            "rejected": 0,
+            "runner_admitted": 100,
+            "unresolved": 0
+          },
+          "source_delivery_valid": true,
+          "views": {
+            "completed": 40,
+            "failed": 0,
+            "offered": 40,
+            "rejected": 0,
+            "runner_admitted": 40,
+            "unresolved": 0
+          }
+        }
+      },
+      "policy": {
+        "bundle_sha256": "0e73f473892a2939910ea17420eb36d22b8f38c8e479b1b95e0a79d47fad7e6b",
+        "kind": "external_local_worker",
+        "measurement_delta": {
+          "expired": 0,
+          "failed": 0,
+          "rejected": 0,
+          "requests": 100,
+          "succeeded": 100
+        },
+        "promotion_status": "unvalidated",
+        "total_lifecycle_requests": 110,
+        "total_lifecycle_successes": 110
+      },
+      "profile": "none",
+      "read_mode": "http",
+      "read_rate": 20,
+      "report": "http-python-unvalidated-audited.json.gz",
+      "status": "complete",
+      "valid": true,
+      "validation_contracts": {
+        "financial": "exact-cashflow-terminal-v2",
+        "http": "scoped-account-plan-v1"
+      }
+    }
+  ],
+  "schema": "runtime-audited-summary-v1"
+}

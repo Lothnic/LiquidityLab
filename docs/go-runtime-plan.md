@@ -546,6 +546,14 @@ Record hardware, software revisions, workload seed, instrument distribution, dec
 
 **Exit gate:** reproducible one-account measurements distinguish ingest, actor, persistence, inference and UI costs. Report both successful work and overload outcomes. Identify the first limiting resource before changing storage or extracting deployments. The existing v1 results are descriptive and do not close this gate; review the v2 workload limits and extend recovery/load and bottleneck evidence before passing the gate. HTTP polling does not measure React rendering; the short pause-fallback trial timed out during warmup and performed no measured inference calls.
 
+Follow-up [audited workloads](../benchmarks/results/runtime-audited-20261028/README.md)
+use explicit response/terminal-validation contracts from a clean `fc525b1`
+build. Two HTTP trials completed; the separate blocking-profile trial lost 290
+source offers and remains invalid. The serial source delivery path accumulates
+backlog before exhausting the configured pool, but current CPU/Go blocking
+profiles do not identify pure database/storage wait. Measure recovery under
+demand and server-side service cost before assigning an admission limit.
+
 #### Stage 2 commit interfaces
 
 The following five-part commit sequence records how Stage 2 was implemented. All five components are now committed, but implementation alone does not satisfy the measurement gate.

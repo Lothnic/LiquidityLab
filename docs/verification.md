@@ -39,6 +39,20 @@ separate bounded Go blocking profiles and retained workload results.
   nonempty samples, cleanup on write failure and real PostgreSQL execution.
   Sampling is enabled only around measurement/drain; output remains cumulative
   Go synchronization history and does not measure database server fsync.
+- The clean `fc525b1` executable was then used for three
+  [audited workloads](../benchmarks/results/runtime-audited-20261028/README.md).
+  Baseline and real-Python HTTP runs each completed 1,000 market updates and
+  400 reads with explicit response-identity and terminal-conservation checks.
+  The worker completed 100 measured RPCs; its 107 lifecycle fills conserve
+  BTC 10.997 and USD 99899.101606 from the stated initial balances.
+  Baseline market/read p99s were 11.540/10.971 ms; worker-run p99s were
+  32.506/35.112 ms. These are single trials, not overhead or capacity estimates.
+  The separate 250-source-events/s block-profile trial rejected 290 of 2,500
+  measured offers and is invalid despite exact terminal accounting and zero
+  debt. Its 20.77 aggregate seconds of completed Go blocking are largely
+  runner/actor channel waits; concurrent waits exceed elapsed wall time and
+  do not isolate a database server or storage bottleneck. The worker was
+  stopped and reaped after verification.
 - Python passed 88 checks without skips with the replay binary configured.
   Ruff passed and generated protocol bindings matched. Existing frontend
   evidence remains 46 checks and a production build; no UI code changed here.

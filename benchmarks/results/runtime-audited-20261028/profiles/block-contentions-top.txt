@@ -1,0 +1,18 @@
+File: durable-runtime-audited
+Build ID: 9e6d3a8a469089dbfcfabe4ffbf468940409ef7c
+Type: contentions
+Time: 2026-10-28 19:54:20 IST
+Showing nodes accounting for 6855, 100% of 6856 total
+Dropped 5 nodes (cum <= 34)
+      flat  flat%   sum%        cum   cum%
+      6819 99.46% 99.46%       6819 99.46%  runtime.selectgo
+        36  0.53%   100%         36  0.53%  runtime.chanrecv2
+         0     0%   100%       2210 32.23%  github.com/liquiditylab/liquiditylab/internal/runtime.(*Actor).MarketFromSession
+         0     0%   100%       2089 30.47%  github.com/liquiditylab/liquiditylab/internal/runtime.(*Actor).loop
+         0     0%   100%       2230 32.53%  github.com/liquiditylab/liquiditylab/internal/runtime.(*Actor).submit
+         0     0%   100%       2089 30.47%  github.com/liquiditylab/liquiditylab/internal/runtime.New.gowrap1
+         0     0%   100%       2501 36.48%  main.execute
+         0     0%   100%       2501 36.48%  main.main
+         0     0%   100%       2501 36.48%  main.runPhase
+         0     0%   100%       2246 32.76%  main.runPhase.func2
+         0     0%   100%       2501 36.48%  runtime.main
