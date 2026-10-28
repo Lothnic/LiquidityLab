@@ -53,6 +53,10 @@ func decisionBookkeepingOnly(before, after State, change pg.Change) bool {
 }
 
 func (a *Actor) command(ctx context.Context, c Command) (pg.Result, error) {
+	if c.Kind == "decision" && c.policy == nil {
+		a.decisionStartedAt = a.metricStart()
+		defer func() { a.decisionStartedAt = time.Time{} }()
+	}
 	if c.ID == "" || len(c.ID) > 128 || c.ExpectedRevision < 0 || c.ExpectedAuthorityRevision != nil && *c.ExpectedAuthorityRevision < 0 {
 		return pg.Result{}, ErrInvalid
 	}

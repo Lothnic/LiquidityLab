@@ -16,14 +16,17 @@ import (
 	d "github.com/liquiditylab/liquiditylab/internal/domain"
 	x "github.com/liquiditylab/liquiditylab/internal/execution"
 	pg "github.com/liquiditylab/liquiditylab/internal/store/postgres"
+	"github.com/liquiditylab/liquiditylab/internal/telemetry"
 )
 
 type Actor struct {
-	policyResults chan policyResult
-	policyBusy    bool
-	policyCancel  context.CancelFunc
-	policyTimer   *time.Timer
-	policyExpiry  <-chan time.Time
+	decisionStartedAt time.Time
+	policyStartedAt   time.Time
+	policyResults     chan policyResult
+	policyBusy        bool
+	policyCancel      context.CancelFunc
+	policyTimer       *time.Timer
+	policyExpiry      <-chan time.Time
 
 	config               Config
 	state                State
@@ -222,12 +225,14 @@ func nonempty(s, fallback string) string {
 }
 func (a *Actor) submit(ctx context.Context, kind string, input any, priority bool) (response, error) {
 	if err := ctx.Err(); err != nil {
+		a.config.Telemetry.Add(telemetry.ActorRejected, 1)
 		return response{}, err
 	}
 	req := request{kind: kind, input: input, ctx: ctx, reply: make(chan response, 1)}
 	a.admission.Lock()
 	if a.closing {
 		a.admission.Unlock()
+		a.config.Telemetry.Add(telemetry.ActorRejected, 1)
 		return response{}, ErrClosed
 	}
 	a.next++
@@ -239,11 +244,20 @@ func (a *Actor) submit(ctx context.Context, kind string, input any, priority boo
 	if kind == "facts" {
 		queue = a.facts
 	}
+	if a.config.Telemetry != nil {
+		req.enqueuedAt = time.Now()
+		// Increment before publication: the consumer may run before this sender.
+		a.config.Telemetry.Adjust(telemetry.ActorQueued, 1)
+	}
 	select {
 	case queue <- req:
+		a.config.Telemetry.Add(telemetry.ActorAdmitted, 1)
+		a.config.Telemetry.Observe(telemetry.ActorQueueDepth, uint64(len(a.control)+len(a.work)+len(a.facts)))
 		a.admission.Unlock()
 	default:
 		a.admission.Unlock()
+		a.config.Telemetry.Adjust(telemetry.ActorQueued, -1)
+		a.config.Telemetry.Add(telemetry.ActorRejected, 1)
 		if kind == "facts" {
 			a.overflow.Store(true)
 		}
@@ -263,7 +277,11 @@ func (a *Actor) Do(ctx context.Context, c Command) (pg.Result, error) {
 		return pg.Result{}, ErrInvalid
 	}
 	priority := c.Kind == "pause" || c.Kind == "cancel" || c.Kind == "deadline"
+	started := a.metricStart()
 	r, err := a.submit(ctx, "command", c, priority)
+	if priority && err == nil {
+		a.observeElapsed(telemetry.ControlAckNS, started)
+	}
 	return r.result, err
 }
 func (a *Actor) Market(ctx context.Context, event d.MarketEvent, snapshotID string) error {
@@ -403,12 +421,32 @@ func (a *Actor) loop() {
 }
 func (a *Actor) handle(req request) {
 	result := response{}
+	started := a.metricStart()
+	if !req.enqueuedAt.IsZero() {
+		a.config.Telemetry.Adjust(telemetry.ActorQueued, -1)
+		a.observeElapsed(telemetry.ActorQueueWaitNS, req.enqueuedAt)
+	}
+	a.config.Telemetry.Adjust(telemetry.ActorHandling, 1)
 	defer func() {
 		if panicValue := recover(); panicValue != nil {
 			a.state.RecoveryRequired = true
 			a.state.Reason = "runtime_arithmetic_failure"
 			a.account.Ready = false
 			result.err = fmt.Errorf("%w: runtime panic contained", ErrRecoveryRequired)
+		}
+		a.observeElapsed(telemetry.ActorHandleNS, started)
+		a.config.Telemetry.Adjust(telemetry.ActorHandling, -1)
+		if result.err == nil {
+			a.config.Telemetry.Add(telemetry.ActorCompleted, 1)
+		} else {
+			a.config.Telemetry.Add(telemetry.ActorFailed, 1)
+		}
+		if req.kind == "market" {
+			a.config.Telemetry.Add(telemetry.MarketEvents, 1)
+			a.observeElapsed(telemetry.PublicMarketApplyNS, started)
+			if result.err != nil {
+				a.config.Telemetry.Add(telemetry.MarketErrors, 1)
+			}
 		}
 		req.reply <- result
 	}()
@@ -632,6 +670,10 @@ func (a *Actor) persistRevision(ctx context.Context, next State, command pg.Comm
 			a.account.Ready = false
 		}
 		return result, err
+	}
+	// Apply acknowledged the commit. A later reload failure cannot undo it.
+	if !result.Duplicate {
+		a.recordDecisionCommit(next, command)
 	}
 	account, err := a.config.Store.GetAccount(ctx, a.config.Key)
 	if err != nil {

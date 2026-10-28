@@ -114,6 +114,7 @@ func (a *Actor) startPolicy(ctx context.Context) error {
 	if a.state.PolicyPending != nil {
 		return nil
 	}
+	started := a.metricStart()
 	p := a.state.Parent
 	if p == nil || p.PolicyBundle == nil || !sameBundle(p.PolicyBundle, a.state.PolicyBundle) {
 		return ErrInvalid
@@ -150,6 +151,7 @@ func (a *Actor) startPolicy(ctx context.Context) error {
 	if _, err = a.persistRevision(ctx, next, pg.Command{ID: pending.RequestID, Kind: "policy_request", ExpectedRevision: a.account.Revision}, pg.Change{}, true); err != nil {
 		return err
 	}
+	a.policyStartedAt = started
 	faultpoint.Hit("policy_pending")
 	a.resetPolicyTimer(pending.ExpiresAt)
 	if a.policyBusy {

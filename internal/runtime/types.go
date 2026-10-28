@@ -11,6 +11,7 @@ import (
 	d "github.com/liquiditylab/liquiditylab/internal/domain"
 	x "github.com/liquiditylab/liquiditylab/internal/execution"
 	pg "github.com/liquiditylab/liquiditylab/internal/store/postgres"
+	"github.com/liquiditylab/liquiditylab/internal/telemetry"
 )
 
 type Profile string
@@ -34,6 +35,8 @@ var (
 
 type Config struct {
 	Policy *PolicyConfig
+	// Telemetry is optional process-local diagnostics; it grants no authority.
+	Telemetry *telemetry.Recorder
 
 	DataSource                                                         string
 	AutoExecute                                                        bool
@@ -208,11 +211,12 @@ type response struct {
 	err    error
 }
 type request struct {
-	sequence uint64
-	kind     string
-	input    any
-	ctx      context.Context
-	reply    chan response
+	enqueuedAt time.Time
+	sequence   uint64
+	kind       string
+	input      any
+	ctx        context.Context
+	reply      chan response
 }
 type marketInput struct {
 	Event      d.MarketEvent

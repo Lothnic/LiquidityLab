@@ -20,6 +20,7 @@ import (
 	pb "github.com/liquiditylab/liquiditylab/gen/go/liquiditylab/v1"
 	d "github.com/liquiditylab/liquiditylab/internal/domain"
 	x "github.com/liquiditylab/liquiditylab/internal/execution"
+	"github.com/liquiditylab/liquiditylab/internal/telemetry"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
@@ -37,6 +38,7 @@ var (
 const MaxValidity = 200 * time.Millisecond
 
 type Config struct {
+	Telemetry        *telemetry.Recorder
 	Target           string
 	PolicySHA256     string
 	Profile          string
@@ -140,7 +142,18 @@ type Proposal struct {
 	Mode    string
 }
 
-func (c *Client) Propose(ctx context.Context, request *pb.DecisionRequest) (Proposal, error) {
+func (c *Client) Propose(ctx context.Context, request *pb.DecisionRequest) (proposal Proposal, err error) {
+	c.config.Telemetry.Add(telemetry.InferenceRequests, 1)
+	rpcAttempted := false
+	defer func() {
+		if err != nil {
+			if rpcAttempted {
+				c.config.Telemetry.Add(telemetry.InferenceErrors, 1)
+			} else {
+				c.config.Telemetry.Add(telemetry.InferenceRejected, 1)
+			}
+		}
+	}()
 	if request == nil || request.Binding == nil || request.Observation == nil || proto.Size(request) > 8192 {
 		return Proposal{}, ErrInvalid
 	}
@@ -168,6 +181,8 @@ func (c *Client) Propose(ctx context.Context, request *pb.DecisionRequest) (Prop
 	select {
 	case c.slot <- struct{}{}:
 		defer func() { <-c.slot }()
+		c.config.Telemetry.Adjust(telemetry.InferenceInFlight, 1)
+		defer c.config.Telemetry.Adjust(telemetry.InferenceInFlight, -1)
 	default:
 		return Proposal{}, ErrBusy
 	}
@@ -177,7 +192,16 @@ func (c *Client) Propose(ctx context.Context, request *pb.DecisionRequest) (Prop
 	}
 	rpcCtx, cancel := context.WithDeadline(ctx, deadline)
 	defer cancel()
+	var started time.Time
+	if c.config.Telemetry != nil {
+		started = time.Now()
+	}
+	rpcAttempted = true
+	c.config.Telemetry.Add(telemetry.InferenceRPCs, 1)
 	response, err := c.rpc.Predict(rpcCtx, input)
+	if !started.IsZero() {
+		c.config.Telemetry.Observe(telemetry.InferenceRPCNS, uint64(max(0, time.Since(started).Nanoseconds())))
+	}
 	if err != nil {
 		// Preserve the transport status while exposing stable causes to runtime
 		// fallback classification. Worker messages never become durable reasons.
