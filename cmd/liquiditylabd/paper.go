@@ -41,6 +41,7 @@ var paperDaemonSchema = regexp.MustCompile(`^[a-z][a-z0-9_]{0,62}$`)
 var paperDaemonAccount = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,127}$`)
 
 type paperServerOptions struct {
+	resume                                                  bool
 	policyTarget, policyHash, policyFallback, policyProfile string
 	policyAllowUnvalidated                                  bool
 	policyTimeout                                           time.Duration
@@ -71,9 +72,13 @@ type paperDaemon struct {
 	closeResult  error
 }
 
-func paperServer(args []string) error {
+func parsePaperOptions(args []string) (paperServerOptions, error) {
 	flags := flag.NewFlagSet("paper", flag.ContinueOnError)
 	var opt paperServerOptions
+	if len(args) > 0 && (args[0] == "create" || args[0] == "resume") {
+		opt.resume = args[0] == "resume"
+		args = args[1:]
+	}
 	flags.StringVar(&opt.policyTarget, "policy-target", os.Getenv("LIQUIDITYLAB_POLICY_TARGET"), "opt-in local Python policy RPC target (loopback IP:port or unix:/absolute/path)")
 	flags.StringVar(&opt.policyHash, "policy-sha256", os.Getenv("LIQUIDITYLAB_POLICY_SHA256"), "exact pinned policy bundle SHA-256")
 	flags.StringVar(&opt.policyFallback, "policy-fallback", os.Getenv("LIQUIDITYLAB_POLICY_FALLBACK"), "explicit policy failure fallback: baseline or pause")
@@ -82,7 +87,7 @@ func paperServer(args []string) error {
 	flags.DurationVar(&opt.policyTimeout, "policy-timeout", 100*time.Millisecond, "policy response budget (0 < timeout <= 200ms)")
 	flags.StringVar(&opt.listen, "listen", "127.0.0.1:8080", "literal loopback HTTP address")
 	flags.StringVar(&opt.schema, "schema", "", "explicit isolated PostgreSQL schema (required)")
-	flags.StringVar(&opt.account, "account", "", "NEW synthetic account ID (required)")
+	flags.StringVar(&opt.account, "account", "", "synthetic account ID (create: new; resume: existing)")
 	flags.StringVar(&opt.source, "source", "kraken", "kraken public data or synthetic deterministic demo")
 	flags.StringVar(&opt.webDir, "web-dir", "apps/web/dist", "built React index.html/assets directory")
 	flags.StringVar(&opt.captureOutput, "capture-output", "", "new raw JSONL recording path (required for kraken)")
@@ -92,19 +97,41 @@ func paperServer(args []string) error {
 	flags.Uint64Var(&opt.maxFrames, "max-frames", 100000, "Kraken capture frame cap (1..1000000)")
 	flags.Int64Var(&opt.maxCaptureBytes, "max-capture-bytes", 64<<20, "Kraken raw recording cap (1024..1GiB)")
 	if err := flags.Parse(args); err != nil {
-		return err
+		return opt, err
 	}
-	if flags.NArg() != 0 || *base == "" || *quote == "" {
-		return errors.New("paper requires flags only and explicit --initial-base and --initial-quote balances")
+	if flags.NArg() != 0 {
+		return opt, errors.New("paper accepts create/resume followed by flags")
 	}
-	var err error
-	if opt.initialBase, err = d.ParseDecimal(*base); err != nil || opt.initialBase.Sign() < 0 {
-		return errors.New("initial-base must be a nonnegative exact decimal")
+	balancesProvided := false
+	flags.Visit(func(f *flag.Flag) {
+		if f.Name == "initial-base" || f.Name == "initial-quote" {
+			balancesProvided = true
+		}
+	})
+	if opt.resume && balancesProvided {
+		return opt, errors.New("paper resume rejects initial balances; retained balances are authoritative")
 	}
-	if opt.initialQuote, err = d.ParseDecimal(*quote); err != nil || opt.initialQuote.Sign() < 0 {
-		return errors.New("initial-quote must be a nonnegative exact decimal")
+	if !opt.resume {
+		if *base == "" || *quote == "" {
+			return opt, errors.New("paper create requires explicit --initial-base and --initial-quote balances")
+		}
+		var err error
+		if opt.initialBase, err = d.ParseDecimal(*base); err != nil || opt.initialBase.Sign() < 0 {
+			return opt, errors.New("initial-base must be a nonnegative exact decimal")
+		}
+		if opt.initialQuote, err = d.ParseDecimal(*quote); err != nil || opt.initialQuote.Sign() < 0 {
+			return opt, errors.New("initial-quote must be a nonnegative exact decimal")
+		}
 	}
 	if err := opt.validate(); err != nil {
+		return opt, err
+	}
+	return opt, nil
+}
+
+func paperServer(args []string) error {
+	opt, err := parsePaperOptions(args)
+	if err != nil {
 		return err
 	}
 	dsn, token := os.Getenv("LIQUIDITYLAB_DATABASE_URL"), os.Getenv("LIQUIDITYLAB_API_TOKEN")
@@ -282,14 +309,21 @@ func newPaperDaemon(ctx context.Context, opt paperServerOptions, dsn, token stri
 		}
 	}()
 	key := pg.Key{TenantID: paperDaemonTenant, AccountID: opt.account}
-	initial := []pg.Balance{{Currency: "BTC", Total: opt.initialBase, Free: opt.initialBase}, {Currency: "USD", Total: opt.initialQuote, Free: opt.initialQuote}}
 	op, cancel = paperServerOperation()
-	_, err = store.CreateAccount(op, key, initial, json.RawMessage(`{}`))
+	if opt.resume {
+		_, err = store.GetAccount(op, key)
+	} else {
+		initial := []pg.Balance{{Currency: "BTC", Total: opt.initialBase, Free: opt.initialBase}, {Currency: "USD", Total: opt.initialQuote, Free: opt.initialQuote}}
+		_, err = store.CreateAccount(op, key, initial, json.RawMessage(`{}`))
+	}
 	cancel()
 	if err != nil {
 		if errors.Is(err, pg.ErrConflict) {
 			store.Close()
-			return nil, errors.New("paper account already exists; refusing reset or takeover; use a new account/schema or explicit operator recovery")
+			return nil, errors.New("paper account already exists; refusing reset in create mode; use paper resume for owned recovery")
+		}
+		if opt.resume {
+			return fail("open existing paper account; no account created or balances replaced", err)
 		}
 		return fail("create NEW synthetic paper account", err)
 	}
@@ -306,7 +340,16 @@ func newPaperDaemon(ctx context.Context, opt paperServerOptions, dsn, token stri
 	actor, err := rt.New(op, config)
 	cancel()
 	if err != nil {
-		return fail("start durable paper actor; newly created account retained", err)
+		return fail("start durable paper actor; retained account left not-ready", err)
+	}
+	if opt.resume {
+		fmt.Fprintln(output, "PAPER startup state=recovering; retained balances and original deadline preserved")
+		op, cancel = paperServerOperation()
+		recoveryErr := actor.RecoverPaper(op)
+		cancel()
+		if recoveryErr != nil && !errors.Is(recoveryErr, rt.ErrRecoveryRequired) {
+			fmt.Fprintln(output, "PAPER startup state=recovery-required; retained outcomes require inspection")
+		}
 	}
 	handler, err := api.New(api.Config{Accounts: map[pg.Key]api.Authority{key: actor}, Credentials: []api.Credential{{Token: token, Scopes: []pg.Key{key}}}, Journal: store})
 	if err != nil {
@@ -475,20 +518,17 @@ func (p *paperDaemon) Ingest(ctx context.Context, wire marketdata.Event) error {
 				return errors.New("paper initial snapshot not valid; recovery required")
 			}
 			op, cancel = context.WithCancel(ctx)
-			_, err = p.actor.Reconcile(op, rt.Reconciliation{
-				ID: fmt.Sprintf("web-initial-reconcile-%x-%d", sum[:8], view.Account.Revision), ExpectedRevision: view.Account.Revision,
-				Evidence: "SIMULATED balances for NEW paper account; no exchange balance verification", NoExternalOrders: true,
-				Balances: view.Account.Balances,
-			})
+			err = p.actor.RecoverPaper(op)
 			cancel()
 			if errors.Is(err, pg.ErrStaleRevision) {
 				continue
 			}
 			if err != nil {
 				_ = p.invalidateLocked()
-				return paperServerError("explicit initial simulated reconciliation", err)
+				return paperServerError("owned simulated recovery", err)
 			}
 			p.reconciled = true
+			fmt.Fprintln(p.log, "PAPER startup state=ready; recovered plans remain paused until explicit trader resume")
 			return nil
 		}
 		_ = p.invalidateLocked()

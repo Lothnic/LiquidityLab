@@ -31,7 +31,7 @@ func run(args []string) error {
 		return paperServer(args[1:])
 	}
 	if len(args) == 0 || args[0] != "replay" {
-		return fmt.Errorf("usage: liquiditylabd <replay|paper> [flags]; paper requires an isolated schema, new synthetic account and explicit balances")
+		return fmt.Errorf("usage: liquiditylabd replay [flags] | paper [create|resume] [flags]; create requires new synthetic balances; resume preserves an existing account")
 	}
 	flags := flag.NewFlagSet("replay", flag.ContinueOnError)
 	listen := flags.String("listen", "127.0.0.1:50051", "loopback TCP address or unix:/absolute/path")
