@@ -2,7 +2,7 @@
 
 `liquiditylabd paper` serves the built React operator UI and the authenticated
 trader API from one loopback HTTP origin. It owns one new durable PostgreSQL
-paper account and one serialized account actor. The daemon sends no exchange
+paper account (or resumes an existing one) and one serialized account actor. The daemon sends no exchange
 orders: balances, rules, fees, decisions, orders and fills are simulated. A
 Kraken public-market-data source does not enable private exchange access or a
 live order adapter.
@@ -31,7 +31,7 @@ go build -o build/liquiditylabd ./cmd/liquiditylabd
 export LIQUIDITYLAB_DATABASE_URL='postgres://liquiditylab@localhost/liquiditylab'
 export LIQUIDITYLAB_API_TOKEN="$(openssl rand -hex 32)"
 
-build/liquiditylabd paper \
+build/liquiditylabd paper create \
   --listen 127.0.0.1:8080 \
   --schema ll_paper_server_20261023_a \
   --account synthetic_20261023_a \
@@ -42,9 +42,10 @@ build/liquiditylabd paper \
   --duration 30m
 ```
 
-The schema and account must be new and isolated. The daemon creates the schema
-tables and a new account, but refuses to reset or take over an existing
-account. Keep the PostgreSQL database dedicated to development. Bind only to a
+Creation requires a new isolated account and explicit balances; it refuses to
+reset an existing identity. `paper resume` reopens the same schema/account and
+rejects initial-balance flags. See [paper-recovery.md](paper-recovery.md) for
+the owned simulated recovery flow. Keep the database dedicated to development. Bind only to a
 literal loopback IP with a numeric port; DNS names and non-loopback listeners
 are refused. The default lifetime is 30 minutes and the maximum is 24 hours.
 The UI and `/v1` API share the daemon origin, so open `http://127.0.0.1:8080/`
@@ -76,15 +77,19 @@ continuous, or representative.
 
 ## Operation and recovery
 
-The daemon starts with a new paper account and explicit synthetic balances. It
-does not verify private exchange balances, recover an existing account, or
-silently clear a gap. A source gap, invalid event, source failure or natural
-source end invalidates market readiness. A later snapshot cannot clear a gap
-or restore readiness automatically; inspect the durable state and use the
-separate operator recovery process. Recovery requires inspecting durable
-outcomes, isolating the previous sender and reconciling through the operator
-API with evidence; the daemon does not provide automatic takeover. It does not
-reset an account or invent reconciliation evidence on restart.
+Create starts with explicit synthetic balances. Resume obtains an atomic paper
+ownership view, drains accepted outcomes, cancels remaining simulated children
+without resubmitting attempted orders, and waits for a fresh valid source book.
+The recovered plan remains paused until a new explicit trader resume command;
+its original deadline and exact fills/fees remain unchanged. Contradictory facts
+or unexplained holds keep recovery required. No replacement balance or external
+sender-isolation assertion is supplied by the daemon.
+
+A source gap, invalid event, source failure or natural end invalidates market
+readiness. A later snapshot in that running source cannot clear the gap. Inspect
+the retained account before explicit recovery with a fresh receipt session.
+The fence applies only to the PostgreSQL-backed simulated venue; private exchange
+balance verification, transport and exchange failover remain unavailable.
 
 Shutdown on SIGINT, SIGTERM or lifetime expiry first refuses new HTTP writes,
 then cancels source ingress and closes the actor before allowing up to five

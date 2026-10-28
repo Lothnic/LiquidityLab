@@ -22,8 +22,10 @@ relative same-origin API paths; it does not accept an API URL from the user.
 The local `liquiditylabd paper` daemon serves `npm run build`'s `dist/` assets
 on the same origin as `/v1`; see [paper-server.md](paper-server.md) for the
 explicit synthetic account, balances, source and credential configuration. It
-preloads immutable assets, so restart the daemon after a rebuild using its
-documented new-account rules. Hosted deployment remains a separate milestone.
+preloads immutable assets, so restart it after a rebuild using the documented
+create/resume commands. A recovered parent stays paused until explicit trader
+resume; see [paper recovery](paper-recovery.md). Hosted deployment remains a
+separate milestone.
 
 Commands:
 

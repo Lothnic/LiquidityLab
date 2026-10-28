@@ -11,7 +11,7 @@ Scope: `docs/go-runtime-plan.md` plus the trader workflow, policy evaluation/pro
 - Public Kraken WebSocket attempts obtained no valid recording. Live capture must be demonstrated before that integration gate can be passed.
 - No private exchange credentials, live pilot authorization, or real-money verification has been obtained.
 
-Checkpoint: 28 October 2026 through `6433711`. The full uncached Go race suite passed with development PostgreSQL and the real Python/replay paths configured; Python passed 87 checks, UI passed 46 checks and a production build, Ruff and generated binding drift checks passed. A real Python worker drove the Go paper actor; worker loss triggered its configured baseline and the session completed. Session history/creation-revision inspection and JSON export were exercised in the browser. These are synthetic software checks, not policy quality, real venue or capacity evidence. See the verification record for scope and remaining gates.
+Checkpoint: 28 October 2026 through `2d54659`. The full uncached Go race suite passed with development PostgreSQL and the real Python/replay paths configured; Python passed 87 checks, UI passed 46 checks and a production build, Ruff and generated binding drift checks passed. A real Python worker drove the Go paper actor; worker loss triggered its configured baseline and the session completed. Session history/creation-revision inspection and JSON export were exercised in the browser. Local paper create/resume and OS crash-boundary recovery are now committed, including exact accepted-effect reconstruction and suspended-old-sender fencing. These are synthetic software checks, not policy quality, real venue or capacity evidence. See the verification record for scope and remaining gates.
 
 ## Committed migration components
 
@@ -22,6 +22,7 @@ Checkpoint: 28 October 2026 through `6433711`. The full uncached Go race suite p
 - Public Kraken parser, recorder, reconnect/resnapshot logic, normalization and recording bounds. Real capture remains unverified.
 - PostgreSQL migrations and bounded connection pool; transactional account/journal/command/reservation/outbox state; ownership and dispatch fencing; durable ordered observation inbox.
 - Durable paper account actors, trade-driven passive fills, shared baseline scheduler, persisted source provenance and arrival benchmark.
+- Owned PostgreSQL paper effects, fresh post-takeover reconstruction, exact configuration compatibility, create/resume CLI and OS process crash/suspended-sender evidence. Private exchange fencing remains separate.
 - Python policy worker and Go client, with bounded local inference, bundle/schema/request checks and a real PPO proposal-boundary integration. Actor-driven asynchronous inference/fallback, pinned parent bundles and durable request/outcome audit are committed.
 - Account-scoped journal metadata, authenticated HTTP commands, exact previews, curated execution projections, recorded-data paper CLI and bounded paper web daemon. Revision-pinned session reports and scoped timeline reads are committed; historical market counterfactual replay remains unfinished.
 - Shared incremental normalization and durable public receipt callbacks; real public capture remains unverified.
@@ -57,16 +58,17 @@ The active goal continues full implementation of both plans with component commi
 - `18eeea0`: scoped reports, frozen terminal valuation, policy provenance and historical finality checks.
 - `6433711`: history UI, exact report validation, stale-response guards, bounded fill pages and exports.
 
+Local paper recovery now adds `50f7294` (fresh post-claim bootstrap), `e0d68ba` (paper effect store fence), `59e9ff7` (owned runtime/recovery), `d710fce` (create/resume CLI), `c27bbec` (ordinary-binary SIGKILL/reap/resume), and `2d54659` (ten controlled crash/suspended-sender scenarios). Recovered parents stay paused; accepted facts determine exact fills/fees/balances, attempted orders are not resubmitted, and no initial balance flag is accepted on resume. Private exchange fencing remains unimplemented.
+
 Next work follows section 16 of the Go runtime plan:
 
-1. Add explicit existing-account resume, enforce ownership at the PostgreSQL paper-transport effect boundary, reload the post-takeover snapshot, and demonstrate actual process-kill/restart recovery. The current database ownership epoch fences account writes but does not yet fence every simulated transport observation. A resumed active parent must remain paused until the trader explicitly resumes it. A paper-only database fence must never be described as exchange fencing.
-2. Instrument transaction/snapshot/WAL cost, recovery debt, controls and inference before reducing durable writes.
-3. Add shared books, ordered paper-trade delivery, account supervision/routing, worker-pool admission and staggered multi-account schedules.
-4. Optimize measured persistence/inference constraints while preserving exact accounting and recoverable source ordering.
-5. Complete historical market replay, immutable evaluation/promotion and design-user validation.
-6. Complete private adapter/reconciliation, authorized read-only venue evidence, packaging/CI, metrics and backup/restore runbooks. Real order lifecycle evidence belongs inside a separately authorized bounded pilot.
-7. Publish load/fault/24-hour soak/restore evidence and supported admission before conditional executor/storage sharding.
+1. Instrument transaction/snapshot/WAL cost, recovery debt, control latency and inference before reducing durable writes.
+2. Add shared books, ordered paper-trade delivery, account supervision/routing, worker-pool admission and staggered multi-account schedules.
+3. Optimize measured persistence/inference constraints while preserving exact accounting and recoverable source ordering.
+4. Complete historical market replay, immutable evaluation/promotion and design-user validation.
+5. Complete private adapter/reconciliation, authorized read-only venue evidence, packaging/CI, metrics and backup/restore runbooks. Real order lifecycle evidence belongs inside a separately authorized bounded pilot.
+6. Publish load/fault/24-hour soak/restore evidence and supported admission before conditional executor/storage sharding.
 
 Product admission, the Go training-default switch, and live authorization require separate evidence and rollback decisions. The latest browser cohort completed its paper parent and the daemon shut down with `known_final=true`; all seven intents are final, no local held reservations remain, and the source inbox is drained. The verification worker and daemon have stopped. No exchange orders were sent.
 
-Account shards, separate ingest/inference deployments and storage partitioning follow measured bottlenecks. Shared public feeds and multiple accounts remain planned; the current daemon still manages one new paper account. The slower measured replay bridge has its own optimization workstream and does not block baseline paper-product delivery.
+Account shards, separate ingest/inference deployments and storage partitioning follow measured bottlenecks. Shared public feeds and multiple accounts remain planned; the current daemon still manages one created or resumed paper account. The slower measured replay bridge has its own optimization workstream and does not block baseline paper-product delivery.

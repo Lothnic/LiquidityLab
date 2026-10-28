@@ -1,12 +1,12 @@
 # LiquidityLab: Go runtime and Python RL migration
 
-Decision plan and implementation checkpoint updated 28 October 2026 through `6433711`. The Go core, replay bridge, public-data pipeline, PostgreSQL store, durable paper actor, Python inference worker/client, authenticated API, paper CLI/server, React desk, asynchronous paper policy integration and revision-pinned history are committed. Historical market counterfactual replay remains separate unfinished work. [Section 16](#16-current-go-delivery-and-scale-plan) is the current implementation sequence and supersedes older scheduling estimates below. See [verification.md](verification.md) for the executed checks; product capacity and operational failover remain unproven.
+Decision plan and implementation checkpoint updated 28 October 2026 through `2d54659`. The Go core, replay bridge, public-data pipeline, PostgreSQL store, durable paper actor, Python inference worker/client, authenticated API, paper CLI/server, React desk, asynchronous paper policy integration and revision-pinned history are committed. Local paper create/resume and process crash-boundary recovery are also committed. Historical market counterfactual replay remains separate unfinished work. [Section 16](#16-current-go-delivery-and-scale-plan) is the current implementation sequence and supersedes older scheduling estimates below. See [verification.md](verification.md) for the executed checks; product capacity, backup/restore and private exchange failover remain unproven.
 
 ## Decision in brief
 
 Use Go for the product runtime, financial state, venue connections, and replay engine; retain Python for Gymnasium, training, evaluation, and initially inference. Use React/TypeScript for the trader interface. Start with a modular service, PostgreSQL, and a separately supervised policy worker, then partition execution by account as measured demand grows.
 
-Go is the engineering choice for the product runtime. Calling it the most optimal implementation at scale would require measurements we do not have. The current Go/gRPC training bridge is slower than the Python reference on the checked-in workload. Runtime account capacity and operational recovery remain unmeasured. Optimize each workload against its own evidence.
+Go is the engineering choice for the product runtime. Calling it the most optimal implementation at scale would require measurements we do not have. The current Go/gRPC training bridge is slower than the Python reference on the checked-in workload. Account capacity remains unmeasured. Local paper recovery has process evidence; external exchange failover remains unimplemented. Optimize each workload against its own evidence.
 
 The next delivery is a complete durable **paper execution assistant**: create a bounded trade, preview baseline execution, start, observe partial fills, pause/cancel, restart safely, and inspect the execution journal. Ship that workflow with a Go baseline before requiring an RL policy. RL remains the same Go engine behind a Python Gymnasium interface, and a proposal source in the product.
 
@@ -39,7 +39,7 @@ The original starting point was Python v0.1.0 with 40 checks. The repository has
 - **Committed:** versioned/generated Go and Python protocol bindings; exact amounts; shared ledger/compiler, fees, reservations, observations, passive matching and baselines; deterministic replay/conformance; public recorder and incremental normalizer; bounded replay RPC and Python Gym/vector/PPO bridge; PostgreSQL ownership, inbox, journal and outbox; durable paper actor/scheduler/transport; recorded-data CLI; authenticated API; bounded paper server; Python inference worker and Go policy client.
 - **Paper desk committed:** React supervision interface in `apps/web/` and `docs/trader-ui.md`, exact preview/command binding, retained uncertain retries, API payload validation and responsive layouts. Synthetic browser verification covers create/start/fills/pause/resume/cancel; it is not design-user or live venue evidence. Account authority revisions now distinguish receipt/HOLD bookkeeping from financial/control changes; persistence throughput instrumentation remains outstanding.
 - **Policy/history committed:** `f9125d7` adds revision-pinned store reads, `ec293eb` integrates asynchronous proposals/fallback, `18eeea0` adds scoped reports/provenance, and `6433711` adds bounded history UI. The real Python worker → actor browser run exercised accepted proposals, worker-loss fallback and exact retained reports on synthetic input. This is software integration evidence, not model quality or capacity evidence.
-- **Remaining:** historical market counterfactual replay; resume-existing-account operations and process-kill recovery evidence; multi-account supervision/routing; scalable shared feed distribution; immutable evaluation/promotion; private venue integration; CI/deployment and measured capacity. HTTP updates poll; SSE remains optional future work.
+- **Remaining:** historical market counterfactual replay; multi-account supervision/routing; scalable shared feed distribution; immutable evaluation/promotion; private venue integration; CI/deployment and measured capacity. HTTP updates poll; SSE remains optional future work.
 - **Measured constraint:** the optimized replay bridge delivers about 23k transitions/second at batch 32 versus about 37–46k for Python in the checked-in synthetic comparison. Keep Python as the default training backend until the bridge gate passes. See [benchmark evidence](../benchmarks/README.md).
 - **External gates:** real public capture has failed on this host; private-account access, an authorized live pilot, and design-user evidence are still outstanding.
 
@@ -207,6 +207,8 @@ Track total/free/locked balances and which local reservations are already reflec
 
 ### Ownership and failover
 
+The local paper venue now uses the `postgres-paper-v1` insert contract: takeover atomically fences all simulated transport/trade effects and returns their recovery watermark. Process tests exercise an old sender returning after that takeover. The external sender isolation requirements below still apply when implementing private exchange transport. See [paper recovery](paper-recovery.md).
+
 Use durable ownership epochs and leases to reject stale database writes. The sender verifies current ownership before dispatch. However, **a database fencing token does not fence the exchange**: an old process may retain a live connection or already have a request in flight.
 
 Initial failover is controlled: pause new sends, isolate/terminate the previous sender, reconcile its known and unknown intents, then enable the new owner. An expired lease alone is insufficient to authorize a second sender. If old-owner isolation cannot be established, stay paused and require operator recovery. Name the operator/supervisor responsible, record process/connection isolation evidence durably, and link it to the ownership-transfer decision; trusted recovery booleans alone do not demonstrate isolation. Exercise a suspended old owner that resumes after attempted transfer. Measure the maximum interval from a stop request to the last possible outbound handoff, including synchronous transport delays. Automated high availability requires a separately verified outbound-fencing design and venue capability analysis.
@@ -319,7 +321,7 @@ Exit: PPO can train, save, load, and infer against the Go-backed v1 environment.
 
 ### Phase 5 — durable paper execution: 4–6 days
 
-Current checkpoint: store, actor, paper transport, passive matching, baseline scheduling, recorded-data CLI, incremental public-feed integration, paper server and baseline browser integration are committed. Complete existing-account startup and process-kill/restart evidence; checkpoint-level recovery coverage does not establish operational failover.
+Current checkpoint: store, actor, paper transport, passive matching, baseline scheduling, recorded-data CLI, incremental public-feed integration, paper server and baseline browser integration are committed. Existing-account startup, owned simulated effect fencing and actual SIGKILL/checkpoint restart evidence are implemented. Private exchange failover, capacity and operational restore remain separate gates.
 
 Implement PostgreSQL migrations, account actor, reservation/outbox transactions, command deduplication, recovery, and current-market paper fills. Keep live transport unavailable in this profile.
 
@@ -484,7 +486,7 @@ Complete the Go product runtime incrementally. Retain Python for Gymnasium, PPO 
 
 Initial deployable unit: one modular Go process, one shared PostgreSQL pool, separately supervised Python policy workers when enabled, and static browser assets. Training runs in a separate resource pool. A Go baseline must operate without Python. Keep one active parent per account and one writer per account. Start with Kraken Spot and BTC/USD; verify venue/account availability before private integration.
 
-The existing architecture diagram shows the target responsibilities, not completed multi-account deployment. The current paper daemon is loopback-only and manages one newly created synthetic account. Product hosting requires a supervisor, account registry, restart mode and routing in addition to the existing actor.
+The existing architecture diagram shows the target responsibilities, not completed multi-account deployment. The current paper daemon is loopback-only and manages one created or explicitly resumed synthetic account. Product hosting requires a supervisor, account registry and routing in addition to the existing actor.
 
 ### Runtime interfaces and responsibilities
 
@@ -499,7 +501,7 @@ Keep these interfaces narrow; implementation details remain inside their modules
 
 ### Stage 0 — land the existing integration work
 
-**Completed checkpoint:** component commits `f9125d7`, `ec293eb`, `18eeea0` and `6433711`, with the executed checks and synthetic browser outcome in [verification.md](verification.md). The sequence below records the delivered scope. Stage 1 remains open.
+**Completed checkpoint:** component commits `f9125d7`, `ec293eb`, `18eeea0` and `6433711`, with the executed checks and synthetic browser outcome in [verification.md](verification.md). The sequence below records the delivered scope. Local paper Stage 1 delivery is recorded below; later scale and release gates remain open.
 
 **Scope:** review the current dirty files, correct documentation against behavior, and commit by part. Preserve unrelated work. Do not recreate modules that already exist.
 
@@ -512,9 +514,11 @@ Planned commit sequence:
 
 Land dependencies in this order or split further to keep each commit coherent. No staging of the whole working tree. Each commit identifies its own evidence and limitations.
 
-**Exit gate:** a baseline and an opt-in Python policy can each be supervised through preview, start, fills or HOLD, pause and cancel. A stalled/late worker cannot delay control or act after fallback. Reports preserve exact fills/fees and pin their revision. Unvalidated bundles remain paper/shadow only. Confirm these gates during implementation; this planning pass does not rerun checks.
+**Exit gate:** a baseline and an opt-in Python policy can each be supervised through preview, start, fills or HOLD, pause and cancel. A stalled/late worker cannot delay control or act after fallback. Reports preserve exact fills/fees and pin their revision. Unvalidated bundles remain paper/shadow only. Executed acceptance evidence is in the verification record; these checks do not establish model quality or supported capacity.
 
 ### Stage 1 — make an account operationally restartable
+
+**Local paper checkpoint:** `50f7294` reconstructs fresh state and pauses recovered parents; `e0d68ba` adds the owned database effect contract; `59e9ff7` wires simulated transport/recovery; `d710fce` adds create/resume; `c27bbec` and `2d54659` exercise real process death, precise durable checkpoints and a still-running old sender. This delivers the local paper scope. It provides no physical exchange connection fencing or hosted availability claim. See [paper-recovery.md](paper-recovery.md) and [verification.md](verification.md).
 
 **Scope:** introduce explicit `create` and `resume` startup paths. Resume opens the same tenant/account/schema without changing initial balances, silently creating a replacement account, replaying old trader commands or clearing holds. Expose startup states: recovering, paused, ready and recovery-required. A supervisor launches actors only after compatible snapshot/config and ownership checks.
 
@@ -609,7 +613,7 @@ No Kafka, Redis or Kubernetes dependency is required for the first delivery. Int
 
 ### Planning estimate and delegation
 
-Provisional effort for one experienced implementer with reviewed subagents: Stage 0 **2–4 engineering days**, Stage 1 **4–7**, Stages 2–4 **10–18**, Stages 5–6 **10–20**, and final Stage 7 evidence **3–6**, plus the elapsed soak and external access/design-user gates. Total **29–55 engineering days** for the remaining narrow beta scope, roughly **7–12 calendar weeks** allowing integration buffer. These are planning allowances, not forecasts derived from measured delivery velocity. Re-estimate after recovery and persistence measurements. Executor/storage sharding beyond demonstrated beta capacity is conditional and excluded from that estimate.
+Provisional effort for one experienced implementer with reviewed subagents: Stage 0 **2–4 engineering days**, Stage 1 **4–7**, Stages 2–4 **10–18**, Stages 5–6 **10–20**, and final Stage 7 evidence **3–6**, plus the elapsed soak and external access/design-user gates. The original remaining-scope total was **29–55 engineering days** before Stages 0–1 were delivered, roughly **7–12 calendar weeks** allowing integration buffer. These are planning allowances, not forecasts derived from measured delivery velocity. Re-estimate after recovery and persistence measurements. Executor/storage sharding beyond demonstrated beta capacity is conditional and excluded from that estimate.
 
 Use GPT-6.1-sol for financial semantics, account lifecycle, ordering/cursor design, recovery, integration review and release decisions. Use cheaper subagents for disjoint fixtures, straightforward projection/UI wiring, workload manifests and documentation against approved interfaces. Do not let multiple agents independently alter financial contracts. Every part receives its own commit and evidence record; planning commits do not imply implementation checks were rerun.
 

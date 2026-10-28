@@ -1,5 +1,79 @@
 # Verification record
 
+## Owned paper recovery and process boundaries — 28 October 2026
+
+Checkpoints: `50f7294`, `e0d68ba`, `59e9ff7`, `d710fce`, `c27bbec` and
+`2d54659`. The daemon can now explicitly create or resume one retained paper
+account. Initial balances are prohibited on resume; recovered active plans
+remain paused with their original start, deadline, benchmark and policy pins.
+See [paper-recovery.md](paper-recovery.md) for commands and compatibility limits.
+
+Executed checks:
+
+- The full uncached `go test -race -count=1 ./...` suite passed with development
+  PostgreSQL, real Python worker and replay binary paths configured. This includes
+  store, runtime, API, both paper CLIs, ordinary-build inert checkpoint behavior,
+  and actual child-process recovery. The daemon package took 37.805 seconds in
+  this run; that is suite elapsed time, not execution latency.
+- The ten-scenario process matrix passed twice with `-race -count=2`, then again
+  within the full suite and the saved verbose process run. It covers committed
+  intent, authorization before send, accepted submit before reduction, full-child
+  fill before source-cursor advance, genuine partial passive child fill, resting
+  acknowledgement, accepted cancellation, ordered trade fact, pending policy,
+  and an old sender kept alive through takeover.
+- The ordinary production binary was SIGKILLed and reaped during a partially
+  completed parent. Resume reopened the same schema/account, reconstructed accepted
+  source effects, preserved exact balances/fees/deadline, and stayed paused.
+  Retrying the original start command returned its duplicate receipt without
+  restarting execution. Graceful shutdown then reported `known_final=true`.
+- Store checks prove the insert guard rejects old/missing/malformed ownership
+  tokens even with an altered SQL search path, while preserving external fact
+  ingress independently of execution leases. They cover 20 takeover/append races,
+  retained attempted holds, queued obsolescence, canonical retries, transaction-
+  local token cleanup and a crash before the first runtime snapshot.
+- A deterministic SQL lock-queue test commits a genuine old reducer fill between
+  bootstrap's first read and ownership claim. The fresh post-claim snapshot
+  preserves its exact economics. All rules/fees/execution configuration fields
+  are checked before ownership changes; active baseline parents require explicit
+  resume after readiness returns.
+- Focused create/resume option, missing-account and incompatible-source checks
+  passed with `-race -count=3`. A rejected incompatible resume preserves the
+  existing owner's revision, readiness and balances.
+- Python: 87 checks passed, no skips, with the rebuilt replay binary; the existing
+  Gymnasium v0 deprecation warning remains. Ruff passed and generated bindings
+  matched. Latest web evidence remains 46 passing component/API checks and a
+  production build; this backend change introduced no frontend contract change.
+
+Each process scenario independently reconstructs expected fills from the durable
+simulated venue observations, including accepted effects not yet reduced at
+crash. It compares fill identities, quantity, quote fees, balances, original
+benchmark/start/deadline, ownership epoch, outstanding holds/intents and drained
+source cursors. The suspended sender is released only after the next owner has
+recovered; a controller event confirms its handoff returned, and SQL confirms it
+could not append a submission. This is a concrete PostgreSQL paper-effect fence.
+No external exchange connection exists in these runs.
+
+The saved verbose run is the ignored local artifact
+`artifacts/paper-recovery-process-20261028.log`. Its ten unloaded local process
+recoveries ranged from 61.9 to 101.2 ms from launching the resumed child to its
+ready paused account. Source debt was zero or one fact before recovery and zero
+afterward. These single-host scenarios are not a latency SLO, percentile,
+capacity result or recovery estimate for large journals. The source remains
+synthetic and the separate policy test server returns a bounded test action.
+
+The controlled matrix compiles a separate binary with the
+`liquiditylab_faults` build tag and private controller pipes. Ordinary builds
+contain inert functions and cannot enable those faults through environment
+settings. All child processes were reaped; test schemas alone were removed.
+Existing manual verification accounts were retained.
+
+Remaining work includes persistence metrics/load tooling, shared multi-account
+feeds and supervision, historical market counterfactual replay, evaluation and
+promotion, real public capture, private transport/readiness, design-user evidence,
+CI/deployment, load-plus-fault capacity, 24-hour soak and backup/restore. Local
+paper recovery does not establish private venue failover or completion of the
+full implementation goal.
+
 ## Asynchronous policy and retained history — 28 October 2026
 
 Component checkpoints: `f9125d7` (store), `ec293eb` (policy runtime),
@@ -83,17 +157,16 @@ seven fills; the 450-fill bound is exercised by the component test.
 ### Remaining recovery and release gates
 
 The new history views inspect stored revisions; they do not implement historical
-market counterfactual replay. The current daemon still creates one new account,
-and automatic existing-account resume is not implemented. Stage 1 review found
-that the current paper transport appends simulated observations without an owner
-token and actor bootstrap retains its pre-claim snapshot. These require enforced
-paper-effect fencing and fresh post-takeover reconstruction before operational
-restart can be claimed. Database fencing for this simulated venue must not be
+market counterfactual replay. At this history checkpoint the daemon created one
+new account and existing-account resume was unfinished. Stage 1 review found
+unowned simulated observations and pre-claim bootstrap state. Those defects are
+addressed by the subsequent owned paper recovery checkpoint above. Database fencing for this simulated venue must not be
 represented as external exchange fencing.
 
 Real public capture, private order transport, design-user validation, immutable
 policy evaluation/promotion, multi-account capacity, process-kill recovery,
-load/fault/24-hour soak and backup/restore gates remain open. The full objective
+load/fault/24-hour soak and backup/restore gates were open at that checkpoint.
+The local paper process-recovery portion is delivered above; the full objective
 has not passed its completion audit.
 
 ## Paper desk checkpoint — 23 October 2026
