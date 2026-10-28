@@ -60,7 +60,7 @@ The active goal continues full implementation of both plans with component commi
 
 Local paper recovery now adds `50f7294` (fresh post-claim bootstrap), `e0d68ba` (paper effect store fence), `59e9ff7` (owned runtime/recovery), `d710fce` (create/resume CLI), `c27bbec` (ordinary-binary SIGKILL/reap/resume), and `2d54659` (ten controlled crash/suspended-sender scenarios). Recovered parents stay paused; accepted facts determine exact fills/fees/balances, attempted orders are not resubmitted, and no initial balance flag is accepted on resume. Private exchange fencing remains unimplemented.
 
-Next work follows section 16 of the Go runtime plan:
+Next work follows section 16 of the Go runtime plan. The Stage 2 backlog now specifies five separate commits: bounded telemetry, store instrumentation, actor/inference instrumentation, a durable paper workload runner, and reproducible baseline evidence. Stage 3 follows with supervisor/routing, shared books, ordered paper facts, and bounded scheduling/admission. These are planned changes, not passed capacity gates.
 
 1. Instrument transaction/snapshot/WAL cost, recovery debt, control latency and inference before reducing durable writes.
 2. Add shared books, ordered paper-trade delivery, account supervision/routing, worker-pool admission and staggered multi-account schedules.
