@@ -6,7 +6,7 @@ All fixture times use integer nanoseconds; report time fields are normalized too
 
 import argparse
 import json
-from decimal import ROUND_HALF_EVEN, Decimal, localcontext
+from decimal import ROUND_HALF_EVEN, Context, Decimal, localcontext
 from pathlib import Path
 
 from liquiditylab.contracts import FeeConfig, Plan, ReplayConfig
@@ -19,6 +19,7 @@ from liquiditylab.replay import (
 )
 
 ROOT = Path(__file__).resolve().parent
+REFERENCE_CONTEXT = Context(prec=512, rounding=ROUND_HALF_EVEN)
 
 
 def ns_events(events):
@@ -110,6 +111,13 @@ def report_case(name, events, plan, *, actions=None, policy=None, config=None, f
 
 
 def build_vectors():
+    # The reference oracle must not inherit the caller's money precision.
+    # 512 significant digits cover these bounded fixture products and sums.
+    with localcontext(REFERENCE_CONTEXT):
+        return _build_vectors()
+
+
+def _build_vectors():
     buy_plan = Plan(**json.loads((ROOT.parent / "examples/buy-plan.json").read_text()))
     buy = report_case(
         "full_buy", synthetic_events(), buy_plan, policy="scheduled",

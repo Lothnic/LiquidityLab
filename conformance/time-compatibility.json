@@ -1,0 +1,30 @@
+{
+  "schema": "legacy-float-timer-compatibility-v1",
+  "v1_equal_time_order": ["receipt", "arrival", "cancel"],
+  "cases": [
+    {
+      "name": "legacy_arrival_after_receipt",
+      "start_seconds": "0.1",
+      "latency_seconds": "0.2",
+      "receipt_seconds": "0.3",
+      "legacy_arrival_relation": "after",
+      "v1_arrival_relation": "equal"
+    },
+    {
+      "name": "legacy_arrival_before_receipt",
+      "start_seconds": "0.6",
+      "latency_seconds": "0.3",
+      "receipt_seconds": "0.9",
+      "legacy_arrival_relation": "before",
+      "v1_arrival_relation": "equal"
+    },
+    {
+      "name": "exact_binary_fraction_control",
+      "start_seconds": "0.25",
+      "latency_seconds": "0.25",
+      "receipt_seconds": "0.5",
+      "legacy_arrival_relation": "equal",
+      "v1_arrival_relation": "equal"
+    }
+  ]
+}

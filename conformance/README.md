@@ -59,3 +59,9 @@ protobuf plugins described in `docs/protocol.md`, or supply `PROTOC_GEN_GO` and
 `PROTOC_GEN_GO_GRPC`. Change the shared fixture only when the intended contract
 changes; its fixture schema version does not replace the environment or
 observation compatibility versions.
+
+`time-compatibility.json` records the intended changes in float-timer ties;
+both languages execute those examples. The Python economic golden generator
+owns a 512-digit, half-even Decimal context, and a regression runs it beneath a
+hostile two-digit caller context without changing the golden output. See
+`go-runtime.md` for the arithmetic and v0/v1 compatibility limits.

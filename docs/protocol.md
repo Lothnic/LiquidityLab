@@ -2,8 +2,9 @@
 
 The source of truth is `proto/liquiditylab/v1/execution.proto`. Generated bindings
 are checked in under `gen/go/liquiditylab/v1` and `src/liquiditylab/v1`. The browser
-API is a separate JSON contract. The policy-service messages specify a future
-boundary; checked-in messages do not establish a running inference service.
+API is a separate JSON contract. Replay and local Python policy inference use
+these messages; their implementation checks and limits are recorded in
+`docs/verification.md` and `docs/inference.md`.
 
 ## Reproduce bindings
 

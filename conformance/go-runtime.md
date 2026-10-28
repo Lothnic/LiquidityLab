@@ -8,6 +8,27 @@ Relative times are signed integer nanoseconds. Legacy written seconds import wit
 
 The Go environment is `LiquidityLab-SpotExecution-v1`, report `report-v1`, compiler `six-action-v1`, features `compact-v1` with the 20 ordered names exported by `replay.ObservationFields`. Monetary report numbers are exact strings. Features and rewards alone use binary floats. Derived feature acceptance starts at two float32 ULPs; fixture terminal reward/objective comparisons currently use absolute tolerance `1e-10`. Canonical JSON and time formatting cause dataset hashes to differ from legacy Python hashes.
 
+## Recorded v0/v1 compatibility differences
+
+Native Python v0 economic arithmetic inherits its caller's Decimal context
+(normally 28 significant digits and half-even rounding). Go v1 instead uses the
+bounded exact arithmetic and explicit 72-fractional-place division described
+above. Reference fixture generation now owns an explicit 512-significant-digit,
+half-even context for its bounded products and sums, independent of the caller.
+The committed economic fixtures remain byte-for-byte unchanged. This reference
+context does not change the native Python backend or establish equivalence for
+every possible division; wider generated economic comparisons belong to Phase 2.
+
+`time-compatibility.json` characterizes legacy binary-float timer addition in
+both languages. `0.1 + 0.2` is later than receipt `0.3`, whereas separately
+imported integer-nanosecond values tie. `0.6 + 0.3` is earlier than receipt `0.9`;
+the imported values also tie, changing the arrival/receipt ordering. The exact
+binary-fraction control `0.25 + 0.25 == 0.5` is unchanged. Go v1 resolves equal
+times as receipt, then arrival, then cancellation, as exercised by
+`TestReceiptArrivalAndCancellationTies`. Models trained against float-time v0
+require reevaluation against this explicit v1 behavior; compatibility is not
+inferred from matching action counts.
+
 `go test ./internal/domain ./internal/execution ./internal/replay ./internal/marketdata ./internal/venue/kraken` checks the four Python reference cases from `golden.json`, including every economic field, fills, order outcomes, decisions, status, processing count and final time. Additional cases cover fee bounds, duplicate executions, atomic rejection, debt, timer ties, invalid feeds, unresolved settlement, frozen residual prices, completion finality, features, reset and engine isolation. A seeded decimal fuzz target is included; a sustained fuzz campaign and throughput/load validation remain separate gates.
 
 The public recorder is transport neutral: it validates and normalizes captured raw frames and accepts elapsed nanoseconds from the caller. A live WebSocket capture/reconnect loop is not included in this bounded milestone. There is no private order submission in these packages.
