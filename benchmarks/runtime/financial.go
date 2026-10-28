@@ -34,6 +34,10 @@ func auditFinancial(initial []pg.Balance, v ar.View, durable []d.Fill) financial
 		return out
 	}
 	plan := v.State.Parent.Spec
+	if plan.Validate() != nil {
+		fail("invalid final parent plan")
+		return out
+	}
 	executions := map[string]d.Fill{}
 	for _, fill := range v.State.Fills {
 		if fill.Validate() != nil {
@@ -70,6 +74,21 @@ func auditFinancial(initial []pg.Balance, v ar.View, durable []d.Fill) financial
 		fail("filled quantity exceeds parent quantity")
 	}
 	out.Remaining = plan.Quantity.Sub(out.Filled)
+	switch v.State.Parent.Status {
+	case "completed":
+		if !out.Remaining.IsZero() {
+			fail("completed parent retains remaining quantity")
+		}
+	case "cancelled", "expired":
+		if out.Remaining.IsZero() {
+			fail("fully filled parent is not completed")
+		}
+	default:
+		fail("final parent status is not terminal")
+	}
+	if out.Filled.Sign() > 0 && !v.State.Parent.Started {
+		fail("unstarted parent has fills")
+	}
 	durableIDs := map[string]bool{}
 	for _, fill := range durable {
 		if durableIDs[fill.ExecutionID] {

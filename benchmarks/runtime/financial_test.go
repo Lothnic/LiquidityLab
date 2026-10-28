@@ -31,7 +31,7 @@ func TestConservationAuditHandlesSidesFeesAndRejectsInconsistency(t *testing.T) 
 				} else {
 					quote = quote.Sub(fill.Fee)
 				}
-				v := ar.View{State: ar.State{BaseCurrency: "BTC", QuoteCurrency: "USD", Parent: &ar.Parent{Spec: plan}, Fills: []d.Fill{fill}}, Account: pg.Account{Balances: []pg.Balance{{Currency: "BTC", Total: base, Free: base}, {Currency: "USD", Total: quote, Free: quote}}}}
+				v := ar.View{State: ar.State{BaseCurrency: "BTC", QuoteCurrency: "USD", Parent: &ar.Parent{Spec: plan, Status: "cancelled", Started: true}, Fills: []d.Fill{fill}}, Account: pg.Account{Balances: []pg.Balance{{Currency: "BTC", Total: base, Free: base}, {Currency: "USD", Total: quote, Free: quote}}}}
 				if audit := auditFinancial(initial, v, []d.Fill{fill}); !audit.Valid || !audit.Filled.Equal(fill.Quantity) {
 					t.Fatalf("valid audit rejected: %+v", audit)
 				}
@@ -64,5 +64,43 @@ func TestReservedSchemasAreRefused(t *testing.T) {
 		if c.validate() == nil {
 			t.Fatalf("reserved schema %s accepted", schema)
 		}
+	}
+}
+
+func TestConservationAuditRejectsInconsistentTerminalStatus(t *testing.T) {
+	initial := []pg.Balance{{Currency: "BTC", Total: d.MustDecimal("10"), Free: d.MustDecimal("10")}, {Currency: "USD", Total: d.MustDecimal("100000"), Free: d.MustDecimal("100000")}}
+	for _, test := range []struct {
+		status string
+		filled bool
+		valid  bool
+	}{
+		{"completed", false, false}, {"completed", true, true},
+		{"cancelled", false, true}, {"cancelled", true, false},
+		{"expired", false, true}, {"expired", true, false},
+		{"active", false, false}, {"paused", false, false},
+		{"cancel_requested", false, false}, {"unknown", false, false},
+	} {
+		t.Run(test.status+"_filled_"+map[bool]string{true: "yes", false: "no"}[test.filled], func(t *testing.T) {
+			plan := d.DefaultPlan()
+			v := ar.View{State: ar.State{BaseCurrency: "BTC", QuoteCurrency: "USD", Parent: &ar.Parent{Spec: plan, Status: test.status, Started: true}}, Account: pg.Account{Balances: append([]pg.Balance(nil), initial...)}}
+			if test.filled {
+				fill := d.Fill{ExecutionID: "full-fill", OrderID: "child", Side: "buy", Quantity: plan.Quantity, Price: d.MustDecimal("100"), FeeCurrency: "quote"}
+				v.State.Fills = []d.Fill{fill}
+				v.Account.Balances[0].Total = initial[0].Total.Add(fill.Quantity)
+				v.Account.Balances[1].Total = initial[1].Total.Sub(fill.Quantity.Mul(fill.Price))
+				for i := range v.Account.Balances {
+					v.Account.Balances[i].Free = v.Account.Balances[i].Total
+				}
+			}
+			if audit := auditFinancial(initial, v, v.State.Fills); audit.Valid != test.valid {
+				t.Fatalf("terminal status consistency: expected valid=%t audit=%+v", test.valid, audit)
+			}
+			if test.valid && test.filled {
+				v.State.Parent.Started = false
+				if auditFinancial(initial, v, v.State.Fills).Valid {
+					t.Fatal("unstarted completed parent with fills accepted")
+				}
+			}
+		})
 	}
 }

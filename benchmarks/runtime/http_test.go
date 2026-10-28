@@ -34,7 +34,7 @@ func (b *pollingBackend) Sessions(_ context.Context, key pg.Key, _, _ int64, _ i
 		return pg.SessionPage{}, pg.ErrNotFound
 	}
 	parent, _ := json.Marshal(b.view.State.Parent)
-	return pg.SessionPage{AsOfRevision: 3, Entries: []pg.SessionMeta{{PlanID: "benchmark-plan", CreatedRevision: 2, Revision: 3, Parent: parent, Profile: "paper", DataSource: "synthetic"}}}, nil
+	return pg.SessionPage{AsOfRevision: 3, Entries: []pg.SessionMeta{{PlanID: "benchmark-plan", CreatedRevision: 2, Revision: 3, Parent: parent, Profile: "paper", DataSource: "synthetic", BaseCurrency: "BTC", QuoteCurrency: "USD"}}}, nil
 }
 func (b *pollingBackend) Session(_ context.Context, key pg.Key, id string, _ int64) (pg.SessionSnapshot, error) {
 	if key != b.key || id != "benchmark-plan" {
@@ -53,7 +53,7 @@ func newPollingBackend(t *testing.T) *pollingBackend {
 	if err := book.Apply(d.MarketEvent{Kind: "snapshot", Bids: []d.Level{{Price: d.MustDecimal("99"), Quantity: d.One}}, Asks: []d.Level{{Price: d.MustDecimal("101"), Quantity: d.One}}}); err != nil {
 		t.Fatal(err)
 	}
-	return &pollingBackend{key: key, view: ar.View{Account: pg.Account{Key: key, Revision: 3, Ready: true, Balances: []pg.Balance{{Currency: "BTC", Total: d.One, Free: d.One}, {Currency: "USD", Total: d.MustDecimal("1000"), Free: d.MustDecimal("1000")}}}, State: ar.State{Version: ar.StateVersion, Profile: ar.ProfilePaper, DataSource: "synthetic", Rules: d.DefaultRules(), Fees: d.DefaultFees(), Execution: d.DefaultConfig(), BaseCurrency: "BTC", QuoteCurrency: "USD", Book: book, Parent: &ar.Parent{ID: "benchmark-plan", Revision: 2, Status: "active", Started: true, Spec: d.DefaultPlan(), Start: time.Now(), Deadline: time.Now().Add(time.Minute), ArrivalMid: d.MustDecimal("100")}}}}
+	return &pollingBackend{key: key, view: ar.View{Account: pg.Account{Key: key, Revision: 3, Ready: true, Balances: []pg.Balance{{Currency: "BTC", Total: d.One, Free: d.One}, {Currency: "USD", Total: d.MustDecimal("1000"), Free: d.MustDecimal("1000")}}}, State: ar.State{Version: ar.StateVersion, Profile: ar.ProfilePaper, DataSource: "synthetic", Rules: d.DefaultRules(), Fees: d.DefaultFees(), Execution: d.DefaultConfig(), BaseCurrency: "BTC", QuoteCurrency: "USD", Book: book, Parent: &ar.Parent{ID: "benchmark-plan", Revision: 2, Status: "active", Started: true, Spec: d.DefaultPlan(), Baseline: x.BaselineScheduled, Start: time.Now(), Deadline: time.Now().Add(time.Minute), ArrivalMid: d.MustDecimal("100")}}}}
 }
 
 func TestHTTPPollingUsesScopedProductRoutesAndConsumesBodies(t *testing.T) {
@@ -100,6 +100,7 @@ func TestHTTPPollingUsesScopedProductRoutesAndConsumesBodies(t *testing.T) {
 }
 
 func TestHTTPResponseBoundsAndCompleteConsumption(t *testing.T) {
+	validBody := pollingResponseBodies(t)["state"]
 	for _, kind := range []string{"delayed_body", "oversize", "bad_json", "busy", "gateway_timeout"} {
 		t.Run(kind, func(t *testing.T) {
 			srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -108,10 +109,10 @@ func TestHTTPResponseBoundsAndCompleteConsumption(t *testing.T) {
 				}
 				switch kind {
 				case "delayed_body":
-					_, _ = io.WriteString(w, `{"value":"`)
+					_, _ = w.Write(validBody[:len(validBody)/2])
 					w.(http.Flusher).Flush()
 					time.Sleep(15 * time.Millisecond)
-					_, _ = io.WriteString(w, `complete"}`)
+					_, _ = w.Write(validBody[len(validBody)/2:])
 				case "oversize":
 					_, _ = io.WriteString(w, strings.Repeat("x", int(maxHTTPResponseBytes)+1))
 				case "bad_json":
@@ -126,11 +127,12 @@ func TestHTTPResponseBoundsAndCompleteConsumption(t *testing.T) {
 			}))
 			defer srv.Close()
 			p := &httpPoller{client: srv.Client(), baseURL: srv.URL, accountPath: "/state", token: "test-token"}
+			configurePollingFixture(p, newPollingBackend(t))
 			start := time.Now()
 			out, err := p.Read(context.Background(), input{ReadRoute: "state"})
 			switch kind {
 			case "delayed_body":
-				if err != nil || out.Bytes != 20 || time.Since(start) < 15*time.Millisecond {
+				if err != nil || out.Bytes != int64(len(validBody)) || time.Since(start) < 15*time.Millisecond {
 					t.Fatalf("body not consumed: out=%+v err=%v", out, err)
 				}
 			case "busy":
@@ -179,5 +181,117 @@ func TestHTTPTimeoutNeverCountsAsCompleted(t *testing.T) {
 	_, err := p.Read(context.Background(), input{ReadRoute: "state"})
 	if !errors.Is(err, context.DeadlineExceeded) || classify(err) != "outcome_unknown" {
 		t.Fatalf("timeout was not unresolved: %v", err)
+	}
+}
+
+func pollingResponseBodies(t *testing.T) map[string][]byte {
+	t.Helper()
+	backend := newPollingBackend(t)
+	p, err := startHTTPPoller(testConfig(), backend.key, backend, backend, backend)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer p.Close()
+	bodies := map[string][]byte{}
+	for route, suffix := range map[string]string{"state": "", "sessions": "/sessions?limit=1", "report": "/sessions/benchmark-plan"} {
+		req, _ := http.NewRequest(http.MethodGet, p.baseURL+p.accountPath+suffix, nil)
+		req.Header.Set("Authorization", "Bearer "+p.token)
+		response, err := p.client.Do(req)
+		if err != nil {
+			t.Fatal(err)
+		}
+		body, err := io.ReadAll(response.Body)
+		_ = response.Body.Close()
+		if err != nil || response.StatusCode != 200 {
+			t.Fatalf("read fixture %s: status=%d err=%v", route, response.StatusCode, err)
+		}
+		bodies[route] = body
+	}
+	return bodies
+}
+
+func TestHTTPPollingRejectsWrongProjectionIdentity(t *testing.T) {
+	bodies := pollingResponseBodies(t)
+	for _, route := range []string{"state", "sessions", "report"} {
+		for _, mutation := range []string{"empty", "error", "wrong_session", "invalid_plan", "wrong_account", "wrong_tenant", "malformed_identity", "missing_identity", "invalid_revision", "noncanonical_derived"} {
+			if route == "sessions" && (mutation == "wrong_account" || mutation == "wrong_tenant" || mutation == "malformed_identity" || mutation == "missing_identity" || mutation == "noncanonical_derived") {
+				// Session lists expose a scoped route and plan identity, no account fields.
+				continue
+			}
+			t.Run(route+"_"+mutation, func(t *testing.T) {
+				var object map[string]any
+				if err := json.Unmarshal(bodies[route], &object); err != nil {
+					t.Fatal(err)
+				}
+				switch mutation {
+				case "empty":
+					object = map[string]any{}
+				case "error":
+					object["error"] = "unavailable"
+				case "wrong_account":
+					object["account_id"] = "another-account"
+				case "wrong_tenant":
+					object["tenant_id"] = "another-tenant"
+				case "malformed_identity":
+					object["tenant_id"] = 12
+				case "missing_identity":
+					delete(object, "account_id")
+				case "invalid_revision":
+					field := "as_of_revision"
+					if route == "state" {
+						field = "authority_revision"
+					}
+					object[field] = -1
+				case "noncanonical_derived":
+					object["plan"].(map[string]any)["average_price"] = "00.1"
+				case "wrong_session":
+					if route == "sessions" {
+						object["entries"].([]any)[0].(map[string]any)["plan_id"] = "another-plan"
+					} else {
+						object["plan"].(map[string]any)["id"] = "another-plan"
+					}
+				case "invalid_plan":
+					if route == "sessions" {
+						object["entries"].([]any)[0].(map[string]any)["quantity"] = "0"
+					} else {
+						object["plan"].(map[string]any)["spec"].(map[string]any)["quantity"] = "0"
+					}
+				}
+				body, _ := json.Marshal(object)
+				srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { _, _ = w.Write(body) }))
+				defer srv.Close()
+				backend := newPollingBackend(t)
+				p := &httpPoller{client: srv.Client(), baseURL: srv.URL, accountPath: "/state", token: "test"}
+				// Configure the same expected account and immutable parent as production.
+				configurePollingFixture(p, backend)
+				out, err := p.Read(context.Background(), input{ReadRoute: route})
+				if err == nil || classify(err) == "completed" || out.Status != 200 || out.Bytes == 0 {
+					t.Fatalf("incorrect projection counted as completed: result=%+v err=%v", out, err)
+				}
+			})
+		}
+	}
+}
+
+func configurePollingFixture(p *httpPoller, b *pollingBackend) {
+	p.key, p.plan, p.baseline = b.key, b.view.State.Parent.Spec, b.view.State.Parent.Baseline
+	p.base, p.quote = b.view.State.BaseCurrency, b.view.State.QuoteCurrency
+}
+
+func TestHTTPPollingAcceptsDerivedInternalDecimals(t *testing.T) {
+	b := newPollingBackend(t)
+	b.view.State.Fills = []d.Fill{
+		{ExecutionID: "first", OrderID: "child", Side: "buy", Quantity: d.MustDecimal("0.01"), Price: d.MustDecimal("99"), FeeCurrency: "quote"},
+		{ExecutionID: "second", OrderID: "child", Side: "buy", Quantity: d.MustDecimal("0.02"), Price: d.MustDecimal("101"), FeeCurrency: "quote"},
+	}
+	p, err := startHTTPPoller(testConfig(), b.key, b, b, b)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer p.Close()
+	for _, route := range []string{"state", "report"} {
+		if out, err := p.Read(context.Background(), input{ReadRoute: route}); err != nil || out.Status != 200 || out.Bytes == 0 {
+			t.Fatalf("valid repeating average price rejected: result=%+v err=%v", out, err)
+		}
 	}
 }

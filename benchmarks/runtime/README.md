@@ -191,6 +191,14 @@ while reads are `actor.View` or an HTTP round trip including body/JSON work.
 The baseline defaults remain direct actor views and Go execution without Python.
 `--view-rate` sets the offered rate of the selected read operation in either mode.
 
+New reports identify their checks under `validation_contracts`:
+`financial: exact-cashflow-terminal-v2` requires terminal status to agree with
+the exact remaining quantity, and `http: scoped-account-plan-v1` requires the
+returned account/session projections to match the frozen workload identity and
+parent specification. Actor-read runs use `http: not-requested`. Older archived
+v2 reports lack these fields and used JSON syntax checks for HTTP responses;
+their recorded validity does not imply the stronger response checks ran.
+
 `--read-mode http` starts the real scoped trader API on a random literal loopback
 port. It generates a private random bearer credential scoped to this run's
 account. The credential and listener address never enter the report. HTTP reads

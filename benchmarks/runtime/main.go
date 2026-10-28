@@ -451,6 +451,10 @@ func execute(c config) (resultErr error) {
 	// Reserve the output before database mutation. Even setup failures leave a
 	// sanitized, immutable failure report at that pathname.
 	r := report{Version: reportVersion, Config: c, Started: time.Now().UTC(), Valid: false, Limitations: limitations, Host: hostInfo()}
+	r.Validation = map[string]string{"financial": "exact-cashflow-terminal-v2", "http": "not-requested"}
+	if c.ReadMode == "http" {
+		r.Validation["http"] = "scoped-account-plan-v1"
+	}
 	defer func() {
 		if r.Status == "" {
 			r.Status = "setup_failed"
