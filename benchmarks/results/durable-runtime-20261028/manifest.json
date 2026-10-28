@@ -1,0 +1,1558 @@
+{
+  "compression": "gzip level 9, mtime=0, empty embedded filename; each decompressed byte stream matches the complete source report",
+  "report_count": 11,
+  "reports": [
+    {
+      "binary": {
+        "build_dirty": "false",
+        "build_revision": "4b58b319da72e3f54b162683dc076f6df7fbc43e",
+        "executable_bytes": 23980113,
+        "executable_sha256": "376a30f5ba93e4d230ee3e3bb1c6d4d746448844f65c3977058820a34cf06dad",
+        "launch_revision": "4b58b319da72e3f54b162683dc076f6df7fbc43e"
+      },
+      "compressed_bytes": 21786,
+      "compressed_sha256": "3126a06f0aa8b9f9960edfb494bdf7c930a8a628f515e5775f0a5caed37c3ad3",
+      "failure": null,
+      "final_source_recovery_debt_count": 0,
+      "financial_audit": {
+        "durable_execution_count": 2,
+        "durable_execution_quantity": "0.02",
+        "issues": [],
+        "remaining_plan_quantity": "9.98",
+        "snapshot_execution_count": 2,
+        "snapshot_fill_quantity": "0.02",
+        "valid": true
+      },
+      "gzip_file": "metrics-off-01.json.gz",
+      "local_account_reference": {
+        "account_id": "bench-39860b2921f7a6bd0c8888f2",
+        "schema": "ll_stage2_20261028",
+        "tenant_id": "runtime-benchmark"
+      },
+      "measurement": {
+        "market": {
+          "completed": 200,
+          "failed": 0,
+          "offered": 200,
+          "rejected": 0,
+          "runner_admitted": 200,
+          "unresolved": 0
+        },
+        "source_delivery_valid": true,
+        "views": {
+          "completed": 40,
+          "failed": 0,
+          "offered": 40,
+          "rejected": 0,
+          "runner_admitted": 40,
+          "unresolved": 0
+        }
+      },
+      "pool_after_actor_shutdown": {
+        "acquire_count": 1933,
+        "acquire_duration_ns": 3476336,
+        "acquired_connections": 0,
+        "canceled_acquire_count": 0,
+        "constructing_connections": 0,
+        "empty_acquire_count": 1,
+        "empty_acquire_wait_ns": 2845579,
+        "idle_connections": 1,
+        "max_connections": 4,
+        "total_connections": 1
+      },
+      "report_version": "durable-runtime-benchmark-v1",
+      "source_file": "metrics-off-01.json",
+      "source_manifest_hashes": {
+        "measurement": {
+          "claimed_sha256": "841892344ee47e6ce2312da1eb44d3f2230b907119de3da19ac10685178e3301",
+          "method": "SHA-256 of compact UTF-8 JSON encoding of input_manifest in stored array and object order",
+          "recomputed_sha256": "841892344ee47e6ce2312da1eb44d3f2230b907119de3da19ac10685178e3301",
+          "verified": true
+        },
+        "warmup": {
+          "claimed_sha256": "fd24f4e0811e85686dc9ee20a310e8ca4097b47c0093e31531ea05014ad88ff5",
+          "method": "SHA-256 of compact UTF-8 JSON encoding of input_manifest in stored array and object order",
+          "recomputed_sha256": "fd24f4e0811e85686dc9ee20a310e8ca4097b47c0093e31531ea05014ad88ff5",
+          "verified": true
+        }
+      },
+      "status": "complete",
+      "telemetry_gauges": {
+        "telemetry_after_actor_shutdown": [],
+        "telemetry_after_measurement": [],
+        "telemetry_before_measurement": []
+      },
+      "uncompressed_bytes": 242763,
+      "uncompressed_sha256": "67daee86e21457881d22e42a0aafb4b7cdbc9d139d944537fea7c3fe6268fb69",
+      "valid": true,
+      "workload": {
+        "baseline": "scheduled",
+        "market_events_per_second": 10,
+        "measurement_ns": 20000000000,
+        "metrics_enabled": false,
+        "ordered_source_queue_capacity": 64,
+        "pool_max_connections": 4,
+        "view_in_flight_capacity": 4,
+        "views_per_second": 2,
+        "warmup_ns": 2000000000
+      }
+    },
+    {
+      "binary": {
+        "build_dirty": "false",
+        "build_revision": "4b58b319da72e3f54b162683dc076f6df7fbc43e",
+        "executable_bytes": 23980113,
+        "executable_sha256": "376a30f5ba93e4d230ee3e3bb1c6d4d746448844f65c3977058820a34cf06dad",
+        "launch_revision": "4b58b319da72e3f54b162683dc076f6df7fbc43e"
+      },
+      "compressed_bytes": 21828,
+      "compressed_sha256": "8c0a6e97353d3c784e47a4a5d442d3af663e5c108309e7f09e7a079502d33b54",
+      "failure": null,
+      "final_source_recovery_debt_count": 0,
+      "financial_audit": {
+        "durable_execution_count": 2,
+        "durable_execution_quantity": "0.02",
+        "issues": [],
+        "remaining_plan_quantity": "9.98",
+        "snapshot_execution_count": 2,
+        "snapshot_fill_quantity": "0.02",
+        "valid": true
+      },
+      "gzip_file": "metrics-off-02.json.gz",
+      "local_account_reference": {
+        "account_id": "bench-4accb36b6b36e575c22a8407",
+        "schema": "ll_stage2_20261028",
+        "tenant_id": "runtime-benchmark"
+      },
+      "measurement": {
+        "market": {
+          "completed": 200,
+          "failed": 0,
+          "offered": 200,
+          "rejected": 0,
+          "runner_admitted": 200,
+          "unresolved": 0
+        },
+        "source_delivery_valid": true,
+        "views": {
+          "completed": 40,
+          "failed": 0,
+          "offered": 40,
+          "rejected": 0,
+          "runner_admitted": 40,
+          "unresolved": 0
+        }
+      },
+      "pool_after_actor_shutdown": {
+        "acquire_count": 1912,
+        "acquire_duration_ns": 3419479,
+        "acquired_connections": 0,
+        "canceled_acquire_count": 0,
+        "constructing_connections": 0,
+        "empty_acquire_count": 1,
+        "empty_acquire_wait_ns": 2627079,
+        "idle_connections": 1,
+        "max_connections": 4,
+        "total_connections": 1
+      },
+      "report_version": "durable-runtime-benchmark-v1",
+      "source_file": "metrics-off-02.json",
+      "source_manifest_hashes": {
+        "measurement": {
+          "claimed_sha256": "841892344ee47e6ce2312da1eb44d3f2230b907119de3da19ac10685178e3301",
+          "method": "SHA-256 of compact UTF-8 JSON encoding of input_manifest in stored array and object order",
+          "recomputed_sha256": "841892344ee47e6ce2312da1eb44d3f2230b907119de3da19ac10685178e3301",
+          "verified": true
+        },
+        "warmup": {
+          "claimed_sha256": "fd24f4e0811e85686dc9ee20a310e8ca4097b47c0093e31531ea05014ad88ff5",
+          "method": "SHA-256 of compact UTF-8 JSON encoding of input_manifest in stored array and object order",
+          "recomputed_sha256": "fd24f4e0811e85686dc9ee20a310e8ca4097b47c0093e31531ea05014ad88ff5",
+          "verified": true
+        }
+      },
+      "status": "complete",
+      "telemetry_gauges": {
+        "telemetry_after_actor_shutdown": [],
+        "telemetry_after_measurement": [],
+        "telemetry_before_measurement": []
+      },
+      "uncompressed_bytes": 242770,
+      "uncompressed_sha256": "a84372a0544bea18394bcf0b1ae4ca426e8e97551ca0b361a38db22cba9e5620",
+      "valid": true,
+      "workload": {
+        "baseline": "scheduled",
+        "market_events_per_second": 10,
+        "measurement_ns": 20000000000,
+        "metrics_enabled": false,
+        "ordered_source_queue_capacity": 64,
+        "pool_max_connections": 4,
+        "view_in_flight_capacity": 4,
+        "views_per_second": 2,
+        "warmup_ns": 2000000000
+      }
+    },
+    {
+      "binary": {
+        "build_dirty": "false",
+        "build_revision": "4b58b319da72e3f54b162683dc076f6df7fbc43e",
+        "executable_bytes": 23980113,
+        "executable_sha256": "376a30f5ba93e4d230ee3e3bb1c6d4d746448844f65c3977058820a34cf06dad",
+        "launch_revision": "4b58b319da72e3f54b162683dc076f6df7fbc43e"
+      },
+      "compressed_bytes": 21845,
+      "compressed_sha256": "3ba6f24ae2f07c44acff8cd2acbada831013b67e5bf2f31df02bee82034ffa16",
+      "failure": null,
+      "final_source_recovery_debt_count": 0,
+      "financial_audit": {
+        "durable_execution_count": 2,
+        "durable_execution_quantity": "0.02",
+        "issues": [],
+        "remaining_plan_quantity": "9.98",
+        "snapshot_execution_count": 2,
+        "snapshot_fill_quantity": "0.02",
+        "valid": true
+      },
+      "gzip_file": "metrics-off-03.json.gz",
+      "local_account_reference": {
+        "account_id": "bench-59ceafb99e7b9e1726bb289b",
+        "schema": "ll_stage2_20261028",
+        "tenant_id": "runtime-benchmark"
+      },
+      "measurement": {
+        "market": {
+          "completed": 200,
+          "failed": 0,
+          "offered": 200,
+          "rejected": 0,
+          "runner_admitted": 200,
+          "unresolved": 0
+        },
+        "source_delivery_valid": true,
+        "views": {
+          "completed": 40,
+          "failed": 0,
+          "offered": 40,
+          "rejected": 0,
+          "runner_admitted": 40,
+          "unresolved": 0
+        }
+      },
+      "pool_after_actor_shutdown": {
+        "acquire_count": 1909,
+        "acquire_duration_ns": 4338769,
+        "acquired_connections": 0,
+        "canceled_acquire_count": 0,
+        "constructing_connections": 0,
+        "empty_acquire_count": 1,
+        "empty_acquire_wait_ns": 3515333,
+        "idle_connections": 1,
+        "max_connections": 4,
+        "total_connections": 1
+      },
+      "report_version": "durable-runtime-benchmark-v1",
+      "source_file": "metrics-off-03.json",
+      "source_manifest_hashes": {
+        "measurement": {
+          "claimed_sha256": "841892344ee47e6ce2312da1eb44d3f2230b907119de3da19ac10685178e3301",
+          "method": "SHA-256 of compact UTF-8 JSON encoding of input_manifest in stored array and object order",
+          "recomputed_sha256": "841892344ee47e6ce2312da1eb44d3f2230b907119de3da19ac10685178e3301",
+          "verified": true
+        },
+        "warmup": {
+          "claimed_sha256": "fd24f4e0811e85686dc9ee20a310e8ca4097b47c0093e31531ea05014ad88ff5",
+          "method": "SHA-256 of compact UTF-8 JSON encoding of input_manifest in stored array and object order",
+          "recomputed_sha256": "fd24f4e0811e85686dc9ee20a310e8ca4097b47c0093e31531ea05014ad88ff5",
+          "verified": true
+        }
+      },
+      "status": "complete",
+      "telemetry_gauges": {
+        "telemetry_after_actor_shutdown": [],
+        "telemetry_after_measurement": [],
+        "telemetry_before_measurement": []
+      },
+      "uncompressed_bytes": 242787,
+      "uncompressed_sha256": "fb258c10dbcbcd59f104f76050060a5dc3197670c4300173364eacbb2d3ae558",
+      "valid": true,
+      "workload": {
+        "baseline": "scheduled",
+        "market_events_per_second": 10,
+        "measurement_ns": 20000000000,
+        "metrics_enabled": false,
+        "ordered_source_queue_capacity": 64,
+        "pool_max_connections": 4,
+        "view_in_flight_capacity": 4,
+        "views_per_second": 2,
+        "warmup_ns": 2000000000
+      }
+    },
+    {
+      "binary": {
+        "build_dirty": "false",
+        "build_revision": "4b58b319da72e3f54b162683dc076f6df7fbc43e",
+        "executable_bytes": 23980113,
+        "executable_sha256": "376a30f5ba93e4d230ee3e3bb1c6d4d746448844f65c3977058820a34cf06dad",
+        "launch_revision": "4b58b319da72e3f54b162683dc076f6df7fbc43e"
+      },
+      "compressed_bytes": 26595,
+      "compressed_sha256": "0d2b85ec82d43d74416b7b141fa00de594d4d3349d348e6d35b4e65787c251fb",
+      "failure": null,
+      "final_source_recovery_debt_count": 0,
+      "financial_audit": {
+        "durable_execution_count": 2,
+        "durable_execution_quantity": "0.02",
+        "issues": [],
+        "remaining_plan_quantity": "9.98",
+        "snapshot_execution_count": 2,
+        "snapshot_fill_quantity": "0.02",
+        "valid": true
+      },
+      "gzip_file": "metrics-on-01.json.gz",
+      "local_account_reference": {
+        "account_id": "bench-890a32a8862b0942c907a509",
+        "schema": "ll_stage2_20261028",
+        "tenant_id": "runtime-benchmark"
+      },
+      "measurement": {
+        "market": {
+          "completed": 200,
+          "failed": 0,
+          "offered": 200,
+          "rejected": 0,
+          "runner_admitted": 200,
+          "unresolved": 0
+        },
+        "source_delivery_valid": true,
+        "views": {
+          "completed": 40,
+          "failed": 0,
+          "offered": 40,
+          "rejected": 0,
+          "runner_admitted": 40,
+          "unresolved": 0
+        }
+      },
+      "pool_after_actor_shutdown": {
+        "acquire_count": 1936,
+        "acquire_duration_ns": 4917115,
+        "acquired_connections": 0,
+        "canceled_acquire_count": 0,
+        "constructing_connections": 0,
+        "empty_acquire_count": 1,
+        "empty_acquire_wait_ns": 4175209,
+        "idle_connections": 1,
+        "max_connections": 4,
+        "total_connections": 1
+      },
+      "report_version": "durable-runtime-benchmark-v1",
+      "source_file": "metrics-on-01.json",
+      "source_manifest_hashes": {
+        "measurement": {
+          "claimed_sha256": "841892344ee47e6ce2312da1eb44d3f2230b907119de3da19ac10685178e3301",
+          "method": "SHA-256 of compact UTF-8 JSON encoding of input_manifest in stored array and object order",
+          "recomputed_sha256": "841892344ee47e6ce2312da1eb44d3f2230b907119de3da19ac10685178e3301",
+          "verified": true
+        },
+        "warmup": {
+          "claimed_sha256": "fd24f4e0811e85686dc9ee20a310e8ca4097b47c0093e31531ea05014ad88ff5",
+          "method": "SHA-256 of compact UTF-8 JSON encoding of input_manifest in stored array and object order",
+          "recomputed_sha256": "fd24f4e0811e85686dc9ee20a310e8ca4097b47c0093e31531ea05014ad88ff5",
+          "verified": true
+        }
+      },
+      "status": "complete",
+      "telemetry_gauges": {
+        "telemetry_after_actor_shutdown": [
+          {
+            "name": "actor_queued",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "actor_handling",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "db_transactions_in_flight",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "inference_in_flight",
+            "overflow": false,
+            "value": 0
+          }
+        ],
+        "telemetry_after_measurement": [
+          {
+            "name": "actor_queued",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "actor_handling",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "db_transactions_in_flight",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "inference_in_flight",
+            "overflow": false,
+            "value": 0
+          }
+        ],
+        "telemetry_before_measurement": [
+          {
+            "name": "actor_queued",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "actor_handling",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "db_transactions_in_flight",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "inference_in_flight",
+            "overflow": false,
+            "value": 0
+          }
+        ]
+      },
+      "uncompressed_bytes": 361030,
+      "uncompressed_sha256": "025d2fe4ddef87eb4731fc36ffcfca6fe8ea3148c877e6b0da1102f737befa1b",
+      "valid": true,
+      "workload": {
+        "baseline": "scheduled",
+        "market_events_per_second": 10,
+        "measurement_ns": 20000000000,
+        "metrics_enabled": true,
+        "ordered_source_queue_capacity": 64,
+        "pool_max_connections": 4,
+        "view_in_flight_capacity": 4,
+        "views_per_second": 2,
+        "warmup_ns": 2000000000
+      }
+    },
+    {
+      "binary": {
+        "build_dirty": "false",
+        "build_revision": "4b58b319da72e3f54b162683dc076f6df7fbc43e",
+        "executable_bytes": 23980113,
+        "executable_sha256": "376a30f5ba93e4d230ee3e3bb1c6d4d746448844f65c3977058820a34cf06dad",
+        "launch_revision": "4b58b319da72e3f54b162683dc076f6df7fbc43e"
+      },
+      "compressed_bytes": 26568,
+      "compressed_sha256": "6d62e83aa99c1d59e0f206d00dda5dfdda16ca3d45cd78380ff134b7c6e08776",
+      "failure": null,
+      "final_source_recovery_debt_count": 0,
+      "financial_audit": {
+        "durable_execution_count": 2,
+        "durable_execution_quantity": "0.02",
+        "issues": [],
+        "remaining_plan_quantity": "9.98",
+        "snapshot_execution_count": 2,
+        "snapshot_fill_quantity": "0.02",
+        "valid": true
+      },
+      "gzip_file": "metrics-on-02.json.gz",
+      "local_account_reference": {
+        "account_id": "bench-0d02f582a95cdf8944b0d853",
+        "schema": "ll_stage2_20261028",
+        "tenant_id": "runtime-benchmark"
+      },
+      "measurement": {
+        "market": {
+          "completed": 200,
+          "failed": 0,
+          "offered": 200,
+          "rejected": 0,
+          "runner_admitted": 200,
+          "unresolved": 0
+        },
+        "source_delivery_valid": true,
+        "views": {
+          "completed": 40,
+          "failed": 0,
+          "offered": 40,
+          "rejected": 0,
+          "runner_admitted": 40,
+          "unresolved": 0
+        }
+      },
+      "pool_after_actor_shutdown": {
+        "acquire_count": 1918,
+        "acquire_duration_ns": 3280903,
+        "acquired_connections": 0,
+        "canceled_acquire_count": 0,
+        "constructing_connections": 0,
+        "empty_acquire_count": 1,
+        "empty_acquire_wait_ns": 2546950,
+        "idle_connections": 1,
+        "max_connections": 4,
+        "total_connections": 1
+      },
+      "report_version": "durable-runtime-benchmark-v1",
+      "source_file": "metrics-on-02.json",
+      "source_manifest_hashes": {
+        "measurement": {
+          "claimed_sha256": "841892344ee47e6ce2312da1eb44d3f2230b907119de3da19ac10685178e3301",
+          "method": "SHA-256 of compact UTF-8 JSON encoding of input_manifest in stored array and object order",
+          "recomputed_sha256": "841892344ee47e6ce2312da1eb44d3f2230b907119de3da19ac10685178e3301",
+          "verified": true
+        },
+        "warmup": {
+          "claimed_sha256": "fd24f4e0811e85686dc9ee20a310e8ca4097b47c0093e31531ea05014ad88ff5",
+          "method": "SHA-256 of compact UTF-8 JSON encoding of input_manifest in stored array and object order",
+          "recomputed_sha256": "fd24f4e0811e85686dc9ee20a310e8ca4097b47c0093e31531ea05014ad88ff5",
+          "verified": true
+        }
+      },
+      "status": "complete",
+      "telemetry_gauges": {
+        "telemetry_after_actor_shutdown": [
+          {
+            "name": "actor_queued",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "actor_handling",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "db_transactions_in_flight",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "inference_in_flight",
+            "overflow": false,
+            "value": 0
+          }
+        ],
+        "telemetry_after_measurement": [
+          {
+            "name": "actor_queued",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "actor_handling",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "db_transactions_in_flight",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "inference_in_flight",
+            "overflow": false,
+            "value": 0
+          }
+        ],
+        "telemetry_before_measurement": [
+          {
+            "name": "actor_queued",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "actor_handling",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "db_transactions_in_flight",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "inference_in_flight",
+            "overflow": false,
+            "value": 0
+          }
+        ]
+      },
+      "uncompressed_bytes": 361024,
+      "uncompressed_sha256": "03f380105ec068ca979898be3b5ec9d0a2a226c456077f71afb0b4acb6585b01",
+      "valid": true,
+      "workload": {
+        "baseline": "scheduled",
+        "market_events_per_second": 10,
+        "measurement_ns": 20000000000,
+        "metrics_enabled": true,
+        "ordered_source_queue_capacity": 64,
+        "pool_max_connections": 4,
+        "view_in_flight_capacity": 4,
+        "views_per_second": 2,
+        "warmup_ns": 2000000000
+      }
+    },
+    {
+      "binary": {
+        "build_dirty": "false",
+        "build_revision": "4b58b319da72e3f54b162683dc076f6df7fbc43e",
+        "executable_bytes": 23980113,
+        "executable_sha256": "376a30f5ba93e4d230ee3e3bb1c6d4d746448844f65c3977058820a34cf06dad",
+        "launch_revision": "4b58b319da72e3f54b162683dc076f6df7fbc43e"
+      },
+      "compressed_bytes": 26576,
+      "compressed_sha256": "5e64ad4910022a8c6156f301b775ae0d22ce72dd792a10938a345f007fc890d9",
+      "failure": null,
+      "final_source_recovery_debt_count": 0,
+      "financial_audit": {
+        "durable_execution_count": 2,
+        "durable_execution_quantity": "0.02",
+        "issues": [],
+        "remaining_plan_quantity": "9.98",
+        "snapshot_execution_count": 2,
+        "snapshot_fill_quantity": "0.02",
+        "valid": true
+      },
+      "gzip_file": "metrics-on-03.json.gz",
+      "local_account_reference": {
+        "account_id": "bench-ea78a5b9691ddd1e30f7ad4b",
+        "schema": "ll_stage2_20261028",
+        "tenant_id": "runtime-benchmark"
+      },
+      "measurement": {
+        "market": {
+          "completed": 200,
+          "failed": 0,
+          "offered": 200,
+          "rejected": 0,
+          "runner_admitted": 200,
+          "unresolved": 0
+        },
+        "source_delivery_valid": true,
+        "views": {
+          "completed": 40,
+          "failed": 0,
+          "offered": 40,
+          "rejected": 0,
+          "runner_admitted": 40,
+          "unresolved": 0
+        }
+      },
+      "pool_after_actor_shutdown": {
+        "acquire_count": 1915,
+        "acquire_duration_ns": 3880637,
+        "acquired_connections": 0,
+        "canceled_acquire_count": 0,
+        "constructing_connections": 0,
+        "empty_acquire_count": 1,
+        "empty_acquire_wait_ns": 2951767,
+        "idle_connections": 1,
+        "max_connections": 4,
+        "total_connections": 1
+      },
+      "report_version": "durable-runtime-benchmark-v1",
+      "source_file": "metrics-on-03.json",
+      "source_manifest_hashes": {
+        "measurement": {
+          "claimed_sha256": "841892344ee47e6ce2312da1eb44d3f2230b907119de3da19ac10685178e3301",
+          "method": "SHA-256 of compact UTF-8 JSON encoding of input_manifest in stored array and object order",
+          "recomputed_sha256": "841892344ee47e6ce2312da1eb44d3f2230b907119de3da19ac10685178e3301",
+          "verified": true
+        },
+        "warmup": {
+          "claimed_sha256": "fd24f4e0811e85686dc9ee20a310e8ca4097b47c0093e31531ea05014ad88ff5",
+          "method": "SHA-256 of compact UTF-8 JSON encoding of input_manifest in stored array and object order",
+          "recomputed_sha256": "fd24f4e0811e85686dc9ee20a310e8ca4097b47c0093e31531ea05014ad88ff5",
+          "verified": true
+        }
+      },
+      "status": "complete",
+      "telemetry_gauges": {
+        "telemetry_after_actor_shutdown": [
+          {
+            "name": "actor_queued",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "actor_handling",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "db_transactions_in_flight",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "inference_in_flight",
+            "overflow": false,
+            "value": 0
+          }
+        ],
+        "telemetry_after_measurement": [
+          {
+            "name": "actor_queued",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "actor_handling",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "db_transactions_in_flight",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "inference_in_flight",
+            "overflow": false,
+            "value": 0
+          }
+        ],
+        "telemetry_before_measurement": [
+          {
+            "name": "actor_queued",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "actor_handling",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "db_transactions_in_flight",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "inference_in_flight",
+            "overflow": false,
+            "value": 0
+          }
+        ]
+      },
+      "uncompressed_bytes": 361029,
+      "uncompressed_sha256": "5dfb3ff7490cdcd5848408e0c469f2f88c9e33cb39af785621916adbc5019d55",
+      "valid": true,
+      "workload": {
+        "baseline": "scheduled",
+        "market_events_per_second": 10,
+        "measurement_ns": 20000000000,
+        "metrics_enabled": true,
+        "ordered_source_queue_capacity": 64,
+        "pool_max_connections": 4,
+        "view_in_flight_capacity": 4,
+        "views_per_second": 2,
+        "warmup_ns": 2000000000
+      }
+    },
+    {
+      "binary": {
+        "build_dirty": "false",
+        "build_revision": "4b58b319da72e3f54b162683dc076f6df7fbc43e",
+        "executable_bytes": 23980113,
+        "executable_sha256": "376a30f5ba93e4d230ee3e3bb1c6d4d746448844f65c3977058820a34cf06dad",
+        "launch_revision": "4b58b319da72e3f54b162683dc076f6df7fbc43e"
+      },
+      "compressed_bytes": 45577,
+      "compressed_sha256": "6d55fd024790f99d91a7a83e434d8e3c631fed1a2ea09aa3263a569dd7e167c0",
+      "failure": null,
+      "final_source_recovery_debt_count": 0,
+      "financial_audit": {
+        "durable_execution_count": 1,
+        "durable_execution_quantity": "0.01",
+        "issues": [],
+        "remaining_plan_quantity": "9.99",
+        "snapshot_execution_count": 1,
+        "snapshot_fill_quantity": "0.01",
+        "valid": true
+      },
+      "gzip_file": "ramp-market-100-views-2.json.gz",
+      "local_account_reference": {
+        "account_id": "bench-9135f300e0036e07bad1390c",
+        "schema": "ll_stage2_20261028",
+        "tenant_id": "runtime-benchmark"
+      },
+      "measurement": {
+        "market": {
+          "completed": 500,
+          "failed": 0,
+          "offered": 500,
+          "rejected": 0,
+          "runner_admitted": 500,
+          "unresolved": 0
+        },
+        "source_delivery_valid": true,
+        "views": {
+          "completed": 10,
+          "failed": 0,
+          "offered": 10,
+          "rejected": 0,
+          "runner_admitted": 10,
+          "unresolved": 0
+        }
+      },
+      "pool_after_actor_shutdown": {
+        "acquire_count": 2611,
+        "acquire_duration_ns": 3608284,
+        "acquired_connections": 0,
+        "canceled_acquire_count": 0,
+        "constructing_connections": 0,
+        "empty_acquire_count": 1,
+        "empty_acquire_wait_ns": 2732242,
+        "idle_connections": 1,
+        "max_connections": 4,
+        "total_connections": 1
+      },
+      "report_version": "durable-runtime-benchmark-v1",
+      "source_file": "ramp-market-100-views-2.json",
+      "source_manifest_hashes": {
+        "measurement": {
+          "claimed_sha256": "9bf905802d6635fbb29b795c5f71843fcfbba3f712bfcc56830893ee16363ac3",
+          "method": "SHA-256 of compact UTF-8 JSON encoding of input_manifest in stored array and object order",
+          "recomputed_sha256": "9bf905802d6635fbb29b795c5f71843fcfbba3f712bfcc56830893ee16363ac3",
+          "verified": true
+        },
+        "warmup": {
+          "claimed_sha256": "a897042b5bbb9809128378a1f570bd3a021b4fcbbd018c33ac76acbabaaa27f5",
+          "method": "SHA-256 of compact UTF-8 JSON encoding of input_manifest in stored array and object order",
+          "recomputed_sha256": "a897042b5bbb9809128378a1f570bd3a021b4fcbbd018c33ac76acbabaaa27f5",
+          "verified": true
+        }
+      },
+      "status": "complete",
+      "telemetry_gauges": {
+        "telemetry_after_actor_shutdown": [
+          {
+            "name": "actor_queued",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "actor_handling",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "db_transactions_in_flight",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "inference_in_flight",
+            "overflow": false,
+            "value": 0
+          }
+        ],
+        "telemetry_after_measurement": [
+          {
+            "name": "actor_queued",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "actor_handling",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "db_transactions_in_flight",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "inference_in_flight",
+            "overflow": false,
+            "value": 0
+          }
+        ],
+        "telemetry_before_measurement": [
+          {
+            "name": "actor_queued",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "actor_handling",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "db_transactions_in_flight",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "inference_in_flight",
+            "overflow": false,
+            "value": 0
+          }
+        ]
+      },
+      "uncompressed_bytes": 644758,
+      "uncompressed_sha256": "246ef561595b5e671dbbd5c708eab0cdacd73acdb2fa53323b25d38bd1673695",
+      "valid": true,
+      "workload": {
+        "baseline": "scheduled",
+        "market_events_per_second": 100,
+        "measurement_ns": 5000000000,
+        "metrics_enabled": true,
+        "ordered_source_queue_capacity": 64,
+        "pool_max_connections": 4,
+        "view_in_flight_capacity": 4,
+        "views_per_second": 2,
+        "warmup_ns": 1000000000
+      }
+    },
+    {
+      "binary": {
+        "build_dirty": "false",
+        "build_revision": "4b58b319da72e3f54b162683dc076f6df7fbc43e",
+        "executable_bytes": 23980113,
+        "executable_sha256": "376a30f5ba93e4d230ee3e3bb1c6d4d746448844f65c3977058820a34cf06dad",
+        "launch_revision": "4b58b319da72e3f54b162683dc076f6df7fbc43e"
+      },
+      "compressed_bytes": 88728,
+      "compressed_sha256": "1e9548a3f52866354cbca5213e693b4c33e5f6a1b3b77fa315c9b0d7420658ae",
+      "failure": null,
+      "final_source_recovery_debt_count": 0,
+      "financial_audit": {
+        "durable_execution_count": 1,
+        "durable_execution_quantity": "0.01",
+        "issues": [],
+        "remaining_plan_quantity": "9.99",
+        "snapshot_execution_count": 1,
+        "snapshot_fill_quantity": "0.01",
+        "valid": true
+      },
+      "gzip_file": "ramp-market-250-views-2.json.gz",
+      "local_account_reference": {
+        "account_id": "bench-a1740d1c13f70522ca3e3115",
+        "schema": "ll_stage2_20261028",
+        "tenant_id": "runtime-benchmark"
+      },
+      "measurement": {
+        "market": {
+          "completed": 1250,
+          "failed": 0,
+          "offered": 1250,
+          "rejected": 0,
+          "runner_admitted": 1250,
+          "unresolved": 0
+        },
+        "source_delivery_valid": true,
+        "views": {
+          "completed": 10,
+          "failed": 0,
+          "offered": 10,
+          "rejected": 0,
+          "runner_admitted": 10,
+          "unresolved": 0
+        }
+      },
+      "pool_after_actor_shutdown": {
+        "acquire_count": 6203,
+        "acquire_duration_ns": 5695341,
+        "acquired_connections": 0,
+        "canceled_acquire_count": 0,
+        "constructing_connections": 0,
+        "empty_acquire_count": 1,
+        "empty_acquire_wait_ns": 4276662,
+        "idle_connections": 1,
+        "max_connections": 4,
+        "total_connections": 1
+      },
+      "report_version": "durable-runtime-benchmark-v1",
+      "source_file": "ramp-market-250-views-2.json",
+      "source_manifest_hashes": {
+        "measurement": {
+          "claimed_sha256": "78d7e9ca0e69d121026766e1ba3ad956403762a89e0a63ac89c1c779188ddb62",
+          "method": "SHA-256 of compact UTF-8 JSON encoding of input_manifest in stored array and object order",
+          "recomputed_sha256": "78d7e9ca0e69d121026766e1ba3ad956403762a89e0a63ac89c1c779188ddb62",
+          "verified": true
+        },
+        "warmup": {
+          "claimed_sha256": "38483fc7f6433fa66af24a584b15066fa6bf42263b65553e5293a0550524c9b4",
+          "method": "SHA-256 of compact UTF-8 JSON encoding of input_manifest in stored array and object order",
+          "recomputed_sha256": "38483fc7f6433fa66af24a584b15066fa6bf42263b65553e5293a0550524c9b4",
+          "verified": true
+        }
+      },
+      "status": "complete",
+      "telemetry_gauges": {
+        "telemetry_after_actor_shutdown": [
+          {
+            "name": "actor_queued",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "actor_handling",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "db_transactions_in_flight",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "inference_in_flight",
+            "overflow": false,
+            "value": 0
+          }
+        ],
+        "telemetry_after_measurement": [
+          {
+            "name": "actor_queued",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "actor_handling",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "db_transactions_in_flight",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "inference_in_flight",
+            "overflow": false,
+            "value": 0
+          }
+        ],
+        "telemetry_before_measurement": [
+          {
+            "name": "actor_queued",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "actor_handling",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "db_transactions_in_flight",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "inference_in_flight",
+            "overflow": false,
+            "value": 0
+          }
+        ]
+      },
+      "uncompressed_bytes": 1366305,
+      "uncompressed_sha256": "ca84f2a9b37604879a29b54d76018960f5ab5133c03a12b9745fd04fa490ffd7",
+      "valid": true,
+      "workload": {
+        "baseline": "scheduled",
+        "market_events_per_second": 250,
+        "measurement_ns": 5000000000,
+        "metrics_enabled": true,
+        "ordered_source_queue_capacity": 64,
+        "pool_max_connections": 4,
+        "view_in_flight_capacity": 4,
+        "views_per_second": 2,
+        "warmup_ns": 1000000000
+      }
+    },
+    {
+      "binary": {
+        "build_dirty": "false",
+        "build_revision": "4b58b319da72e3f54b162683dc076f6df7fbc43e",
+        "executable_bytes": 23980113,
+        "executable_sha256": "376a30f5ba93e4d230ee3e3bb1c6d4d746448844f65c3977058820a34cf06dad",
+        "launch_revision": "4b58b319da72e3f54b162683dc076f6df7fbc43e"
+      },
+      "compressed_bytes": 29809,
+      "compressed_sha256": "76c39a4256a74dc4fb3a653c8d126ebe3d62c57998d2ff9c3157394acb0c74e4",
+      "failure": null,
+      "final_source_recovery_debt_count": 0,
+      "financial_audit": {
+        "durable_execution_count": 1,
+        "durable_execution_quantity": "0.01",
+        "issues": [],
+        "remaining_plan_quantity": "9.99",
+        "snapshot_execution_count": 1,
+        "snapshot_fill_quantity": "0.01",
+        "valid": true
+      },
+      "gzip_file": "ramp-market-50-views-2.json.gz",
+      "local_account_reference": {
+        "account_id": "bench-45120b4b45ec98d7957e1f39",
+        "schema": "ll_stage2_20261028",
+        "tenant_id": "runtime-benchmark"
+      },
+      "measurement": {
+        "market": {
+          "completed": 250,
+          "failed": 0,
+          "offered": 250,
+          "rejected": 0,
+          "runner_admitted": 250,
+          "unresolved": 0
+        },
+        "source_delivery_valid": true,
+        "views": {
+          "completed": 10,
+          "failed": 0,
+          "offered": 10,
+          "rejected": 0,
+          "runner_admitted": 10,
+          "unresolved": 0
+        }
+      },
+      "pool_after_actor_shutdown": {
+        "acquire_count": 1443,
+        "acquire_duration_ns": 3140617,
+        "acquired_connections": 0,
+        "canceled_acquire_count": 0,
+        "constructing_connections": 0,
+        "empty_acquire_count": 1,
+        "empty_acquire_wait_ns": 2719798,
+        "idle_connections": 1,
+        "max_connections": 4,
+        "total_connections": 1
+      },
+      "report_version": "durable-runtime-benchmark-v1",
+      "source_file": "ramp-market-50-views-2.json",
+      "source_manifest_hashes": {
+        "measurement": {
+          "claimed_sha256": "8c34a03d90fde8158e6805121d65627400a162d736c22f1fbf277abc05fbe030",
+          "method": "SHA-256 of compact UTF-8 JSON encoding of input_manifest in stored array and object order",
+          "recomputed_sha256": "8c34a03d90fde8158e6805121d65627400a162d736c22f1fbf277abc05fbe030",
+          "verified": true
+        },
+        "warmup": {
+          "claimed_sha256": "d9cb8717c46d9825b62553ba6ba6ea72602a26d7a570416dcec77cecd45b7926",
+          "method": "SHA-256 of compact UTF-8 JSON encoding of input_manifest in stored array and object order",
+          "recomputed_sha256": "d9cb8717c46d9825b62553ba6ba6ea72602a26d7a570416dcec77cecd45b7926",
+          "verified": true
+        }
+      },
+      "status": "complete",
+      "telemetry_gauges": {
+        "telemetry_after_actor_shutdown": [
+          {
+            "name": "actor_queued",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "actor_handling",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "db_transactions_in_flight",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "inference_in_flight",
+            "overflow": false,
+            "value": 0
+          }
+        ],
+        "telemetry_after_measurement": [
+          {
+            "name": "actor_queued",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "actor_handling",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "db_transactions_in_flight",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "inference_in_flight",
+            "overflow": false,
+            "value": 0
+          }
+        ],
+        "telemetry_before_measurement": [
+          {
+            "name": "actor_queued",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "actor_handling",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "db_transactions_in_flight",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "inference_in_flight",
+            "overflow": false,
+            "value": 0
+          }
+        ]
+      },
+      "uncompressed_bytes": 404104,
+      "uncompressed_sha256": "577b95e4c6b6b88a409406f53c75a7c8e3862b865a69823631c76d46ab64419d",
+      "valid": true,
+      "workload": {
+        "baseline": "scheduled",
+        "market_events_per_second": 50,
+        "measurement_ns": 5000000000,
+        "metrics_enabled": true,
+        "ordered_source_queue_capacity": 64,
+        "pool_max_connections": 4,
+        "view_in_flight_capacity": 4,
+        "views_per_second": 2,
+        "warmup_ns": 1000000000
+      }
+    },
+    {
+      "binary": {
+        "build_dirty": "false",
+        "build_revision": "4b58b319da72e3f54b162683dc076f6df7fbc43e",
+        "executable_bytes": 23980113,
+        "executable_sha256": "376a30f5ba93e4d230ee3e3bb1c6d4d746448844f65c3977058820a34cf06dad",
+        "launch_revision": "4b58b319da72e3f54b162683dc076f6df7fbc43e"
+      },
+      "compressed_bytes": 138938,
+      "compressed_sha256": "49cc7fe2990785d20812b910d24aab67b305288ff6c246292aaa95cc85429d72",
+      "failure": "workload invalid; inspect report source delivery, unresolved work, and final state",
+      "final_source_recovery_debt_count": 0,
+      "financial_audit": {
+        "durable_execution_count": 1,
+        "durable_execution_quantity": "0.01",
+        "issues": [],
+        "remaining_plan_quantity": "9.99",
+        "snapshot_execution_count": 1,
+        "snapshot_fill_quantity": "0.01",
+        "valid": true
+      },
+      "gzip_file": "ramp-market-500-views-2.json.gz",
+      "local_account_reference": {
+        "account_id": "bench-61bd25bd302ef498b4df3761",
+        "schema": "ll_stage2_20261028",
+        "tenant_id": "runtime-benchmark"
+      },
+      "measurement": {
+        "market": {
+          "completed": 1415,
+          "failed": 0,
+          "offered": 2500,
+          "rejected": 1085,
+          "runner_admitted": 1415,
+          "unresolved": 0
+        },
+        "source_delivery_valid": false,
+        "views": {
+          "completed": 10,
+          "failed": 0,
+          "offered": 10,
+          "rejected": 0,
+          "runner_admitted": 10,
+          "unresolved": 0
+        }
+      },
+      "pool_after_actor_shutdown": {
+        "acquire_count": 7774,
+        "acquire_duration_ns": 4466561,
+        "acquired_connections": 0,
+        "canceled_acquire_count": 0,
+        "constructing_connections": 0,
+        "empty_acquire_count": 1,
+        "empty_acquire_wait_ns": 2850343,
+        "idle_connections": 1,
+        "max_connections": 4,
+        "total_connections": 1
+      },
+      "report_version": "durable-runtime-benchmark-v1",
+      "source_file": "ramp-market-500-views-2.json",
+      "source_manifest_hashes": {
+        "measurement": {
+          "claimed_sha256": "bddd4531140bb7567ef986aed344e88caade0ba7d7f9301f2b3a5329c7d75aab",
+          "method": "SHA-256 of compact UTF-8 JSON encoding of input_manifest in stored array and object order",
+          "recomputed_sha256": "bddd4531140bb7567ef986aed344e88caade0ba7d7f9301f2b3a5329c7d75aab",
+          "verified": true
+        },
+        "warmup": {
+          "claimed_sha256": "c0973e22ae431b7be59bc276c63aa6dfc5922f09037b5b1506e75a3c34f2ef4e",
+          "method": "SHA-256 of compact UTF-8 JSON encoding of input_manifest in stored array and object order",
+          "recomputed_sha256": "c0973e22ae431b7be59bc276c63aa6dfc5922f09037b5b1506e75a3c34f2ef4e",
+          "verified": true
+        }
+      },
+      "status": "invalid",
+      "telemetry_gauges": {
+        "telemetry_after_actor_shutdown": [
+          {
+            "name": "actor_queued",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "actor_handling",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "db_transactions_in_flight",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "inference_in_flight",
+            "overflow": false,
+            "value": 0
+          }
+        ],
+        "telemetry_after_measurement": [
+          {
+            "name": "actor_queued",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "actor_handling",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "db_transactions_in_flight",
+            "overflow": false,
+            "value": 1
+          },
+          {
+            "name": "inference_in_flight",
+            "overflow": false,
+            "value": 0
+          }
+        ],
+        "telemetry_before_measurement": [
+          {
+            "name": "actor_queued",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "actor_handling",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "db_transactions_in_flight",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "inference_in_flight",
+            "overflow": false,
+            "value": 0
+          }
+        ]
+      },
+      "uncompressed_bytes": 2556496,
+      "uncompressed_sha256": "6a90f4cfe8bf5aae12090e1ee940639afa7152e7330879d1ed9a9b7a24c631d4",
+      "valid": false,
+      "workload": {
+        "baseline": "scheduled",
+        "market_events_per_second": 500,
+        "measurement_ns": 5000000000,
+        "metrics_enabled": true,
+        "ordered_source_queue_capacity": 64,
+        "pool_max_connections": 4,
+        "view_in_flight_capacity": 4,
+        "views_per_second": 2,
+        "warmup_ns": 1000000000
+      }
+    },
+    {
+      "binary": {
+        "build_dirty": "false",
+        "build_revision": "4b58b319da72e3f54b162683dc076f6df7fbc43e",
+        "executable_bytes": 23980113,
+        "executable_sha256": "376a30f5ba93e4d230ee3e3bb1c6d4d746448844f65c3977058820a34cf06dad",
+        "launch_revision": "4b58b319da72e3f54b162683dc076f6df7fbc43e"
+      },
+      "compressed_bytes": 228495,
+      "compressed_sha256": "919d7c1c28aff4915e49532f46eccb9a39ba57ac0fe960c5b65506a0ff6479ac",
+      "failure": "workload invalid; inspect report source delivery, unresolved work, and final state",
+      "final_source_recovery_debt_count": 0,
+      "financial_audit": {
+        "durable_execution_count": 1,
+        "durable_execution_quantity": "0.01",
+        "issues": [],
+        "remaining_plan_quantity": "9.99",
+        "snapshot_execution_count": 1,
+        "snapshot_fill_quantity": "0.01",
+        "valid": true
+      },
+      "gzip_file": "ramp-market-500-views-500.json.gz",
+      "local_account_reference": {
+        "account_id": "bench-421cab36e93693a162ca800e",
+        "schema": "ll_stage2_20261028",
+        "tenant_id": "runtime-benchmark"
+      },
+      "measurement": {
+        "market": {
+          "completed": 1201,
+          "failed": 0,
+          "offered": 2500,
+          "rejected": 1299,
+          "runner_admitted": 1201,
+          "unresolved": 0
+        },
+        "source_delivery_valid": false,
+        "views": {
+          "completed": 2283,
+          "failed": 0,
+          "offered": 2500,
+          "rejected": 217,
+          "runner_admitted": 2283,
+          "unresolved": 0
+        }
+      },
+      "pool_after_actor_shutdown": {
+        "acquire_count": 9077,
+        "acquire_duration_ns": 4656096,
+        "acquired_connections": 0,
+        "canceled_acquire_count": 0,
+        "constructing_connections": 0,
+        "empty_acquire_count": 1,
+        "empty_acquire_wait_ns": 2644236,
+        "idle_connections": 1,
+        "max_connections": 4,
+        "total_connections": 1
+      },
+      "report_version": "durable-runtime-benchmark-v1",
+      "source_file": "ramp-market-500-views-500.json",
+      "source_manifest_hashes": {
+        "measurement": {
+          "claimed_sha256": "7616a1d7fa1e7a04f507609d83d12b46fb66cc5a2975a16c7a535fa48459a908",
+          "method": "SHA-256 of compact UTF-8 JSON encoding of input_manifest in stored array and object order",
+          "recomputed_sha256": "7616a1d7fa1e7a04f507609d83d12b46fb66cc5a2975a16c7a535fa48459a908",
+          "verified": true
+        },
+        "warmup": {
+          "claimed_sha256": "dcf22de34a04e46415f555745041752087538189b85a6cae8255dfa79117cfcc",
+          "method": "SHA-256 of compact UTF-8 JSON encoding of input_manifest in stored array and object order",
+          "recomputed_sha256": "dcf22de34a04e46415f555745041752087538189b85a6cae8255dfa79117cfcc",
+          "verified": true
+        }
+      },
+      "status": "invalid",
+      "telemetry_gauges": {
+        "telemetry_after_actor_shutdown": [
+          {
+            "name": "actor_queued",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "actor_handling",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "db_transactions_in_flight",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "inference_in_flight",
+            "overflow": false,
+            "value": 0
+          }
+        ],
+        "telemetry_after_measurement": [
+          {
+            "name": "actor_queued",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "actor_handling",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "db_transactions_in_flight",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "inference_in_flight",
+            "overflow": false,
+            "value": 0
+          }
+        ],
+        "telemetry_before_measurement": [
+          {
+            "name": "actor_queued",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "actor_handling",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "db_transactions_in_flight",
+            "overflow": false,
+            "value": 0
+          },
+          {
+            "name": "inference_in_flight",
+            "overflow": false,
+            "value": 0
+          }
+        ]
+      },
+      "uncompressed_bytes": 4307773,
+      "uncompressed_sha256": "6a9c15e09b101160181eac7e160e04cb80121b5263ffcf7dfabf515a4d27182d",
+      "valid": false,
+      "workload": {
+        "baseline": "scheduled",
+        "market_events_per_second": 500,
+        "measurement_ns": 5000000000,
+        "metrics_enabled": true,
+        "ordered_source_queue_capacity": 64,
+        "pool_max_connections": 4,
+        "view_in_flight_capacity": 4,
+        "views_per_second": 500,
+        "warmup_ns": 1000000000
+      }
+    }
+  ],
+  "schema_version": 1,
+  "source_directory": "/home/lothnic/Documents/Codex/2026-10-23/i-x20/work/runtime/20261028-stage2-01",
+  "source_manifest_hash_method": "compact UTF-8 JSON serialization of parsed input_manifest preserving parsed object/array order; all reported phase hashes verified"
+}
