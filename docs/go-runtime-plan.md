@@ -289,7 +289,7 @@ The estimates below describe the original full effort, not a new estimate of wor
 
 ### Phase 1 — specification and fixtures: 2–3 focused days
 
-Current checkpoint: schemas, generated bindings, exact wire mapping and common fixtures are committed; finish the full contract/compatibility audit against the exit criteria.
+Completed local checkpoint: schemas, generated bindings, exact wire mapping, shared boundary/economic fixtures, explicit reference precision and documented v0/v1 timer differences are committed. The [Phase 1 requirement audit](phase1-contract-audit.md) maps each requirement to implementation and the retained five-step conformance run: generated bindings and fixtures unchanged, four Go race packages passed, and 198 Python checks passed without skips. Later economic, performance and release gates remain separate.
 
 Freeze v1 amount/time/action contracts, extract common golden cases from the existing tests, and add malformed/overflow/rounding/cancellation fixtures. Record all intentional differences from the Python implementation.
 

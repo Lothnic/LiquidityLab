@@ -1,5 +1,44 @@
 # Verification record
 
+## Shared contracts and recovery-under-demand — 29 October 2026
+
+Contract checkpoints `15bdb5c`, `3bcb69f` and `0287a0f` add shared canonical
+decimal/time/action/observation vectors, a combined conformance command, pinned
+reference precision and explicit legacy float-timer compatibility examples.
+The [Phase 1 audit](phase1-contract-audit.md) maps the local exit criteria to
+implementation and the [original conformance report](../conformance/results/20261029-phase1.json).
+
+- The five-step conformance command passed: byte-for-byte generated bindings,
+  non-mutating reference golden regeneration, Go domain/execution/replay/RPC
+  race checks, an owned ordinary daemon build, and the full Python suite.
+  Python passed **198** checks, with zero skips, failures or errors; the existing
+  Gymnasium v0 deprecation warning remains. The report records source `0287a0f`
+  with `dirty=true` for pending test/docs work and hashes all three fixtures.
+- `npm ci`, `npm test` and `npm run build` passed in `apps/web`: **46** checks
+  across six files, plus TypeScript/Vite production output. No UI code changed.
+- Ruff passed across `src tests scripts conformance`.
+- `2c080ec` adds an ordinary-process SIGKILL/resume check under independent
+  continuous HTTP demand from two accounts/processes. It uses 2 Hz synthetic
+  sources and 20 HTTP reads/s/account; it does not exercise shared actors/pools
+  or establish an admission limit. Recovery stays paused with original pins,
+  balances and fill identities. The bystander continues advancing its source.
+- The first full Go race run passed all other packages, but the new check
+  rejected a financially final shutdown because its stopped source retained
+  invalid readiness. `fe2cc31` distinguishes recovered-ready-paused from reaped,
+  known-final shutdown. Only the exact stopped-source flag is allowed at the
+  latter boundary; financial debt, holds, unresolved facts, pending policy and
+  clock discontinuity still fail. Fifteen deterministic mutations protect it.
+  The corrected focused PostgreSQL race run passed in 13.938 s, including 400
+  scheduled HTTP offers, exact finances and all child processes reaped.
+  A new full-suite run is pending; this entry does not claim it is green.
+- `b74c62c` adds a pull-request validation workflow with real PostgreSQL,
+  Python/Go integration, conformance and frontend jobs. Its constituent commands
+  are exercised locally; no GitHub execution or remote push is claimed.
+
+Phase 1 is complete locally. Phase 2 generated-sequence acceptance, broader
+recorder recovery, scale/admission, historical replay, policy quality, private
+venue integration, deployment, soak and restore gates remain open.
+
 ## Public capture and durable workload evidence — 28 October 2026
 
 Commits `2917994`, `929522c`, `8c7e329`, `5d0113a`, `81ea498` and `4e4838c` add native

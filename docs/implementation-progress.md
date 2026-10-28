@@ -11,7 +11,7 @@ Scope: `docs/go-runtime-plan.md` plus the trader workflow, policy evaluation/pro
 - A bounded real public Kraken BTC/USD capture is committed in `8c7e329`, with Go/Python normalization conformance. It verifies this capture slice only; broader corruption/recovery coverage and operational gates remain.
 - No private exchange credentials, live pilot authorization, or real-money verification has been obtained.
 
-Checkpoint: 28 October 2026 through `4e4838c`. The fresh uncached Go race suite passed with development PostgreSQL, the real Python worker and replay binary configured. Python passed 88 checks without skips; Ruff and generated binding drift checks passed. Existing frontend evidence remains 46 checks and a production build.
+Checkpoint: 29 October 2026 through `fe2cc31`. The [Phase 1 audit](phase1-contract-audit.md) closes the local contract gate: generated bindings and reference fixtures match, four Go contract/replay race packages pass, and 198 Python checks pass without skips. The React suite passes 46 checks and its production build passes. The latest full Go run found an overly strict new shutdown audit; `fe2cc31` fixes it and the focused PostgreSQL race run passes. A fresh full-suite rerun is pending, so the earlier full-suite pass below is historical evidence.
 
 Recent delivery includes the real 50-frame Kraken capture with 45-event Go/Python conformance, bounded runtime instrumentation, seven retained HTTP/inference/profiling workload reports, a separate Go blocking profiler, and stronger response/terminal-state audit checks. Six workload reports completed; the allocation-profile trial rejected 375 source offers and remains invalid. See the [envelope evidence](../benchmarks/results/runtime-envelope-20261028/README.md) and [verification record](verification.md) for scope, checker versions and limits.
 
@@ -42,7 +42,7 @@ Representative commits: `d953990` (replay), `7f214d6` (bindings), `6ddb984` (RPC
 
 Checkboxes represent full exit criteria, including required integration evidence and the final audit. An unchecked phase can contain substantial committed implementation; it is not an instruction to rebuild those components. Per-phase checkpoints appear in section 12 of the Go runtime plan.
 
-- [ ] Phase 1: versioned shared schemas, generated bindings, contract validation, common conformance vectors, preserved Python checks.
+- [x] Phase 1: versioned shared schemas, generated bindings, contract validation, common conformance vectors, preserved Python checks. See the [requirement/evidence audit](phase1-contract-audit.md) and retained 198-check conformance run; this is a local contract gate.
 - [ ] Phase 2: Go exact amounts, domain/ledger/compiler, event ordering, book/depletion, features, settlement, baselines, cross-language economic parity.
 - [ ] Phase 3: Go public recorder/normalizer, checksum/depth/precision parity, corruption/recovery, verified real capture.
 - [ ] Phase 4: bounded batched replay RPC, isolated handles, request identity and retry semantics, Python Gym/vector adapter, PPO roundtrip, transport benchmarks.
