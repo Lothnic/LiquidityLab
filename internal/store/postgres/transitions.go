@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/liquiditylab/liquiditylab/internal/telemetry"
 )
 
 func obsoleteQueued(ctx context.Context, tx pgx.Tx, key Key, planID, reason string) error {
@@ -25,7 +26,7 @@ func (s *Store) ClaimOwnership(ctx context.Context, key Key, owner string, lease
 	if !validKey(key) || !validID(owner) || lease <= 0 || lease > 5*time.Minute {
 		return Ownership{}, ErrInvalid
 	}
-	tx, err := s.pool.Begin(ctx)
+	tx, err := s.begin(ctx, pgx.TxOptions{})
 	if err != nil {
 		return Ownership{}, err
 	}
@@ -71,7 +72,7 @@ func (s *Store) RenewOwnership(ctx context.Context, key Key, ownership Ownership
 	if !validKey(key) || lease <= 0 || lease > 5*time.Minute {
 		return ErrInvalid
 	}
-	tx, err := s.pool.Begin(ctx)
+	tx, err := s.begin(ctx, pgx.TxOptions{})
 	if err != nil {
 		return err
 	}
@@ -295,7 +296,7 @@ func (s *Store) Apply(ctx context.Context, c Change) (Result, error) {
 		return Result{}, ErrInvalid
 	}
 	digest := sha256.Sum256(body)
-	tx, err := s.pool.Begin(ctx)
+	tx, err := s.begin(ctx, pgx.TxOptions{})
 	if err != nil {
 		return Result{}, err
 	}
@@ -475,6 +476,7 @@ func (s *Store) Apply(ctx context.Context, c Change) (Result, error) {
 			return Result{}, normalized(err)
 		}
 	}
+	txRecorder(tx).Observe(telemetry.SnapshotBytes, uint64(len(a.Snapshot)))
 	updated, err := tx.Exec(ctx, `UPDATE accounts SET revision=$3,snapshot=$4,ready=$5,market_valid=$6,market_snapshot_id=$7,instrument_revision=$8,processed_sequence=$11,pending_observation_bytes=$12 WHERE tenant_id=$1 AND account_id=$2 AND owner_id=$9 AND ownership_epoch=$10 AND lease_until>clock_timestamp()`, c.Key.TenantID, c.Key.AccountID, result.Revision, a.Snapshot, a.Ready, a.Market.Valid, a.Market.SnapshotID, a.Market.InstrumentRevision, c.Ownership.OwnerID, c.Ownership.Epoch, a.ProcessedSequence, a.PendingObservationBytes)
 	if err != nil {
 		return Result{}, err

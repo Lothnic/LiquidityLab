@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"math"
 	"time"
+
+	"github.com/jackc/pgx/v5"
 )
 
 // PaperTransportContract identifies a simulated venue whose only lasting effect
@@ -24,7 +26,7 @@ func (s *Store) ClaimPaperOwnership(ctx context.Context, key Key, owner string, 
 	if !validKey(key) || !validID(owner) || lease <= 0 || lease > 5*time.Minute {
 		return Account{}, ErrInvalid
 	}
-	tx, err := s.pool.Begin(ctx)
+	tx, err := s.begin(ctx, pgx.TxOptions{})
 	if err != nil {
 		return Account{}, err
 	}

@@ -3,6 +3,8 @@ package postgres
 import (
 	"context"
 	"time"
+
+	"github.com/jackc/pgx/v5"
 )
 
 // AuthorizeDispatch is the durable transport handoff boundary. It commits an
@@ -13,7 +15,7 @@ func (s *Store) AuthorizeDispatch(ctx context.Context, request Authorization) (D
 	if !validKey(request.Key) || !validID(request.IntentID) || !validID(request.AttemptID) || !validID(request.SnapshotID) || !validID(request.InstrumentRevision) || request.ExpectedRevision < 0 || request.PlanRevision <= 0 {
 		return Dispatch{}, ErrInvalid
 	}
-	tx, err := s.pool.Begin(ctx)
+	tx, err := s.begin(ctx, pgx.TxOptions{})
 	if err != nil {
 		return Dispatch{}, err
 	}

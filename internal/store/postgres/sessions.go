@@ -42,7 +42,7 @@ func (s *Store) Sessions(ctx context.Context, key Key, beforeRevision, asOfRevis
 	if !validKey(key) || beforeRevision < 0 || asOfRevision < 0 || limit < 1 || limit > 50 {
 		return page, ErrInvalid
 	}
-	tx, err := s.pool.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.RepeatableRead, AccessMode: pgx.ReadOnly})
+	tx, err := s.begin(ctx, pgx.TxOptions{IsoLevel: pgx.RepeatableRead, AccessMode: pgx.ReadOnly})
 	if err != nil {
 		return page, err
 	}
@@ -116,7 +116,7 @@ func (s *Store) Session(ctx context.Context, key Key, planID string, asOfRevisio
 	if !validKey(key) || !validID(planID) || asOfRevision < 0 {
 		return value, ErrInvalid
 	}
-	tx, err := s.pool.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.RepeatableRead, AccessMode: pgx.ReadOnly})
+	tx, err := s.begin(ctx, pgx.TxOptions{IsoLevel: pgx.RepeatableRead, AccessMode: pgx.ReadOnly})
 	if err != nil {
 		return value, err
 	}
@@ -194,7 +194,7 @@ func (s *Store) SessionJournal(ctx context.Context, key Key, planID string, afte
 	if !validKey(key) || !validID(planID) || afterRevision < 0 || asOfRevision < 0 || limit < 1 || limit > 200 {
 		return nil, ErrInvalid
 	}
-	tx, err := s.pool.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.RepeatableRead, AccessMode: pgx.ReadOnly})
+	tx, err := s.begin(ctx, pgx.TxOptions{IsoLevel: pgx.RepeatableRead, AccessMode: pgx.ReadOnly})
 	if err != nil {
 		return nil, err
 	}

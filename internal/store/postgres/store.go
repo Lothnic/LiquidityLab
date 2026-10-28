@@ -17,10 +17,14 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	d "github.com/liquiditylab/liquiditylab/internal/domain"
+	"github.com/liquiditylab/liquiditylab/internal/telemetry"
 	"github.com/liquiditylab/liquiditylab/migrations"
 )
 
-type Store struct{ pool *pgxpool.Pool }
+type Store struct {
+	pool      *pgxpool.Pool
+	telemetry *telemetry.Recorder
+}
 
 var identifier = regexp.MustCompile(`^[a-z][a-z0-9_]{0,62}$`)
 var currency = regexp.MustCompile(`^[A-Z][A-Z0-9]{0,23}$`)
@@ -50,17 +54,32 @@ func normalized(err error) error {
 // Open binds a bounded pool to an explicitly named schema. It creates that schema
 // if needed; it never drops or resets existing schemas. Call Migrate before use.
 func Open(ctx context.Context, dsn, schema string) (*Store, error) {
+	return OpenWithOptions(ctx, dsn, schema, Options{})
+}
+
+// OpenWithOptions preserves Open's schema behavior and allows an explicitly
+// bounded per-store pool and optional metrics. The cap is not deployment-wide.
+func OpenWithOptions(ctx context.Context, dsn, schema string, options Options) (*Store, error) {
 	if !identifier.MatchString(schema) {
 		return nil, fmt.Errorf("%w: schema identifier", ErrInvalid)
+	}
+	if options.MaxConnections == 0 {
+		options.MaxConnections = 16
+	}
+	if options.MaxConnections < 1 || options.MaxConnections > 64 {
+		return nil, fmt.Errorf("%w: pool connection bound", ErrInvalid)
 	}
 	config, err := pgxpool.ParseConfig(dsn)
 	if err != nil {
 		return nil, err
 	}
-	config.MaxConns = 16
+	config.MaxConns = options.MaxConnections
 	config.MinConns = 0
 	config.MaxConnIdleTime = 5 * time.Minute
 	config.ConnConfig.ConnectTimeout = 5 * time.Second
+	if options.Telemetry != nil {
+		config.ConnConfig.Tracer = &poolTracer{recorder: options.Telemetry}
+	}
 	config.AfterConnect = func(ctx context.Context, c *pgx.Conn) error {
 		_, err := c.Exec(ctx, "SET search_path TO "+pgx.Identifier{schema}.Sanitize()+", pg_catalog")
 		return err
@@ -73,7 +92,7 @@ func Open(ctx context.Context, dsn, schema string) (*Store, error) {
 		pool.Close()
 		return nil, err
 	}
-	return &Store{pool: pool}, nil
+	return &Store{pool: pool, telemetry: options.Telemetry}, nil
 }
 func (s *Store) Close() { s.pool.Close() }
 
@@ -117,7 +136,7 @@ func (s *Store) LookupCommand(ctx context.Context, key Key, commandID string) (C
 	return record, nil
 }
 func (s *Store) Migrate(ctx context.Context) error {
-	tx, err := s.pool.Begin(ctx)
+	tx, err := s.begin(ctx, pgx.TxOptions{})
 	if err != nil {
 		return err
 	}
@@ -224,11 +243,12 @@ func (s *Store) CreateAccount(ctx context.Context, key Key, balances []Balance, 
 	if !validKey(key) || !balancesValid(balances) || len(balances) == 0 || !validJSON(snapshot) {
 		return Account{}, ErrInvalid
 	}
-	tx, err := s.pool.Begin(ctx)
+	tx, err := s.begin(ctx, pgx.TxOptions{})
 	if err != nil {
 		return Account{}, err
 	}
 	defer tx.Rollback(ctx)
+	txRecorder(tx).Observe(telemetry.SnapshotBytes, uint64(len(snapshot)))
 	if _, err = tx.Exec(ctx, "INSERT INTO accounts(tenant_id,account_id,snapshot) VALUES($1,$2,$3)", key.TenantID, key.AccountID, snapshot); err != nil {
 		return Account{}, normalized(err)
 	}
@@ -242,6 +262,10 @@ func (s *Store) CreateAccount(ctx context.Context, key Key, balances []Balance, 
 }
 
 func lockAccount(ctx context.Context, tx pgx.Tx, key Key) (Account, error) {
+	if recorder := txRecorder(tx); recorder != nil {
+		started := time.Now()
+		defer func() { recorder.Observe(telemetry.DBAccountLockNS, elapsedNS(started)) }()
+	}
 	a := Account{Key: key}
 	var lease *time.Time
 	err := tx.QueryRow(ctx, `SELECT revision,owner_id,ownership_epoch,lease_until,ready,market_valid,market_snapshot_id,instrument_revision,snapshot,observed_sequence,processed_sequence,pending_observation_bytes,paper_transport_contract FROM accounts WHERE tenant_id=$1 AND account_id=$2 FOR UPDATE`, key.TenantID, key.AccountID).Scan(&a.Revision, &a.Ownership.OwnerID, &a.Ownership.Epoch, &lease, &a.Ready, &a.Market.Valid, &a.Market.SnapshotID, &a.Market.InstrumentRevision, &a.Snapshot, &a.ObservedSequence, &a.ProcessedSequence, &a.PendingObservationBytes, &a.PaperTransportContract)
@@ -266,14 +290,20 @@ func journal(ctx context.Context, tx pgx.Tx, key Key, revision int64, kind strin
 	if err != nil {
 		return err
 	}
+	// Payload sizes measure SQL write attempts, including later rollbacks. They
+	// are serialized input sizes, not PostgreSQL relation or WAL byte counts.
+	txRecorder(tx).Observe(telemetry.JournalBytes, uint64(len(body)))
 	_, err = tx.Exec(ctx, "INSERT INTO account_journal(tenant_id,account_id,revision,kind,detail) VALUES($1,$2,$3,$4,$5)", key.TenantID, key.AccountID, revision, kind, body)
+	if err == nil {
+		countOnCommit(tx, telemetry.DBDurableTransitions)
+	}
 	return err
 }
 func (s *Store) GetAccount(ctx context.Context, key Key) (Account, error) {
 	if !validKey(key) {
 		return Account{}, ErrInvalid
 	}
-	tx, err := s.pool.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.RepeatableRead, AccessMode: pgx.ReadOnly})
+	tx, err := s.begin(ctx, pgx.TxOptions{IsoLevel: pgx.RepeatableRead, AccessMode: pgx.ReadOnly})
 	if err != nil {
 		return Account{}, err
 	}

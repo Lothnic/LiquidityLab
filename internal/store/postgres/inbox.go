@@ -10,6 +10,7 @@ import (
 	"strconv"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/liquiditylab/liquiditylab/internal/telemetry"
 )
 
 // RecordObservation persists an observed account fact without execution authority.
@@ -38,7 +39,7 @@ func (s *Store) recordObservation(ctx context.Context, key Key, ownership *Owner
 		return 0, ErrInvalid
 	}
 	digest := sha256.Sum256(canonical)
-	tx, err := s.pool.Begin(ctx)
+	tx, err := s.begin(ctx, pgx.TxOptions{})
 	if err != nil {
 		return 0, err
 	}
@@ -71,6 +72,7 @@ func (s *Store) recordObservation(ctx context.Context, key Key, ownership *Owner
 		if !bytes.Equal(prior, digest[:]) {
 			return 0, ErrConflict
 		}
+		s.telemetry.Add(telemetry.DBObservationDuplicates, 1)
 		return sequence, nil
 	}
 	if !errors.Is(err, pgx.ErrNoRows) {
@@ -80,12 +82,14 @@ func (s *Store) recordObservation(ctx context.Context, key Key, ownership *Owner
 		return 0, ErrInboxFull
 	}
 	sequence = a.ObservedSequence + 1
+	txRecorder(tx).Observe(telemetry.ObservationBytes, uint64(len(observation.Payload)))
 	if _, err = tx.Exec(ctx, "INSERT INTO observations(tenant_id,account_id,sequence,observation_id,kind,payload,payload_bytes,digest) VALUES($1,$2,$3,$4,$5,$6,$7,$8)", key.TenantID, key.AccountID, sequence, observation.ID, observation.Kind, observation.Payload, len(observation.Payload), digest[:]); err != nil {
 		return 0, normalized(err)
 	}
 	if _, err = tx.Exec(ctx, "UPDATE accounts SET observed_sequence=$3,pending_observation_bytes=pending_observation_bytes+$4 WHERE tenant_id=$1 AND account_id=$2", key.TenantID, key.AccountID, sequence, len(observation.Payload)); err != nil {
 		return 0, err
 	}
+	countOnCommit(tx, telemetry.DBObservationWrites)
 	return sequence, tx.Commit(ctx)
 }
 
