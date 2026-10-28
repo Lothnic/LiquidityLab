@@ -157,10 +157,12 @@ benchmark observation activity. Storage description is supplied by the operator;
 fsync enabled does not prove device durability. No cluster isolation is assumed.
 
 The report explicitly lists missing measurements: private-event age, recording
-write lag, actual restart/replay/restore duration, React rendering, and pure blocked
-lock time. Inference RPC timing is present only when a policy worker is selected;
-external worker CPU, memory, and server-side idleness are unmeasured. Final cursor debt and local cancellation acknowledgement do not
-substitute for those measurements. Derive candidate admission only after
+write lag, actual restart/replay/restore duration, React rendering, and pure
+lock-only time. An explicit separate Go block profile can attribute completed Go
+synchronization waits, subject to the cumulative/window limits below. Inference
+RPC timing is present only when a policy worker is selected; external worker CPU,
+memory, and server-side idleness are unmeasured. Final cursor debt and local
+cancellation acknowledgement do not substitute for those measurements. Derive candidate admission only after
 separate fault/drain evidence and a saturation analysis.
 
 ## Focused checks
@@ -273,8 +275,9 @@ the run invalid.
 
 ## Separate profiling runs
 
-CPU and allocation capture perturb measurements. Use fresh accounts/reports and
-separate comparable runs; never combine both profilers. Both output flags reserve
+CPU, allocation, and blocking capture perturb measurements. Use fresh
+accounts/reports and separate comparable runs; select at most one profiler. All
+three output flags reserve
 new files with `O_EXCL`, mode `0600`, before database mutation. Existing profile
 paths fail before account creation. Files are capped at 32 MiB and always closed;
 setup/interrupted capture is marked incomplete, and write failures fail the run.
@@ -287,6 +290,7 @@ pathname for each run:
 ```sh
 --cpu-profile ../../work/runtime/baseline-cpu-01.pprof
 --alloc-profile ../../work/runtime/baseline-allocs-01.pprof
+--block-profile ../../work/runtime/baseline-block-01.pprof
 ```
 
 The first captures CPU only from immediately before measured schedule construction
@@ -299,9 +303,32 @@ inserted into measurement. Use the report's allocation deltas for the measured
 resource interval. Profile capture time and boundaries are recorded explicitly.
 Neither profile includes CPU/allocations in an external Python process.
 
+The third enables Go's process-wide `runtime.SetBlockProfileRate(1)` immediately
+before measured schedule construction and disables it with rate 0 immediately
+after measurement and accepted-call drain, before resource endpoint reads. Rate
+1 records all completed blocking events, adding potentially substantial overhead.
+Normal runs leave block sampling disabled. The runtime's cumulative `block`
+profile is written after resource endpoints, bounded by the same 32 MiB limit.
+The reported start/finish timestamps mark the sampling window; serialization
+occurs afterward. Every exit closes the file and disables any active sampler.
+
+The profile attributes cumulative contention counts and blocked nanoseconds to
+Go channel and synchronization stacks (including mutexes and wait groups).
+Go records completed blocking events; waits can cross the enable/disable boundary,
+and in-progress waits are not a complete inventory. The runtime provides no reset:
+any earlier blocking samples in this process remain in the cumulative output.
+A fresh runner process ordinarily has sampling disabled during setup/warmup;
+the profile still must not be interpreted as a strict interval delta, elapsed
+wall time, or lock-only time. Concurrent waits can sum above wall time. It covers
+this Go process, including the runner and HTTP/client work, and does not measure
+actual PostgreSQL fsync, database server waits, or external Python worker blocking.
+Profiles contain stack/sample metadata and no object contents.
+
 Inspect files against the exact checksummed executable used for that report:
 
 ```sh
 go tool pprof -top ../../work/runtime/durable-runtime ../../work/runtime/baseline-cpu-01.pprof
 go tool pprof -top -alloc_space ../../work/runtime/durable-runtime ../../work/runtime/baseline-allocs-01.pprof
+go tool pprof -top -sample_index=delay ../../work/runtime/durable-runtime ../../work/runtime/baseline-block-01.pprof
+go tool pprof -top -sample_index=contentions ../../work/runtime/durable-runtime ../../work/runtime/baseline-block-01.pprof
 ```

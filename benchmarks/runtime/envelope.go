@@ -24,6 +24,7 @@ type envelopeConfig struct {
 	PolicyProfile       string        `json:"policy_profile"`
 	CPUProfile          string        `json:"-"`
 	AllocProfile        string        `json:"-"`
+	BlockProfile        string        `json:"-"`
 }
 
 func defaultEnvelope() envelopeConfig {
@@ -42,7 +43,8 @@ func envelopeFlags(c *config) {
 	flag.StringVar(&c.PolicyFallback, "policy-fallback", c.PolicyFallback, "pinned fallback: baseline|pause")
 	flag.StringVar(&c.PolicyProfile, "policy-profile", c.PolicyProfile, "unvalidated policy profile: paper|shadow")
 	flag.StringVar(&c.CPUProfile, "cpu-profile", "", "new CPU profile output; measurement+drain only; separate run")
-	flag.StringVar(&c.AllocProfile, "alloc-profile", "", "new cumulative allocs profile output; separate run; mutually exclusive with CPU")
+	flag.StringVar(&c.AllocProfile, "alloc-profile", "", "new cumulative allocs profile output; separate run")
+	flag.StringVar(&c.BlockProfile, "block-profile", "", "new cumulative Go block profile output; rate 1 during measurement+drain; separate run")
 }
 func (c config) validateEnvelope() error {
 	if c.ReadMode != "actor" && c.ReadMode != "http" {
@@ -82,8 +84,14 @@ func (c config) validateEnvelope() error {
 	} else if c.MockPolicyDelay < 0 && c.PolicySHA256 != "" {
 		return errors.New("policy SHA256 requires a real worker target")
 	}
-	if c.CPUProfile != "" && c.AllocProfile != "" {
-		return errors.New("CPU and allocation profiles require separate runs")
+	profiles := 0
+	for _, path := range []string{c.CPUProfile, c.AllocProfile, c.BlockProfile} {
+		if path != "" {
+			profiles++
+		}
+	}
+	if profiles > 1 {
+		return errors.New("CPU, allocation, and blocking profiles require separate runs")
 	}
 	return nil
 }

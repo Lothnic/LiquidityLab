@@ -27,7 +27,7 @@ var limitations = []string{
 	"Database WAL delta is cluster-wide and may contain concurrent activity. Database size and schema relation bytes include PostgreSQL storage behavior and retained prior benchmark accounts; relation statistics may lag.",
 	"Source loss or any failed source call invalidates the workload even when subsequent calls complete. No lost fact is silently treated as harmless coalescing.",
 	"Resource deltas include the generator, JSON manifest hashing, observer queries, runner samples, and actor. RSS/heap changes are endpoint differences; peak RSS is process lifetime high-water mark; GC CPU fraction is cumulative.",
-	"No restart/restore recovery duration, recording write lag, private-event age, or pure blocked-lock duration is measured. Inference RPC latency is measured only for an explicitly selected worker. Source debt is the final durable observed-minus-processed cursor count; local cleanup latency is not exchange cancellation latency.",
+	"No restart/restore recovery duration, recording write lag, private-event age, or pure lock-only duration is measured. An explicit separate Go block profile records cumulative completed Go synchronization blocking; it does not measure PostgreSQL fsync or external worker blocking. Inference RPC latency is measured only for an explicitly selected worker. Source debt is the final durable observed-minus-processed cursor count; local cleanup latency is not exchange cancellation latency.",
 }
 
 type dbState struct {

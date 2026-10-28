@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"runtime"
 	"runtime/pprof"
 	"sync"
 	"time"
@@ -12,14 +13,15 @@ import (
 const maxProfileBytes int64 = 32 << 20
 
 type profileReport struct {
-	Kind     string    `json:"kind"`
-	Name     string    `json:"artifact_name,omitempty"`
-	Status   string    `json:"status"`
-	Boundary string    `json:"boundary"`
-	Started  time.Time `json:"started_utc,omitempty"`
-	Finished time.Time `json:"finished_utc,omitempty"`
-	SHA256   string    `json:"sha256,omitempty"`
-	Bytes    int64     `json:"bytes,omitempty"`
+	Kind        string    `json:"kind"`
+	Name        string    `json:"artifact_name,omitempty"`
+	Status      string    `json:"status"`
+	Boundary    string    `json:"boundary"`
+	Started     time.Time `json:"started_utc,omitempty"`
+	Finished    time.Time `json:"finished_utc,omitempty"`
+	SHA256      string    `json:"sha256,omitempty"`
+	Bytes       int64     `json:"bytes,omitempty"`
+	BlockRateNS int       `json:"block_profile_rate_ns,omitempty"`
 }
 type profileOutput struct {
 	file     *os.File
@@ -41,6 +43,11 @@ func reserveProfile(c config) (*profileOutput, error) {
 		path = c.AllocProfile
 		p.report.Kind = "allocs"
 		p.report.Boundary = "Cumulative sampled allocation stacks/counts from process startup, including setup and warmup; captured after measured resource endpoints; separate profiling run; no object contents"
+	} else if c.BlockProfile != "" {
+		path = c.BlockProfile
+		p.report.Kind = "block"
+		p.report.BlockRateNS = 1
+		p.report.Boundary = "Go block sampling enabled at rate 1 immediately before measured schedule construction through measurement and accepted-call drain; disabled before resource endpoints; cumulative completed Go channel/synchronization blocking stacks/counts written after endpoints; no reset or strict interval delta; excludes PostgreSQL fsync and external worker blocking; separate profiling run; no object contents"
 	}
 	if path == "" {
 		return p, nil
@@ -73,7 +80,7 @@ func (p *profileOutput) StartMeasurement() error {
 	if p.file == nil {
 		return nil
 	}
-	if p.report.Kind == "cpu" {
+	if p.report.Kind == "cpu" || p.report.Kind == "block" {
 		p.report.Started = time.Now().UTC()
 	}
 	if p.report.Kind == "cpu" {
@@ -84,18 +91,32 @@ func (p *profileOutput) StartMeasurement() error {
 		p.active = true
 		p.report.Status = "running"
 	}
+	if p.report.Kind == "block" {
+		// This standalone benchmark owns the process-wide setting. Rate 1
+		// records every completed Go blocking event while enabled; it does not
+		// reset the runtime's cumulative blocking history.
+		runtime.SetBlockProfileRate(p.report.BlockRateNS)
+		p.active = true
+		p.report.Status = "running"
+	}
 	return nil
 }
 func (p *profileOutput) FinishMeasurement() error {
 	if p.file == nil || p.finished {
 		return nil
 	}
-	p.StopCPU()
+	p.StopSampling()
 	if p.report.Kind == "allocs" {
 		p.report.Started = time.Now().UTC()
 		if err := pprof.Lookup("allocs").WriteTo(p, 0); err != nil {
 			p.report.Status = "write_failed"
 			return errors.New("write cumulative allocation profile failed")
+		}
+	}
+	if p.report.Kind == "block" {
+		if err := pprof.Lookup("block").WriteTo(p, 0); err != nil {
+			p.report.Status = "write_failed"
+			return errors.New("write cumulative blocking profile failed")
 		}
 	}
 	p.finished = true
@@ -124,10 +145,7 @@ func (p *profileOutput) Close() {
 	if p == nil {
 		return
 	}
-	if p.active {
-		pprof.StopCPUProfile()
-		p.active = false
-	}
+	p.StopSampling()
 	if p.file != nil {
 		_ = p.file.Close()
 	}
@@ -136,9 +154,13 @@ func (p *profileOutput) Close() {
 	}
 }
 
-func (p *profileOutput) StopCPU() {
+func (p *profileOutput) StopSampling() {
 	if p.active {
-		pprof.StopCPUProfile()
+		if p.report.Kind == "block" {
+			runtime.SetBlockProfileRate(0)
+		} else {
+			pprof.StopCPUProfile()
+		}
 		p.active = false
 		p.report.Finished = time.Now().UTC()
 	}

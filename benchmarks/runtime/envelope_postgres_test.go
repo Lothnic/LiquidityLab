@@ -24,6 +24,9 @@ func TestPostgresEnvelopeHTTPAndPolicyFallback(t *testing.T) {
 			c.MarketRate = 10
 			c.ReadRate = 20
 			c.Queue = 64
+			// Admit all ten measured reads even if race instrumentation makes
+			// their HTTP calls overlap; this fixture checks route completion.
+			c.InFlight = 16
 			c.MockPolicyDelay = 100 * time.Millisecond
 			c.PolicyTimeout = 20 * time.Millisecond
 			c.PolicyFallback = fallback
@@ -71,4 +74,44 @@ func TestPostgresEnvelopeHTTPAndPolicyFallback(t *testing.T) {
 			// Retain this unique schema and all accounts; never reset or drop them.
 		})
 	}
+}
+
+func TestPostgresSeparateBlockProfile(t *testing.T) {
+	if os.Getenv("LIQUIDITYLAB_TEST_POSTGRES_DSN") == "" {
+		t.Skip("set explicit development PostgreSQL DSN for blocking profile integration")
+	}
+	c := testConfig()
+	c.Schema = "ll_bench_block_" + strconv.FormatInt(time.Now().UnixNano(), 36)
+	c.Output = filepath.Join(t.TempDir(), "block.json")
+	c.BlockProfile = filepath.Join(t.TempDir(), "block.pprof")
+	c.ReadMode = "http"
+	c.Warmup = 100 * time.Millisecond
+	c.Duration = 500 * time.Millisecond
+	c.MarketRate = 10
+	c.ReadRate = 20
+	if err := execute(c); err != nil {
+		data, _ := os.ReadFile(c.Output)
+		t.Fatalf("run: %v; report: %s", err, data)
+	}
+	data, err := os.ReadFile(c.Output)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var r report
+	if err := json.Unmarshal(data, &r); err != nil {
+		t.Fatal(err)
+	}
+	if !r.Valid || !r.FinancialAudit.Valid || r.Profile.Kind != "block" || r.Profile.Status != "complete" || r.Profile.BlockRateNS != 1 || r.Profile.Bytes == 0 {
+		t.Fatalf("invalid block profile report: valid=%v profiling=%+v", r.Valid, r.Profile)
+	}
+	if r.Profile.Started.After(r.Measurement.Started) || r.Profile.Finished.After(r.AfterResources.Wall) || r.Profile.Finished.Before(r.Measurement.Started.Add(time.Duration(r.Measurement.ElapsedNS))) {
+		t.Fatalf("block sampling does not enclose measured drain and end before endpoints: %+v", r.Profile)
+	}
+	sum, size, err := fileSHA256(c.BlockProfile)
+	if err != nil || sum != r.Profile.SHA256 || size != r.Profile.Bytes {
+		t.Fatalf("block profile checksum/size mismatch: %v", err)
+	}
+	assertProfileParses(t, c.BlockProfile, "block")
+	assertBlockSamplingDisabled(t)
+	// Retain this unique schema/account for audit; never reset or drop them.
 }

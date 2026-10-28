@@ -607,7 +607,7 @@ func execute(c config) (resultErr error) {
 		return err
 	}
 	r.Measurement = runPhase(ctx, c, "measurement", c.Duration, a, read)
-	prof.StopCPU()
+	prof.StopSampling()
 	r.AfterResources = resourceSnapshot()
 	r.AfterPool = store.PoolStats()
 	r.AfterTelemetry = rec.Snapshot()
