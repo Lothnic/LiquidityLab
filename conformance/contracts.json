@@ -1,0 +1,746 @@
+{
+  "schema_version": "phase1-contracts-v1",
+  "engine_version": "LiquidityLab-SpotExecution-v1",
+  "observation": {
+    "version": "compact-v1",
+    "field_names": [
+      "remaining_fraction",
+      "time_remaining_fraction",
+      "filled_fraction",
+      "average_fill_to_mid_ratio",
+      "reserved_fraction",
+      "free_quote_fraction",
+      "signed_limit_distance",
+      "spread_bps",
+      "bid_depth_to_target",
+      "ask_depth_to_target",
+      "recent_mid_return",
+      "recent_log_return_std",
+      "cumulative_trade_flow_to_target",
+      "signed_child_price_distance",
+      "child_age_fraction",
+      "child_remaining_fraction",
+      "has_child",
+      "market_valid",
+      "simulated_account_valid",
+      "child_pending"
+    ]
+  },
+  "input_decimals": [
+    {
+      "name": "zero",
+      "wire": {
+        "coefficient": "0",
+        "scale": 0
+      },
+      "valid": true,
+      "text": "0"
+    },
+    {
+      "name": "positive_integer",
+      "wire": {
+        "coefficient": "12",
+        "scale": 0
+      },
+      "valid": true,
+      "text": "12"
+    },
+    {
+      "name": "negative_fraction",
+      "wire": {
+        "coefficient": "-123",
+        "scale": 2
+      },
+      "valid": true,
+      "text": "-1.23"
+    },
+    {
+      "name": "max_input_digits",
+      "wire": {
+        "coefficient": "99999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999",
+        "scale": 0
+      },
+      "valid": true,
+      "text": "99999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999"
+    },
+    {
+      "name": "max_input_scale",
+      "wire": {
+        "coefficient": "1",
+        "scale": 36
+      },
+      "valid": true,
+      "text": "0.000000000000000000000000000000000001"
+    },
+    {
+      "name": "max_input_digits_and_scale",
+      "wire": {
+        "coefficient": "99999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999",
+        "scale": 36
+      },
+      "valid": true,
+      "text": "99999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999.999999999999999999999999999999999999"
+    },
+    {
+      "name": "empty_coefficient",
+      "wire": {
+        "coefficient": "",
+        "scale": 0
+      },
+      "valid": false
+    },
+    {
+      "name": "plus_sign",
+      "wire": {
+        "coefficient": "+1",
+        "scale": 0
+      },
+      "valid": false
+    },
+    {
+      "name": "negative_zero",
+      "wire": {
+        "coefficient": "-0",
+        "scale": 0
+      },
+      "valid": false
+    },
+    {
+      "name": "leading_zero",
+      "wire": {
+        "coefficient": "01",
+        "scale": 0
+      },
+      "valid": false
+    },
+    {
+      "name": "negative_leading_zero",
+      "wire": {
+        "coefficient": "-01",
+        "scale": 0
+      },
+      "valid": false
+    },
+    {
+      "name": "fractional_zero",
+      "wire": {
+        "coefficient": "0",
+        "scale": 1
+      },
+      "valid": false
+    },
+    {
+      "name": "removable_fractional_zero",
+      "wire": {
+        "coefficient": "120",
+        "scale": 2
+      },
+      "valid": false
+    },
+    {
+      "name": "decimal_point",
+      "wire": {
+        "coefficient": "1.2",
+        "scale": 0
+      },
+      "valid": false
+    },
+    {
+      "name": "exponent_coefficient",
+      "wire": {
+        "coefficient": "1e2",
+        "scale": 0
+      },
+      "valid": false
+    },
+    {
+      "name": "space",
+      "wire": {
+        "coefficient": " 1",
+        "scale": 0
+      },
+      "valid": false
+    },
+    {
+      "name": "unicode_digit",
+      "wire": {
+        "coefficient": "\u0661",
+        "scale": 0
+      },
+      "valid": false
+    },
+    {
+      "name": "sign_only",
+      "wire": {
+        "coefficient": "-",
+        "scale": 0
+      },
+      "valid": false
+    },
+    {
+      "name": "input_digits_over_limit",
+      "wire": {
+        "coefficient": "999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999",
+        "scale": 0
+      },
+      "valid": false
+    },
+    {
+      "name": "input_scale_over_limit",
+      "wire": {
+        "coefficient": "1",
+        "scale": 37
+      },
+      "valid": false
+    },
+    {
+      "name": "uint32_scale_limit",
+      "wire": {
+        "coefficient": "1",
+        "scale": 4294967295
+      },
+      "valid": false
+    },
+    {
+      "name": "missing_required",
+      "wire": null,
+      "required": true,
+      "valid": false
+    },
+    {
+      "name": "missing_optional",
+      "wire": null,
+      "required": false,
+      "valid": true,
+      "text": "0"
+    }
+  ],
+  "output_decimals": [
+    {
+      "name": "zero",
+      "wire": {
+        "coefficient": "0",
+        "scale": 0
+      },
+      "valid": true,
+      "text": "0"
+    },
+    {
+      "name": "negative_fraction",
+      "wire": {
+        "coefficient": "-123",
+        "scale": 2
+      },
+      "valid": true,
+      "text": "-1.23"
+    },
+    {
+      "name": "beyond_input_digits",
+      "wire": {
+        "coefficient": "999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999",
+        "scale": 0
+      },
+      "valid": true,
+      "text": "999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999"
+    },
+    {
+      "name": "beyond_input_scale",
+      "wire": {
+        "coefficient": "1",
+        "scale": 37
+      },
+      "valid": true,
+      "text": "0.0000000000000000000000000000000000001"
+    },
+    {
+      "name": "max_output_digits",
+      "wire": {
+        "coefficient": "99999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999",
+        "scale": 0
+      },
+      "valid": true,
+      "text": "99999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999"
+    },
+    {
+      "name": "max_output_scale",
+      "wire": {
+        "coefficient": "1",
+        "scale": 144
+      },
+      "valid": true,
+      "text": "0.000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001"
+    },
+    {
+      "name": "max_output_digits_and_scale",
+      "wire": {
+        "coefficient": "-99999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999",
+        "scale": 144
+      },
+      "valid": true,
+      "text": "-99999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999.999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999"
+    },
+    {
+      "name": "empty_coefficient",
+      "wire": {
+        "coefficient": "",
+        "scale": 0
+      },
+      "valid": false
+    },
+    {
+      "name": "plus_sign",
+      "wire": {
+        "coefficient": "+1",
+        "scale": 0
+      },
+      "valid": false
+    },
+    {
+      "name": "negative_zero",
+      "wire": {
+        "coefficient": "-0",
+        "scale": 0
+      },
+      "valid": false
+    },
+    {
+      "name": "leading_zero",
+      "wire": {
+        "coefficient": "01",
+        "scale": 0
+      },
+      "valid": false
+    },
+    {
+      "name": "negative_leading_zero",
+      "wire": {
+        "coefficient": "-01",
+        "scale": 0
+      },
+      "valid": false
+    },
+    {
+      "name": "fractional_zero",
+      "wire": {
+        "coefficient": "0",
+        "scale": 1
+      },
+      "valid": false
+    },
+    {
+      "name": "removable_fractional_zero",
+      "wire": {
+        "coefficient": "120",
+        "scale": 2
+      },
+      "valid": false
+    },
+    {
+      "name": "decimal_point",
+      "wire": {
+        "coefficient": "1.2",
+        "scale": 0
+      },
+      "valid": false
+    },
+    {
+      "name": "exponent_coefficient",
+      "wire": {
+        "coefficient": "1e2",
+        "scale": 0
+      },
+      "valid": false
+    },
+    {
+      "name": "space",
+      "wire": {
+        "coefficient": " 1",
+        "scale": 0
+      },
+      "valid": false
+    },
+    {
+      "name": "unicode_digit",
+      "wire": {
+        "coefficient": "\u0661",
+        "scale": 0
+      },
+      "valid": false
+    },
+    {
+      "name": "sign_only",
+      "wire": {
+        "coefficient": "-",
+        "scale": 0
+      },
+      "valid": false
+    },
+    {
+      "name": "output_digits_over_limit",
+      "wire": {
+        "coefficient": "999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999",
+        "scale": 0
+      },
+      "valid": false
+    },
+    {
+      "name": "output_scale_over_limit",
+      "wire": {
+        "coefficient": "1",
+        "scale": 145
+      },
+      "valid": false
+    },
+    {
+      "name": "uint32_scale_limit",
+      "wire": {
+        "coefficient": "1",
+        "scale": 4294967295
+      },
+      "valid": false
+    }
+  ],
+  "times": [
+    {
+      "name": "zero",
+      "seconds": "0",
+      "valid": true,
+      "nanoseconds": 0
+    },
+    {
+      "name": "signed_zero",
+      "seconds": "-0.00",
+      "valid": true,
+      "nanoseconds": 0
+    },
+    {
+      "name": "positive_sign",
+      "seconds": "+1",
+      "valid": true,
+      "nanoseconds": 1000000000
+    },
+    {
+      "name": "subnanosecond",
+      "seconds": "0.0000000001",
+      "valid": true,
+      "nanoseconds": 0
+    },
+    {
+      "name": "tie_even_zero",
+      "seconds": "0.0000000005",
+      "valid": true,
+      "nanoseconds": 0
+    },
+    {
+      "name": "tie_odd_up",
+      "seconds": "0.0000000015",
+      "valid": true,
+      "nanoseconds": 2
+    },
+    {
+      "name": "tie_even_down",
+      "seconds": "0.0000000025",
+      "valid": true,
+      "nanoseconds": 2
+    },
+    {
+      "name": "tie_odd_up_three",
+      "seconds": "3.5e-9",
+      "valid": true,
+      "nanoseconds": 4
+    },
+    {
+      "name": "uppercase_exponent",
+      "seconds": "1.25E+1",
+      "valid": true,
+      "nanoseconds": 12500000000
+    },
+    {
+      "name": "max_int64",
+      "seconds": "9223372036.854775807",
+      "valid": true,
+      "nanoseconds": 9223372036854775807
+    },
+    {
+      "name": "beyond_max_before_rounding",
+      "seconds": "9223372036.85477580700000000000000000001",
+      "valid": false
+    },
+    {
+      "name": "beyond_max_one_ns",
+      "seconds": "9223372036.854775808",
+      "valid": false
+    },
+    {
+      "name": "fine_precision_rounding",
+      "seconds": "0.00000000150000000000000000000000000000000000000000000000001",
+      "valid": true,
+      "nanoseconds": 2
+    },
+    {
+      "name": "min_exponent",
+      "seconds": "1e-128",
+      "valid": true,
+      "nanoseconds": 0
+    },
+    {
+      "name": "max_coefficient_precision",
+      "seconds": "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111e-128",
+      "valid": true,
+      "nanoseconds": 111111111
+    },
+    {
+      "name": "precision129",
+      "seconds": "0.111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111",
+      "valid": false
+    },
+    {
+      "name": "exponent_below_limit",
+      "seconds": "1e-129",
+      "valid": false
+    },
+    {
+      "name": "zero_exponent_above_limit",
+      "seconds": "0e129",
+      "valid": false
+    },
+    {
+      "name": "zero_max_positive_exponent",
+      "seconds": "0e128",
+      "valid": true,
+      "nanoseconds": 0
+    },
+    {
+      "name": "zero_max_negative_exponent",
+      "seconds": "0e-128",
+      "valid": true,
+      "nanoseconds": 0
+    },
+    {
+      "name": "huge_exponent",
+      "seconds": "1e999999999999999999999",
+      "valid": false
+    },
+    {
+      "name": "negative",
+      "seconds": "-0.0000000001",
+      "valid": false
+    },
+    {
+      "name": "nan",
+      "seconds": "NaN",
+      "valid": false
+    },
+    {
+      "name": "infinity",
+      "seconds": "Infinity",
+      "valid": false
+    },
+    {
+      "name": "negative_infinity",
+      "seconds": "-Infinity",
+      "valid": false
+    },
+    {
+      "name": "empty",
+      "seconds": "",
+      "valid": false
+    },
+    {
+      "name": "multiple_points",
+      "seconds": "1.2.3",
+      "valid": false
+    },
+    {
+      "name": "leading_zero_seconds",
+      "seconds": "000.0000000015",
+      "valid": true,
+      "nanoseconds": 2
+    },
+    {
+      "name": "fraction_without_integer",
+      "seconds": ".5",
+      "valid": true,
+      "nanoseconds": 500000000
+    },
+    {
+      "name": "point_without_fraction",
+      "seconds": "1.",
+      "valid": true,
+      "nanoseconds": 1000000000
+    },
+    {
+      "name": "max_exponent_overflow",
+      "seconds": "1e128",
+      "valid": false
+    },
+    {
+      "name": "trailing_zero_precision129",
+      "seconds": "100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000e-128",
+      "valid": false
+    },
+    {
+      "name": "whitespace",
+      "seconds": " 1 ",
+      "valid": false
+    },
+    {
+      "name": "underscore",
+      "seconds": "1_0",
+      "valid": false
+    },
+    {
+      "name": "non_ascii_digit",
+      "seconds": "\u0661",
+      "valid": false
+    },
+    {
+      "name": "multiple_exponents",
+      "seconds": "1e1e1",
+      "valid": false
+    },
+    {
+      "name": "missing_mantissa",
+      "seconds": "e1",
+      "valid": false
+    },
+    {
+      "name": "missing_exponent",
+      "seconds": "1e",
+      "valid": false
+    },
+    {
+      "name": "missing_exponent_digits",
+      "seconds": "1e+",
+      "valid": false
+    },
+    {
+      "name": "missing_digits",
+      "seconds": ".",
+      "valid": false
+    },
+    {
+      "name": "sign_without_digits",
+      "seconds": "+",
+      "valid": false
+    },
+    {
+      "name": "signed_point_without_digits",
+      "seconds": "-.",
+      "valid": false
+    }
+  ],
+  "legacy_float_times": [
+    {
+      "value": 0.05,
+      "nanoseconds": 50000000,
+      "name": "config_fraction"
+    },
+    {
+      "value": 1.5e-09,
+      "nanoseconds": 2,
+      "name": "float_tie"
+    }
+  ],
+  "actions": [
+    {
+      "legacy": 0,
+      "wire": 1,
+      "name": "ACTION_HOLD"
+    },
+    {
+      "legacy": 1,
+      "wire": 2,
+      "name": "ACTION_CANCEL_CHILD"
+    },
+    {
+      "legacy": 2,
+      "wire": 3,
+      "name": "ACTION_PASSIVE_SMALL"
+    },
+    {
+      "legacy": 3,
+      "wire": 4,
+      "name": "ACTION_PASSIVE_NORMAL"
+    },
+    {
+      "legacy": 4,
+      "wire": 5,
+      "name": "ACTION_AGGRESSIVE_SMALL"
+    },
+    {
+      "legacy": 5,
+      "wire": 6,
+      "name": "ACTION_AGGRESSIVE_NORMAL"
+    }
+  ],
+  "invalid_legacy_actions": [
+    -1,
+    6,
+    99
+  ],
+  "enums": {
+    "Action": {
+      "values": {
+        "ACTION_UNSPECIFIED": 0,
+        "ACTION_HOLD": 1,
+        "ACTION_CANCEL_CHILD": 2,
+        "ACTION_PASSIVE_SMALL": 3,
+        "ACTION_PASSIVE_NORMAL": 4,
+        "ACTION_AGGRESSIVE_SMALL": 5,
+        "ACTION_AGGRESSIVE_NORMAL": 6
+      },
+      "rejected_wire": [
+        -1,
+        0,
+        7,
+        99,
+        2147483647
+      ]
+    },
+    "Side": {
+      "values": {
+        "SIDE_UNSPECIFIED": 0,
+        "SIDE_BUY": 1,
+        "SIDE_SELL": 2
+      },
+      "rejected_wire": [
+        -1,
+        0,
+        3,
+        99,
+        2147483647
+      ]
+    },
+    "EventKind": {
+      "values": {
+        "EVENT_UNSPECIFIED": 0,
+        "EVENT_SNAPSHOT": 1,
+        "EVENT_BOOK": 2,
+        "EVENT_TRADE": 3,
+        "EVENT_GAP": 4
+      },
+      "rejected_wire": [
+        -1,
+        0,
+        5,
+        99,
+        2147483647
+      ]
+    },
+    "FeeCurrency": {
+      "values": {
+        "FEE_UNSPECIFIED": 0,
+        "FEE_QUOTE": 1,
+        "FEE_BASE": 2
+      },
+      "rejected_wire": [
+        -1,
+        0,
+        3,
+        99,
+        2147483647
+      ]
+    }
+  }
+}

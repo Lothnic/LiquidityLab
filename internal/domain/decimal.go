@@ -316,17 +316,79 @@ func Max(ds ...Decimal) Decimal {
 }
 
 // SecondsToNanos imports written decimal seconds with nearest, ties-to-even rounding.
+// Time has its own precision envelope: 128 coefficient digits and a normalized
+// decimal exponent in [-128, 128], before rounding to signed nanoseconds.
 func SecondsToNanos(s string) (int64, error) {
-	d, e := ParseDecimal(s)
-	if e != nil {
-		return 0, e
+	invalid := func() (int64, error) { return 0, fmt.Errorf("invalid replay time") }
+	mantissa, exponent := s, int64(0)
+	if index := strings.IndexAny(s, "eE"); index >= 0 {
+		mantissa = s[:index]
+		var err error
+		exponent, err = strconv.ParseInt(s[index+1:], 10, 32)
+		if err != nil {
+			return invalid()
+		}
 	}
-	if d.Sign() < 0 || d.Cmp(MustDecimal("9223372036.854775807")) > 0 {
-		return 0, fmt.Errorf("invalid replay time")
+	negative := strings.HasPrefix(mantissa, "-")
+	if negative || strings.HasPrefix(mantissa, "+") {
+		mantissa = mantissa[1:]
 	}
-	n := d.Mul(MustDecimal("1000000000")).Div(One, 0, HalfEven).coef()
+	var coefficient strings.Builder
+	coefficient.Grow(128)
+	seenDigit, seenPoint, nonzero := false, false, false
+	for _, digit := range mantissa {
+		if digit == '.' && !seenPoint {
+			seenPoint = true
+			continue
+		}
+		if digit < '0' || digit > '9' {
+			return invalid()
+		}
+		seenDigit = true
+		if seenPoint {
+			exponent--
+		}
+		if digit != '0' {
+			nonzero = true
+		}
+		if nonzero {
+			if coefficient.Len() == 128 {
+				return invalid()
+			}
+			coefficient.WriteByte(byte(digit))
+		}
+	}
+	if !seenDigit || exponent < -128 || exponent > 128 || negative && nonzero {
+		return invalid()
+	}
+	if !nonzero {
+		return 0, nil
+	}
+	// Bounds are checked before constructing powers or arbitrary precision math.
+	n, ok := new(big.Int).SetString(coefficient.String(), 10)
+	if !ok {
+		return invalid()
+	}
+	power := exponent + 9
+	maxNanos := big.NewInt(1<<63 - 1)
+	if power >= 0 {
+		n.Mul(n, new(big.Int).Exp(big.NewInt(10), big.NewInt(power), nil))
+	} else {
+		divisor := new(big.Int).Exp(big.NewInt(10), big.NewInt(-power), nil)
+		// Reject values beyond the exact maximum, even if rounding would fit.
+		if n.Cmp(new(big.Int).Mul(maxNanos, divisor)) > 0 {
+			return invalid()
+		}
+		quotient, remainder := new(big.Int), new(big.Int)
+		quotient.QuoRem(n, divisor, remainder)
+		tie := new(big.Int).Lsh(remainder, 1).Cmp(divisor)
+		if tie > 0 || tie == 0 && quotient.Bit(0) != 0 {
+			quotient.Add(quotient, big.NewInt(1))
+		}
+		n = quotient
+	}
 	if !n.IsInt64() || n.Sign() < 0 {
-		return 0, fmt.Errorf("invalid replay time")
+		return invalid()
 	}
 	return n.Int64(), nil
 }

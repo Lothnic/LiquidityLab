@@ -5,6 +5,7 @@ passes through binary floating point. Decimal tuple operations avoid the
 caller's ambient Decimal precision.
 """
 
+import re
 from decimal import Decimal
 from numbers import Integral
 
@@ -13,6 +14,7 @@ from .v1 import execution_pb2 as pb
 
 MAX_TIME_NS = (1 << 63) - 1
 GO_ENV_ID = "LiquidityLab-SpotExecution-v1"
+_WRITTEN_SECONDS = re.compile(r"[+-]?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?")
 
 
 def encode_decimal(value):
@@ -43,13 +45,19 @@ def decode_decimal(value):
     coefficient = value.coefficient
     digits = coefficient.removeprefix("-")
     if (not digits or len(digits) > 512 or not digits.isascii() or not digits.isdecimal()
-            or value.scale > 144):
+            or value.scale > 144 or value.scale < 0
+            or len(digits) > 1 and digits.startswith("0")
+            or coefficient.startswith("-") and digits == "0"
+            or value.scale and digits.endswith("0")):
         raise ValueError("malformed decimal from replay service")
     return Decimal((int(coefficient.startswith("-")), tuple(map(int, digits)), -value.scale))
 
 
 def seconds_to_ns(value):
-    number = Decimal(str(value))
+    written = str(value)
+    if _WRITTEN_SECONDS.fullmatch(written) is None:
+        raise ValueError("time must use ASCII decimal or scientific notation")
+    number = Decimal(written)
     if not number.is_finite() or number < 0 or number > Decimal("9223372036.854775807"):
         raise ValueError("time must be nonnegative and fit signed nanoseconds")
     sign, digits, exponent = number.as_tuple()
