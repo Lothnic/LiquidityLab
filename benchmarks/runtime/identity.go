@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"runtime"
 	"runtime/debug"
 	"strings"
 )
@@ -29,9 +30,10 @@ type buildIdentity struct {
 	VCSStatus    string            `json:"vcs_status"`
 }
 type executableIdentity struct {
-	Status string `json:"status"`
-	SHA256 string `json:"sha256,omitempty"`
-	Bytes  int64  `json:"bytes,omitempty"`
+	Status     string `json:"status"`
+	ReadSource string `json:"read_source,omitempty"`
+	SHA256     string `json:"sha256,omitempty"`
+	Bytes      int64  `json:"bytes,omitempty"`
 }
 
 func moduleInfo(m debug.Module) moduleIdentity {
@@ -104,11 +106,17 @@ func currentExecutableIdentity() executableIdentity {
 	if err != nil {
 		return executableIdentity{Status: "unavailable"}
 	}
+	source := "executable_path"
+	if runtime.GOOS == "linux" {
+		// The path returned by Executable can be replaced after launch. procfs
+		// instead opens the inode of this running image, including after rename.
+		path, source = "/proc/self/exe", "proc_self_exe"
+	}
 	sum, n, err := fileSHA256(path)
 	if err != nil {
 		return executableIdentity{Status: "unavailable"}
 	}
-	return executableIdentity{Status: "available", SHA256: sum, Bytes: n}
+	return executableIdentity{Status: "available", ReadSource: source, SHA256: sum, Bytes: n}
 }
 
 func currentBuildIdentity() buildIdentity {

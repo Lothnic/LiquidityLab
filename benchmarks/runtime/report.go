@@ -165,18 +165,25 @@ type latency struct {
 }
 
 func latencies(samples []sample) map[string]latency {
-	values := map[string][]int64{"generator_lag": {}, "runner_queue_wait": {}, "actor_call_success": {}, "offered_to_success": {}, "actor_call_all_returns": {}}
+	values := map[string][]int64{}
+	for _, prefix := range []string{"", "market_", "view_"} {
+		for _, name := range []string{"generator_lag", "runner_queue_wait", "actor_call_success", "offered_to_success", "actor_call_all_returns"} {
+			values[prefix+name] = []int64{}
+		}
+	}
 	for _, s := range samples {
-		values["generator_lag"] = append(values["generator_lag"], s.AttemptNS-s.IntendedNS)
-		if s.CallNS != nil && s.AdmittedNS != nil {
-			values["runner_queue_wait"] = append(values["runner_queue_wait"], *s.CallNS-*s.AdmittedNS)
-		}
-		if s.CompletedNS != nil && s.CallNS != nil {
-			values["actor_call_all_returns"] = append(values["actor_call_all_returns"], *s.CompletedNS-*s.CallNS)
-		}
-		if s.Outcome == "completed" && s.CompletedNS != nil && s.CallNS != nil {
-			values["actor_call_success"] = append(values["actor_call_success"], *s.CompletedNS-*s.CallNS)
-			values["offered_to_success"] = append(values["offered_to_success"], *s.CompletedNS-s.IntendedNS)
+		for _, prefix := range []string{"", s.Kind + "_"} {
+			values[prefix+"generator_lag"] = append(values[prefix+"generator_lag"], s.AttemptNS-s.IntendedNS)
+			if s.CallNS != nil && s.AdmittedNS != nil {
+				values[prefix+"runner_queue_wait"] = append(values[prefix+"runner_queue_wait"], *s.CallNS-*s.AdmittedNS)
+			}
+			if s.CompletedNS != nil && s.CallNS != nil {
+				values[prefix+"actor_call_all_returns"] = append(values[prefix+"actor_call_all_returns"], *s.CompletedNS-*s.CallNS)
+			}
+			if s.Outcome == "completed" && s.CompletedNS != nil && s.CallNS != nil {
+				values[prefix+"actor_call_success"] = append(values[prefix+"actor_call_success"], *s.CompletedNS-*s.CallNS)
+				values[prefix+"offered_to_success"] = append(values[prefix+"offered_to_success"], *s.CompletedNS-s.IntendedNS)
+			}
 		}
 	}
 	out := map[string]latency{}
