@@ -13,6 +13,10 @@ see [policy-runtime.md](policy-runtime.md). The desk also serves retained
 [session history](session-history.md). Neither feature enables live transport
 or makes an unvalidated policy eligible for live use.
 
+For an optional bounded local process-metrics export, add a new output path with
+`--metrics-output`; see [runtime-metrics.md](runtime-metrics.md) for the JSONL
+format, metric definitions, and limits.
+
 ## Start a synthetic session
 
 Use a dedicated development PostgreSQL database. Build the UI and daemon, then

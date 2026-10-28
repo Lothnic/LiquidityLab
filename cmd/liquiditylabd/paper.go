@@ -33,6 +33,7 @@ import (
 	"github.com/liquiditylab/liquiditylab/internal/marketdata"
 	rt "github.com/liquiditylab/liquiditylab/internal/runtime"
 	pg "github.com/liquiditylab/liquiditylab/internal/store/postgres"
+	"github.com/liquiditylab/liquiditylab/internal/telemetry"
 )
 
 const paperDaemonTenant = "synthetic-paper-daemon"
@@ -41,6 +42,7 @@ var paperDaemonSchema = regexp.MustCompile(`^[a-z][a-z0-9_]{0,62}$`)
 var paperDaemonAccount = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,127}$`)
 
 type paperServerOptions struct {
+	metricsOutput                                           string
 	resume                                                  bool
 	policyTarget, policyHash, policyFallback, policyProfile string
 	policyAllowUnvalidated                                  bool
@@ -56,20 +58,22 @@ type paperServerOptions struct {
 type paperSource func(context.Context, func(context.Context, marketdata.Event) error) error
 
 type paperDaemon struct {
-	policyClient *inference.Client
-	store        *pg.Store
-	actor        *rt.Actor
-	key          pg.Key
-	handler      http.Handler
-	log          io.Writer
-	stopSource   context.CancelFunc
-	sourceDone   chan struct{}
-	closing      atomic.Bool
-	ingress      sync.Mutex
-	reconciled   bool
-	gapSeen      bool
-	closeOnce    sync.Once
-	closeResult  error
+	metrics       *telemetry.Recorder
+	metricsOutput *os.File
+	policyClient  *inference.Client
+	store         *pg.Store
+	actor         *rt.Actor
+	key           pg.Key
+	handler       http.Handler
+	log           io.Writer
+	stopSource    context.CancelFunc
+	sourceDone    chan struct{}
+	closing       atomic.Bool
+	ingress       sync.Mutex
+	reconciled    bool
+	gapSeen       bool
+	closeOnce     sync.Once
+	closeResult   error
 }
 
 func parsePaperOptions(args []string) (paperServerOptions, error) {
@@ -91,6 +95,7 @@ func parsePaperOptions(args []string) (paperServerOptions, error) {
 	flags.StringVar(&opt.source, "source", "kraken", "kraken public data or synthetic deterministic demo")
 	flags.StringVar(&opt.webDir, "web-dir", "apps/web/dist", "built React index.html/assets directory")
 	flags.StringVar(&opt.captureOutput, "capture-output", "", "new raw JSONL recording path (required for kraken)")
+	flags.StringVar(&opt.metricsOutput, "metrics-output", "", "optional new local JSONL path for shutdown metrics (never served over HTTP)")
 	base := flags.String("initial-base", "", "explicit initial synthetic BTC balance (required)")
 	quote := flags.String("initial-quote", "", "explicit initial synthetic USD balance (required)")
 	flags.DurationVar(&opt.duration, "duration", 30*time.Minute, "maximum server lifetime (0 < duration <= 24h)")
@@ -194,7 +199,7 @@ func (o paperServerOptions) validate() error {
 			}
 		}
 	}
-	return nil
+	return validatePaperOutputPaths(o)
 }
 
 func paperServerOperation() (context.Context, context.CancelFunc) {
@@ -277,8 +282,21 @@ func newPaperDaemon(ctx context.Context, opt paperServerOptions, dsn, token stri
 	if !paperTokenValid(token) || static == nil || source == nil {
 		return nil, errors.New("invalid paper server authentication, assets or source configuration")
 	}
+	if err := validatePaperOutputPaths(opt); err != nil {
+		return nil, err
+	}
+	metrics, metricsOutput, err := openPaperMetrics(opt.metricsOutput)
+	if err != nil {
+		return nil, err
+	}
+	metricsOwned := false
+	defer func() {
+		if metricsOutput != nil && !metricsOwned {
+			_ = metricsOutput.Close()
+		}
+	}()
 	op, cancel := paperServerOperation()
-	store, err := pg.Open(op, dsn, opt.schema)
+	store, err := pg.OpenWithOptions(op, dsn, opt.schema, pg.Options{Telemetry: metrics})
 	cancel()
 	if err != nil {
 		return nil, paperServerError("open isolated paper database", err)
@@ -296,7 +314,7 @@ func newPaperDaemon(ctx context.Context, opt paperServerOptions, dsn, token stri
 	var policyClient *inference.Client
 	if opt.policyTarget != "" {
 		op, cancel = paperServerOperation()
-		policyClient, err = inference.New(op, inference.Config{Target: opt.policyTarget, PolicySHA256: opt.policyHash, Profile: opt.policyProfile, AllowUnvalidated: opt.policyAllowUnvalidated, Timeout: opt.policyTimeout})
+		policyClient, err = inference.New(op, inference.Config{Telemetry: metrics, Target: opt.policyTarget, PolicySHA256: opt.policyHash, Profile: opt.policyProfile, AllowUnvalidated: opt.policyAllowUnvalidated, Timeout: opt.policyTimeout})
 		cancel()
 		if err != nil {
 			return fail("connect and verify pinned paper policy", err)
@@ -328,6 +346,7 @@ func newPaperDaemon(ctx context.Context, opt paperServerOptions, dsn, token stri
 		return fail("create NEW synthetic paper account", err)
 	}
 	config := rt.DefaultConfig(store, key)
+	config.Telemetry = metrics
 	config.AutoExecute = true
 	if policyClient != nil {
 		config.Policy = &rt.PolicyConfig{Worker: policyClient, PolicySHA256: opt.policyHash, ExpectedMode: policyClient.PromotionStatus(), Profile: opt.policyProfile, AllowUnvalidated: opt.policyAllowUnvalidated, Fallback: opt.policyFallback, Timeout: opt.policyTimeout}
@@ -360,6 +379,8 @@ func newPaperDaemon(ctx context.Context, opt paperServerOptions, dsn, token stri
 	}
 	sourceCtx, stopSource := context.WithCancel(ctx)
 	daemon := &paperDaemon{policyClient: policyClient, store: store, actor: actor, key: key, log: output, stopSource: stopSource, sourceDone: make(chan struct{})}
+	daemon.metrics, daemon.metricsOutput = metrics, metricsOutput
+	metricsOwned = true
 	daemon.handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("Referrer-Policy", "no-referrer")
@@ -602,6 +623,9 @@ func (p *paperDaemon) Close() error {
 		fmt.Fprintf(p.log, "PAPER stopped account=%s/%s known_final=%t; durable state retained\n", p.key.TenantID, p.key.AccountID, knownFinal)
 		if p.policyClient != nil {
 			_ = p.policyClient.Close()
+		}
+		if err := p.finishMetrics(knownFinal); err != nil {
+			p.closeResult = errors.Join(p.closeResult, err)
 		}
 		p.store.Close()
 	})
