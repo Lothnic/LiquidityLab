@@ -40,14 +40,21 @@ makes no third-party font or analytics requests.
 
 ## Operator flow
 
+The desk separates **Trade** from **Session history**. Trade follows three
+visible steps: set limits, review the plan, then start trading. Labels use
+everyday order language; internal parent/child identifiers live under account
+details. The existing paper profile and market-source distinction remain.
+
 1. Paste the configured operator bearer token into the password field. It is
    held only in component memory, never URL, local storage, or session storage.
 2. Select one of the exact tenant/account scopes returned by `GET /v1/accounts`.
    The active selection is visible in the control strip.
-3. Enter buy/sell side, exact decimal quantity and limit, duration, maximum
-   child size, policy, and account budgets. Financial inputs remain text through
+3. Enter buy/sell side, Amount, Maximum buy price or Minimum sell price,
+   Time to complete, and Maximum per order. Execution settings contains the
+   scheduled/liquidity-aware method and cash/asset budgets. Financial inputs remain text through
    request construction; the UI does not round them through JavaScript numbers.
-4. Read the server's pure preview. If it is ready and the financial/control authority is
+4. Choose **Review plan** and inspect the first proposed order, price and funds
+   needed. If it is ready and the financial/control authority is
    unchanged, create a paused plan. Starting or resuming requires a separate
    command. A ready preview without a first child can still create a paused
    plan: the baseline may wait for a larger slice or an eligible price. This
@@ -62,6 +69,14 @@ makes no third-party font or analytics requests.
    Fill navigation renders at most 200 rows per page. Timeline export explicitly
    indicates whether its bounded event set is complete. See
    [session-history.md](session-history.md) for cursor and financial semantics.
+
+Execution settings, balance breakdowns and technical activity use native
+disclosures. Invalid fields inside execution settings reopen that disclosure
+before the browser focuses the field. The current plan and cancellation warnings
+stay visible; a running/paused plan collapses the new-plan composer. Free balances
+and local reservation amounts are displayed separately. A pending action shows
+its target account, distinguishes an in-flight request from an unknown outcome,
+and retains the original command for an explicit **Retry same action**.
 
 A configured Python policy shows its actual proposal/fallback status in the
 current session. The deterministic baseline remains the default. Worker loss
@@ -110,7 +125,7 @@ from server decimal strings. Fill rows show the latest eight rows from the API
 projection. Their time column is an elapsed offset (`T+...`), not a wall-clock
 timestamp. The API itself includes at most the latest 2,048 fills; the server
 reports total count and truncation. Average fill price and executed cost are
-separate metrics. Executed cost is the server's fill slippage against the
+separate metrics. The **Cost vs. start price** value is the server's fill slippage against the
 frozen arrival midpoint plus quote-valued fees; residual quantity is excluded.
 It is not P&L, total cost, or policy reward. The UI labels paper fills as
 simulated.

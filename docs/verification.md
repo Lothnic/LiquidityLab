@@ -1,5 +1,31 @@
 # Verification record
 
+## Trader desk clarity refinement — 30 October 2026
+
+The scoped UI refinement keeps the existing paper runtime and API semantics,
+replaces small display-heavy operator text with readable task labels, and
+separates Trade from Session history. Native disclosures hold execution settings,
+balance details and technical activity. Cancellation warnings, free/local-reserved
+amounts, exact decimals and the original account/action for unknown retries remain
+available. Sending and unknown outcomes now have distinct UI messages.
+
+- `npm run build` passes TypeScript and the Vite production build.
+- All 48 existing frontend checks pass. Copy assertions were updated to the
+  new labels; exact request/retry identity, account scope, authority binding,
+  cancellation and history revision checks remain intact.
+- The Impeccable mechanical detector returned no findings on the changed
+  application and history surfaces. Static token checks give secondary text
+  contrast of at least 6.94:1 on the primary dark surfaces.
+- The incumbent interface was inspected in the browser using an isolated local
+  synthetic paper account. Subsequent browser access to the updated localhost
+  preview was rejected by browser security policy. Updated desktop/mobile render
+  and interactive browser sign-off are therefore **not verified**. A user
+  screenshot was requested; build/component checks do not substitute for it.
+
+The earlier replay UI draft remains a separate uncommitted workstream. Its type
+predicate was corrected locally so that the existing draft does not block the
+whole frontend build; it is not wired into this interface or counted as delivered.
+
 ## Cooperative account scheduling and fresh bridge/public-data gates — 29 October 2026
 
 Runtime `069609b`, process fixture `0c00e73` and manifest/docs `6635f63` implement
