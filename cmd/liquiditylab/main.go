@@ -27,7 +27,7 @@ func main() {
 
 func run(args []string, stdout, stderr io.Writer) error {
 	if len(args) == 0 {
-		return errors.New("usage: liquiditylab <capture|normalize|paper> [flags]")
+		return errors.New("usage: liquiditylab <capture|normalize|paper|dataset> [flags]")
 	}
 	switch args[0] {
 	case "capture":
@@ -36,14 +36,17 @@ func run(args []string, stdout, stderr io.Writer) error {
 		return normalize(args[1:], stdout, stderr)
 	case "paper":
 		return paper(args[1:], stdout, stderr)
+	case "dataset":
+		return dataset(args[1:], stdout, stderr)
 	case "help", "-h", "--help":
-		fmt.Fprintln(stdout, "usage: liquiditylab <capture|normalize|paper> [flags]")
+		fmt.Fprintln(stdout, "usage: liquiditylab <capture|normalize|paper|dataset> [flags]")
 		fmt.Fprintln(stdout, "  capture   record Kraken public book and trade streams")
 		fmt.Fprintln(stdout, "  normalize validate a raw recording and emit causal JSONL events")
 		fmt.Fprintln(stdout, "  paper     run a bounded recorded-data session with synthetic balances")
+		fmt.Fprintln(stdout, "  dataset   import and inspect verified immutable public recordings")
 		return nil
 	default:
-		return fmt.Errorf("unknown command %q (use capture, normalize, or paper)", args[0])
+		return fmt.Errorf("unknown command %q (use capture, normalize, paper, or dataset)", args[0])
 	}
 }
 
