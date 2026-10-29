@@ -9,6 +9,10 @@ only the recording's checked receipt continuity and terminal book validity. It
 does not establish replay eligibility, policy suitability, or operational
 capacity. Archive entries are not yet linked to paper sessions or replay jobs.
 
+The [offline historical comparison](historical-replay.md) reads these entries
+and separately checks interval validity and deadline/settlement coverage before
+running simulated baseline scenarios.
+
 ## Build and inspect command help
 
 From the repository root, build the CLI when a binary is needed:

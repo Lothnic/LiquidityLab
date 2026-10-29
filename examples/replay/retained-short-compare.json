@@ -1,0 +1,58 @@
+{
+  "schema": "liquiditylab.historical-compare.spec.v1",
+  "rules": {
+    "symbol": "BTC/USD",
+    "tick_size": "0.1",
+    "lot_size": "0.00000001",
+    "min_quantity": "0.0001",
+    "min_notional": "1"
+  },
+  "fees": {
+    "maker": "0.001",
+    "taker": "0.002",
+    "currency": "quote",
+    "source": "Example synthetic fee assumptions; not verified account or venue fees"
+  },
+  "simulation": {
+    "decision_interval_ns": 100000000,
+    "submission_latency_ns": 10000000,
+    "cancel_latency_ns": 10000000,
+    "settlement_allowance_ns": 100000000,
+    "lambda_miss": 100,
+    "max_participation": "0.25",
+    "min_resting_age_ns": 100000000,
+    "min_message_interval_ns": 100000000,
+    "fill_model": "conservative-v0"
+  },
+  "valuation_reference": "deadline-midpoint",
+  "reference": {
+    "label": "scheduled estimate",
+    "policy": "scheduled",
+    "plan": {
+      "side": "buy",
+      "quantity": "0.001",
+      "limit_price": "90000",
+      "deadline_ns": 1000000000,
+      "max_child_quantity": "0.001",
+      "quote_budget": "100",
+      "base_balance": "0",
+      "symbol": "BTC/USD"
+    }
+  },
+  "alternatives": [
+    {
+      "label": "liquidity-aware estimate",
+      "policy": "liquidity-aware",
+      "plan": {
+        "side": "buy",
+        "quantity": "0.001",
+        "limit_price": "90000",
+        "deadline_ns": 1000000000,
+        "max_child_quantity": "0.001",
+        "quote_budget": "100",
+        "base_balance": "0",
+        "symbol": "BTC/USD"
+      }
+    }
+  ]
+}
