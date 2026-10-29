@@ -51,6 +51,7 @@ func decisionBookkeepingOnly(before, after State, change pg.Change) bool {
 	after.LastObservation = before.LastObservation
 	after.PolicyPending = before.PolicyPending
 	after.LastPolicyDecision = before.LastPolicyDecision
+	after.LastDecisionSourceCursor = before.LastDecisionSourceCursor
 	return inputDigest(after) == inputDigest(before)
 }
 
@@ -123,6 +124,7 @@ func (a *Actor) command(ctx context.Context, c Command) (pg.Result, error) {
 		audit := *next.PolicyPending
 		audit.Result, audit.Reason, audit.Action = "fallback_pause", "control_"+c.Kind, d.Hold
 		audit.ResolvedAt, audit.AppliedMarketSnapshotID = a.now(), next.MarketID
+		audit.AppliedSourceCursor = copySourceCursor(next.SourceCursor)
 		next.PolicyPending, next.LastPolicyDecision = nil, &audit
 		next.DecisionCount = max(next.DecisionCount, audit.Slot)
 		next.NextDecision = a.elapsed(next) + next.Execution.DecisionInterval
@@ -182,6 +184,7 @@ func (a *Actor) command(ctx context.Context, c Command) (pg.Result, error) {
 		next.DecisionCount = 0
 		next.LastObservation = nil
 		next.LastPolicyDecision = nil
+		next.LastDecisionSourceCursor = nil
 		next.PolicyLateOutcome = nil
 		change.Plan = parentRow(next.Parent)
 	case "start", "resume":
@@ -195,6 +198,11 @@ func (a *Actor) command(ctx context.Context, c Command) (pg.Result, error) {
 			return pg.Result{}, ErrInvalid
 		}
 		if !next.Parent.Started {
+			if next.SealedSource != nil && next.SourceCursor == nil {
+				return pg.Result{}, ErrRecoveryRequired
+			}
+			next.Parent.SealedSource = copySource(next.SealedSource)
+			next.Parent.SourceStartCursor = copySourceCursor(next.SourceCursor)
 			next.Parent.Start = a.now().UTC()
 			next.Parent.Started = true
 			next.Parent.Spec.Deadline = next.Parent.Deadline.Sub(next.Parent.Start).Nanoseconds()
@@ -245,6 +253,7 @@ func (a *Actor) command(ctx context.Context, c Command) (pg.Result, error) {
 		}
 		action := c.Action
 		if c.Kind == "decision" {
+			next.LastDecisionSourceCursor = copySourceCursor(next.SourceCursor)
 			if c.policy == nil && c.Policy != next.Parent.Baseline {
 				return pg.Result{}, ErrInvalid
 			}

@@ -45,24 +45,26 @@ type PolicyBundle struct {
 // PolicyDecision is a durable request and outcome projection. Slot identifies one
 // obligation; its resolution commits in the same transaction as an action enqueue.
 type PolicyDecision struct {
-	RequestID               string       `json:"request_id"`
-	Slot                    uint64       `json:"slot"`
-	ParentID                string       `json:"parent_id"`
-	ParentRevision          uint64       `json:"parent_revision"`
-	AuthorityRevision       uint64       `json:"authority_revision"`
-	JournalRevision         int64        `json:"journal_revision"`
-	OwnerGeneration         int64        `json:"owner_generation"`
-	MarketSnapshotID        string       `json:"market_snapshot_id"`
-	AppliedMarketSnapshotID string       `json:"applied_market_snapshot_id,omitempty"`
-	ExpiresAt               time.Time    `json:"expires_at"`
-	Observation             []float32    `json:"observation"`
-	Bundle                  PolicyBundle `json:"bundle"`
-	Result                  string       `json:"result"`
-	Reason                  string       `json:"reason"`
-	Action                  d.Action     `json:"action"`
-	ProposedAction          *d.Action    `json:"proposed_action,omitempty"`
-	ResolvedAt              time.Time    `json:"resolved_at,omitempty"`
-	Mode                    string       `json:"mode,omitempty"`
+	RequestedSourceCursor   *SourceCursor `json:"requested_source_cursor"`
+	AppliedSourceCursor     *SourceCursor `json:"applied_source_cursor"`
+	RequestID               string        `json:"request_id"`
+	Slot                    uint64        `json:"slot"`
+	ParentID                string        `json:"parent_id"`
+	ParentRevision          uint64        `json:"parent_revision"`
+	AuthorityRevision       uint64        `json:"authority_revision"`
+	JournalRevision         int64         `json:"journal_revision"`
+	OwnerGeneration         int64         `json:"owner_generation"`
+	MarketSnapshotID        string        `json:"market_snapshot_id"`
+	AppliedMarketSnapshotID string        `json:"applied_market_snapshot_id,omitempty"`
+	ExpiresAt               time.Time     `json:"expires_at"`
+	Observation             []float32     `json:"observation"`
+	Bundle                  PolicyBundle  `json:"bundle"`
+	Result                  string        `json:"result"`
+	Reason                  string        `json:"reason"`
+	Action                  d.Action      `json:"action"`
+	ProposedAction          *d.Action     `json:"proposed_action,omitempty"`
+	ResolvedAt              time.Time     `json:"resolved_at,omitempty"`
+	Mode                    string        `json:"mode,omitempty"`
 }
 type policyResolution struct {
 	audit    PolicyDecision
@@ -146,6 +148,7 @@ func (a *Actor) startPolicy(ctx context.Context) error {
 		expires = p.Deadline
 	}
 	pending := &PolicyDecision{RequestID: randomID("runtime-policy-"), Slot: a.state.DecisionCount + 1, ParentID: p.ID, ParentRevision: uint64(p.Revision), AuthorityRevision: uint64((View{Account: a.account, State: a.state}).AuthorityRevision()), JournalRevision: a.account.Revision, OwnerGeneration: a.owner.Epoch, MarketSnapshotID: a.state.MarketID, ExpiresAt: expires, Observation: observation, Bundle: *p.PolicyBundle, Result: "pending", Action: d.Hold}
+	pending.RequestedSourceCursor = copySourceCursor(a.state.SourceCursor)
 	next, err := cloneState(a.state)
 	if err != nil {
 		return err
@@ -279,6 +282,7 @@ func (a *Actor) resolvePolicy(ctx context.Context, result, reason string, propos
 	audit.Reason = reason
 	audit.ResolvedAt = a.now()
 	audit.AppliedMarketSnapshotID = a.state.MarketID
+	audit.AppliedSourceCursor = copySourceCursor(a.state.SourceCursor)
 	if proposal != nil {
 		audit.Mode = proposal.Mode
 		audit.Action = proposal.Action

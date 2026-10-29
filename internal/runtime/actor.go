@@ -72,6 +72,7 @@ func bootstrapState(c Config, account pg.Account, bundle *PolicyBundle) (State, 
 	var state State
 	if string(account.Snapshot) == "{}" && len(account.Plans) == 0 && len(account.Intents) == 0 {
 		state = State{Version: StateVersion, Profile: ProfilePaper, DataSource: c.DataSource, Rules: c.Rules, Fees: c.Fees, Execution: c.Execution, BaseCurrency: c.BaseCurrency, QuoteCurrency: c.QuoteCurrency, InstrumentRevision: c.InstrumentRevision, Book: x.NewBook()}
+		state.SealedSource = copySource(c.SealedSource)
 	} else {
 		if err := decodeInternal(account.Snapshot, &state); err != nil {
 			return State{}, err
@@ -90,6 +91,12 @@ func bootstrapState(c Config, account pg.Account, bundle *PolicyBundle) (State, 
 		if state.DataSource != c.DataSource {
 			return State{}, ErrInvalid
 		}
+	}
+	if err := validateSourceState(state); err != nil {
+		return State{}, err
+	}
+	if !reflect.DeepEqual(state.SealedSource, c.SealedSource) {
+		return State{}, ErrInvalid
 	}
 	if !sameBundle(state.PolicyBundle, bundle) && !canReplacePolicyBundle(state, account) {
 		return State{}, ErrInvalid
@@ -132,6 +139,13 @@ func New(ctx context.Context, c Config) (*Actor, error) {
 		c.DataSource = "manual"
 	}
 	if c.DataSource != "manual" && c.DataSource != "synthetic" && c.DataSource != "recorded" && c.DataSource != "kraken-public" {
+		return nil, ErrInvalid
+	}
+	c.SealedSource = copySource(c.SealedSource)
+	if err := c.SealedSource.validate(); err != nil {
+		return nil, err
+	}
+	if c.SealedSource != nil && (c.DataSource != "recorded" || c.SealedSource.Symbol != c.Rules.Symbol) {
 		return nil, ErrInvalid
 	}
 	if err := x.ValidateBaselinePolicy(c.Baseline); err != nil {
@@ -317,6 +331,13 @@ func (a *Actor) MarketFromSession(ctx context.Context, event d.MarketEvent, snap
 	_, err := a.submit(ctx, "market", marketInput{Event: event, SnapshotID: snapshotID, SessionID: sessionID}, false)
 	return err
 }
+
+// MarketFromSource carries a verified sealed archive cursor independently of
+// the account's elapsed clock. Legacy market ingress never creates this binding.
+func (a *Actor) MarketFromSource(ctx context.Context, event d.MarketEvent, snapshotID string, cursor SourceCursor) error {
+	_, err := a.submit(ctx, "market", marketInput{Event: event, SnapshotID: snapshotID, SessionID: cursor.NativeSessionID, Source: copySourceCursor(&cursor)}, false)
+	return err
+}
 func (a *Actor) ObserveFill(ctx context.Context, eventID, intentID string, fill d.Fill) error {
 	if !clientIdentity(eventID) || intentID == "" {
 		return ErrInvalid
@@ -440,6 +461,13 @@ func (a *Actor) advance(ctx context.Context) error {
 func (a *Actor) market(ctx context.Context, input marketInput) error {
 	op := a.currentOperation
 	if op == nil || !op.marketPrepared {
+		older, err := checkSourceReceipt(a.state, input)
+		if err != nil {
+			return a.rejectSource(ctx, err)
+		}
+		if older || sourceNeedsFrozenTradeRetry(a.state, input) {
+			return a.retryFrozenSourceTrade(ctx, input)
+		}
 		if input.SnapshotID == "" || len(input.SnapshotID) > 128 || len(input.Event.Bids)+len(input.Event.Asks) > 512 {
 			return ErrInvalid
 		}
@@ -460,6 +488,7 @@ func (a *Actor) market(ctx context.Context, input marketInput) error {
 			return fmt.Errorf("%w: %v", ErrInvalid, err)
 		}
 		a.state.MarketID = input.SnapshotID
+		acceptSourceReceipt(&a.state, input)
 		if len(a.state.Book.Bids)+len(a.state.Book.Asks) > 2048 {
 			a.state.Book = x.NewBook()
 			if err := a.invalidateMarket(ctx, "book_capacity_exceeded"); err != nil {

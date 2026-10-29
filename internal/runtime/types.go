@@ -42,7 +42,8 @@ type Config struct {
 	FactQuantumSteps int
 	FactQuantumTime  time.Duration
 
-	Policy *PolicyConfig
+	Policy       *PolicyConfig
+	SealedSource *SealedSource
 	// Telemetry is optional process-local diagnostics; it grants no authority.
 	Telemetry *telemetry.Recorder
 
@@ -69,7 +70,9 @@ func DefaultConfig(store *pg.Store, key pg.Key) Config {
 }
 
 type Parent struct {
-	PolicyBundle *PolicyBundle `json:"policy_bundle,omitempty"`
+	SealedSource      *SealedSource `json:"sealed_source"`
+	SourceStartCursor *SourceCursor `json:"source_start_cursor"`
+	PolicyBundle      *PolicyBundle `json:"policy_bundle,omitempty"`
 
 	ID         string    `json:"id"`
 	Revision   int64     `json:"revision"`
@@ -98,10 +101,14 @@ type Fact struct {
 	Resolved bool   `json:"resolved"`
 }
 type State struct {
-	PolicyBundle       *PolicyBundle   `json:"policy_bundle,omitempty"`
-	PolicyPending      *PolicyDecision `json:"policy_pending,omitempty"`
-	LastPolicyDecision *PolicyDecision `json:"last_policy_decision,omitempty"`
-	PolicyLateOutcome  *PolicyDecision `json:"policy_late_outcome,omitempty"`
+	SealedSource             *SealedSource   `json:"sealed_source"`
+	SourceCursor             *SourceCursor   `json:"source_cursor"`
+	SourceReceiptDigest      string          `json:"source_receipt_digest"`
+	LastDecisionSourceCursor *SourceCursor   `json:"last_decision_source_cursor"`
+	PolicyBundle             *PolicyBundle   `json:"policy_bundle,omitempty"`
+	PolicyPending            *PolicyDecision `json:"policy_pending,omitempty"`
+	LastPolicyDecision       *PolicyDecision `json:"last_policy_decision,omitempty"`
+	PolicyLateOutcome        *PolicyDecision `json:"policy_late_outcome,omitempty"`
 
 	Version string `json:"version"`
 	// AuthorityRevision is the last durable revision that changed financial or
@@ -227,6 +234,7 @@ type request struct {
 	reply      chan response
 }
 type marketInput struct {
+	Source     *SourceCursor
 	Event      d.MarketEvent
 	SnapshotID string
 	SessionID  string

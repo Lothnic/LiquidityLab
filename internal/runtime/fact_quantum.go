@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"reflect"
 	"time"
 
 	pg "github.com/liquiditylab/liquiditylab/internal/store/postgres"
@@ -63,6 +64,7 @@ func (a *Actor) wakeFacts() {
 }
 
 func (a *Actor) refreshOwned(ctx context.Context) error {
+	quarantinedSource := false
 	account, err := a.config.Store.GetAccount(ctx, a.config.Key)
 	if err != nil {
 		return err
@@ -71,9 +73,20 @@ func (a *Actor) refreshOwned(ctx context.Context) error {
 		return pg.ErrOwnership
 	}
 	if a.needsReload {
+		prior := a.state
 		state, err := DecodeSnapshot(account.Snapshot)
 		if err != nil {
 			return err
+		}
+		if err := validateSourceState(state); err != nil {
+			return err
+		}
+		if !reflect.DeepEqual(state.SealedSource, a.config.SealedSource) {
+			return ErrInvalid
+		}
+		if restoreSourceAfterReload(&state, prior) {
+			account.Ready = false
+			quarantinedSource = true
 		}
 		a.state = state
 		a.factCursor = nil
@@ -83,10 +96,15 @@ func (a *Actor) refreshOwned(ctx context.Context) error {
 		// book no-op); preserve that accepted FIFO position after reloading all
 		// financial state from the durable snapshot.
 		if op := a.pending; op != nil && op.marketPrepared && op.request.kind == "market" {
-			a.state.MarketID = op.request.input.(marketInput).SnapshotID
+			input := op.request.input.(marketInput)
+			a.state.MarketID = input.SnapshotID
+			acceptSourceReceipt(&a.state, input)
 		}
 	}
 	a.account = account
+	if quarantinedSource {
+		return a.invalidateMarket(ctx, "sealed_source_snapshot_required_after_reload")
+	}
 	return nil
 }
 

@@ -20,6 +20,7 @@ import (
 
 	d "github.com/liquiditylab/liquiditylab/internal/domain"
 	x "github.com/liquiditylab/liquiditylab/internal/execution"
+	"github.com/liquiditylab/liquiditylab/internal/marketarchive"
 	"github.com/liquiditylab/liquiditylab/internal/marketdata"
 	rt "github.com/liquiditylab/liquiditylab/internal/runtime"
 	pg "github.com/liquiditylab/liquiditylab/internal/store/postgres"
@@ -30,6 +31,7 @@ const paperMaxDuration = 24 * time.Hour
 var paperSchema = regexp.MustCompile(`^[a-z][a-z0-9_]{0,62}$`)
 
 type paperOptions struct {
+	archiveRoot, datasetID                        string
 	eventsPath, planPath, schema, account, policy string
 	initialBase, initialQuote                     d.Decimal
 	duration                                      time.Duration
@@ -38,9 +40,11 @@ type paperOptions struct {
 }
 
 type paperRecording struct {
-	events []d.MarketEvent
-	digest string
-	bytes  int64
+	sealedSource  *rt.SealedSource
+	sourceCursors []rt.SourceCursor
+	events        []d.MarketEvent
+	digest        string
+	bytes         int64
 }
 
 type paperCommandReceipt struct {
@@ -57,6 +61,7 @@ type paperJournalCount struct {
 }
 
 type paperSummary struct {
+	SealedSource           *rt.SealedSource      `json:"sealed_source"`
 	Profile                string                `json:"profile"`
 	Source                 string                `json:"source"`
 	Simulation             string                `json:"simulation"`
@@ -87,7 +92,9 @@ func paper(args []string, stdout, stderr io.Writer) error {
 	fs := flag.NewFlagSet("paper", flag.ContinueOnError)
 	fs.SetOutput(stderr)
 	var opt paperOptions
-	fs.StringVar(&opt.eventsPath, "events", "", "bounded normalized Go JSONL recording (required)")
+	fs.StringVar(&opt.eventsPath, "events", "", "bounded normalized Go JSONL recording (exclusive with --archive and --dataset-id)")
+	fs.StringVar(&opt.archiveRoot, "archive", "", "verified sealed archive root (requires --dataset-id)")
+	fs.StringVar(&opt.datasetID, "dataset-id", "", "verified dataset content ID (requires --archive)")
 	fs.StringVar(&opt.planPath, "plan", "", "Go domain.Plan JSON with deadline_ns (required)")
 	fs.StringVar(&opt.schema, "schema", "", "isolated PostgreSQL schema (required; never dropped)")
 	fs.StringVar(&opt.account, "account", "", "new synthetic account ID (default: recording digest)")
@@ -127,8 +134,11 @@ func paper(args []string, stdout, stderr io.Writer) error {
 }
 
 func (o paperOptions) validate() error {
-	if o.eventsPath == "" || o.planPath == "" || o.schema == "" {
-		return errors.New("paper requires --events, --plan and --schema")
+	if o.planPath == "" || o.schema == "" || (o.eventsPath == "" && (o.archiveRoot == "" || o.datasetID == "")) || (o.eventsPath != "" && (o.archiveRoot != "" || o.datasetID != "")) {
+		return errors.New("paper requires --plan, --schema and exactly one source: --events or --archive with --dataset-id")
+	}
+	if o.archiveRoot != "" && !marketarchive.ValidID(o.datasetID) {
+		return errors.New("dataset-id must be lowercase 64-hex")
 	}
 	if !paperSchema.MatchString(o.schema) || o.schema == "public" || o.schema == "information_schema" || strings.HasPrefix(o.schema, "pg_") {
 		return errors.New("schema must name an isolated lowercase PostgreSQL schema, excluding public and system schemas")
@@ -205,6 +215,14 @@ func paperTape(path string, maxBytes int64, maxEvents, maxLine int) (paperRecord
 	if err != nil {
 		return paperRecording{}, err
 	}
+	return paperTapeBytes(body, maxBytes, maxEvents, maxLine)
+}
+
+func paperTapeBytes(body []byte, maxBytes int64, maxEvents, maxLine int) (paperRecording, error) {
+	if int64(len(body)) > maxBytes {
+		return paperRecording{}, errors.New("paper recording exceeds its byte limit")
+	}
+	var err error
 	sum := sha256.Sum256(body)
 	tape := paperRecording{digest: hex.EncodeToString(sum[:]), bytes: int64(len(body))}
 	scan := bufio.NewScanner(bytes.NewReader(body))
@@ -300,6 +318,46 @@ func paperTape(path string, maxBytes int64, maxEvents, maxLine int) (paperRecord
 	return tape, nil
 }
 
+func paperArchiveTape(ctx context.Context, root, id string, maxBytes int64, maxEvents, maxLine int) (paperRecording, error) {
+	recording, err := marketarchive.Load(ctx, root, id)
+	if err != nil {
+		return paperRecording{}, err
+	}
+	if recording.Manifest.Normalized.Bytes > maxBytes || len(recording.Events) > maxEvents {
+		return paperRecording{}, errors.New("verified recording exceeds paper input bounds")
+	}
+	sealed, err := rt.SealedSourceFromManifest(recording.Manifest)
+	if err != nil {
+		return paperRecording{}, err
+	}
+	var body bytes.Buffer
+	cursors := make([]rt.SourceCursor, 0, len(recording.Events))
+	for _, wire := range recording.Events {
+		if err := ctx.Err(); err != nil {
+			return paperRecording{}, err
+		}
+		line, err := json.Marshal(wire)
+		if err != nil {
+			return paperRecording{}, err
+		}
+		if len(line) > maxLine || int64(body.Len()+len(line)+1) > maxBytes {
+			return paperRecording{}, errors.New("verified recording exceeds paper line or byte bounds")
+		}
+		body.Write(line)
+		body.WriteByte('\n')
+		cursors = append(cursors, rt.SourceCursor{ArchiveID: sealed.ArchiveID, NativeSessionID: sealed.NativeSessionID, NormalizedReceiptIndex: wire.ReceiptIndex, RawReceiptIndex: wire.SourceReceiptIndex, NormalizedTimeNS: wire.Time, NativeElapsedNS: sealed.FirstSnapshotElapsedNS + wire.Time})
+	}
+	tape, err := paperTapeBytes(body.Bytes(), maxBytes, maxEvents, maxLine)
+	if err != nil {
+		return paperRecording{}, err
+	}
+	if tape.digest != recording.Manifest.Normalized.SHA256 || tape.bytes != recording.Manifest.Normalized.Bytes {
+		return paperRecording{}, errors.New("verified canonical recording changed during paper conversion")
+	}
+	tape.sealedSource, tape.sourceCursors = sealed, cursors
+	return tape, nil
+}
+
 func paperLevels(wire [][]string) ([]d.Level, error) {
 	levels := make([]d.Level, 0, len(wire))
 	seen := make(map[string]bool, len(wire))
@@ -359,7 +417,12 @@ func runPaper(ctx context.Context, opt paperOptions, dsn string, stdout, stderr 
 	if err != nil {
 		return err
 	}
-	tape, err := paperTape(opt.eventsPath, opt.maxBytes, opt.maxEvents, opt.maxLineBytes)
+	var tape paperRecording
+	if opt.archiveRoot != "" {
+		tape, err = paperArchiveTape(ctx, opt.archiveRoot, opt.datasetID, opt.maxBytes, opt.maxEvents, opt.maxLineBytes)
+	} else {
+		tape, err = paperTape(opt.eventsPath, opt.maxBytes, opt.maxEvents, opt.maxLineBytes)
+	}
 	if err != nil {
 		return err
 	}
@@ -398,7 +461,8 @@ func runPaper(ctx context.Context, opt paperOptions, dsn string, stdout, stderr 
 	}
 	fmt.Fprintln(stderr, "PAPER / RECORDED DATA: synthetic BTC/USD account, synthetic rules and fees; public data is not independently authenticated.")
 	summary := paperSummary{
-		Profile: "paper", Source: "recorded-public-data", Simulation: "synthetic balances, rules, fees and fills; no exchange orders",
+		SealedSource: tape.sealedSource,
+		Profile:      "paper", Source: "recorded-public-data", Simulation: "synthetic balances, rules, fees and fills; no exchange orders",
 		SessionID: "recording-" + tape.digest, RecordingSHA256: tape.digest, RecordingBytes: tape.bytes,
 		Schema: opt.schema, Policy: opt.policy, InitialBalances: initial,
 		EventsAvailable: len(tape.events), StopReason: "recording_end", Fills: []d.Fill{},
@@ -406,6 +470,7 @@ func runPaper(ctx context.Context, opt paperOptions, dsn string, stdout, stderr 
 	}
 	config := rt.DefaultConfig(store, key)
 	config.DataSource = "recorded"
+	config.SealedSource = tape.sealedSource
 	config.AutoExecute, config.Baseline = true, opt.policy
 	op, cancel = paperOperation()
 	actor, err := rt.New(op, config)
@@ -428,7 +493,7 @@ func feedPaper(ctx context.Context, actor *rt.Actor, tape paperRecording, plan d
 	anchor := time.Now()
 	firstTime := tape.events[0].Time
 	started := false
-	for _, event := range tape.events {
+	for index, event := range tape.events {
 		wait := time.Until(anchor.Add(time.Duration(event.Time - firstTime)))
 		if wait > 0 {
 			timer := time.NewTimer(wait)
@@ -444,7 +509,12 @@ func feedPaper(ctx context.Context, actor *rt.Actor, tape paperRecording, plan d
 		}
 		id := fmt.Sprintf("%s-event-%d", summary.SessionID, event.ReceiptIndex)
 		op, cancel := paperOperation()
-		err := actor.MarketFromSession(op, event, id, summary.SessionID)
+		var err error
+		if tape.sealedSource != nil {
+			err = actor.MarketFromSource(op, event, id, tape.sourceCursors[index])
+		} else {
+			err = actor.MarketFromSession(op, event, id, summary.SessionID)
+		}
 		cancel()
 		if err != nil {
 			summary.StopReason = "market_ingress_failed"
