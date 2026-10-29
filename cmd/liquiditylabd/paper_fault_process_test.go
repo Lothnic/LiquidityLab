@@ -102,6 +102,7 @@ func pausePaperProcessAtGate(t *testing.T, p *paperTestProcess, opt paperServerO
 		}()
 		timeout := time.NewTimer(6 * time.Second)
 		retry := false
+		acknowledged, reached := false, false
 		for !retry {
 			select {
 			case event, ok := <-gate.events:
@@ -110,18 +111,32 @@ func pausePaperProcessAtGate(t *testing.T, p *paperTestProcess, opt paperServerO
 					t.Fatal("cancel checkpoint process exited")
 				}
 				if event == "reached:"+gate.point {
-					timeout.Stop()
-					return
+					reached = true
+					if acknowledged {
+						timeout.Stop()
+						return
+					}
 				}
 			case result := <-responseDone:
-				timeout.Stop()
 				if result.err == nil && result.status == http.StatusConflict && bytes.Contains(result.data, []byte("stale_revision")) {
+					timeout.Stop()
 					retry = true
 					continue
 				}
-				t.Fatalf("pause returned without checkpoint: status=%d body=%s err=%v", result.status, result.data, result.err)
+				var receipt pg.Result
+				if result.err != nil || result.status != http.StatusOK || json.Unmarshal(result.data, &receipt) != nil || receipt.Revision <= 0 || receipt.Duplicate {
+					timeout.Stop()
+					t.Fatalf("pause local receipt failed: status=%d body=%s err=%v", result.status, result.data, result.err)
+				}
+				// Local control is acknowledged independently of the later durable
+				// cancellation effect. Require both before killing at this gate.
+				acknowledged = true
+				if reached {
+					timeout.Stop()
+					return
+				}
 			case <-timeout.C:
-				t.Fatal("pause did not reach cancellation checkpoint")
+				t.Fatalf("pause receipt/checkpoint incomplete: acknowledged=%v reached=%v", acknowledged, reached)
 			}
 		}
 	}
