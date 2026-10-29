@@ -44,6 +44,7 @@ type Config struct {
 	Credentials    []Credential
 	Journal        JournalReader
 	Sessions       SessionReader
+	Replays        ReplayService
 	MaxBodyBytes   int64
 	RequestTimeout time.Duration
 	MaxConcurrent  int
@@ -57,6 +58,8 @@ type Handler struct {
 	credentials []credential
 	journal     JournalReader
 	sessions    SessionReader
+	replays     ReplayService
+	replaySlots chan struct{}
 	maxBody     int64
 	timeout     time.Duration
 	slots       chan struct{}
@@ -83,6 +86,8 @@ func New(c Config) (*Handler, error) {
 		return nil, errConfig
 	}
 	h := &Handler{accounts: make(map[pg.Key]Authority, len(c.Accounts)), journal: c.Journal, maxBody: c.MaxBodyBytes, timeout: c.RequestTimeout, slots: make(chan struct{}, c.MaxConcurrent)}
+	h.replays = c.Replays
+	h.replaySlots = make(chan struct{}, 4)
 	for k, a := range c.Accounts {
 		if !identifier(k.TenantID) || !identifier(k.AccountID) || a == nil {
 			return nil, errConfig
@@ -160,6 +165,12 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if auth == nil {
 		w.Header().Set("WWW-Authenticate", `Bearer realm="liquiditylab"`)
 		fail(w, 401, "unauthorized")
+		return
+	}
+	// Replay bodies can be much larger and slower to send than control replies.
+	// Authenticate and check exact account scope before admitting this separate
+	// bounded lane, which never consumes financial control request capacity.
+	if h.serveReplay(w, r, auth) {
 		return
 	}
 	select {
