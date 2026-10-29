@@ -1,5 +1,67 @@
 # Verification record
 
+## Cooperative account scheduling and fresh bridge/public-data gates — 29 October 2026
+
+Runtime `069609b`, process fixture `0c00e73` and manifest/docs `6635f63` implement
+bounded resumable source reduction and local control receipts. Each turn yields
+after four transitions or 5 ms between atomic steps by default. An individual
+SQL call can exceed that cooperative budget. Ordinary requests retain FIFO order;
+separate bounded controls/views and maintenance run between reduction turns.
+
+- Real PostgreSQL regressions reduce a 512-fill transport prefix by count/time,
+  discard the in-memory prefix, and reconstruct it under a fresh owner with
+  exactly 1.0256 BTC / 997.4630656 USD. A control/read at the two-fill checkpoint
+  sees cancellation requested, a retained child/hold and readiness false.
+  Later market calls remain ordered and cannot acknowledge early. These are
+  deterministic in-process scheduling/fresh-owner checks, not a capacity result.
+- Independent Sol review found three bugs before commit: resolved malformed
+  observations lacked a continuation cursor; implicit plan obsolescence could
+  release a queued hold during debt; later stale rejections could clear an
+  outstanding uncertain-commit reload. All three are fixed with regressions.
+  Queued children retain their submitting state and cannot acquire simulated
+  fills merely because cancellation was requested. Caught-up disposal is atomic;
+  attempted children still accept racing fills until known finality.
+- The first full run found one obsolete process-test expectation: it demanded
+  that pause wait for the cancellation fault checkpoint. The updated test
+  requires both a successful local receipt and the durable cancellation gate
+  before SIGKILL, preserving all recovery/economic assertions. Its focused race
+  run passed in 4.257 s; accepted cancellation debt drained from one to zero.
+- The subsequent full uncached `go test -race -count=1 ./...` passed with
+  development PostgreSQL, the actual Python interpreter and a fresh ordinary
+  replay binary. Suite durations: workload 7.440 s, daemon 50.675 s, runtime
+  76.664 s, store 4.608 s, inference 7.389 s. This run preceded the component
+  commits; its Go sources are those committed through `75d71fd`. Durations are
+  test-suite times, not product latency or admission limits.
+- The [fresh combined conformance report](../conformance/results/20261029-phase3-4.json)
+  records clean source `75d71fd`, all five steps passed, and 216 Python tests
+  with zero skips/failures/errors (13.06 s). It rebuilds its owned ordinary daemon
+  and hashes four shared fixtures. The original three fixture hashes are
+  unchanged; the added CRC32 fixture is checked in both languages. The existing
+  Gymnasium v0 deprecation warning remains.
+- Public-data regressions cover malformed CRC widths/forms, verified quoted
+  CRC propagation, disconnect/checksum-triggered resnapshot before trade delivery,
+  and explicit depth-truncation deletions without resurrecting trimmed levels.
+  The retained real capture still matches Go/Python normalization. The local
+  [Phase 3](phase3-public-data-audit.md) and [Phase 4](phase4-bridge-audit.md)
+  requirement audits close those gates. The slower synthetic bridge remains
+  optional; Python is still the training default.
+- Frontend commit `62bfbee` adds cancellation-receipt/finality and paused-child
+  resume regressions. All 48 tests across six files and the TypeScript/Vite
+  production build passed; no UI production code changed.
+- Four subsequent clean-build [scheduling workloads](../benchmarks/results/runtime-quantum-20261029/README.md)
+  retain three complete ordinary 50 Hz source / 20 Hz HTTP trials (1,000/400
+  completions each) and an invalid 250 Hz ramp (2,232/2,500 source completions,
+  268 runner rejections). All retain exact final finances and zero debt.
+  Original/compressed bytes and hashes, all samples/eight input manifests,
+  route counts, exact cashflows, finality/gauges, empirical p99s and scoped
+  observer denominators were independently checked. The current host reports
+  16 logical CPUs versus the older cohort's 24; no causal before/after
+  performance claim is made. Steady completion does not prove recovery headroom.
+
+Process admission, shared feeds/accounts, recording pressure, policy evaluation,
+historical market replay, private transport, production soak and restore gates
+remain open. No private exchange order was submitted.
+
 ## Core acceptance and scoped PostgreSQL observation — 29 October 2026
 
 Checkpoints `bf3d4d5`, `f9a6342`, `35fc7b7` and `79062b0` add rational

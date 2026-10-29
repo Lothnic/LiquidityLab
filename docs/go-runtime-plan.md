@@ -305,7 +305,7 @@ Exit: Go replays the approved tapes and matches the reference economics/state ou
 
 ### Phase 3 — Go public-data pipeline: 2–4 days
 
-Current checkpoint: parser, recorder and normalizer are committed. Commit `8c7e329` adds a real 50-frame Kraken BTC/USD fixture and passing Go/Python normalization conformance across 45 events. This closes the evidence gap for that captured sample only; corruption/recovery breadth and operational validation remain incomplete.
+Completed local checkpoint: parser, recorder and normalizer preserve source precision, validate shared checksum cases and pass deterministic corruption/reconnect/depth-deletion checks. Commit `8c7e329` retains a verified real 50-frame Kraken BTC/USD capture with 45-event Go/Python conformance. The [Phase 3 audit](phase3-public-data-audit.md) and clean `75d71fd` combined run close the literal local exit criteria. Recording-pressure monitoring, sustained load and wider operational gates remain open.
 
 Port raw decoding, CRC validation, capture manifests, normalization, and book validity. Run both normalizers against the same raw recordings. Do not replace a failed real capture with invented live data.
 
@@ -313,7 +313,7 @@ Exit: checksum/source precision cases match; corruption is detected; live captur
 
 ### Phase 4 — Go-backed Gym bridge: 4–6 days
 
-Current checkpoint: the bounded service, Gym/vector adapter and PPO roundtrip are implemented; the measured throughput/default-cutover gate has not passed.
+Completed local checkpoint: the bounded service, Gym/vector adapter, retry/worker-loss behavior and PPO train/save/load/infer roundtrip pass the clean `75d71fd` combined run. The [Phase 4 audit](phase4-bridge-audit.md) maps each requirement. The measured synthetic bridge is slower, so Python remains the default and the separate default-cutover gate stays open.
 
 Implement batch RPC and isolated environment handles, then wrap them in Python Gym/vector interfaces. Verify retry/step identities and training failure propagation.
 
