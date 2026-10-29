@@ -122,3 +122,52 @@ capacity, headroom, SLOs, private venue failover, database restore or a 24-hour
 soak. Ordinary kill timing can leave zero accepted source debt: record zero
 honestly; it provides no proof of backlog recovery. The controlled crash-boundary
 matrix in [paper-recovery.md](paper-recovery.md) remains separate evidence.
+
+## Accepted-backlog process variant
+
+`TestPaperProcessAcceptedBacklogRecoveryWithBystanderDemand` is a separate
+Linux-only variant for one explicit accepted-backlog crash boundary. Run it
+against a specifically selected development PostgreSQL instance and a fresh
+output path with an existing parent directory:
+
+```sh
+LIQUIDITYLAB_TEST_POSTGRES_DSN='<development-dsn>' \
+LIQUIDITYLAB_BACKLOG_RECOVERY_OUTPUT='/absolute/path/fresh-backlog-recovery.json' \
+  go test -race -count=1 ./cmd/liquiditylabd \
+  -run '^TestPaperProcessAcceptedBacklogRecoveryWithBystanderDemand$' -v
+```
+
+The test uses the same ordinary, untagged, non-race daemon binary, randomized
+retained schema, two-process setup, bystander, concurrent read schedules,
+financial audit, and cleanup contract described above. Its output is created
+exclusively with mode `0600`; an existing path fails. If
+`LIQUIDITYLAB_BACKLOG_RECOVERY_OUTPUT` is unset, the report goes under
+`t.TempDir()` and normally disappears after the run. The test skips when the
+explicit development DSN is absent or the host is not Linux.
+
+Before the measured schedule starts, the harness confirms that the victim is
+stopped with Linux `/proc` state `T` or `t`. It also verifies that the victim
+has PostgreSQL backends but no open transaction, has more than ten seconds left
+on its ownership lease, is caught up and ready, and has an open passive child
+with its acknowledged intent and reservation. The harness then uses the owned
+paper-observation API to persist one transport outcome containing exactly 128
+distinct partial fills. Those fills total half of the child's remaining amount.
+The outcome is explicitly harness-authored simulated transport data; the
+ordinary 2 Hz synthetic source did not emit it.
+
+Fixture preparation, SIGSTOP, and persistence happen before the read schedule
+and are excluded from the kill/reap/launch/recovery timing. The read schedules
+start immediately before SIGCONT. A bounded 1 ms observer waits for a positive
+strict prefix of the batch to be reduced while reads and the bystander source run. The
+victim is then killed and reaped. A passing report must show that a positive
+strict prefix remains after reap (possibly longer than the observed prefix),
+with the batch still accepted but not fully processed, a matching durable execution prefix, and the remaining child
+obligation still held. A zero-of-128 prefix or a fully applied 128-of-128 batch
+is a failure; neither can count as a backlog-recovery pass. Recovery must then
+preserve and finish the complete batch under the full financial and process
+audits above.
+
+This is a controlled crash-boundary fixture, not an ordinary source-generated
+backlog, a 2 Hz source backlog measurement, a reducer-throughput measurement, or
+a capacity/headroom result. Its timing and observer overhead do not establish
+source-rate capacity, SLOs, or production behavior.
