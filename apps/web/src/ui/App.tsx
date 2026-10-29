@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import {
-  Activity, AlertTriangle, ArrowDownRight, ArrowUpRight, ChevronDown,
-  CircleHelp, Command as CommandIcon, LoaderCircle, LockKeyhole,
-  LogOut, RefreshCw, ShieldCheck, X,
+  AlertTriangle, ArrowRight, ChevronDown,
+  Command as CommandIcon, LoaderCircle, LockKeyhole,
+  LogOut, RefreshCw, ShieldCheck, X, Wallet, Check,
 } from 'lucide-react';
 import { History } from './History';
 import { api, ApiError, type Account, type AccountSummary, type Command, type JournalEntry, type PlanInput, type Preview } from '../lib/api';
@@ -34,6 +34,9 @@ function requestSignal(parent?: AbortSignal) {
 }
 
 export function App() {
+  const previewHeading = useRef<HTMLHeadingElement>(null);
+  const currentPlanHeading = useRef<HTMLHeadingElement>(null);
+  const [section, setSection] = useState<'trade' | 'history'>('trade');
   const [tokenInput, setTokenInput] = useState('');
   const [token, setToken] = useState('');
   const [accounts, setAccounts] = useState<AccountSummary[]>([]);
@@ -54,8 +57,21 @@ export function App() {
   const [updatedAt, setUpdatedAt] = useState<Date | null>(null);
   const [freshnessTick, setFreshnessTick] = useState(0);
   const [previewBusy, setPreviewBusy] = useState(false);
+  const [commandSending, setCommandSending] = useState(false);
   const [journalBusy, setJournalBusy] = useState(false);
   currentAccountRef.current = account;
+  useEffect(() => {
+    if (preview) {
+      previewHeading.current?.focus({ preventScroll: true });
+      previewHeading.current?.scrollIntoView?.({ block: 'nearest' });
+    }
+  }, [preview]);
+  useEffect(() => {
+    if (account?.plan?.id) {
+      currentPlanHeading.current?.focus({ preventScroll: true });
+      currentPlanHeading.current?.scrollIntoView?.({ block: 'nearest' });
+    }
+  }, [account?.plan?.id]);
   const pollDelay = useRef(POLL_BASE_MS);
   const commandBusy = useRef(false);
   const journalCursorRef = useRef(0);
@@ -300,6 +316,7 @@ export function App() {
       (!useExisting && (!accountMatchesSelection || target.tenant !== accountPath?.tenant || target.account !== accountPath?.account))) return;
     const held = useExisting ?? holdCommand(command);
     commandBusy.current = true;
+    setCommandSending(true);
     setPending(held);
     if (!useExisting) setPendingTarget(target);
     setMessage('');
@@ -333,7 +350,7 @@ export function App() {
         return;
       }
       setMessage(`Outcome unknown. The original command is retained; retry it unchanged. ${error instanceof ApiError ? error.code : 'Connection interrupted.'}`);
-    } finally { commandBusy.current = false; }
+    } finally { commandBusy.current = false; setCommandSending(false); }
   };
 
   const actionCommand = (kind: Command['kind']) => {
@@ -362,140 +379,169 @@ export function App() {
 
   if (!token) return <Login tokenInput={tokenInput} setTokenInput={setTokenInput} onConnect={connect} loading={loading} error={loginError} />;
 
+  const plan = account?.plan;
+  const activePlan = Boolean(plan && ['active', 'paused', 'cancel_requested'].includes(plan.status));
+  const step = activePlan ? 3 : preview ? 2 : 1;
+  const dataReady = Boolean(accountMatchesSelection && snapshotFresh && account?.profile === 'paper' && account.ready && account.market.valid && !account.recovery_required && !account.clock_discontinuity);
+
   return (
     <main className="desk-shell">
+      <a className="skip-link" href="#workspace">Skip to trading workspace</a>
       <header className="topbar">
-        <a className="wordmark" href="#top" aria-label="LiquidityLab desk home"><span className="wordmark-symbol">L</span><span>LIQUIDITY<span className="wordmark-light">LAB</span></span></a>
-        <div className="topbar-center"><span className="live-dot" /> LOCAL CONTROL PLANE <span className="topbar-divider">/</span> {account?.rules.symbol ?? 'BTC/USD'}</div>
-        <div className="topbar-right"><span className="paper-pill"><span /> PAPER ONLY</span><span className={`source-pill source-${sourceSlug(account?.data_source ?? selectedSummary?.data_source)}`}>{sourceLabel(account?.data_source ?? selectedSummary?.data_source)}</span><button className="icon-button logout" type="button" onClick={logout} disabled={Boolean(pending)} title={pending ? 'Resolve the retained command before disconnecting.' : 'Disconnect token'} aria-label="Disconnect token"><LogOut size={17} /><span>Disconnect</span></button></div>
+        <a className="wordmark" href="#top" aria-label="LiquidityLab desk home"><span className="wordmark-symbol">L</span><span>LiquidityLab</span></a>
+        <div className="topbar-right"><span className="paper-pill">Paper trading</span><span className="topbar-note">No real funds</span><button className="icon-button logout" type="button" onClick={logout} disabled={commandSending || Boolean(pending)} title={pending ? 'Resolve your last action before disconnecting.' : 'Disconnect token'} aria-label="Disconnect token"><LogOut size={17} /><span>Disconnect</span></button></div>
       </header>
 
       <section className="desk-intro" id="top">
-        <div><div className="eyebrow">EXECUTION / OPERATOR VIEW</div><h1>Trade with a <em>clear boundary.</em></h1></div>
-        <div className="intro-meta"><div className="status-line"><span className={account?.ready && account.market.valid ? 'status-led good' : 'status-led bad'} />{account?.ready && account.market.valid ? 'ACCOUNT READY' : 'RECOVERY / DATA CHECK'}</div><p>Snapshot {account?.market.snapshot_id || '—'}<br />Updated {lastUpdated}</p></div>
+        <div><h1>Trading desk</h1><p>Set your limits, review the plan, then start a paper trade.</p></div>
+        <div className="intro-meta"><div className={`status-line ${dataReady ? 'text-good' : 'text-warning'}`}><span className={`status-led ${dataReady ? 'good' : 'bad'}`} />{dataReady ? 'Ready to trade' : !accountMatchesSelection ? 'Loading account…' : snapshotStale ? 'Waiting for fresh data' : 'Account needs attention'}</div><p>Updated {lastUpdated}</p></div>
       </section>
 
       <section className="control-strip" aria-label="Account and safety status">
-        <label className="select-wrap"><span>ACCOUNT</span><select aria-label="Account" value={selection} onChange={(e) => { const next = e.target.value; beginScopeChange(next); journalScopeRef.current = next; setSelection(next); changePlanForm(emptyPlan); }}>
-          {accounts.map((item) => <option key={`${item.tenant_id}/${item.account_id}`} value={`${item.tenant_id}/${item.account_id}`}>{item.tenant_id} / {item.account_id}</option>)}
+        <label className="select-wrap"><span>Account</span><select aria-label="Account" value={selection} onChange={(e) => { const next = e.target.value; beginScopeChange(next); journalScopeRef.current = next; setSelection(next); setSection('trade'); changePlanForm(emptyPlan); }}>
+          {accounts.map((item) => <option key={`${item.tenant_id}/${item.account_id}`} value={`${item.tenant_id}/${item.account_id}`}>{item.account_id} · {item.tenant_id}</option>)}
         </select><ChevronDown size={14} /></label>
-        <div className="strip-item"><span>PROFILE / SOURCE</span><strong>{account ? `${account.profile.toUpperCase()} · ${sourceLabel(account.data_source)}` : '—'}</strong></div>
-        <div className="strip-item"><span>REVISION</span><strong>#{account?.revision ?? '—'}</strong></div>
-        <div className="strip-item"><span>MARKET</span><strong className={account?.market.valid ? 'text-good' : 'text-warning'}>{account?.market.valid ? 'VALID' : 'INVALID'}</strong></div>
-        <button type="button" className="refresh-button" onClick={() => void refreshAccount(false)} disabled={refreshing} aria-label="Refresh account"><RefreshCw size={15} className={refreshing ? 'spin' : ''} /> REFRESH</button>
+        <div className="market-quote"><strong>{account?.rules.symbol ?? '—'}</strong><span>Bid <b>{account?.market.valid ? account.market.best_bid : '—'}</b></span><span>Ask <b>{account?.market.valid ? account.market.best_ask : '—'}</b></span></div>
+        <span className={`source-pill source-${sourceSlug(account?.data_source ?? selectedSummary?.data_source)}`}>{sourceDescription(account?.data_source ?? selectedSummary?.data_source)}</span>
+        <button type="button" className="refresh-button" onClick={() => void refreshAccount(false)} disabled={refreshing} aria-label="Refresh account"><RefreshCw size={16} className={refreshing ? 'spin' : ''} /> Refresh</button>
       </section>
 
       {(pollError || message || pending || snapshotStale) && <section className={`notice ${pending ? 'notice-amber' : pollError || snapshotStale ? 'notice-red' : ''}`} role="status">
-        {pending ? <AlertTriangle size={17} /> : pollError || snapshotStale ? <AlertTriangle size={17} /> : <Activity size={17} />}
-        <div className="notice-copy"><strong>{pending ? 'COMMAND OUTCOME UNKNOWN' : pollError || snapshotStale ? 'STALE ACCOUNT VIEW' : 'DESK MESSAGE'}</strong><span>{message || (pending ? `Retained ${pending.command.kind} ${pending.command.id} for ${pendingTarget?.tenant}/${pendingTarget?.account} at revision ${pending.command.expected_revision}. Retry uses the same command.` : pollError ? `Polling failed (${pollError}); showing last confirmed state from ${lastUpdated}.` : snapshotStale ? `Last confirmed snapshot is over 10 seconds old. New orders and starts are disabled.` : '—')}</span></div>
-        {pending && <button className="button button-dark compact" onClick={retryPending} disabled={loading}>Retry unchanged command</button>}
-        {message && !pending && <button className="notice-close" aria-label="Dismiss message" onClick={() => setMessage('')}><X size={16} /></button>}
+        {pending || pollError || snapshotStale ? <AlertTriangle size={19} /> : <Check size={19} />}
+        <div className="notice-copy"><strong>{pending ? commandSending ? 'Waiting for confirmation' : 'Your last action needs confirmation' : pollError || snapshotStale ? 'Account data is out of date' : 'Update'}</strong><span>{message || (pending ? commandSending ? 'Waiting for the server to confirm this action.' : 'We did not receive a final response. Retry the same action to check its result.' : pollError ? `Refresh failed (${pollError}). The last confirmed state is shown.` : 'New plans and starts are disabled until fresh data arrives.')}</span>{pending && <small>Action: {pending.command.kind} · Account: {pendingTarget?.tenant}/{pendingTarget?.account}</small>}</div>
+        {pending && <button className="button button-outline compact" onClick={retryPending} disabled={loading || commandSending}>{commandSending ? 'Waiting for confirmation…' : 'Retry same action'}</button>}
+        {message && !pending && <button className="notice-close" aria-label="Dismiss message" onClick={() => setMessage('')}><X size={18} /></button>}
       </section>}
 
-      <div className="workspace-grid">
-        <div className="main-column">
-          <section className="panel active-panel">
-            <div className="panel-heading"><div><div className="eyebrow">CURRENT SESSION</div><h2>{account?.plan?.id ?? 'No active order'}</h2></div><span className={`state-tag ${stateClass(account?.plan?.status)}`}>{(account?.plan?.status ?? 'STANDBY').replaceAll('_', ' ').toUpperCase()}</span></div>
-            {account?.plan ? <>
-              <div className="session-topline"><div className="session-asset"><span className="asset-mark">₿</span><div><strong>{account.plan.spec.side.toUpperCase()} {account.plan.spec.symbol}</strong><small>{account.plan.policy} policy <i>·</i> {formatDuration(account.plan.spec.deadline_ns)}</small></div></div><div className="deadline"><span>DEADLINE</span><strong>{isoClock(account.plan.deadline)}</strong></div></div>
-              {account.policy_runtime && <p className="panel-note">{account.policy_runtime.profile.toUpperCase()} MODEL · {account.policy_runtime.result.replaceAll('_', ' ')} · fallback {account.policy_runtime.fallback}{account.policy_runtime.reason ? ` · ${account.policy_runtime.reason.replaceAll('_', ' ')}` : ''}</p>}
-              <div className="progress-block"><div className="progress-label"><span>BASE QUANTITY FILLED</span><strong>{account.plan.filled}<small> / {account.plan.spec.quantity} {account.base_currency}</small></strong></div><div className="progress-track" role="progressbar" aria-label="Filled quantity" aria-valuenow={ratio(account.plan.filled, account.plan.spec.quantity)} aria-valuemin={0} aria-valuemax={100}><div style={{ width: `${ratio(account.plan.filled, account.plan.spec.quantity)}%` }} /></div><div className="progress-foot"><span>{account.plan.remaining} {account.base_currency} remaining</span><span>{account.plan.spec.limit_price} hard {account.plan.spec.side === 'buy' ? 'ceiling' : 'floor'}</span></div></div>
-              <div className="session-metrics">
-                <Metric label="AVERAGE FILL" value={account.plan.filled === '0' ? '—' : account.plan.average_price} suffix={account.quote_currency} />
-                <Metric label="EXECUTED COST" value={account.plan.executed_cost_quote ?? '—'} suffix={account.plan.benchmark_valid ? account.quote_currency : 'benchmark unavailable'} tone={account.plan.executed_cost_quote && Number(account.plan.executed_cost_quote) > 0 ? 'amber' : ''} help="Filled slippage against the frozen arrival midpoint plus quote-valued fees. Remaining quantity is excluded; this is not P&L." />
-                <Metric label="FEES PAID" value={`${account.plan.fees_quote} ${account.quote_currency}`} secondary={`${account.plan.fees_base} ${account.base_currency}`} />
-                <Metric label="PARENT SIZE" value={`${account.plan.spec.quantity} ${account.base_currency}`} secondary={account.plan.benchmark_valid ? `Arrival mid ${account.plan.arrival_mid}` : 'Arrival benchmark set on start'} />
-              </div>
-              <div className="child-order"><div className="child-icon"><CommandIcon size={17} /></div><div className="child-details"><strong>{account.child ? `${account.child.intent.side.toUpperCase()} LIMIT CHILD` : 'NO OPEN CHILD ORDER'}</strong><span>{account.child ? `${account.child.intent.quantity} @ ${account.child.intent.price} · ${account.child.state.replaceAll('_', ' ')}` : (['completed', 'cancelled', 'expired'].includes(account.plan.status) ? 'Execution has ended. Completed fills remain in the account.' : 'Waiting for next decision or final state')}</span></div>{account.child && <span className={`child-status ${account.child.known_final ? 'text-good' : 'text-warning'}`}>{account.child.known_final ? 'FINAL' : account.child.cancel_requested ? 'CANCEL PENDING' : 'OPEN'}</span>}</div>
-              <div className="session-actions">
-                {account.plan.status === 'active' && <button className="button button-outline" disabled={Boolean(pending)} onClick={() => actionCommand('pause')}>Pause & cancel child</button>}
-                {account.plan.status === 'paused' && <button className="button button-lime" disabled={Boolean(pending) || !snapshotFresh || !account.ready || !account.market.valid || account.recovery_required || account.clock_discontinuity || Boolean(account.child)} onClick={() => actionCommand(account.plan?.started ? 'resume' : 'start')}>{account.plan.started ? 'Resume session' : 'Start session'}</button>}
-                {account.plan.status === 'paused' && account.child && <span className="muted small">Wait for the child cancellation to reach a known final state before resuming.</span>}
-                {['active', 'paused', 'cancel_requested'].includes(account.plan.status) && <button className="button button-danger" disabled={Boolean(pending) || account.plan.status === 'cancel_requested'} onClick={() => actionCommand('cancel')}>{account.plan.status === 'cancel_requested' ? 'Cancellation pending' : 'Cancel plan'}</button>}
-                {account.plan.status === 'cancel_requested' && <span className="muted small">Awaiting known final child state</span>}
-              </div>
-            </> : <div className="empty-session"><span className="empty-rune">—</span><strong>Nothing in motion.</strong><p>Preview a bounded paper order to inspect the first proposed child before creating a paused plan.</p></div>}
-          </section>
+      <nav className="workspace-nav" aria-label="Workspace">
+        <button type="button" aria-current={section === 'trade' ? 'page' : undefined} onClick={() => setSection('trade')}>Trade</button>
+        <button type="button" aria-current={section === 'history' ? 'page' : undefined} onClick={() => setSection('history')}>Session history</button>
+      </nav>
 
-          <section className="panel balances-panel">
-            <div className="panel-heading panel-heading-tight"><div><div className="eyebrow">ACCOUNT INVENTORY</div><h2>Balances & holds</h2></div><span className="subtle-tag">VENUE STYLE</span></div>
-            <div className="balance-table-wrap"><table><thead><tr><th>ASSET</th><th>TOTAL</th><th>FREE</th><th>LOCKED</th><th>LOCAL RESERVED</th></tr></thead><tbody>
-              {account?.balances.map((balance) => <tr key={balance.currency}><td><b className="currency-dot">{balance.currency.slice(0, 1)}</b>{balance.currency}</td><td>{balance.total}</td><td>{balance.free}</td><td>{balance.locked}</td><td>{reservedFor(account, balance.currency)}</td></tr>)}
-              {!account?.balances.length && <tr><td colSpan={5} className="table-empty">Waiting for account projection.</td></tr>}
-            </tbody></table></div>
-            <p className="panel-note">Local reservations represent unreflected exposure. Reflected holds are already included in locked balances.</p>
-          </section>
+      <div id="workspace" hidden={section !== 'trade'}>
+        <ol className="workflow" aria-label="Create a trading plan">
+          {['Set your limits', 'Review the plan', 'Start trading'].map((label, index) => <li key={label} aria-current={step === index + 1 ? 'step' : undefined} className={step > index + 1 ? 'complete' : ''}><span>{step > index + 1 ? <Check size={14} /> : index + 1}</span>{label}{index < 2 && <ArrowRight className="step-arrow" size={15} />}</li>)}
+        </ol>
+        <div className="workspace-grid">
+          <aside className="ticket-column">
+            <section className="panel ticket-panel" aria-labelledby="plan-title">
+              <details className="plan-composer" open={!activePlan}>
+              <summary><h2 id="plan-title">Create a trading plan</h2><ChevronDown size={18} /></summary>
+              <p className="ticket-subtitle">Choose what to trade and the limits to follow.</p>
+              {activePlan && <p className="panel-note form-blocked">Finish or cancel the current plan before creating another.</p>}
+              <form onSubmit={runPreview} className="plan-form" onInvalidCapture={event => { const disclosure = (event.target as HTMLElement).closest('details'); if (disclosure) disclosure.open = true; }}>
+                <div className="side-switch" role="group" aria-label="Order side"><button type="button" aria-pressed={form.side === 'buy'} className={form.side === 'buy' ? 'selected buy' : ''} onClick={() => changePlanForm({ ...form, side: 'buy' })}>Buy</button><button type="button" aria-pressed={form.side === 'sell'} className={form.side === 'sell' ? 'selected sell' : ''} onClick={() => changePlanForm({ ...form, side: 'sell' })}>Sell</button></div>
+                <div className="field-grid"><Field id="base-quantity" label="Amount" suffix={account?.base_currency ?? 'BTC'} value={form.quantity} onChange={(quantity) => changePlanForm({ ...form, quantity })} placeholder="0.050" required /><Field id={form.side === 'buy' ? 'max-buy-price' : 'min-sell-price'} label={form.side === 'buy' ? 'Maximum buy price' : 'Minimum sell price'} suffix={account?.quote_currency ?? 'USD'} value={form.limitPrice} onChange={(limitPrice) => changePlanForm({ ...form, limitPrice })} placeholder="102.00" required /></div>
+                <p className="field-help">The plan will never trade beyond your price limit.</p>
+                <div className="field-grid"><Field id="duration" label="Time to complete" suffix="min" type="number" min="0.01" max="1440" step="any" value={form.durationMinutes} onChange={(durationMinutes) => changePlanForm({ ...form, durationMinutes })} placeholder="15" required /><Field id="max-child-size" label="Maximum per order" suffix={account?.base_currency ?? 'BTC'} value={form.childCap} onChange={(childCap) => changePlanForm({ ...form, childCap })} placeholder="0.010" required /></div>
+                <p className="field-help">The amount is split into smaller orders. Some may remain unfilled.</p>
+                <details className="settings-disclosure">
+                  <summary>Execution settings <span>{form.policy === 'scheduled' ? 'Scheduled' : 'Liquidity-aware'}</span><ChevronDown size={16} /></summary>
+                  <div className="settings-content">
+                    <div className="field-block"><label className="field-label" htmlFor="policy">Execution method</label><div className="select-control"><select id="policy" value={form.policy} onChange={(e) => changePlanForm({ ...form, policy: e.target.value })}><option value="scheduled">Scheduled</option><option value="liquidity-aware">Liquidity-aware</option></select><ChevronDown size={16} /></div><p className="field-help">{form.policy === 'scheduled' ? 'Schedules smaller orders across the time you set.' : 'Adjusts smaller orders to available market liquidity.'}</p></div>
+                    <div className="budget-heading"><span>Funds available to this plan</span><button type="button" onClick={() => changePlanForm({ ...form, quoteBudget: balanceFor(account, account?.quote_currency ?? '')?.free ?? '', baseBalance: balanceFor(account, account?.base_currency ?? '')?.free ?? '' })}>Use available balances</button></div>
+                    <div className="field-grid"><Field id="quote-budget" label="Cash budget" suffix={account?.quote_currency ?? 'USD'} value={form.quoteBudget} onChange={(quoteBudget) => changePlanForm({ ...form, quoteBudget })} placeholder="1000" required /><Field id="base-budget" label="Asset budget" suffix={account?.base_currency ?? 'BTC'} value={form.baseBalance} onChange={(baseBalance) => changePlanForm({ ...form, baseBalance })} placeholder="1" required /></div>
+                    <p className="rules-caption">Price step {account?.rules.tick_size ?? '—'} · Quantity step {account?.rules.lot_size ?? '—'} · Minimum {account?.rules.min_quantity ?? '—'} {account?.base_currency ?? ''}</p>
+                  </div>
+                </details>
+                <p className="creation-note">You will review the first order before creating a paused plan. Its timer starts when you create it.</p>
+                <button className="button button-lime preview-button" type="submit" disabled={previewBusy || commandSending || Boolean(pending) || !readyForNew}>{previewBusy ? <LoaderCircle className="spin" size={17} /> : <ShieldCheck size={17} />}{previewBusy ? 'Checking your plan…' : 'Review plan'}</button>
+                {!readyForNew && <div className="disabled-reason">{!snapshotFresh ? 'Waiting for current account data. Refresh to try again.' : account?.profile !== 'paper' ? 'This desk supports paper trading only.' : account?.recovery_required || account?.clock_discontinuity ? 'The account needs recovery before a new plan can start.' : !account?.market.valid ? 'Waiting for valid market prices.' : 'Finish the current plan before creating a new one.'}</div>}
+              </form>
 
-          <section className="panel balances-panel fills-panel">
-            <div className="panel-heading panel-heading-tight"><div><div className="eyebrow">EXECUTION RECORD</div><h2>Paper fills <span className="fill-count">{account?.fill_count ?? 0}</span></h2></div><span className="subtle-tag">SIMULATED</span></div>
-            <div className="balance-table-wrap"><table><thead><tr><th>ELAPSED</th><th>SIDE / QTY</th><th>PRICE</th><th>FEE</th><th>LIQUIDITY</th></tr></thead><tbody>
-              {[...(account?.fills ?? [])].slice(-8).reverse().map((fill) => <tr key={fill.execution_id}><td>{formatElapsedNanoseconds(fill.time_ns)}</td><td><span className={fill.side === 'buy' ? 'fill-buy' : 'fill-sell'}>{fill.side.toUpperCase()}</span> {fill.quantity}</td><td>{fill.price}</td><td>{fill.fee} {fill.fee_currency === 'quote' ? account?.quote_currency : fill.fee_currency === 'base' ? account?.base_currency : fill.fee_currency}</td><td>{fill.maker ? 'MAKER' : 'TAKER'}</td></tr>)}
-              {!account?.fills.length && <tr><td colSpan={5} className="table-empty">No simulated fills recorded.</td></tr>}
-            </tbody></table></div>
-            {account?.fills_truncated && <p className="panel-note">Showing the latest 8 of the latest 2,048 API fills. Full retained total: {account.fill_count}.</p>}
-            {!account?.fills_truncated && account?.fills.length ? <p className="panel-note">Fill records and fees are simulated in the paper profile.</p> : null}
-          </section>
+              {preview && <div className="preview-card" aria-live="polite">
+                <div className="preview-head"><h3 ref={previewHeading} tabIndex={-1}>Review your first order</h3><span className={preview.result.ready && preview.result.intent ? 'text-good' : 'text-warning'}>{preview.result.ready && preview.result.intent ? 'Ready' : previewReason(preview.result.reason)}</span></div>
+                <div className="preview-values"><div><small>Proposed order</small><b>{preview.result.intent ? `${preview.result.intent.side === 'buy' ? 'Buy' : 'Sell'} ${preview.result.intent.quantity} ${account?.base_currency}` : 'No order yet'}</b></div><div><small>Limit price</small><b>{preview.result.intent?.price ?? '—'} {account?.quote_currency}</b></div></div>
+                <div className="preview-values"><div><small>Bid–ask spread</small><b>{preview.result.spread}</b></div><div><small>Funds needed</small><b>{preview.result.reservation ? `${preview.result.reservation.amount} ${preview.result.reservation.currency}` : '—'}</b></div></div>
+                <details className="preview-fee-details"><summary>Estimated fees</summary><p>Maker {preview.result.estimated_maker_fee ? `${preview.result.estimated_maker_fee.amount} ${preview.result.estimated_maker_fee.currency}` : '—'} · Taker {preview.result.estimated_taker_fee ? `${preview.result.estimated_taker_fee.amount} ${preview.result.estimated_taker_fee.currency}` : '—'}</p></details>
+                {preview.result.ready && !preview.result.intent && <p className="panel-note">The plan can be created, but it must wait for an eligible first order. Completion is not guaranteed.</p>}
+                <p className="creation-note">The plan starts paused. Choose Start trading after creating it. Prices may change before an order is placed.</p>
+                {preview.result.ready && preview.authorityRevision === account?.authority_revision && preview.tenant === accountPath?.tenant && preview.account === accountPath?.account && <button className="button button-lime create-button" type="button" disabled={commandSending || Boolean(pending) || !accountMatchesSelection || !snapshotFresh} onClick={createPlan}>Create paused plan <ArrowRight size={17} /></button>}
+                {preview.authorityRevision !== account?.authority_revision && <div className="preview-stale">Account state changed. Review the plan again.</div>}
+              </div>}
+              </details>
+              <p className="paper-explanation"><LockKeyhole size={15} /> Orders and fills are simulated. Live trading is unavailable.</p>
+            </section>
+          </aside>
 
-          <section className="panel journal-panel">
-            <div className="panel-heading panel-heading-tight"><div><div className="eyebrow">DURABLE AUDIT TRAIL</div><h2>Session journal</h2></div><span className="subtle-tag">METADATA ONLY</span></div>
-            <div className="journal-list">
-              {visibleJournal.map((entry) => <div className="journal-row" key={entry.revision}><span className="journal-rev">{String(entry.revision).padStart(4, '0')}</span><span className="journal-kind">{entry.kind.replaceAll('_', ' ')}</span><time>{isoClock(entry.created_at)}</time></div>)}
-              {!visibleJournal.length && <div className="journal-empty">No journal entries in the loaded page.</div>}
-            </div>
-            {journalMore && <button className="load-more" disabled={journalBusy} onClick={() => void loadJournalPage()}>{journalBusy ? 'Loading…' : 'Load next journal page'} <ArrowDownRight size={14} /></button>}
-            <p className="panel-note">Pages are chronological and bounded. Raw snapshots and journal detail are not exposed by this API.</p>
-          </section>
-          {accountPath && <History key={`${accountPath.tenant}/${accountPath.account}`} token={token} tenant={accountPath.tenant} account={accountPath.account} />}
+          <div className="main-column">
+            <section className="panel active-panel" aria-labelledby="current-plan-title">
+              <div className="panel-heading"><h2 id="current-plan-title" ref={currentPlanHeading} tabIndex={-1}>{plan ? `${plan.spec.side === 'buy' ? 'Buy' : 'Sell'} ${plan.spec.quantity} ${account?.base_currency}` : 'Current plan'}</h2><span className={`state-tag ${stateClass(plan?.status)}`}>{plan ? planStatus(plan.status, plan.started) : 'No plan yet'}</span></div>
+              {account?.plan ? <>
+                <div className="session-topline"><div className="session-asset"><strong>{account.plan.spec.symbol}</strong><small>{account.plan.policy === 'scheduled' ? 'Scheduled execution' : 'Liquidity-aware execution'} · {formatDuration(account.plan.spec.deadline_ns)}</small></div><div className="deadline"><span>Ends at</span><strong>{isoClock(account.plan.deadline)}</strong></div></div>
+                <div className="progress-block"><div className="progress-label"><span>Amount filled</span><strong>{account.plan.filled}<small> / {account.plan.spec.quantity} {account.base_currency}</small></strong></div><div className="progress-track" role="progressbar" aria-label="Filled quantity" aria-valuenow={ratio(account.plan.filled, account.plan.spec.quantity)} aria-valuemin={0} aria-valuemax={100}><div style={{ width: `${ratio(account.plan.filled, account.plan.spec.quantity)}%` }} /></div><div className="progress-foot"><span>{account.plan.remaining} {account.base_currency} remaining</span><span>{account.plan.spec.side === 'buy' ? 'Max' : 'Min'} price {account.plan.spec.limit_price} {account.quote_currency}</span></div></div>
+                <div className="session-metrics">
+                  <Metric label="Average fill price" value={account.plan.filled === '0' ? '—' : account.plan.average_price} suffix={account.quote_currency} />
+                  <Metric label="Fees paid" value={`${account.plan.fees_quote} ${account.quote_currency}`} secondary={`${account.plan.fees_base} ${account.base_currency}`} />
+                  <Metric label="Cost vs. start price" value={account.plan.executed_cost_quote ?? '—'} suffix={account.plan.benchmark_valid ? account.quote_currency : 'Not available yet'} help="Filled slippage against the starting midpoint plus quote-valued fees. Unfilled quantity is excluded. This is not profit or loss." />
+                </div>
+                <div className="child-order"><CommandIcon size={19} /><div className="child-details"><strong>{account.child ? 'Current order' : 'No open order'}</strong><span>{account.child ? `${account.child.intent.side === 'buy' ? 'Buy' : 'Sell'} ${account.child.intent.quantity} at ${account.child.intent.price} ${account.quote_currency}` : (['completed', 'cancelled', 'expired'].includes(account.plan.status) ? 'Execution has ended. Completed fills remain in the account.' : 'Waiting for the next order.')}</span>{account.child && <span>{account.child.remaining} {account.base_currency} remaining in this order</span>}</div>{account.child && <span className={`child-status ${account.child.known_final ? 'text-good' : 'text-warning'}`}>{account.child.known_final ? 'Final' : account.child.cancel_requested ? 'Cancellation pending' : 'Open'}</span>}</div>
+                <div className="session-actions">
+                  {account.plan.status === 'active' && <button className="button button-outline" disabled={commandSending || Boolean(pending)} onClick={() => actionCommand('pause')}>Pause trading</button>}
+                  {account.plan.status === 'paused' && <button className="button button-lime" disabled={commandSending || Boolean(pending) || !snapshotFresh || !account.ready || !account.market.valid || account.recovery_required || account.clock_discontinuity || Boolean(account.child)} onClick={() => actionCommand(account.plan?.started ? 'resume' : 'start')}>{account.plan.started ? 'Resume trading' : 'Start trading'}<ArrowRight size={17} /></button>}
+                  {['active', 'paused', 'cancel_requested'].includes(account.plan.status) && <button className="button button-danger" disabled={commandSending || Boolean(pending) || account.plan.status === 'cancel_requested'} onClick={() => actionCommand('cancel')}>{account.plan.status === 'cancel_requested' ? 'Cancelling plan…' : 'Cancel plan'}</button>}
+                </div>
+                {account.plan.status === 'paused' && account.child && <p className="panel-note text-warning">Wait for the current order to finish cancelling before resuming.</p>}
+                {account.plan.status === 'paused' && !account.plan.started && <p className="panel-note">Your plan is ready. Start trading to begin placing simulated orders. The deadline is already counting down.</p>}
+                {account.plan.status === 'cancel_requested' && <p className="panel-note text-warning">Cancellation is still pending. An order can fill until its final state is confirmed.</p>}
+                {account.plan.status === 'active' && <p className="panel-note">Pausing stops new orders and requests cancellation of the current order.</p>}
+                {account.policy_runtime && <details className="technical-details"><summary>Model status</summary><p>{account.policy_runtime.profile} · {account.policy_runtime.result.replaceAll('_', ' ')} · fallback: {account.policy_runtime.fallback}{account.policy_runtime.reason ? ` · ${account.policy_runtime.reason.replaceAll('_', ' ')}` : ''}</p></details>}
+              </> : <div className="empty-session"><CommandIcon size={28} /><h3>No plan running</h3><p>Enter an amount, price limit and time to complete. Review the first order before you start.</p><span>All activity stays in your paper account.</span></div>}
+            </section>
+
+            <section className="panel balances-panel" aria-labelledby="balances-title">
+              <div className="panel-heading"><h2 id="balances-title">Account balances</h2><Wallet size={19} /></div>
+              <div className="available-balances">{account?.balances.map(balance => <div key={balance.currency}><span>{balance.currency}</span><strong>{balance.free}</strong><small>Free balance</small><small>Reserved locally: {reservedFor(account, balance.currency)}</small></div>)}</div>
+              <details className="balance-details"><summary>Balance breakdown</summary><div className="balance-table-wrap"><table><thead><tr><th>Asset</th><th>Total</th><th>Free balance</th><th>Locked</th><th>Reserved locally</th></tr></thead><tbody>
+                {account?.balances.map(balance => <tr key={balance.currency}><td>{balance.currency}</td><td>{balance.total}</td><td>{balance.free}</td><td>{balance.locked}</td><td>{reservedFor(account, balance.currency)}</td></tr>)}
+              </tbody></table></div><p className="panel-note">Local reservations track order amounts not yet reflected in locked balances. Reflected holds are already included in locked balances.</p></details>
+            </section>
+
+            <section className="panel balances-panel fills-panel" aria-labelledby="fills-title">
+              <div className="panel-heading"><h2 id="fills-title">Recent fills <span className="fill-count">{account?.fill_count ?? 0}</span></h2><span className="subtle-tag">Simulated</span></div>
+              {account?.fills.length ? <><div className="balance-table-wrap"><table><thead><tr><th>Elapsed</th><th>Side / amount</th><th>Price</th><th>Fee</th><th>Liquidity</th></tr></thead><tbody>
+                {[...account.fills].slice(-8).reverse().map(fill => <tr key={fill.execution_id}><td>{formatElapsedNanoseconds(fill.time_ns)}</td><td><span className={fill.side === 'buy' ? 'fill-buy' : 'fill-sell'}>{fill.side === 'buy' ? 'Buy' : 'Sell'}</span> {fill.quantity}</td><td>{fill.price}</td><td>{fill.fee} {fill.fee_currency === 'quote' ? account.quote_currency : fill.fee_currency === 'base' ? account.base_currency : fill.fee_currency}</td><td>{fill.maker ? 'Maker' : 'Taker'}</td></tr>)}
+              </tbody></table></div><p className="panel-note">Latest {Math.min(8, account.fills.length)} of {account.fill_count} fills. View past sessions in Session history.</p>{account.fills_truncated && <p className="panel-note">The account API retains the latest 2,048 fill rows in this view.</p>}</> : <p className="empty-inline">When an order fills, its amount, price and fee will appear here.</p>}
+            </section>
+
+            <details className="technical-details account-technical"><summary>Account details and activity</summary><dl><dt>Account scope</dt><dd>{accountPath?.tenant}/{accountPath?.account}</dd><dt>Revision</dt><dd>#{account?.revision ?? '—'}</dd><dt>Market snapshot</dt><dd>{account?.market.snapshot_id || '—'}</dd><dt>Market data</dt><dd>{sourceDescription(account?.data_source)}</dd><dt>Plan ID</dt><dd>{plan?.id ?? 'None'}</dd></dl><h3>Recent activity</h3><div className="journal-list">{visibleJournal.map(entry => <div className="journal-row" key={entry.revision}><span className="journal-rev">{entry.revision}</span><span className="journal-kind">{entry.kind.replaceAll('_', ' ')}</span><time>{isoClock(entry.created_at)}</time></div>)}{!visibleJournal.length && <p className="empty-inline">No activity in the loaded page.</p>}</div>{journalMore && <button className="load-more" disabled={journalBusy} onClick={() => void loadJournalPage()}>{journalBusy ? 'Loading…' : 'Load older activity'}</button>}<p className="panel-note">Activity contains event labels and revisions. Internal payloads are not exposed.</p></details>
+          </div>
         </div>
-
-        <aside className="ticket-column">
-          <section className="panel ticket-panel">
-            <div className="ticket-title"><div className="eyebrow">NEW PARENT ORDER</div><span className="paper-pill"><span /> PAPER</span></div>
-            <h2>Define the boundary.</h2>
-            <div className="ticket-subtitle">A plan starts paused. Its deadline begins at creation and continues while paused.</div>
-            <form onSubmit={runPreview} className="plan-form">
-              <div className="side-switch" role="group" aria-label="Order side"><button type="button" aria-pressed={form.side === 'buy'} className={form.side === 'buy' ? 'selected buy' : ''} onClick={() => changePlanForm({ ...form, side: 'buy' })}><ArrowDownRight size={15} /> Buy</button><button type="button" aria-pressed={form.side === 'sell'} className={form.side === 'sell' ? 'selected sell' : ''} onClick={() => changePlanForm({ ...form, side: 'sell' })}><ArrowUpRight size={15} /> Sell</button></div>
-              <div className="field-grid"><Field label="BASE QUANTITY" suffix={account?.base_currency ?? 'BTC'} value={form.quantity} onChange={(quantity) => changePlanForm({ ...form, quantity })} placeholder="0.050" required /><Field label={form.side === 'buy' ? 'MAX BUY PRICE' : 'MIN SELL PRICE'} suffix={account?.quote_currency ?? 'USD'} value={form.limitPrice} onChange={(limitPrice) => changePlanForm({ ...form, limitPrice })} placeholder="102.00" required /></div>
-              <div className="field-grid"><Field label="DURATION" suffix="MIN" type="number" min="0.01" max="1440" step="any" value={form.durationMinutes} onChange={(durationMinutes) => changePlanForm({ ...form, durationMinutes })} placeholder="15" required /><Field label="MAX CHILD SIZE" suffix={account?.base_currency ?? 'BTC'} value={form.childCap} onChange={(childCap) => changePlanForm({ ...form, childCap })} placeholder="0.010" required /></div>
-              <div className="field-block"><label className="field-label" htmlFor="policy">EXECUTION POLICY</label><div className="select-control"><select id="policy" value={form.policy} onChange={(e) => changePlanForm({ ...form, policy: e.target.value })}><option value="scheduled">Scheduled</option><option value="liquidity-aware">Liquidity-aware</option></select><ChevronDown size={15} /></div></div>
-              <div className="budget-heading"><span>ACCOUNT LIMITS</span><button type="button" onClick={() => changePlanForm({ ...form, quoteBudget: balanceFor(account, account?.quote_currency ?? '')?.free ?? '', baseBalance: balanceFor(account, account?.base_currency ?? '')?.free ?? '' })}>Use free balances</button></div>
-              <div className="field-grid"><Field label="QUOTE BUDGET" suffix={account?.quote_currency ?? 'USD'} value={form.quoteBudget} onChange={(quoteBudget) => changePlanForm({ ...form, quoteBudget })} placeholder="1000" required /><Field label="BASE BUDGET" suffix={account?.base_currency ?? 'BTC'} value={form.baseBalance} onChange={(baseBalance) => changePlanForm({ ...form, baseBalance })} placeholder="1" required /></div>
-              <div className="rules-caption">Tick {account?.rules.tick_size ?? '—'} <i>·</i> Lot {account?.rules.lot_size ?? '—'} <i>·</i> Min {account?.rules.min_quantity ?? '—'} {account?.base_currency ?? ''}</div>
-              <button className="button button-dark preview-button" type="submit" disabled={previewBusy || Boolean(pending) || !readyForNew}>{previewBusy ? <LoaderCircle className="spin" size={16} /> : <ShieldCheck size={16} />} Preview first child</button>
-              {!readyForNew && <div className="disabled-reason">{!snapshotFresh ? 'A current account snapshot is required before preview.' : account?.profile !== 'paper' ? 'Only paper profile controls are available here.' : account?.recovery_required || account?.clock_discontinuity ? 'Recovery and operator reconciliation are required before a new plan.' : !account?.market.valid ? 'A valid market snapshot is required before preview.' : 'An active, paused, or unresolved plan blocks new creation.'}</div>}
-            </form>
-
-            {preview && <div className="preview-card" aria-live="polite">
-              <div className="preview-head"><strong>FIRST CHILD ESTIMATE</strong><span className={preview.result.ready && preview.result.intent ? 'text-good' : 'text-warning'}>{preview.result.ready && preview.result.intent ? 'READY' : preview.result.reason.replaceAll('_', ' ').toUpperCase()}</span></div>
-              <div className="preview-values"><div><small>PROPOSED</small><b>{preview.result.intent ? `${preview.result.intent.side.toUpperCase()} ${preview.result.intent.quantity}` : 'No order'}</b></div><div><small>LIMIT</small><b>{preview.result.intent?.price ?? '—'} {account?.quote_currency}</b></div></div>
-              <div className="preview-values"><div><small>SPREAD</small><b>{preview.result.spread}</b></div><div><small>RESERVATION</small><b>{preview.result.reservation ? `${preview.result.reservation.amount} ${preview.result.reservation.currency}` : '—'}</b></div></div>
-              <div className="preview-fees">Estimated fees · maker {preview.result.estimated_maker_fee ? `${preview.result.estimated_maker_fee.amount} ${preview.result.estimated_maker_fee.currency}` : '—'} · taker {preview.result.estimated_taker_fee ? `${preview.result.estimated_taker_fee.amount} ${preview.result.estimated_taker_fee.currency}` : '—'}</div>
-              {preview.result.ready && !preview.result.intent && <p className="panel-note">No child can be placed at this first decision. A paused plan can still be created; execution may wait and completion is not guaranteed.</p>}
-              <div className="preview-foot">Observed {isoClock(preview.result.observed_at)} <span>Completion not guaranteed</span></div>
-              {preview.result.ready && preview.authorityRevision === account?.authority_revision && preview.tenant === accountPath?.tenant && preview.account === accountPath?.account && <button className="button button-lime create-button" type="button" disabled={Boolean(pending) || !accountMatchesSelection || !snapshotFresh} onClick={createPlan}>Create paused plan <ArrowUpRight size={16} /></button>}
-              {preview.authorityRevision !== account?.authority_revision && <div className="preview-stale">Account state changed. Run preview again.</div>}
-            </div>}
-          </section>
-
-          <section className="panel safeguards-panel"><div className="safeguard-heading"><LockKeyhole size={16} /><strong>GUARDRAILS</strong></div><ul><li>Hard price boundary is enforced by the runtime.</li><li>Cancel remains pending until child state is known final.</li><li>Paper fills are simulated and are not exchange executions.</li></ul><div className="safety-foot"><CircleHelp size={14} /> Live execution is unavailable.</div></section>
-        </aside>
       </div>
-      <footer className="desk-footer"><span>LIQUIDITYLAB <i>·</i> LOCAL TRADER CONSOLE</span><span>DATA {sourceLabel(account?.data_source).toUpperCase()} <i>·</i> PAPER EXECUTION <i>·</i> API REV {account?.revision ?? '—'}</span></footer>
+      {section === 'history' && accountPath && <History key={`${accountPath.tenant}/${accountPath.account}`} token={token} tenant={accountPath.tenant} account={accountPath.account} />}
+      <footer className="desk-footer"><span>LiquidityLab · Paper trading</span><span>Simulated orders. No real funds are traded.</span></footer>
     </main>
   );
 }
 
 function Login({ tokenInput, setTokenInput, onConnect, loading, error }: { tokenInput: string; setTokenInput: (s: string) => void; onConnect: (e: FormEvent) => void; loading: boolean; error: string }) {
-  return <main className="login-shell"><div className="login-brand"><span className="wordmark-symbol">L</span><span>LIQUIDITY<span className="wordmark-light">LAB</span></span></div><section className="login-card"><div className="eyebrow">LOCAL OPERATOR ACCESS</div><h1>Open the <em>paper desk.</em></h1><p>Connect with a configured bearer token. Credentials stay in this tab's memory and are cleared when you disconnect.</p><form onSubmit={onConnect}><label htmlFor="token">OPERATOR TOKEN</label><input id="token" type="password" autoComplete="off" value={tokenInput} onChange={(e) => setTokenInput(e.target.value)} placeholder="Paste bearer token" required /><button className="button button-lime" type="submit" disabled={loading}>{loading ? <LoaderCircle className="spin" size={16} /> : <LockKeyhole size={16} />} Connect securely</button></form>{error && <div className="login-error" role="alert">{error}</div>}<div className="login-foot"><span className="status-led good" /> API token is never written to browser storage</div></section><div className="login-caption">SPOT EXECUTION <i>/</i> OBSERVABLE STATE <i>/</i> PAPER ONLY</div></main>;
+  return <main className="login-shell"><div className="login-brand"><span className="wordmark-symbol">L</span><span>LiquidityLab</span></div><section className="login-card"><span className="paper-pill">Paper trading</span><h1>Connect to your trading desk</h1><p>Use the access token configured for your local paper server.</p><form onSubmit={onConnect}><label htmlFor="token">Access token</label><input id="token" type="password" autoComplete="off" value={tokenInput} onChange={e => setTokenInput(e.target.value)} placeholder="Paste your access token" required /><button className="button button-lime" type="submit" disabled={loading}>{loading ? <LoaderCircle className="spin" size={17} /> : <LockKeyhole size={17} />}{loading ? 'Connecting…' : 'Connect to desk'}</button></form>{error && <div className="login-error" role="alert">{error}</div>}<details className="login-help"><summary>Where do I get an access token?</summary><p>Use the value of LIQUIDITYLAB_API_TOKEN configured when your paper server was started. Ask the person running the server if you do not have it.</p></details><p className="login-foot">Your token stays in this tab and is cleared when you disconnect. Orders and funds are simulated.</p></section></main>;
 }
 
-function Field({ label, suffix, value, onChange, placeholder = '', required, type = 'text', min, max, step }: { label: string; suffix: string; value: string; onChange: (s: string) => void; placeholder?: string; required?: boolean; type?: string; min?: string; max?: string; step?: string }) {
-  const id = label.toLowerCase().replaceAll(/[^a-z0-9]+/g, '-');
-  return <div className="field-block"><label className="field-label" htmlFor={id}>{label}</label><div className="input-shell"><input id={id} type={type} inputMode={type === 'text' ? 'decimal' : undefined} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} required={required} min={min} max={max} step={step} /><span>{suffix}</span></div></div>;
+function Field({ id, label, suffix, value, onChange, placeholder = '', required, type = 'text', min, max, step }: { id: string; label: string; suffix: string; value: string; onChange: (s: string) => void; placeholder?: string; required?: boolean; type?: string; min?: string; max?: string; step?: string }) {
+  return <div className="field-block"><label className="field-label" htmlFor={id}>{label}</label><div className="input-shell"><input id={id} type={type} inputMode={type === 'text' ? 'decimal' : undefined} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} required={required} min={min} max={max} step={step} /><span>{suffix}</span></div></div>;
+}
+
+function planStatus(status: string, started: boolean) {
+  if (status === 'paused') return started ? 'Paused' : 'Ready to start';
+  if (status === 'active') return 'Running';
+  if (status === 'cancel_requested') return 'Cancellation pending';
+  return status.charAt(0).toUpperCase() + status.slice(1).replaceAll('_', ' ');
+}
+function previewReason(reason: string) {
+  const labels: Record<string, string> = { ready: 'Ready', market_invalid: 'Waiting for valid prices', recovery_required: 'Account recovery needed', below_minimum_or_no_free_balance: 'Waiting for an eligible order' };
+  return labels[reason] ?? reason.replaceAll('_', ' ');
+}
+function sourceDescription(source?: string) {
+  if (source === 'kraken-public') return 'Kraken market data';
+  if (source === 'recorded') return 'Recorded market data';
+  if (source === 'synthetic') return 'Simulated market data';
+  if (source === 'manual') return 'Manual market data';
+  return 'Market source unknown';
 }
 
 function Metric({ label, value, suffix, secondary, tone = '', help }: { label: string; value: string; suffix?: string; secondary?: string; tone?: string; help?: string }) {
-  return <div className="metric"><span>{label}{help && <span className="help" title={help} aria-label={help}>ⓘ</span>}</span><strong className={tone}>{value}</strong>{suffix && <small>{suffix}</small>}{secondary && <small>{secondary}</small>}</div>;
+  return <div className="metric"><span>{label}</span><strong className={tone}>{value}</strong>{suffix && <small>{suffix}</small>}{secondary && <small>{secondary}</small>}{help && <details className="metric-help"><summary>About this estimate</summary><p>{help}</p></details>}</div>;
 }
 
 function ratio(filled: string, quantity: string) {
@@ -507,13 +553,6 @@ function stateClass(status?: string) {
   if (status === 'completed') return 'tag-done';
   if (status === 'cancel_requested' || status === 'paused') return 'tag-wait';
   return '';
-}
-function sourceLabel(source?: string) {
-  if (source === 'kraken-public') return 'KRAKEN PUBLIC';
-  if (source === 'recorded') return 'RECORDED';
-  if (source === 'synthetic') return 'SYNTHETIC FEED';
-  if (source === 'manual') return 'MANUAL';
-  return 'SOURCE UNKNOWN';
 }
 function sourceSlug(source?: string) {
   return source === 'kraken-public' ? 'kraken' : source === 'synthetic' ? 'synthetic' : source === 'recorded' ? 'recorded' : 'unknown';

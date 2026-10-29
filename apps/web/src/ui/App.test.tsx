@@ -129,14 +129,14 @@ describe('trader desk account and preview workflow', () => {
       max_child_quantity: '0.00123456789012345678', quote_budget: '2000.000000000000000001',
       base_balance: '1.00000000000000000001',
     }), 'scheduled', expect.any(AbortSignal));
-    expect(container.textContent).toContain('FIRST CHILD ESTIMATE');
+    expect(container.textContent).toContain('Review your first order');
     await act(async () => { button('Create paused plan').click(); await flush(); });
-    expect(container.textContent).toContain('COMMAND OUTCOME UNKNOWN');
+    expect(container.textContent).toContain('Your last action needs confirmation');
 
     const original = vi.mocked(api.command).mock.calls[0][3];
     expect(original).toMatchObject({ kind: 'create', expected_revision: 10, expected_authority_revision: 4,
       plan: { quantity: '0.01234567890123456789', limit_price: '100.12345678901234567890' } });
-    await act(async () => { button('Retry unchanged command').click(); await flush(); });
+    await act(async () => { button('Retry same action').click(); await flush(); });
     expect(api.command).toHaveBeenCalledTimes(2);
     expect(vi.mocked(api.command).mock.calls[1][3]).toEqual(original);
   });
@@ -144,8 +144,8 @@ describe('trader desk account and preview workflow', () => {
   it('keeps a preview across a durable revision refresh with unchanged authority', async () => {
     await mount(); await connect(); await submitPreview();
     vi.mocked(api.account).mockResolvedValue(accountDTO('account-a', 11, 4));
-    await act(async () => { button('REFRESH').click(); await flush(); });
-    expect(container.textContent).toContain('FIRST CHILD ESTIMATE');
+    await act(async () => { button('Refresh').click(); await flush(); });
+    expect(container.textContent).toContain('Review your first order');
     expect(container.querySelector('.create-button')).not.toBeNull();
     await act(async () => { button('Create paused plan').click(); await flush(); });
     expect(vi.mocked(api.command).mock.calls[0][3]).toMatchObject({ expected_revision: 10, expected_authority_revision: 4 });
@@ -154,8 +154,8 @@ describe('trader desk account and preview workflow', () => {
   it('marks a preview stale after account authority changes', async () => {
     await mount(); await connect(); await submitPreview();
     vi.mocked(api.account).mockResolvedValue(accountDTO('account-a', 11, 5));
-    await act(async () => { button('REFRESH').click(); await flush(); });
-    expect(container.textContent).toContain('Account state changed. Run preview again.');
+    await act(async () => { button('Refresh').click(); await flush(); });
+    expect(container.textContent).toContain('Account state changed. Review the plan again.');
     expect(container.querySelector('.create-button')).toBeNull();
     expect(api.command).not.toHaveBeenCalled();
   });
@@ -164,7 +164,7 @@ describe('trader desk account and preview workflow', () => {
     vi.mocked(api.preview).mockResolvedValue({ ...previewDTO(), reason: 'below_minimum_or_no_free_balance', intent: null,
       reservation: null, estimated_maker_fee: null, estimated_taker_fee: null });
     await mount(); await connect(); await submitPreview();
-    expect(container.textContent).toContain('BELOW MINIMUM OR NO FREE BALANCE');
+    expect(container.textContent).toContain('Waiting for an eligible order');
     expect(container.querySelector('.create-button')).not.toBeNull();
     await act(async () => { button('Create paused plan').click(); await flush(); });
     expect(vi.mocked(api.command).mock.calls[0][3]).toMatchObject({ kind: 'create', expected_revision: 10,
@@ -218,24 +218,24 @@ describe('trader desk account and preview workflow', () => {
 
     expect(vi.mocked(api.command).mock.calls[0][3]).toMatchObject({ kind: 'cancel', expected_revision: 10 });
     expect(container.textContent).toContain('Command committed at revision 11.');
-    expect(container.textContent).toContain('CANCEL REQUESTED');
-    expect(container.textContent).toContain('CANCEL PENDING');
-    expect(container.textContent).toContain('Awaiting known final child state');
+    expect(container.textContent).toContain('Cancellation pending');
+    expect(container.textContent).toContain('Cancellation pending');
+    expect(container.textContent).toContain('Cancellation is still pending. An order can fill until its final state is confirmed.');
     expect(container.textContent).toContain('0.044 BTC remaining');
     expect(container.textContent).toContain('0.402804');
-    expect(container.textContent).not.toContain('COMMAND OUTCOME UNKNOWN');
+    expect(container.textContent).not.toContain('Your last action needs confirmation');
     expect(container.textContent).not.toContain('Execution has ended.');
-    expect(container.textContent).not.toContain('NO OPEN CHILD ORDER');
-    expect([...container.querySelectorAll('button')].some((item) => item.textContent?.includes('Retry unchanged command'))).toBe(false);
+    expect(container.textContent).not.toContain('No open order');
+    expect([...container.querySelectorAll('button')].some((item) => item.textContent?.includes('Retry same action'))).toBe(false);
 
-    await act(async () => { button('REFRESH').click(); await flush(); });
+    await act(async () => { button('Refresh').click(); await flush(); });
 
-    expect(container.textContent).toContain('CANCELLED');
-    expect(container.textContent).toContain('NO OPEN CHILD ORDER');
+    expect(container.textContent).toContain('Cancelled');
+    expect(container.textContent).toContain('No open order');
     expect(container.textContent).toContain('Execution has ended. Completed fills remain in the account.');
-    expect(container.textContent).not.toContain('CANCEL PENDING');
-    expect(container.textContent).not.toContain('Awaiting known final child state');
-    expect(container.textContent).not.toContain('Retry unchanged command');
+    expect(container.textContent).not.toContain('Cancellation pending');
+    expect(container.textContent).not.toContain('Cancellation is still pending. An order can fill until its final state is confirmed.');
+    expect(container.textContent).not.toContain('Retry same action');
     expect(container.textContent).not.toContain('0.402804');
   });
 
@@ -243,8 +243,8 @@ describe('trader desk account and preview workflow', () => {
     vi.mocked(api.account).mockResolvedValueOnce(accountWithPlan('paused', 10, cancellationPendingChild));
     await mount(); await connect();
 
-    expect(button('Resume session').disabled).toBe(true);
-    expect(container.textContent).toContain('Wait for the child cancellation to reach a known final state before resuming.');
+    expect(button('Resume trading').disabled).toBe(true);
+    expect(container.textContent).toContain('Wait for the current order to finish cancelling before resuming.');
     expect(api.command).not.toHaveBeenCalled();
   });
 });
