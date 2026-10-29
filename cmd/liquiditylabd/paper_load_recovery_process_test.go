@@ -120,6 +120,7 @@ type loadRecoveryAudit struct {
 }
 
 type loadRecoveryReport struct {
+	Backlog         *loadRecoveryBacklog            `json:"harness_authored_backlog,omitempty"`
 	Issues          []string                        `json:"issues"`
 	Version         string                          `json:"report_version"`
 	Valid           bool                            `json:"valid"`
@@ -503,6 +504,11 @@ func stopLoadRecoveryProcess(t *testing.T, process *paperTestProcess) bool {
 }
 
 func TestPaperProcessLoadRecoveryWithBystanderDemand(t *testing.T) {
+	runPaperProcessLoadRecovery(t, false)
+}
+
+func runPaperProcessLoadRecovery(t *testing.T, backlog bool) {
+	t.Helper()
 	if runtime.GOOS == "windows" {
 		t.Skip("ordinary SIGKILL recovery requires Unix")
 	}
@@ -510,7 +516,11 @@ func TestPaperProcessLoadRecoveryWithBystanderDemand(t *testing.T) {
 	if dsn == "" {
 		t.Skip("set explicit development LIQUIDITYLAB_TEST_POSTGRES_DSN")
 	}
-	output := os.Getenv("LIQUIDITYLAB_RECOVERY_LOAD_OUTPUT")
+	outputEnv := "LIQUIDITYLAB_RECOVERY_LOAD_OUTPUT"
+	if backlog {
+		outputEnv = "LIQUIDITYLAB_BACKLOG_RECOVERY_OUTPUT"
+	}
+	output := os.Getenv(outputEnv)
 	if output == "" {
 		output = filepath.Join(t.TempDir(), "load-recovery.json")
 	}
@@ -529,6 +539,9 @@ func TestPaperProcessLoadRecoveryWithBystanderDemand(t *testing.T) {
 		"Restart uses a fresh synthetic source session and snapshot. Only accepted database-backed paper outcomes are reconstructed; synthetic events during process downtime were never accepted and are not replayed.",
 		"Build and initial account/plan setup precede the continuous schedule. The ordinary daemon binary is untagged and not race-instrumented; the Go test harness can independently run with the race detector.",
 	}}
+	if backlog {
+		configureLoadRecoveryBacklogReport(&report)
+	}
 	t.Cleanup(func() {
 		defer file.Close()
 		for role, process := range processes {
@@ -583,7 +596,12 @@ func TestPaperProcessLoadRecoveryWithBystanderDemand(t *testing.T) {
 	operationStart := time.Now()
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-	victim := startLoadRecoveryProcess(t, binary, dsn, opt, "create")
+	victimDSN, victimApplication := dsn, ""
+	if backlog {
+		victimApplication = "ll_backlog_victim_" + hex.EncodeToString(suffix[:])
+		victimDSN = loadRecoveryApplicationDSN(t, dsn, victimApplication)
+	}
+	victim := startLoadRecoveryProcess(t, binary, victimDSN, opt, "create")
 	processes["victim_sigkill"] = victim
 	bystander := startLoadRecoveryProcess(t, binary, dsn, bystanderOpt, "create")
 	processes["bystander"] = bystander
@@ -592,11 +610,18 @@ func TestPaperProcessLoadRecoveryWithBystanderDemand(t *testing.T) {
 		plan := d.DefaultPlan()
 		plan.Quantity, plan.MaxChildQuantity = d.MustDecimal("0.05"), d.MustDecimal("0.01")
 		plan.QuoteBudget, plan.BaseBalance, plan.Deadline = options.initialQuote, options.initialBase, 120*d.Second
-		loadRecoveryRequest(t, process, options, "POST", "/commands", map[string]any{"id": id + "-create", "kind": "create", "plan_id": id, "plan": plan, "expected_revision": ready.Revision, "expected_authority_revision": ready.AuthorityRevision})
+		create := map[string]any{"id": id + "-create", "kind": "create", "plan_id": id, "plan": plan, "expected_revision": ready.Revision, "expected_authority_revision": ready.AuthorityRevision}
+		if backlog && process == victim {
+			create["policy"] = x.BaselineLiquidityAware
+		}
+		loadRecoveryRequest(t, process, options, "POST", "/commands", create)
 		paused := loadRecoveryAccount(t, process, options)
 		start := map[string]any{"id": id + "-start", "kind": "start", "expected_revision": paused.Revision, "expected_authority_revision": paused.AuthorityRevision}
 		loadRecoveryRequest(t, process, options, "POST", "/commands", start)
 		active := waitLoadRecoveryAccount(t, process, options, func(a api.AccountDTO) bool {
+			if backlog && process == victim {
+				return a.Plan != nil && a.Plan.Status == "active" && a.Plan.Remaining.Sign() > 0 && a.Child != nil && a.Child.State == "open" && a.Child.Intent.Passive
+			}
 			return a.Plan != nil && a.Plan.Status == "active" && a.Plan.Remaining.Sign() > 0 && a.FillCount > 0
 		})
 		return active.Plan, start
@@ -625,6 +650,10 @@ func TestPaperProcessLoadRecoveryWithBystanderDemand(t *testing.T) {
 	if err != nil {
 		t.Fatal("initial bystander pins unavailable")
 	}
+	if backlog {
+		// The explicit fixture setup is outside the read schedule and recovery clocks.
+		report.Backlog = freezeLoadRecoveryBacklog(t, ctx, victim, store, dsn, victimApplication, report.Accounts["victim"])
+	}
 	origin := time.Now()
 	report.StartedUTC = origin.UTC()
 	victimTarget, bystanderTarget := &loadRecoveryTarget{}, &loadRecoveryTarget{}
@@ -645,10 +674,16 @@ func TestPaperProcessLoadRecoveryWithBystanderDemand(t *testing.T) {
 	}()
 	// The two fixed schedules continue through kill, reap, restart and proof.
 	timer := time.NewTimer(3 * time.Second)
-	select {
-	case <-timer.C:
-	case <-ctx.Done():
-		t.Fatal("pre-crash load interval exceeded bound")
+	if backlog {
+		timer.Stop()
+		continueLoadRecoveryBacklog(t, victim, report.Backlog)
+		waitLoadRecoveryBacklogPrefix(t, ctx, store, report.Accounts["victim"], report.Backlog)
+	} else {
+		select {
+		case <-timer.C:
+		case <-ctx.Done():
+			t.Fatal("pre-crash load interval exceeded bound")
+		}
 	}
 	bystanderAtCrash, err := store.GetAccount(ctx, report.Accounts["bystander"])
 	if err != nil {
@@ -666,6 +701,9 @@ func TestPaperProcessLoadRecoveryWithBystanderDemand(t *testing.T) {
 	}
 	report.CrashEpoch, report.CrashObserved, report.CrashProcessed = crashed.Ownership.Epoch, crashed.ObservedSequence, crashed.ProcessedSequence
 	report.CrashDebt = crashed.ObservedSequence - crashed.ProcessedSequence
+	if backlog {
+		checkLoadRecoveryBacklogCrash(t, dsn, opt, crashed, report.Backlog)
+	}
 	report.CrashFacts = loadRecoveryFacts(t, dsn, opt)
 	acceptedBefore := loadRecoveryAcceptedFills(t, dsn, opt)
 	if len(acceptedBefore) == 0 {
@@ -679,7 +717,7 @@ func TestPaperProcessLoadRecoveryWithBystanderDemand(t *testing.T) {
 		t.Fatal("restart boundary exceeded bound")
 	}
 	report.Events.LaunchNS = time.Since(origin).Nanoseconds()
-	restarted := startLoadRecoveryProcess(t, binary, dsn, opt, "resume")
+	restarted := startLoadRecoveryProcess(t, binary, victimDSN, opt, "resume")
 	processes["victim_resumed"] = restarted
 	report.Events.ListenerNS = time.Since(origin).Nanoseconds()
 	victimTarget.set(restarted.url)
@@ -766,7 +804,11 @@ func TestPaperProcessLoadRecoveryWithBystanderDemand(t *testing.T) {
 	if !report.Valid {
 		report.Status = "failed"
 	}
-	t.Logf("ordinary SIGKILL recovery under 2 Hz synthetic and 20 Hz/account HTTP bystander demand: debt=%d, outage=%s, cold-launch-to-ready=%s, victim=%v, bystander=%v; evidence=%s", report.CrashDebt, time.Duration(report.Events.OutageNS), time.Duration(report.Events.LaunchReadyNS), report.Counts["victim"].Outcomes, report.Counts["bystander"].Outcomes, filepath.Base(output))
+	label := "ordinary SIGKILL recovery"
+	if backlog {
+		label = "ordinary SIGKILL recovery of a harness-authored 128-fill accepted backlog"
+	}
+	t.Logf("%s under 2 Hz synthetic and 20 Hz/account HTTP bystander demand: debt=%d, outage=%s, cold-launch-to-ready=%s, victim=%v, bystander=%v; evidence=%s", label, report.CrashDebt, time.Duration(report.Events.OutageNS), time.Duration(report.Events.LaunchReadyNS), report.Counts["victim"].Outcomes, report.Counts["bystander"].Outcomes, filepath.Base(output))
 }
 
 func TestPaperLoadRecoveryOpenLoopRetainsUnboundOffers(t *testing.T) {
@@ -968,7 +1010,7 @@ func loadRecoverySummarize(samples []loadRecoverySample, events loadRecoveryEven
 }
 
 func loadRecoveryReportIssues(report loadRecoveryReport) []string {
-	issues := []string{}
+	issues := loadRecoveryBacklogIssues(report)
 	checksum, _ := report.Binary["sha256"].(string)
 	decoded, err := hex.DecodeString(checksum)
 	if err != nil || len(decoded) != sha256.Size || report.Binary["fault_hooks"] != false || report.Binary["race_instrumented"] != false {
