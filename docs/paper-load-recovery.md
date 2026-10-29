@@ -167,6 +167,18 @@ is a failure; neither can count as a backlog-recovery pass. Recovery must then
 preserve and finish the complete batch under the full financial and process
 audits above.
 
+OS process reap does not prove PostgreSQL has finished an already received
+COMMIT. The post-reap collector therefore uses a two-second account-row-lock
+barrier before reading the account and execution prefixes, and holds that lock
+through both reads. It fails on timeout or any mismatch. The deterministic
+`TestPaperLoadRecoveryCrashObserverWaitsForAtomicCommit` regression proves the
+collector waits for a pending writer and observes the same committed prefix.
+The barrier does not change balances, projections or execution rows.
+
+Three clean passing repeats, exact raw reports, full-suite output and
+independent financial/database inspection are retained in the
+[29 October accepted-backlog evidence](../benchmarks/results/paper-accepted-backlog-20261029/README.md).
+
 This is a controlled crash-boundary fixture, not an ordinary source-generated
 backlog, a 2 Hz source backlog measurement, a reducer-throughput measurement, or
 a capacity/headroom result. Its timing and observer overhead do not establish

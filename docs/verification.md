@@ -524,3 +524,58 @@ At that original slice, private account access, live orders, trader interface, d
 
 Neither the archive nor this contract result passes product capacity, historical
 session binding, policy evaluation, private transport, soak or restore gates.
+
+## Clean archive replay and accepted-backlog closeout — 29 October 2026
+
+- `87a0ca3` corrects the previously failed crash observer: a bounded account-row
+  lock waits for any server-side commit after client reap, then remains held
+  across account/execution collection. A deterministic pending-writer regression
+  verifies the wait and newest matching prefix. Strict prefix, held obligation
+  and exact accounting assertions were retained.
+- `1d1026e` adds explicit sealed quiet-tail tape coverage without fabricated
+  market events or changed legacy tape hashes. `883704c` adds the bounded offline
+  archive comparison CLI, strict explicit specs, exact baseline cashflows,
+  source/provenance checks, common deadline valuation, comparability reasons,
+  cancellation, resource bounds and exclusive complete report publication.
+  [The replay runbook](historical-replay.md) records the actual ordinary review
+  invocation and independent rational-arithmetic check. It remains a simulated
+  reference, with no inferred paper-session binding.
+- Clean `883704c02d925d7585440e67e845751e39e38850` passes the full uncached Go
+  race suite with development PostgreSQL and actual Python/replay paths:
+  1,078 test/subtest pass events, no skipped test cases, daemon 66.036 s,
+  runtime 82.910 s. Three packages contain no tests. The [retained bundle](../benchmarks/results/paper-accepted-backlog-20261029/README.md)
+  includes exact compressed Go JSON output, raw-output SHA-256 and source state
+  before/after the run. Every Go regression named in the Phase 5/6 audits is
+  present among its passing test events.
+- The [fresh combined conformance run](../conformance/results/20261029-contracts-883704c.json)
+  passes all five steps and 216 Python checks, with zero skips/failures/errors
+  and unchanged hashes for all four fixtures. Its ordinary replay binary hash
+  is retained in that report. This is distinct from full product Go coverage.
+- Three ordinary untagged/non-race daemons from the same clean source have
+  SHA-256 `5046cdcf4aba516241b7c6d59db14d527fbaca1f988607e99516d5707532d92d`.
+  Each retained process trial is complete/valid with no issues: 2/128, 1/128 and
+  2/128 post-reap snapshot/execution prefixes, debt 6−5=1, positive child holds,
+  then all 128 accepted fills recovered under the next epoch while paused.
+  The 0.003 BTC batch has exact 0.00029997 USD fees and leaves BTC 0.003 /
+  USD 19.69973003 balances with 0.047 BTC residual. The source is explicitly
+  harness-authored; ordinary 2 Hz trades did not generate this batch.
+- Every process trial retains 400 scheduled HTTP offers: victim 176 completed
+  and 24 endpoint unbound, bystander 200 completed. Bystander source sequence
+  advances 5→25. Both final parents are cancelled, all holds/intents are final,
+  cursors drain, original pins remain, both graceful shutdowns are known final,
+  and all process lifetimes are reaped.
+- Root independently checks raw/gzip hashes and lengths, all HTTP indices,
+  routes/outcomes and timing boundaries, exact rational cashflows/fees/residuals,
+  and read-only retained database observations, batch JSONB payload hash,
+  executions, final snapshots, balances, fee assumptions, owner epochs,
+  pins/cursors and reservation/outbox finality. The bundle preserves the
+  independent audit and environment metadata. The environment was not declared
+  exclusive; no source-rate capacity or service attribution claim is made.
+
+The scoped requirement maps now close local [Phase 5](phase5-paper-audit.md)
+and [Phase 6](phase6-inference-audit.md). The earlier failed full-suite attempt
+remains above. Stage 2 admission/headroom, shared multi-account execution,
+paper-session source binding/replay jobs/UI, design-user acceptance, immutable
+policy evaluation/promotion, private adapter/reconciliation, deployment,
+soak/restore and authorized live evidence remain incomplete. The full goal is
+active.

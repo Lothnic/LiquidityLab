@@ -1,6 +1,6 @@
 # LiquidityLab: Go runtime and Python RL migration
 
-Decision plan and implementation checkpoint updated 28 October 2026 through `4e4838c`. The Go core, replay bridge, public-data pipeline, PostgreSQL store, durable paper actor, Python inference worker/client, authenticated API, paper CLI/server, React desk, asynchronous paper policy integration, revision-pinned history, and a v2 durable runner with HTTP polling, controlled inference, and profiling are committed. Local paper create/resume and process crash-boundary recovery are also committed. A real 50-frame Kraken BTC/USD public capture and passing Go/Python normalization conformance are preserved in the repository; seven v2 workload reports preserve HTTP/inference/profiling results, including one invalid source-overload trial. Historical market counterfactual replay remains unfinished. [Section 16](#16-current-go-delivery-and-scale-plan) is the current implementation sequence and supersedes older scheduling estimates below. See [verification.md](verification.md) for executed checks; product capacity, backup/restore, private exchange failover, and live execution remain unproven.
+Decision plan and implementation checkpoint updated 29 October 2026 through clean `883704c`, with retained evidence in `bdd762b`. The Go core, replay bridge, public-data pipeline, PostgreSQL paper runtime, authenticated API, React desk and Python inference integration are committed. Local migration gates 1–6 are closed by requirement/evidence audits. Verified recording archives and an offline baseline comparison CLI are available; durable paper-session/source binding, persisted replay jobs and trader replay UI remain unfinished. Three clean accepted-backlog process trials retain strict partial crash prefixes and exact paused recovery. [Section 16](#16-current-go-delivery-and-scale-plan) remains the implementation sequence. See [verification.md](verification.md) for executed checks; product admission/headroom, shared multi-account operation, policy promotion, private execution, deployment, soak/restore and live authorization remain open.
 
 ## Decision in brief
 
@@ -321,7 +321,7 @@ Exit: PPO can train, save, load, and infer against the Go-backed v1 environment.
 
 ### Phase 5 — durable paper execution: 4–6 days
 
-Current checkpoint: store, actor, paper transport, passive matching, baseline scheduling, recorded-data CLI, incremental public-feed integration, paper server and baseline browser integration are committed. Existing-account startup, owned simulated effect fencing and actual SIGKILL/checkpoint restart evidence are implemented. Private exchange failover, capacity and operational restore remain separate gates.
+Completed local checkpoint: the [Phase 5 audit](phase5-paper-audit.md) maps all literal durable-paper requirements to passing implementation/tests. Clean `883704c` full Go race evidence and three ordinary accepted-backlog recovery trials retain exact finances, strict partial crash prefixes and held obligations before paused recovery. The controlled 128-fill batch is harness-authored simulated transport data. Private exchange failover, supported admission/headroom and operational restore remain separate open gates.
 
 Implement PostgreSQL migrations, account actor, reservation/outbox transactions, command deduplication, recovery, and current-market paper fills. Keep live transport unavailable in this profile.
 
@@ -329,7 +329,7 @@ Exit: restarting at each intent/ack/cancel boundary preserves the account and pa
 
 ### Phase 6 — Python inference service: 3–4 days
 
-Current checkpoint: Python worker/client, strict bundle/request binding, asynchronous actor scheduling and deterministic baseline/pause fallback are committed and covered by race/integration checks. Real Python worker loss exercised baseline fallback through the paper desk. Immutable evaluation/promotion and operational capacity remain outstanding.
+Completed local checkpoint: the [Phase 6 audit](phase6-inference-audit.md) maps bundle/request verification, bounded scheduling, fallback, stale/malformed/late/duplicate rejection and acceptance across newer book/source updates to passing clean `883704c` Go/Python evidence. A repeated accepted handler result has one financial effect, with separately durable late audits; 100 logical book updates do not invalidate unchanged authority. Immutable evaluation/promotion and operational capacity remain outstanding.
 
 Add bundle/schema verification, bounded worker scheduling, inference deadlines, response binding, and Go fallback/pause behavior.
 
@@ -337,7 +337,7 @@ Exit: stale, incompatible, delayed, duplicate, and malformed responses cannot pr
 
 ### Phase 7 — trader API and interface: 5–8 days
 
-Current checkpoint: scoped authenticated API, exact preview, curated execution projections, React interface and revision-pinned reports/history are committed with synthetic browser and component evidence. Historical market counterfactual replay and design-user validation remain outstanding; revision inspection does not satisfy counterfactual replay.
+Current checkpoint: scoped authenticated API, exact preview, curated execution projections, React interface and revision-pinned reports/history are committed with synthetic browser and component evidence. Verified-archive offline baseline comparison is implemented; paper-session/source binding, persisted replay jobs, trader replay UI and design-user validation remain outstanding. Revision inspection does not satisfy counterfactual replay.
 
 Build the plan form, active execution screen, pause/cancel, history, and session replay. Expose actual versus simulated results clearly. Add command authentication for remote deployment.
 
