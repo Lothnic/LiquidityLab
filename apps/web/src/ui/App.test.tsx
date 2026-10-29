@@ -29,6 +29,27 @@ const accountDTO = (accountID = 'account-a', revision = 10, authorityRevision = 
   reserved: [{ currency: 'BTC', amount: '0' }, { currency: 'USD', amount: '0' }],
   plan: null, child: null, fills: [], fill_count: 0, fills_truncated: false,
 });
+const accountWithPlan = (
+  status: string,
+  revision: number,
+  child: Account['child'],
+): Account => ({
+  ...accountDTO('account-a', revision),
+  plan: {
+    id: 'plan-a', revision: 3, status, started: true,
+    start: '2026-01-01T00:00:00Z', deadline: '2026-01-01T00:15:00Z',
+    spec: { side: 'buy', quantity: '0.05', limit_price: '102', deadline_ns: 900_000_000_000,
+      max_child_quantity: '0.01', quote_budget: '20', base_balance: '0', symbol: 'BTC/USD' },
+    policy: 'scheduled', filled: '0.006', remaining: '0.044', average_price: '100.5', arrival_mid: '100',
+    benchmark_valid: true, executed_cost_quote: '0.003', fees_base: '0', fees_quote: '0.0012',
+  },
+  child,
+  reserved: [{ currency: 'BTC', amount: '0' }, { currency: 'USD', amount: child ? '0.402804' : '0' }],
+});
+const cancellationPendingChild: NonNullable<Account['child']> = {
+  id: 'child-a', intent: { side: 'buy', quantity: '0.01', price: '100.5', passive: true },
+  remaining: '0.004', state: 'cancel_requested', known_final: false, cancel_requested: true,
+};
 const previewDTO = (revision = 10, authorityRevision = 4): Preview => ({
   revision, authority_revision: authorityRevision, profile: 'paper', observed_at: '2026-01-01T00:00:00Z',
   market: { valid: true, snapshot_id: 'snapshot-10', instrument_revision: 'rules-1', best_bid: '100', best_ask: '101' },
@@ -184,5 +205,46 @@ describe('trader desk account and preview workflow', () => {
     await act(async () => { resolveA(accountDTO('account-a', 10, 4)); await flush(); });
     expect(container.textContent).toContain('#22');
     expect(container.textContent).not.toContain('#10');
+  });
+
+  it('keeps an acknowledged cancel visibly pending until a refreshed terminal projection', async () => {
+    vi.mocked(api.account)
+      .mockResolvedValueOnce(accountWithPlan('active', 10, { ...cancellationPendingChild, state: 'open', cancel_requested: false }))
+      .mockResolvedValueOnce(accountWithPlan('cancel_requested', 11, cancellationPendingChild))
+      .mockResolvedValueOnce(accountWithPlan('cancelled', 12, null));
+    await mount(); await connect();
+
+    await act(async () => { button('Cancel plan').click(); await flush(); });
+
+    expect(vi.mocked(api.command).mock.calls[0][3]).toMatchObject({ kind: 'cancel', expected_revision: 10 });
+    expect(container.textContent).toContain('Command committed at revision 11.');
+    expect(container.textContent).toContain('CANCEL REQUESTED');
+    expect(container.textContent).toContain('CANCEL PENDING');
+    expect(container.textContent).toContain('Awaiting known final child state');
+    expect(container.textContent).toContain('0.044 BTC remaining');
+    expect(container.textContent).toContain('0.402804');
+    expect(container.textContent).not.toContain('COMMAND OUTCOME UNKNOWN');
+    expect(container.textContent).not.toContain('Execution has ended.');
+    expect(container.textContent).not.toContain('NO OPEN CHILD ORDER');
+    expect([...container.querySelectorAll('button')].some((item) => item.textContent?.includes('Retry unchanged command'))).toBe(false);
+
+    await act(async () => { button('REFRESH').click(); await flush(); });
+
+    expect(container.textContent).toContain('CANCELLED');
+    expect(container.textContent).toContain('NO OPEN CHILD ORDER');
+    expect(container.textContent).toContain('Execution has ended. Completed fills remain in the account.');
+    expect(container.textContent).not.toContain('CANCEL PENDING');
+    expect(container.textContent).not.toContain('Awaiting known final child state');
+    expect(container.textContent).not.toContain('Retry unchanged command');
+    expect(container.textContent).not.toContain('0.402804');
+  });
+
+  it('keeps resume disabled for a paused plan with a non-final child', async () => {
+    vi.mocked(api.account).mockResolvedValueOnce(accountWithPlan('paused', 10, cancellationPendingChild));
+    await mount(); await connect();
+
+    expect(button('Resume session').disabled).toBe(true);
+    expect(container.textContent).toContain('Wait for the child cancellation to reach a known final state before resuming.');
+    expect(api.command).not.toHaveBeenCalled();
   });
 });
