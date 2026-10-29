@@ -102,6 +102,16 @@ func TestIncrementalErrorsInvalidateAndRequireFreshSnapshot(t *testing.T) {
 	}
 }
 
+func TestQuotedChecksumNormalizationRetainsVerifiedValue(t *testing.T) {
+	for _, raw := range []string{streamBook, strings.Replace(streamBook, `"checksum":2926945269`, `"checksum":"2926945269"`, 1)} {
+		n := NewNormalizer()
+		events, err := n.Accept(streamRow(0, raw))
+		if err != nil || len(events) != 1 || events[0].Kind != "snapshot" || events[0].Checksum != 2926945269 {
+			t.Fatalf("verified checksum changed in normalized output: events=%+v err=%v", events, err)
+		}
+	}
+}
+
 type fakeCaptureSocket struct {
 	frames        []string
 	index, writes int

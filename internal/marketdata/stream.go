@@ -153,9 +153,9 @@ func (n *Normalizer) Accept(row Receipt) (out []Event, err error) {
 				outB = diff(previousBids, n.b.Levels("bids"))
 				outA = diff(previousAsks, n.b.Levels("asks"))
 			}
-			var c uint64
-			_ = json.Unmarshal(it.Checksum, &c)
-			n.emit(&out, map[bool]string{true: "snapshot", false: "book"}[snap], t, row, Event{Bids: outB, Asks: outA, Checksum: uint32(c), ExchangeTimestamp: it.Timestamp})
+			// Apply verified the wire checksum, including its accepted quoted form.
+			// Emit that verified book value rather than ignoring a second decode error.
+			n.emit(&out, map[bool]string{true: "snapshot", false: "book"}[snap], t, row, Event{Bids: outB, Asks: outA, Checksum: n.b.Checksum(), ExchangeTimestamp: it.Timestamp})
 		}
 	}
 	if msg.Channel == "trade" && n.b != nil && n.b.Valid && msg.Type != "snapshot" {
