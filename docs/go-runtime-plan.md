@@ -309,7 +309,7 @@ Current checkpoint: parser, recorder and normalizer are committed. Commit `8c7e3
 
 Port raw decoding, CRC validation, capture manifests, normalization, and book validity. Run both normalizers against the same raw recordings. Do not replace a failed real capture with invented live data.
 
-Exit: checksum/source precision cases match; corruption is detected; live capture is verified when network access permits. The previously observed handshake failure remains an integration issue until demonstrated otherwise.
+Exit: checksum/source precision cases match; corruption is detected; live capture is verified when network access permits. An earlier failed handshake attempt is retained as historical evidence; the later verified 28 October 2026 public capture demonstrates successful network capture.
 
 ### Phase 4 — Go-backed Gym bridge: 4–6 days
 

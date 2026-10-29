@@ -100,6 +100,9 @@ build/liquiditylab normalize --input data/kraken-go.jsonl --output data/kraken-g
 Capture keeps raw decimals, validates checksums, writes explicit gaps, reconnects
 for resnapshot, and emits a SHA-256 manifest. The default aggregate byte cap is
 64MiB; normalization defaults to the same input-size limit and materializes the
-result. Receipt metadata discontinuities invalidate continuity. The implementation
-host's twelve-second connection attempt received no frames and exited with
-`no_valid_book`. No successful public recording or private trading is claimed.
+result. Receipt metadata discontinuities invalidate continuity. An earlier
+twelve-second host attempt received no frames and exited with `no_valid_book`;
+that failed attempt remains historical evidence. A later verified public capture
+is retained in [the 2026-10-28 Kraken BTC/USD recording](../examples/recordings/kraken-btcusd-20261028/)
+with raw frames, manifest, normalized events, and Go/Python conformance evidence.
+No private trading is claimed.
