@@ -68,8 +68,9 @@ type Engine struct {
 // Tape holds one private, immutable copy of market events shared by independent
 // engines. Its contents are never exposed to callers or mutated during replay.
 type Tape struct {
-	events []d.MarketEvent
-	hash   string
+	events      []d.MarketEvent
+	hash        string
+	coverageEnd int64
 }
 
 func New(events []d.MarketEvent, plan d.Plan, rules d.InstrumentRules, fees d.FeeConfig, config d.ReplayConfig) (*Engine, error) {
@@ -118,7 +119,32 @@ func NewTape(events []d.MarketEvent) (*Tape, error) {
 		return nil, err
 	}
 	h := sha256.Sum256(b)
-	return &Tape{events: copied, hash: hex.EncodeToString(h[:])}, nil
+	return &Tape{events: copied, hash: hex.EncodeToString(h[:]), coverageEnd: previous}, nil
+}
+
+// NewTapeWithCoverage records externally verified coverage through a sealed
+// quiet tail without manufacturing a market event. The coverage participates
+// in this constructor's hash; NewTape retains its existing hash and behavior.
+func NewTapeWithCoverage(events []d.MarketEvent, coverageEnd int64) (*Tape, error) {
+	tape, err := NewTape(events)
+	if err != nil {
+		return nil, err
+	}
+	if coverageEnd < tape.coverageEnd || coverageEnd < 0 {
+		return nil, errors.New("explicit tape coverage precedes its last event")
+	}
+	b, err := json.Marshal(struct {
+		Schema      string          `json:"schema"`
+		Events      []d.MarketEvent `json:"events"`
+		CoverageEnd int64           `json:"coverage_end_ns"`
+	}{"liquiditylab.replay.covered-tape.v1", tape.events, coverageEnd})
+	if err != nil {
+		return nil, err
+	}
+	h := sha256.Sum256(b)
+	tape.hash = hex.EncodeToString(h[:])
+	tape.coverageEnd = coverageEnd
+	return tape, nil
 }
 
 func NewWithTape(tape *Tape, plan d.Plan, rules d.InstrumentRules, fees d.FeeConfig, config d.ReplayConfig) (*Engine, error) {
@@ -145,7 +171,7 @@ func NewWithTape(tape *Tape, plan d.Plan, rules d.InstrumentRules, fees d.FeeCon
 			return nil, errors.New("recording contains another symbol")
 		}
 	}
-	if tape.events[len(tape.events)-1].Time < end {
+	if tape.coverageEnd < end {
 		return nil, errors.New("recording must cover deadline plus settlement allowance")
 	}
 	e := &Engine{Plan: plan, Rules: rules, Fees: fees, Config: config, events: tape.events, DatasetHash: tape.hash}
