@@ -80,9 +80,9 @@ All duration metric names end in `_ns` and use nanoseconds. Size metrics end in
 | Metric names | What the sample spans |
 | --- | --- |
 | `actor_queue_wait_ns` | Immediately before mailbox publication to dequeue/handler start for admitted actor work. |
-| `actor_handle_ns` | Actor handler start to completion, including its synchronous durable work. |
+| `actor_handle_ns` | One active handler turn, including its synchronous durable work. A yielding operation contributes multiple turn samples; waiting between turns is excluded. |
 | `control_ack_ns` | Immediately before public `Do` mailbox submission through successful caller return for priority `pause`, `cancel`, or `deadline` commands. Failed calls are not sampled. This is a local command acknowledgement duration, not a standalone venue-cancel measurement. |
-| `public_market_apply_ns` | Handling time for a market request that reached the actor. |
+| `public_market_apply_ns` | Sum of active handler turns for one market request, emitted once on completion/failure. Queue wait and time parked between turns are excluded; use runner call timing for total operation latency. |
 | `inference_rpc_ns` | Time inside the worker `Predict` RPC call, including failed calls. It does not include request validation or admission wait. |
 | `decision_commit_ns` | For a baseline decision command, command-handler entry through acknowledged persistence. For an inference slot, start of decision processing/observation construction through acknowledged slot resolution. Duplicate retries and recovered pending work have no additional fabricated elapsed sample. |
 | `db_acquire_ns` | Pool acquisition attempt including connection construction/ping and acquisition overhead; it is not pure pool-queue wait. Failed acquisitions are included. |

@@ -125,7 +125,17 @@ func cfgInfo(c ar.Config) map[string]any {
 	if c.Policy != nil {
 		bundle = c.Policy.PolicySHA256
 	}
-	return map[string]any{"profile": c.Profile, "data_source": c.DataSource, "accounts": 1, "instruments": 1, "instrument_revision": c.InstrumentRevision, "rules": c.Rules, "fees": c.Fees, "execution": c.Execution, "baseline": c.Baseline, "scheduled_slice_interval_ns": x.BaselineSliceInterval, "bundle_identity": bundle, "auto_execute": c.AutoExecute, "mailbox_capacity": c.MailboxCapacity, "control_capacity": c.ControlCapacity, "fact_capacity": c.FactCapacity, "max_fills": c.MaxFills, "max_facts": c.MaxFacts, "lease_ns": int64(c.Lease)}
+	views, steps, quantum := c.ViewCapacity, c.FactQuantumSteps, c.FactQuantumTime
+	if views == 0 {
+		views = c.MailboxCapacity
+	}
+	if steps == 0 {
+		steps = 4
+	}
+	if quantum == 0 {
+		quantum = 5 * time.Millisecond
+	}
+	return map[string]any{"profile": c.Profile, "data_source": c.DataSource, "accounts": 1, "instruments": 1, "instrument_revision": c.InstrumentRevision, "rules": c.Rules, "fees": c.Fees, "execution": c.Execution, "baseline": c.Baseline, "scheduled_slice_interval_ns": x.BaselineSliceInterval, "bundle_identity": bundle, "auto_execute": c.AutoExecute, "mailbox_capacity": c.MailboxCapacity, "view_capacity": views, "control_capacity": c.ControlCapacity, "fact_capacity": c.FactCapacity, "fact_quantum_steps": steps, "fact_quantum_time_ns": int64(quantum), "max_fills": c.MaxFills, "max_facts": c.MaxFacts, "lease_ns": int64(c.Lease)}
 }
 func resourceDelta(a, b resources) map[string]any {
 	return map[string]any{"user_cpu_us": b.UserCPUUS - a.UserCPUUS, "system_cpu_us": b.SystemCPUUS - a.SystemCPUUS, "total_alloc_bytes": b.TotalAlloc - a.TotalAlloc, "mallocs": b.Mallocs - a.Mallocs, "gc_cycles": b.NumGC - a.NumGC, "gc_pause_ns": b.GCPauseNS - a.GCPauseNS, "rss_endpoint_bytes": b.RSS - a.RSS, "heap_alloc_endpoint_bytes": int64(b.HeapAlloc) - int64(a.HeapAlloc), "elapsed_ns": b.Wall.Sub(a.Wall).Nanoseconds()}

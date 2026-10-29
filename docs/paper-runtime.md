@@ -3,8 +3,8 @@
 `internal/runtime` provides one serialized paper account authority backed by
 PostgreSQL. It uses the same exact ledger, action compiler, reservation/fee
 rules and passive trade matcher as Go replay. It cannot construct a live
-transport. A trader API and product CLI are subsequent
-integration components; this package alone is not a complete trading product.
+transport. The trader API, paper CLI and React desk use this runtime; private
+exchange execution remains a separate implementation and release gate.
 
 The persisted `data_source` identifies `manual`, `synthetic`, `recorded` or
 `kraken-public` input independently of the paper execution profile. Recovery
@@ -40,6 +40,12 @@ Obsolete unsent children release their reservation. Attempted or unknown
 children remain reserved until known final. A cancel request is distinguishable
 from a final cancellation; a fill may still race with cancellation.
 
+Pause, cancel and deadline receipts acknowledge the durable local control.
+They retain any attempted child, reservation and accepted source debt until
+known-final reduction. A parent can remain `cancel_requested` after a successful
+receipt. Poll the projection for terminal status; do not equate the receipt with
+completed cancellation.
+
 Public command/reconciliation IDs cannot use internal receipt prefixes:
 `boot-`, `deadline-`, `dispatch-market-`, `market-invalid-`, `clock-invalid-`,
 `observation-`, `paper-`, `transport-`, or `runtime-`. Fill ingress is trusted
@@ -60,8 +66,9 @@ It dispatches a queued intent only after the usual final checks. Pause, expired
 deadlines and recovery prevent new decisions. A restart does not run a burst of
 every missed cadence; the next actual decision establishes its next due time.
 The scheduled baseline still advances its explicit 15-second slice cursor once
-per eligible decision, preserving replay semantics. Model inference is not yet
-wired into this scheduler; its worker/client are separate components.
+per eligible decision, preserving replay semantics. An optional Python policy
+worker supplies asynchronous proposals with persisted bindings, expiry and
+fallback. Pending source facts or a parked ordinary operation block new actions.
 
 ## Market data and paper effects
 
@@ -101,8 +108,10 @@ parent. Public-data invalidity is persisted with readiness false.
 external outcomes are resolved or transfer ownership. Restart requires an
 explicit previous-sender-isolated/reconciled proof, a new owner identity and a
 fresh book. The database epoch rejects stale writes but is not an exchange
-fence. Current restart tests establish durable checkpoints in one process;
-process-kill and operational failover drills remain required.
+fence. Ordinary-process SIGKILL/reap/resume trials and controlled crash boundaries
+are recorded in [paper recovery](paper-recovery.md) and
+[recovery under demand](paper-load-recovery.md). Production failover and
+backup/restore gates remain open.
 
 Elapsed execution time uses a monotonic process anchor after restart's initial
 UTC reconciliation. Backward clock movement, or a wall/monotonic divergence
@@ -110,15 +119,30 @@ above one second, durably invalidates market readiness. A fresh snapshot plus
 explicit reconciliation is required; a still-active parent must be aborted
 after such a discontinuity.
 
-Defaults bound ordinary/control/fact notifications to 64/16/64 items, fill
-history to 2,048, and unresolved fact history to 256. Individual public events
-accept at most 512 levels; accumulated book state is capped at 2,048 levels.
-The store bounds pending observations to 4,096 facts / 16 MiB and each snapshot
-or observation payload to 1 MiB. Each drain takes a fixed initial inbox
-watermark, so continuous ingress cannot move its finish line. Maintenance and
-control remain runnable ahead of ordinary work, but a reducer/transport call
-already executing is bounded rather than preempted. The proposed 100 ms control
-latency and production account capacity have not been demonstrated.
+Defaults bound ordinary/control/fact/view lanes to 64/16/64/64 items, fill
+history to 2,048, and unresolved fact history to 256. A custom zero
+`ViewCapacity` inherits `MailboxCapacity`; explicit bounds are 1–4,096 views.
+Individual public events accept at most 512 levels; accumulated book state is
+capped at 2,048 levels. The store bounds pending observations to 4,096 facts /
+16 MiB and each snapshot or observation payload to 1 MiB.
+
+`FactQuantumSteps` defaults to 4 (maximum 512); `FactQuantumTime` defaults to
+5 ms (maximum 1 s). Each reduction turn yields after either limit, checking time
+between atomic transitions. Fill deduplication checks and the observation trailer
+also consume steps. An individual SQL operation can exceed the cooperative time
+budget; it retains its own deadline. This is not a hard control-latency bound.
+The process-local prefix position is disposable: restart rechecks durable fill
+identities and advances the source cursor only after its trailer commits.
+
+An ordinary request retains its FIFO position across reduction turns. Controls,
+bounded views, lease/deadline maintenance and policy expiry run between turns;
+later market inputs cannot overtake the parked request. A successful trade call
+waits for its accepted observation to be reduced. Notifications coalesce and
+continuation needs no additional external wakeup. Views expose readiness false
+while accepted source debt remains. New parent/trade acceptance uses a
+transactional caught-up guard, while duplicate retries retain their original
+receipt. The proposed 100 ms control latency and production account capacity
+have not been demonstrated.
 
 This initial paper implementation writes every accepted trade outcome to
 PostgreSQL, including zero-fill outcomes. Its write cost and history growth

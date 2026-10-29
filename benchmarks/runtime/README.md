@@ -6,6 +6,14 @@ the replay throughput benchmark measures a different workload. It does not
 establish supported account capacity, exchange behavior, model quality, or UI
 performance.
 
+The runtime manifest records effective `view_capacity`, `fact_quantum_steps`
+and `fact_quantum_time_ns` alongside ordinary/control/fact queue capacities.
+The reduction defaults are four transitions or 5 ms between atomic transitions;
+the View lane defaults to 64 slots. An individual SQL transition can exceed the
+cooperative budget. Market call timing includes waits between resumed turns;
+`public_market_apply_ns` sums only active turns. Compare matching revisions and
+configuration when evaluating scheduling changes.
+
 ## Optional scoped PostgreSQL activity
 
 Add `--db-activity-interval 20ms` to sample only this runner's store connections.
