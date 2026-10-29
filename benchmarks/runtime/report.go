@@ -37,6 +37,7 @@ type dbState struct {
 	Available     bool   `json:"available"`
 }
 type report struct {
+	DBActivity         *dbActivityReport  `json:"postgres_activity,omitempty"`
 	Validation         map[string]string  `json:"validation_contracts"`
 	Policy             policyReport       `json:"policy_worker"`
 	Profile            profileReport      `json:"profiling"`

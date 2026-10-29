@@ -69,6 +69,9 @@ func OpenWithOptions(ctx context.Context, dsn, schema string, options Options) (
 	if options.MaxConnections < 1 || options.MaxConnections > 64 {
 		return nil, fmt.Errorf("%w: pool connection bound", ErrInvalid)
 	}
+	if len(options.ApplicationName) > 63 || strings.IndexFunc(options.ApplicationName, func(r rune) bool { return r < 32 || r > 126 }) >= 0 {
+		return nil, fmt.Errorf("%w: application name must be at most 63 printable ASCII bytes", ErrInvalid)
+	}
 	config, err := pgxpool.ParseConfig(dsn)
 	if err != nil {
 		return nil, err
@@ -77,6 +80,9 @@ func OpenWithOptions(ctx context.Context, dsn, schema string, options Options) (
 	config.MinConns = 0
 	config.MaxConnIdleTime = 5 * time.Minute
 	config.ConnConfig.ConnectTimeout = 5 * time.Second
+	if options.ApplicationName != "" {
+		config.ConnConfig.RuntimeParams["application_name"] = options.ApplicationName
+	}
 	if options.Telemetry != nil {
 		config.ConnConfig.Tracer = &poolTracer{recorder: options.Telemetry}
 	}

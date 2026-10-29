@@ -12,6 +12,9 @@ import (
 type Options struct {
 	Telemetry      *telemetry.Recorder
 	MaxConnections int32
+	// ApplicationName optionally overrides the DSN startup parameter. Empty
+	// preserves the DSN value. It is diagnostic metadata, never authority.
+	ApplicationName string
 }
 
 // PoolStatistics is a point-in-time pool snapshot. AcquireDurationNS covers

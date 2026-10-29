@@ -6,6 +6,54 @@ the replay throughput benchmark measures a different workload. It does not
 establish supported account capacity, exchange behavior, model quality, or UI
 performance.
 
+## Optional scoped PostgreSQL activity
+
+Add `--db-activity-interval 20ms` to sample only this runner's store connections.
+The default `0` disables the diagnostic and preserves the DSN's application name.
+An enabled run gives the store a fresh random diagnostic tag; the existing direct
+observer is excluded and exclusively used for samples during measurement/drain.
+There is still one observer connection in addition to the configured pool.
+No query text, query ID, addresses, DSN, credentials or arbitrary error strings
+are selected or retained. Application names are diagnostic metadata, not an
+authentication or financial-ownership mechanism.
+
+`postgres_activity` records its own UTC origin and local monotonic schedule,
+intended/attempt/end offsets, query outcomes, PID-plus-backend-start lifetimes,
+connection disappearances and fixed backend observation categories. Sample
+offsets do not share the offered input phase's origin. First/last backend offsets
+are client query bounds, not exact server transition times. A query has a 200 ms
+deadline. Overlapping/missed ticks are retained as `query_busy` or
+`generator_late`; the sampler does not issue a catch-up burst. Stop joins its
+accepted query before ordinary database/audit queries reuse the connection.
+
+Bounds: interval 10 ms–1 s, at most 10,000 ticks, 50,000 backend observations,
+128 lifetime identities and 8 MiB serialized diagnostic. Configuration validates
+the full-pool schedule plus one second for drain before database changes. A
+longer drain may reach runtime caps; it then remains explicitly incomplete.
+Missing metadata/backends, missed ticks, errors, restarts and caps make the
+diagnostic incomplete and the requested overall run invalid, while its source
+delivery and financial checks remain separately visible. An oversized diagnostic
+discloses raw-sample truncation and retains aggregate counters. A query timeout
+can close the observer connection, in which case later endpoint/audit failure
+also remains visible; no replacement connection is silently introduced.
+
+Counts use **backend observations** as their denominator. They are not request
+counts or exact wait durations. `active_unclassified` is not CPU usage; idle
+`ClientRead` is not database contention. `active_wal_io` identifies only IO waits
+named `WalSync`/`WalWrite`; `LWLock/WALWrite` stays `active_lwlock`. Connections
+that exist between samples and brief waits can be missed. Sampling perturbs
+the measured workload, so compare repeated observer-off/on runs before making
+performance decisions. Server CPU and cumulative backend IO/WAL service costs
+are not measured by this addition. PostgreSQL documents activity snapshots,
+visibility and wait identities in its [version 18 monitoring reference](https://www.postgresql.org/docs/18/monitoring-stats.html).
+
+Focused race checks cover fixed categories, missing identities/PID reuse,
+deadlines, missed ticks, caps, error redaction, disabled behavior and observer
+reuse. A real PostgreSQL advisory-lock waiter verifies that the sampler sees
+the owned wait, excludes unrelated/observer tags, and sees its disappearance
+after release. A separate ordinary workload check exercises opt-in wiring and
+the unchanged final conservation audit.
+
 Build the binary outside the repository and explicitly select a development
 database, dedicated schema, and **new** output file. Reserved schemas (`public`,
 `information_schema`, and `pg_*`) are refused. No account or schema is reset, reused,

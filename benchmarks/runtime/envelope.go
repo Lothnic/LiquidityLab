@@ -25,6 +25,7 @@ type envelopeConfig struct {
 	CPUProfile          string        `json:"-"`
 	AllocProfile        string        `json:"-"`
 	BlockProfile        string        `json:"-"`
+	DBActivityInterval  time.Duration `json:"db_activity_interval_ns"`
 }
 
 func defaultEnvelope() envelopeConfig {
@@ -45,8 +46,12 @@ func envelopeFlags(c *config) {
 	flag.StringVar(&c.CPUProfile, "cpu-profile", "", "new CPU profile output; measurement+drain only; separate run")
 	flag.StringVar(&c.AllocProfile, "alloc-profile", "", "new cumulative allocs profile output; separate run")
 	flag.StringVar(&c.BlockProfile, "block-profile", "", "new cumulative Go block profile output; rate 1 during measurement+drain; separate run")
+	flag.DurationVar(&c.DBActivityInterval, "db-activity-interval", 0, "optional scoped PostgreSQL activity samples (10ms..1s); 0 disables")
 }
 func (c config) validateEnvelope() error {
+	if err := validateDBActivity(c.DBActivityInterval, c.Duration, c.Pool); err != nil {
+		return err
+	}
 	if c.ReadMode != "actor" && c.ReadMode != "http" {
 		return errors.New("read mode must be actor or http")
 	}

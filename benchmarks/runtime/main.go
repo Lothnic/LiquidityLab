@@ -514,7 +514,17 @@ func execute(c config) (resultErr error) {
 		}
 		r.Policy.Quiescent = policy.worker.Snapshot()
 	}()
-	store, err := pg.OpenWithOptions(ctx, dsn, c.Schema, pg.Options{Telemetry: rec, MaxConnections: int32(c.Pool)})
+	storeTag := ""
+	if c.DBActivityInterval != 0 {
+		var tagBytes [12]byte
+		if _, err := rand.Read(tagBytes[:]); err != nil {
+			return errors.New("create database activity scope failed")
+		}
+		storeTag = "llbench-" + hex.EncodeToString(tagBytes[:])
+		r.Validation["postgres_activity"] = dbActivityContract
+		r.DBActivity = &dbActivityReport{Contract: dbActivityContract, Status: "not_started"}
+	}
+	store, err := pg.OpenWithOptions(ctx, dsn, c.Schema, pg.Options{Telemetry: rec, MaxConnections: int32(c.Pool), ApplicationName: storeTag})
 	if err != nil {
 		return errors.New("open development database failed (details withheld to protect DSN)")
 	}
@@ -530,6 +540,11 @@ func execute(c config) (resultErr error) {
 	r.Database, err = databaseInfo(ctx, observer, c.Schema)
 	if err != nil {
 		return errors.New("read database configuration failed")
+	}
+	dbObserver, err := prepareDBActivity(ctx, observer, storeTag, c.DBActivityInterval, c.Pool)
+	if err != nil {
+		r.DBActivity.Status = "unavailable"
+		return err
 	}
 	var raw [12]byte
 	if _, err = rand.Read(raw[:]); err != nil {
@@ -610,8 +625,11 @@ func execute(c config) (resultErr error) {
 	if err = prof.StartMeasurement(); err != nil {
 		return err
 	}
+	dbObserver.Start(ctx)
+	defer dbObserver.Stop()
 	r.Measurement = runPhase(ctx, c, "measurement", c.Duration, a, read)
 	prof.StopSampling()
+	r.DBActivity = dbObserver.Stop()
 	r.AfterResources = resourceSnapshot()
 	r.AfterPool = store.PoolStats()
 	r.AfterTelemetry = rec.Snapshot()
@@ -628,7 +646,7 @@ func execute(c config) (resultErr error) {
 			r.ClusterWALBytes = wal
 		}
 	}
-	r.Valid = r.Warmup.Valid && r.Measurement.Valid && ctx.Err() == nil
+	r.Valid = r.Warmup.Valid && r.Measurement.Valid && ctx.Err() == nil && (r.DBActivity == nil || r.DBActivity.Complete)
 	// A lost source fact makes this run invalid. Stop ingress permanently, then
 	// cancel the bounded synthetic parent so it cannot continue after reporting.
 	cleanupStart := time.Now()
@@ -692,7 +710,7 @@ func execute(c config) (resultErr error) {
 	r.Status = "complete"
 	if !r.Valid {
 		r.Status = "invalid"
-		return errors.New("workload invalid; inspect report source delivery, unresolved work, and final state")
+		return errors.New("workload invalid; inspect report source delivery, unresolved work, optional diagnostics, and final state")
 	}
 	return nil
 }
