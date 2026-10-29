@@ -113,6 +113,23 @@ live execution. Live execution remains unavailable.
 
 ## Checks
 
+### Optional historical comparison jobs
+
+Add `--replay-archive /absolute/verified/archive/root` to create or resume to
+enable [durable replay jobs](replay-jobs.md). The root must already exist as an
+ordinary directory. Requests select only content IDs; the worker reverifies
+each archive. It uses its own two-connection database pool and one calculation
+slot. Replay HTTP requests have four separate slots, so slow report responses
+do not consume the financial-control handler slots. Without the flag the replay
+routes are disabled. No replay job sends orders or changes account revisions.
+
+The local daemon integration check imports the retained real archive and
+exercises scoped enqueue, exact retry, worker completion, metadata listing,
+byte-verified export, shutdown join and a fresh-pool result read. These checks
+do not establish supported service capacity or actual-session reconstruction.
+
+### Existing lifecycle checks
+
 The existing option tests cover nonnumeric and out-of-range listener ports.
 PostgreSQL tests use randomized schemas and remove only the schema created by
 each test. Configure `LIQUIDITYLAB_TEST_POSTGRES_DSN` for the database test

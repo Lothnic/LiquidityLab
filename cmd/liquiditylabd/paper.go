@@ -43,6 +43,7 @@ var paperDaemonAccount = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,127}$`
 
 type paperServerOptions struct {
 	metricsOutput                                           string
+	replayArchive                                           string
 	resume                                                  bool
 	policyTarget, policyHash, policyFallback, policyProfile string
 	policyAllowUnvalidated                                  bool
@@ -61,6 +62,9 @@ type paperDaemon struct {
 	metrics       *telemetry.Recorder
 	metricsOutput *os.File
 	policyClient  *inference.Client
+	replayStore   *pg.Store
+	stopReplay    context.CancelFunc
+	replayDone    chan struct{}
 	store         *pg.Store
 	actor         *rt.Actor
 	key           pg.Key
@@ -96,6 +100,7 @@ func parsePaperOptions(args []string) (paperServerOptions, error) {
 	flags.StringVar(&opt.webDir, "web-dir", "apps/web/dist", "built React index.html/assets directory")
 	flags.StringVar(&opt.captureOutput, "capture-output", "", "new raw JSONL recording path (required for kraken)")
 	flags.StringVar(&opt.metricsOutput, "metrics-output", "", "optional new local JSONL path for shutdown metrics (never served over HTTP)")
+	flags.StringVar(&opt.replayArchive, "replay-archive", "", "optional absolute immutable public archive root; enables bounded analytical replay jobs")
 	base := flags.String("initial-base", "", "explicit initial synthetic BTC balance (required)")
 	quote := flags.String("initial-quote", "", "explicit initial synthetic USD balance (required)")
 	flags.DurationVar(&opt.duration, "duration", 30*time.Minute, "maximum server lifetime (0 < duration <= 24h)")
@@ -153,6 +158,9 @@ func paperTokenValid(token string) bool {
 }
 
 func (o paperServerOptions) validate() error {
+	if o.replayArchive != "" && !filepath.IsAbs(o.replayArchive) {
+		return errors.New("replay-archive requires an absolute operator-selected archive root")
+	}
 	if o.policyTarget != "" {
 		hash, err := hex.DecodeString(o.policyHash)
 		if err != nil || len(hash) != 32 || strings.ToLower(o.policyHash) != o.policyHash || !o.policyAllowUnvalidated || (o.policyFallback != "baseline" && o.policyFallback != "pause") || (o.policyProfile != "paper" && o.policyProfile != "shadow") || o.policyTimeout <= 0 || o.policyTimeout > inference.MaxValidity {
@@ -370,7 +378,24 @@ func newPaperDaemon(ctx context.Context, opt paperServerOptions, dsn, token stri
 			fmt.Fprintln(output, "PAPER startup state=recovery-required; retained outcomes require inspection")
 		}
 	}
-	handler, err := api.New(api.Config{Accounts: map[pg.Key]api.Authority{key: actor}, Credentials: []api.Credential{{Token: token, Scopes: []pg.Key{key}}}, Journal: store})
+	replayService, replayStore, err := openPaperReplayJobs(ctx, opt, dsn)
+	if err != nil {
+		op, cancel = paperServerOperation()
+		_ = actor.Close(op)
+		cancel()
+		return fail("configure bounded analytical replay", err)
+	}
+	replayOwned := false
+	defer func() {
+		if replayStore != nil && !replayOwned {
+			replayStore.Close()
+		}
+	}()
+	var replayAPI api.ReplayService
+	if replayService != nil {
+		replayAPI = replayService
+	}
+	handler, err := api.New(api.Config{Accounts: map[pg.Key]api.Authority{key: actor}, Credentials: []api.Credential{{Token: token, Scopes: []pg.Key{key}}}, Journal: store, Replays: replayAPI})
 	if err != nil {
 		op, cancel = paperServerOperation()
 		_ = actor.Close(op)
@@ -382,6 +407,15 @@ func newPaperDaemon(ctx context.Context, opt paperServerOptions, dsn, token stri
 		sourceCtx = context.WithValue(sourceCtx, paperMetricsContextKey{}, metrics)
 	}
 	daemon := &paperDaemon{policyClient: policyClient, store: store, actor: actor, key: key, log: output, stopSource: stopSource, sourceDone: make(chan struct{})}
+	if replayService != nil {
+		replayCtx, stopReplay := context.WithCancel(ctx)
+		daemon.replayStore, daemon.stopReplay, daemon.replayDone = replayStore, stopReplay, make(chan struct{})
+		go func() {
+			defer close(daemon.replayDone)
+			_ = replayService.Run(replayCtx)
+		}()
+	}
+	replayOwned = true
 	daemon.metrics, daemon.metricsOutput = metrics, metricsOutput
 	metricsOwned = true
 	daemon.handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -598,6 +632,9 @@ func (p *paperDaemon) invalidateLocked() error {
 func (p *paperDaemon) Close() error {
 	p.closeOnce.Do(func() {
 		p.closing.Store(true)
+		if p.stopReplay != nil {
+			p.stopReplay()
+		}
 		p.stopSource()
 		select {
 		case <-p.sourceDone:
@@ -650,6 +687,9 @@ func (p *paperDaemon) Close() error {
 			_ = p.policyClient.Close()
 		}
 		if err := p.finishMetrics(knownFinal); err != nil {
+			p.closeResult = errors.Join(p.closeResult, err)
+		}
+		if err := p.closeReplayJobs(); err != nil {
 			p.closeResult = errors.Join(p.closeResult, err)
 		}
 		p.store.Close()
