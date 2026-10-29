@@ -148,11 +148,12 @@ export function History({ token, tenant, account }: Props) {
   const hasMoreEvents = eventCursor > 0 && events.length < EVENT_CAP && eventPages * 100 >= events.length;
 
   return <section className="panel history-panel" aria-label="Session history">
-    <div className="history-head"><div><div className="eyebrow">REVISION-BOUND RECORDS</div><h2>Session history</h2><p className="history-scope">{tenant}/{account}</p></div><div className="history-actions"><button className="button button-outline" type="button" disabled={busy || !token} onClick={() => void loadSessions(true)}><RefreshCw size={14} /> Refresh</button>{report && <button className="button button-outline" type="button" onClick={exportJSON}><Download size={14} /> Export JSON</button>}</div></div>
+    <div className="history-head"><div><h2>Session history</h2><p className="history-scope">Account {tenant} / {account}</p></div><div className="history-actions"><button className="button button-outline" type="button" disabled={busy || !token} onClick={() => void loadSessions(true)}><RefreshCw size={14} /> Refresh history</button>{report && <button className="button button-outline" type="button" onClick={exportJSON}><Download size={14} /> Export report</button>}</div></div>
     {error && <div role="alert" className="history-error">History unavailable: {error}</div>}
     <div className="history-layout">
       <div className="history-list" aria-label="Sessions">
-        {!sessions.length && !busy && !error && <div className="journal-empty">No sessions recorded for this account.</div>}
+        {busy && !sessions.length && <div className="journal-empty" role="status">Loading session history…</div>}
+        {!sessions.length && !busy && !error && <div className="journal-empty"><strong>No sessions yet</strong><span>Completed and in-progress sessions for this account will appear here.</span></div>}
         {sessions.map((item) => <button type="button" className={`history-item ${selected === item.plan_id ? 'selected' : ''}`} key={item.plan_id} onClick={() => void selectSession(item.plan_id)}>
           <span className="history-item-top"><strong>{item.side.toUpperCase()} {item.symbol}</strong><small>r{item.revision}</small></span>
           <span className="history-item-meta">{item.status.replaceAll('_', ' ')} · {item.quantity} {item.base_currency} · {item.policy}</span>
@@ -162,17 +163,20 @@ export function History({ token, tenant, account }: Props) {
         {sessions.length >= SESSION_CAP && <p className="panel-note">Showing the bounded first {SESSION_CAP} sessions.</p>}
       </div>
       <div className="history-detail">
-        {detailBusy && !report && <div className="journal-empty">Loading session report…</div>}
-        {!selected && <div className="journal-empty">Select a session to inspect its retained record.</div>}
+        {detailBusy && !report && <div className="journal-empty" role="status">Loading the selected session report…</div>}
+        {!selected && <div className="journal-empty"><strong>Choose a session</strong><span>Select a row to review its fills, fees, completion status, and saved report.</span></div>}
         {report && <ReportView key={`${(focusReport ?? report).plan_id}:${(focusReport ?? report).as_of_revision}`} report={focusReport ?? report} provisional={Boolean(focusReport && focusRevision !== null)} />}
         {report && focusRevision !== null && !focusReport && <p className="panel-note" role="status">Loading stored report at r{focusRevision}… Latest retained report remains shown.</p>}
         {report && <>
-          <div className="history-timeline-head"><div><div className="eyebrow">CAUSAL JOURNAL</div><h3>Timeline <small>as of r{report.as_of_revision}</small></h3></div><span className="subtle-tag">METADATA ONLY</span></div>
-          <p className="panel-note">Selecting an event inspects the stored report at that revision. It does not replay historical market data.</p>
-          <div className="history-events">{events.map((event) => <button type="button" key={event.revision} className={`history-event ${focusRevision === event.revision ? 'selected' : ''}`} onClick={() => void inspectEvent(event)}><span>r{event.revision}</span><strong>{event.kind.replaceAll('_', ' ')}</strong><time>{iso(event.created_at)}</time><ChevronDown size={13}/></button>)}</div>
-          {hasMoreEvents && <button type="button" className="load-more" disabled={detailBusy} onClick={() => void loadEvents()}>{detailBusy ? 'Loading…' : 'Load more events'} <ChevronDown size={14}/></button>}
+          <details className="history-technical">
+            <summary>Technical activity <ChevronDown size={16} /></summary>
+            <div className="history-timeline-head"><div><h3>Activity timeline <small>Report at revision {report.as_of_revision}</small></h3></div></div>
+            <p className="panel-note">Choose an event to view the report saved at that revision. Market data is not replayed.</p>
+            <div className="history-events">{events.map((event) => <button type="button" key={event.revision} className={`history-event ${focusRevision === event.revision ? 'selected' : ''}`} onClick={() => void inspectEvent(event)}><span>Revision {event.revision}</span><strong>{event.kind.replaceAll('_', ' ')}</strong><time>{iso(event.created_at)}</time><ChevronDown size={13}/></button>)}</div>
+            {hasMoreEvents && <button type="button" className="load-more" disabled={detailBusy} onClick={() => void loadEvents()}>{detailBusy ? 'Loading…' : 'Load more events'} <ChevronDown size={14}/></button>}
           {focusRevision !== null && <button type="button" className="load-more" onClick={() => { ++seq.current.focus; setFocusRevision(null); setFocusReport(null); setDetailBusy(false); }}><ChevronUp size={14}/> Return to latest report</button>}
-          {events.length >= EVENT_CAP && <p className="panel-note">Showing the bounded first {EVENT_CAP} events.</p>}
+            {events.length >= EVENT_CAP && <p className="panel-note">Showing the first {EVENT_CAP} events.</p>}
+          </details>
         </>}
       </div>
     </div>
@@ -194,15 +198,15 @@ function ReportView({ report, provisional }: { report: SessionReport; provisiona
   const opportunity = report.residual_opportunity_quote === null ? '—' : `${report.residual_opportunity_quote} ${report.quote_currency}`;
   const feeCurrency = (currency: string) => currency === 'quote' ? report.quote_currency : currency === 'base' ? report.base_currency : currency;
   return <div className="history-report">
-    <div className="history-report-title"><div><div className="eyebrow">{provisional ? 'STORED EVENT REVISION' : 'RETAINED ACCOUNTING'}</div><h3>{report.side.toUpperCase()} {report.symbol}</h3></div><span className={`state-tag ${report.known_final ? 'tag-done' : 'tag-wait'}`}>{report.known_final ? 'KNOWN FINAL' : 'PROVISIONAL'}</span></div>
-    <p className="history-status">{report.known_final ? 'Final state is known' : 'State is provisional'} · revision {report.as_of_revision} · {report.deadline_result.replaceAll('-', ' ')} · {report.profile} / {report.data_source}</p>
-    <p className="history-status">{report.plan.started ? `Started ${iso(report.plan.start)}` : 'Not started'} · deadline {iso(report.plan.deadline)}{report.policy_sha256 ? ` · policy SHA-256 ${report.policy_sha256}` : ''}</p>
+    <div className="history-report-title"><div><h3>{report.side.toUpperCase()} {report.symbol}</h3></div><span className={`state-tag ${report.known_final ? 'tag-done' : 'tag-wait'}`}>{report.known_final ? 'Final' : 'Provisional'}</span></div>
+    <p className="history-status">{report.known_final ? 'Final state is known' : 'State is provisional'} · Saved revision {report.as_of_revision} · {report.deadline_result.replaceAll('-', ' ')} · {report.profile} / {report.data_source}{provisional ? ' · Inspecting saved revision' : ''}</p>
+    <p className="history-status">{report.plan.started ? `Started ${iso(report.plan.start)}` : 'Not started'} · Deadline {iso(report.plan.deadline)}{report.policy_sha256 ? ` · Policy SHA-256 ${report.policy_sha256}` : ''}</p>
     {report.recovery_required && <p className="history-warning">Recovery or reconciliation is required before treating this record as final.</p>}
-    <div className="history-metrics"><Metric label="COMPLETION" value={`${report.completion_percent}%`} /><Metric label="FILLED / SIZE" value={`${report.plan.filled} / ${report.quantity}`} /><Metric label="REMAINING" value={report.plan.remaining} /><Metric label="AVERAGE PRICE" value={report.plan.average_price} unit={report.quote_currency} /><Metric label="EXECUTED COST" value={String(report.plan.executed_cost_quote ?? '—')} unit={report.quote_currency} /><Metric label="FEES PAID" value={`${report.plan.fees_quote} ${report.quote_currency}`} /><Metric label="BASE FEES" value={`${report.plan.fees_base} ${report.base_currency}`} /></div>
-    <div className="history-accounting"><div><span>RESIDUAL OPPORTUNITY ESTIMATE</span><strong>{opportunity}</strong></div><div><span>MARKED COST ESTIMATE</span><strong>{costs}</strong></div></div>
-    <p className="panel-note">Residual opportunity is an estimate, not P&amp;L or savings. Reference: {report.residual_reference_kind.replaceAll('-', ' ')}{report.residual_reference_mid !== null ? ` midpoint ${report.residual_reference_mid}` : ''} at r{report.residual_reference_revision}. It is frozen at the first terminal state when available; otherwise it uses the observed as-of reference.</p>
-    <div className="history-fills-title"><strong>Paper fills <span className="fill-count">{report.fills.length}</span></strong><span className="subtle-tag">SIMULATED</span></div>
-    <div className="history-fill-table"><table><thead><tr><th>SIDE / QTY</th><th>PRICE</th><th>FEE</th><th>LIQUIDITY</th></tr></thead><tbody>{visibleRows.map((fill) => <tr key={fill.execution_id}><td>{fill.side.toUpperCase()} {fill.quantity}</td><td>{fill.price}</td><td>{fill.fee} {feeCurrency(fill.fee_currency)}</td><td>{fill.maker ? 'MAKER' : 'TAKER'}</td></tr>)}{!visibleRows.length && <tr><td colSpan={4} className="table-empty">No simulated fills recorded.</td></tr>}</tbody></table></div>
+    <div className="history-metrics"><Metric label="Completion" value={`${report.completion_percent}%`} /><Metric label="Filled / size" value={`${report.plan.filled} / ${report.quantity}`} /><Metric label="Remaining" value={report.plan.remaining} /><Metric label="Average price" value={report.plan.average_price} unit={report.quote_currency} /><Metric label="Cost vs. start price" value={String(report.plan.executed_cost_quote ?? '—')} unit={report.quote_currency} /><Metric label="Fees paid" value={`${report.plan.fees_quote} ${report.quote_currency}`} /><Metric label="Base fees" value={`${report.plan.fees_base} ${report.base_currency}`} /></div>
+    <div className="history-accounting"><div><span>Unfilled amount cost estimate</span><strong>{opportunity}</strong></div><div><span>Total marked cost estimate</span><strong>{costs}</strong></div></div>
+    <p className="panel-note">These estimates compare fills and unfilled quantity with the starting price. They are not profit or loss. The unfilled amount uses the {report.residual_reference_kind.replaceAll('-', ' ')}{report.residual_reference_mid !== null ? ` midpoint ${report.residual_reference_mid}` : ''} recorded at revision {report.residual_reference_revision}. The reference is fixed at the first final state when available; otherwise it uses the observed report revision.</p>
+    <div className="history-fills-title"><strong>Simulated fills <span className="fill-count">{report.fills.length}</span></strong></div>
+    <div className="history-fill-table"><table><thead><tr><th>Side / quantity</th><th>Price</th><th>Fee</th><th>Liquidity</th></tr></thead><tbody>{visibleRows.map((fill) => <tr key={fill.execution_id}><td>{fill.side.toUpperCase()} {fill.quantity}</td><td>{fill.price}</td><td>{fill.fee} {feeCurrency(fill.fee_currency)}</td><td>{fill.maker ? 'Maker' : 'Taker'}</td></tr>)}{!visibleRows.length && <tr><td colSpan={4} className="table-empty">No simulated fills recorded.</td></tr>}</tbody></table></div>
     {report.fills.length > fillsPageSize && <div className="history-fill-pagination">
       <span className="panel-note">Showing {fillsStart + 1}–{fillsEnd} of {report.fills.length} fills · page {fillsPage + 1} of {pageCount}</span>
       <div>

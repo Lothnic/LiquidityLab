@@ -70,11 +70,11 @@ describe('History scope isolation', () => {
     await act(async () => { host?.querySelector('.history-item')?.dispatchEvent(new MouseEvent('click', { bubbles: true })); });
     await act(async () => { await new Promise((resolve) => setTimeout(resolve, 0)); });
     await act(async () => { host?.querySelector('.history-event')?.dispatchEvent(new MouseEvent('click', { bubbles: true })); });
-    expect(host.textContent).toContain('RETAINED ACCOUNTING');
+    expect(host.textContent).toContain('Saved revision 9');
     expect(host.textContent).toContain('Loading stored report at r7');
-    expect(host.textContent).not.toContain('STORED EVENT REVISION');
+    expect(host.textContent).not.toContain('Inspecting saved revision');
     await act(async () => { pending.resolve(Response.json(report('plan-a', 7))); await pending.promise; });
-    expect(host.textContent).toContain('STORED EVENT REVISION');
+    expect(host.textContent).toContain('Inspecting saved revision');
   });
 
   it('ignores a late list response after the account scope changes', async () => {
@@ -146,6 +146,6 @@ describe('History scope isolation', () => {
     await act(async () => { host?.querySelector('.history-actions button')?.dispatchEvent(new MouseEvent('click', { bubbles: true })); });
     await act(async () => { oldReport.resolve(Response.json(report('plan-a'))); await oldReport.promise; });
     expect(host.querySelector('.history-report')).toBeNull();
-    expect(host.textContent).toContain('Select a session to inspect its retained record.');
+    expect(host.textContent).toContain('Select a row to review its fills, fees, completion status, and saved report.');
   });
 });
