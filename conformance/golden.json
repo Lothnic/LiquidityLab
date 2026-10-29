@@ -2061,6 +2061,451 @@
           }
         ]
       }
+    },
+    {
+      "name": "replacement_waits_for_known_final_with_racing_fill",
+      "input": {
+        "events": [
+          {
+            "kind": "snapshot",
+            "bids": [
+              [
+                "99",
+                "2"
+              ]
+            ],
+            "asks": [
+              [
+                "101",
+                "2"
+              ]
+            ],
+            "time_ns": 0
+          },
+          {
+            "kind": "snapshot",
+            "bids": [
+              [
+                "98",
+                "2"
+              ]
+            ],
+            "asks": [
+              [
+                "101",
+                "2"
+              ]
+            ],
+            "time_ns": 1000000000
+          },
+          {
+            "kind": "trade",
+            "side": "sell",
+            "price": "99",
+            "quantity": "2.14",
+            "trade_id": "replacement-cancel-race",
+            "time_ns": 2500000000
+          },
+          {
+            "kind": "snapshot",
+            "bids": [
+              [
+                "98",
+                "2"
+              ]
+            ],
+            "asks": [
+              [
+                "101",
+                "2"
+              ]
+            ],
+            "time_ns": 8000000000
+          }
+        ],
+        "plan": {
+          "side": "buy",
+          "quantity": "0.2",
+          "limit_price": "100",
+          "deadline": 6,
+          "max_child_quantity": "0.2",
+          "quote_budget": "100",
+          "base_balance": "0",
+          "symbol": "BTC/USD"
+        },
+        "actions": [
+          3,
+          3,
+          3,
+          3,
+          3,
+          0
+        ],
+        "policy": null,
+        "config": {
+          "decision_interval": 1,
+          "submission_latency": 0,
+          "cancel_latency": 1.5,
+          "settlement_allowance": 2,
+          "lambda_miss": 100.0,
+          "max_participation": "1",
+          "min_resting_age": 1.5,
+          "min_message_interval": 0,
+          "fill_model": "conservative-v0"
+        },
+        "fees": {
+          "maker": "0.001",
+          "taker": "0.002",
+          "currency": "quote",
+          "source": "synthetic-assumption"
+        }
+      },
+      "expected_report": {
+        "schema_version": "report-v0",
+        "compiler_version": "six-action-v0",
+        "dataset_sha256": "fe93cc8d9b2742e3918e9d3d4b7b8588c58e5c8a0397755d6358d13d87351af5",
+        "dataset_events": 4,
+        "events_processed": 3,
+        "mode": "historical-simulation",
+        "fill_model": "conservative-v0",
+        "observation_version": "compact-v1",
+        "status": "deadline_partial",
+        "terminated": true,
+        "truncated": false,
+        "economic_score_valid": true,
+        "plan": {
+          "side": "buy",
+          "quantity": "0.2",
+          "limit_price": "100",
+          "deadline": 6,
+          "max_child_quantity": "0.2",
+          "quote_budget": "100",
+          "base_balance": "0",
+          "symbol": "BTC/USD"
+        },
+        "instrument_assumption": {
+          "symbol": "BTC/USD",
+          "tick_size": "0.01",
+          "lot_size": "0.001",
+          "min_quantity": "0.001",
+          "min_notional": "0.01"
+        },
+        "fee_assumption": {
+          "maker": "0.001",
+          "taker": "0.002",
+          "currency": "quote",
+          "source": "synthetic-assumption"
+        },
+        "config": {
+          "decision_interval": 1,
+          "submission_latency": 0,
+          "cancel_latency": 1.5,
+          "settlement_allowance": 2,
+          "lambda_miss": 100.0,
+          "max_participation": "1",
+          "min_resting_age": 1.5,
+          "min_message_interval": 0,
+          "fill_model": "conservative-v0"
+        },
+        "initial_midpoint": "100",
+        "residual_midpoint": "99.5",
+        "filled_quantity": "0.14",
+        "remaining_quantity": "0.06",
+        "completion_fraction": "0.7",
+        "average_price": "99",
+        "gross_notional": "13.86",
+        "fees_quote": "0.01386",
+        "fees_base": "0",
+        "net_base_change": "0.14",
+        "base_balance": "0.14",
+        "quote_balance": "86.12614",
+        "marked_cost_quote": "-0.15614",
+        "reward_sum": 48.06999999999999,
+        "terminal_objective": 48.06999999999999,
+        "fills": [
+          {
+            "execution_id": "sim-1",
+            "order_id": "child-1",
+            "side": "buy",
+            "quantity": "0.14",
+            "price": "99",
+            "fee": "0.01386",
+            "fee_currency": "quote",
+            "maker": true,
+            "time_ns": 2500000000
+          }
+        ],
+        "decisions": [
+          {
+            "action": 3,
+            "reason": "submit_passive",
+            "time_ns": 0
+          },
+          {
+            "action": 3,
+            "reason": "minimum_resting_age",
+            "time_ns": 1000000000
+          },
+          {
+            "action": 3,
+            "reason": "cancel_before_replace",
+            "time_ns": 2000000000
+          },
+          {
+            "action": 3,
+            "reason": "awaiting_order_final_state",
+            "time_ns": 3000000000
+          },
+          {
+            "action": 3,
+            "reason": "submit_passive",
+            "time_ns": 4000000000
+          },
+          {
+            "action": 0,
+            "reason": "hold",
+            "time_ns": 5000000000
+          }
+        ],
+        "orders": [
+          {
+            "order_id": "child-1",
+            "intent": {
+              "side": "buy",
+              "quantity": "0.2",
+              "price": "99",
+              "passive": true
+            },
+            "remaining": "0.06",
+            "state": "cancelled",
+            "queue_ahead": "0",
+            "submitted_at_ns": 0,
+            "arrival_at_ns": 0,
+            "cancel_at_ns": 3500000000
+          },
+          {
+            "order_id": "child-2",
+            "intent": {
+              "side": "buy",
+              "quantity": "0.06",
+              "price": "98",
+              "passive": true
+            },
+            "remaining": "0.06",
+            "state": "cancelled",
+            "queue_ahead": "2",
+            "submitted_at_ns": 4000000000,
+            "arrival_at_ns": 4000000000,
+            "cancel_at_ns": 7500000000
+          }
+        ],
+        "limitations": [
+          "Synthetic/account fee assumptions require verification",
+          "No market impact response",
+          "L2 queue approximation; trade prints only",
+          "Price features warm up over ten completed decision intervals"
+        ],
+        "time_ns": 7500000000
+      },
+      "expected_observations": {
+        "schema_version": "compact-v1",
+        "field_names": [
+          "remaining_fraction",
+          "time_remaining_fraction",
+          "filled_fraction",
+          "average_fill_to_mid_ratio",
+          "reserved_fraction",
+          "free_quote_fraction",
+          "signed_limit_distance",
+          "spread_bps",
+          "bid_depth_to_target",
+          "ask_depth_to_target",
+          "recent_mid_return",
+          "recent_log_return_std",
+          "cumulative_trade_flow_to_target",
+          "signed_child_price_distance",
+          "child_age_fraction",
+          "child_remaining_fraction",
+          "has_child",
+          "market_valid",
+          "simulated_account_valid",
+          "child_pending"
+        ],
+        "reset": [
+          1.0,
+          1.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          200.0,
+          10.0,
+          10.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          1.0,
+          0.0
+        ],
+        "decisions": [
+          {
+            "action": 3,
+            "observation": [
+              1.0,
+              0.8333333134651184,
+              0.0,
+              0.0,
+              1.0,
+              1.0,
+              0.005025125574320555,
+              301.5075378417969,
+              10.0,
+              10.0,
+              -0.004999999888241291,
+              0.0,
+              0.0,
+              -0.005025125574320555,
+              0.1666666716337204,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              0.0
+            ]
+          },
+          {
+            "action": 3,
+            "observation": [
+              1.0,
+              0.6666666865348816,
+              0.0,
+              0.0,
+              1.0,
+              1.0,
+              0.005025125574320555,
+              301.5075378417969,
+              10.0,
+              10.0,
+              -0.004999999888241291,
+              0.002506271004676819,
+              0.0,
+              -0.005025125574320555,
+              0.3333333432674408,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              0.0
+            ]
+          },
+          {
+            "action": 3,
+            "observation": [
+              0.30000001192092896,
+              0.5,
+              0.699999988079071,
+              0.9949748516082764,
+              0.30000001192092896,
+              0.8612614274024963,
+              0.005025125574320555,
+              301.5075378417969,
+              10.0,
+              10.0,
+              -0.004999999888241291,
+              0.002362934872508049,
+              -10.699999809265137,
+              -0.005025125574320555,
+              0.5,
+              0.30000001192092896,
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          },
+          {
+            "action": 3,
+            "observation": [
+              0.30000001192092896,
+              0.3333333432674408,
+              0.699999988079071,
+              0.9949748516082764,
+              0.0,
+              0.8612614274024963,
+              0.005025125574320555,
+              301.5075378417969,
+              10.0,
+              10.0,
+              -0.004999999888241291,
+              0.0021704942919313908,
+              -10.699999809265137,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              1.0,
+              1.0,
+              0.0
+            ]
+          },
+          {
+            "action": 3,
+            "observation": [
+              0.30000001192092896,
+              0.1666666716337204,
+              0.699999988079071,
+              0.9949748516082764,
+              0.30000001192092896,
+              0.8612614274024963,
+              0.005025125574320555,
+              301.5075378417969,
+              10.0,
+              10.0,
+              -0.004999999888241291,
+              0.002005016664043069,
+              -10.699999809265137,
+              -0.015075377188622952,
+              0.1666666716337204,
+              0.30000001192092896,
+              1.0,
+              1.0,
+              1.0,
+              0.0
+            ]
+          },
+          {
+            "action": 0,
+            "observation": [
+              0.30000001192092896,
+              0.0,
+              0.699999988079071,
+              0.9949748516082764,
+              0.0,
+              0.8612614274024963,
+              0.005025125574320555,
+              301.5075378417969,
+              10.0,
+              10.0,
+              -0.004999999888241291,
+              0.0018680640496313572,
+              -10.699999809265137,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              1.0,
+              1.0,
+              0.0
+            ]
+          }
+        ]
+      }
     }
   ]
 }

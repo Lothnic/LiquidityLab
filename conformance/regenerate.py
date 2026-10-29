@@ -165,13 +165,33 @@ def _build_vectors():
         actions=[0],
     )
 
+    # The first quote rests until a changed price may request cancellation.
+    # Cancellation remains pending across another decision and a partial fill;
+    # only its acknowledgement permits a replacement for the remaining .06.
+    replacement_events = [
+        {"time": 0, "kind": "snapshot", "bids": [["99", "2"]], "asks": [["101", "2"]]},
+        {"time": 1, "kind": "snapshot", "bids": [["98", "2"]], "asks": [["101", "2"]]},
+        {"time": 2.5, "kind": "trade", "side": "sell", "price": "99", "quantity": "2.14", "trade_id": "replacement-cancel-race"},
+        {"time": 8, "kind": "snapshot", "bids": [["98", "2"]], "asks": [["101", "2"]]},
+    ]
+    replacement = report_case(
+        "replacement_waits_for_known_final_with_racing_fill", replacement_events,
+        Plan(quantity="0.2", limit_price="100", max_child_quantity="0.2",
+             deadline=6, quote_budget="100", base_balance="0"),
+        actions=[3, 3, 3, 3, 3, 0],
+        config=ReplayConfig(decision_interval=1, submission_latency=0,
+            cancel_latency=1.5, settlement_allowance=2, min_resting_age=1.5,
+            min_message_interval=0, max_participation="1"),
+        fees=FeeConfig(),
+    )
+
     return {
         "schema": "liquiditylab-python-reference-v1",
         "time_unit": "nanoseconds",
         "decimal_encoding": "base-10 strings",
         "action_mapping": {"0": "HOLD", "1": "CANCEL", "2": "PASSIVE_SMALL",
             "3": "PASSIVE_NORMAL", "4": "AGGRESSIVE_SMALL", "5": "AGGRESSIVE_NORMAL"},
-        "cases": [buy, partial, race, gap],
+        "cases": [buy, partial, race, gap, replacement],
     }
 
 

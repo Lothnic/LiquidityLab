@@ -14,6 +14,14 @@ with a frozen residual midpoint and a later feed gap, and a feed gap that
 invalidates an active episode. The Python engine's six action integers are
 listed explicitly in the fixture metadata.
 
+A fifth case adds replacement finality: a minimum-resting-age refusal, a
+cancel request, a partial fill while cancellation is pending, a refused
+replacement before acknowledgement, and a replacement capped to the remaining
+parent quantity after known finality. `internal/replay/replacement_test.go`
+also checks each intermediate state against hand-calculated values; both
+languages' shared golden checks cover its final economics and observations.
+The original four cases remain unchanged.
+
 
 `contracts.json` is the hand-maintained `phase1-contracts-v1` boundary fixture.
 Both `internal/replayrpc/contract_vectors_test.go` and
