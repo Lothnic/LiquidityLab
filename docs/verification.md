@@ -30,7 +30,18 @@ implementation and the [original conformance report](../conformance/results/2026
   clock discontinuity still fail. Fifteen deterministic mutations protect it.
   The corrected focused PostgreSQL race run passed in 13.938 s, including 400
   scheduled HTTP offers, exact finances and all child processes reaped.
-  A new full-suite run is pending; this entry does not claim it is green.
+  The subsequent full uncached Go race suite passed at clean `bf3d4d5`, with
+  PostgreSQL and actual Python/replay paths configured: daemon 52.114 s,
+  runtime 13.345 s, store 4.508 s, inference 6.364 s and workload 6.406 s.
+  These are package suite durations, not product latency.
+- Three fresh [ordinary recovery trials](../benchmarks/results/paper-recovery-load-20261029/README.md)
+  then passed from the same clean build. Each preserves all 400 scheduled reads:
+  bystander 200 completed; victim 195 completed and five endpoint-unbound offers.
+  Kill-to-first-ready-paused observations were 291.273, 296.290 and 298.288 ms,
+  including the deliberate unbound interval; cold launches were 33.006, 36.272
+  and 38.881 ms. Exact final cashflows, residuals, pins, cursor drain and process
+  finality were independently recomputed/checked against the original reports.
+  Crash debt happened to be zero in all three; this is no backlog/headroom claim.
 - `b74c62c` adds a pull-request validation workflow with real PostgreSQL,
   Python/Go integration, conformance and frontend jobs. Its constituent commands
   are exercised locally; no GitHub execution or remote push is claimed.

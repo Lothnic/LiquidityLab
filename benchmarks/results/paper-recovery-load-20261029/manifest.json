@@ -1,0 +1,33 @@
+{
+  "compression": "gzip level 9, mtime 0, empty member filename",
+  "reports": [
+    {
+      "compressed_bytes": 18662,
+      "compressed_sha256": "31e4aa1f925aed817cc8ea130d0908576e8e9800fd320d5a82caafb8ddf4359f",
+      "file": "trial-01.json.gz",
+      "label": "trial-01",
+      "preserves_original_json_bytes": true,
+      "uncompressed_bytes": 165713,
+      "uncompressed_sha256": "23788aef9508e116a14f9e9155f3837249bb7126a8a2869dca3a351ed5dce804"
+    },
+    {
+      "compressed_bytes": 18626,
+      "compressed_sha256": "d1f4ed195b6663432766ec33402ccb625cd759a9590d0d71828bf7f18b602ebe",
+      "file": "trial-02.json.gz",
+      "label": "trial-02",
+      "preserves_original_json_bytes": true,
+      "uncompressed_bytes": 165710,
+      "uncompressed_sha256": "03e818056dad8b588668f2ef84fd8b1d93bb0f18be5ec4e26161644e93534a1a"
+    },
+    {
+      "compressed_bytes": 18640,
+      "compressed_sha256": "2ad372f3ebad3bcfec5dfa982438af9caeeb5c10256bef53921d6b310d592483",
+      "file": "trial-03.json.gz",
+      "label": "trial-03",
+      "preserves_original_json_bytes": true,
+      "uncompressed_bytes": 165701,
+      "uncompressed_sha256": "4dc9b708c464127b9893fd1cbb2788f0c22339da2cfe5591a8af7018157ded2b"
+    }
+  ],
+  "schema": "paper-recovery-load-evidence-bundle-v1"
+}
