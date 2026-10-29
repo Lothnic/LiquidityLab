@@ -9,6 +9,7 @@ import (
 	"hash/crc32"
 	"math/big"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/liquiditylab/liquiditylab/internal/domain"
@@ -156,20 +157,18 @@ func (b *Book) Apply(p Payload, snapshot bool) error {
 	if bid.Cmp(ask) >= 0 {
 		return fmt.Errorf("%w: crossed book", ErrBook)
 	}
-	var got uint64
 	if len(p.Checksum) == 0 {
 		return fmt.Errorf("%w: missing checksum", ErrBook)
 	}
-	if e := json.Unmarshal(p.Checksum, &got); e != nil {
-		var n json.Number
-		if e2 := json.Unmarshal(p.Checksum, &n); e2 != nil {
-			return fmt.Errorf("%w: invalid checksum", ErrBook)
-		}
-		v, ok := new(big.Int).SetString(n.String(), 10)
-		if !ok || !v.IsUint64() {
-			return fmt.Errorf("%w: invalid checksum", ErrBook)
-		}
-		got = v.Uint64()
+	var number json.Number
+	if err := json.Unmarshal(p.Checksum, &number); err != nil {
+		return fmt.Errorf("%w: invalid checksum", ErrBook)
+	}
+	// CRC32 is an unsigned 32-bit integer. Reject before narrowing, and avoid
+	// constructing an arbitrary-precision integer for malformed wire input.
+	got, err := strconv.ParseUint(number.String(), 10, 32)
+	if err != nil {
+		return fmt.Errorf("%w: checksum outside unsigned 32-bit integer range", ErrBook)
 	}
 	if uint32(got) != b.Checksum() {
 		return fmt.Errorf("%w: checksum mismatch", ErrBook)

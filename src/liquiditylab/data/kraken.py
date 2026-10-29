@@ -38,6 +38,19 @@ def _number(value: Any) -> str:
     return format(number, "f")
 
 
+def _crc32(value: Any) -> int:
+    """Accept a JSON integer or canonical ASCII integer string without coercion."""
+    if type(value) is int and 0 <= value <= 0xFFFFFFFF:
+        return value
+    if (isinstance(value, str) and 1 <= len(value) <= 10 and
+            all("0" <= digit <= "9" for digit in value) and
+            (value == "0" or value[0] != "0")):
+        parsed = int(value)
+        if parsed <= 0xFFFFFFFF:
+            return parsed
+    raise BookError("Kraken L2 checksum must be an unsigned 32-bit integer")
+
+
 class KrakenBook:
     """A bounded L2 book; checksum errors invalidate the entire state."""
 
@@ -84,7 +97,7 @@ class KrakenBook:
                     del book[p]
         if not self.bids or not self.asks or max(self.bids) >= min(self.asks):
             raise BookError("Book is empty or crossed")
-        if "checksum" not in payload or self.checksum() != int(payload["checksum"]):
+        if self.checksum() != _crc32(payload.get("checksum")):
             raise BookError("Kraken L2 checksum mismatch or missing checksum")
         self.valid = True
 

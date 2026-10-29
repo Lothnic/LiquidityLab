@@ -73,3 +73,14 @@ both languages execute those examples. The Python economic golden generator
 owns a 512-digit, half-even Decimal context, and a regression runs it beneath a
 hostile two-digit caller context without changing the golden output. See
 `go-runtime.md` for the arithmetic and v0/v1 compatibility limits.
+
+`kraken-checksums.json` is the shared `kraken-crc32-v1` public-data boundary
+corpus. Go and Python use the same published book and 18 checksum wire cases.
+CRC input must be an unsigned 32-bit JSON integer or its canonical ASCII decimal
+string. Oversized integers must never alias by narrowing; fractional/scientific,
+signed/zero-padded strings, Unicode digits, booleans and null are rejected.
+This corrects Go's former uint64-to-uint32 wrap and Python's former integer
+coercion of fractions or noncanonical strings. Python now raises `BookError`
+consistently for malformed CRC inputs. Valid capture data is unchanged; the
+retained real fixture still passes exact normalization. The conformance report
+now hashes this fourth fixture; older reports preserve their original three.

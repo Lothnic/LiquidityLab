@@ -120,7 +120,8 @@ def main():
             report["replay_binary_sha256"] = hashlib.sha256(binary.read_bytes()).hexdigest()
             report["fixture_sha256"] = {
                 name: hashlib.sha256((ROOT / "conformance" / name).read_bytes()).hexdigest()
-                for name in ("golden.json", "contracts.json", "time-compatibility.json")
+                for name in ("golden.json", "contracts.json", "time-compatibility.json",
+                             "kraken-checksums.json")
             }
             report["status"] = "passed"
             print("Contract conformance passed; generated files and fixtures unchanged.", flush=True)
