@@ -43,7 +43,7 @@ Representative commits: `d953990` (replay), `7f214d6` (bindings), `6ddb984` (RPC
 Checkboxes represent full exit criteria, including required integration evidence and the final audit. An unchecked phase can contain substantial committed implementation; it is not an instruction to rebuild those components. Per-phase checkpoints appear in section 12 of the Go runtime plan.
 
 - [x] Phase 1: versioned shared schemas, generated bindings, contract validation, common conformance vectors, preserved Python checks. See the [requirement/evidence audit](phase1-contract-audit.md) and retained 198-check conformance run; this is a local contract gate.
-- [ ] Phase 2: Go exact amounts, domain/ledger/compiler, event ordering, book/depletion, features, settlement, baselines, cross-language economic parity.
+- [x] Phase 2: Go exact amounts, domain/ledger/compiler, event ordering, book/depletion, features, settlement, baselines, approved cross-language economic parity. See the [local core/replay acceptance audit](phase2-core-audit.md); this does not switch the training default or pass performance/live gates.
 - [ ] Phase 3: Go public recorder/normalizer, checksum/depth/precision parity, corruption/recovery, verified real capture.
 - [ ] Phase 4: bounded batched replay RPC, isolated handles, request identity and retry semantics, Python Gym/vector adapter, PPO roundtrip, transport benchmarks.
 - [ ] Phase 5: PostgreSQL schema/migrations, serialized account authority, reservations/outbox, dispatch revalidation, command identity, restart/recovery/failover checks, durable paper sessions.

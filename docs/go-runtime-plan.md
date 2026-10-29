@@ -297,7 +297,7 @@ Exit: generated Go/Python messages, an executable schema-conformance harness, an
 
 ### Phase 2 — Go domain core and replay: 4–6 days
 
-Current checkpoint: the core, baselines, replay and four common economic/observation cases are committed; broader event-sequence/fuzz coverage and the full acceptance audit remain gates.
+Completed local checkpoint: the core, baselines and replay match five approved Python economic/observation tapes. Generated rational ledger/compiler/replay scenarios, short bounded fuzz campaigns, and a shared replacement-finality case close the remaining semantic evidence. The [Phase 2 audit](phase2-core-audit.md) records the requirement map, clean combined conformance run and configured full Go race pass. Go training-default, performance, policy and release gates remain separate.
 
 Implement exact amounts, ledger, compiler, order lifecycle, deterministic clock, book/depletion model, features, and settlement. Add scheduled and liquidity-aware baselines.
 
