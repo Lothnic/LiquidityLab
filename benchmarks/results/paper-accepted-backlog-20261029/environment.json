@@ -1,0 +1,23 @@
+{
+  "schema": "liquiditylab.local-recovery-environment.v1",
+  "collected_after_trials": true,
+  "system": "Linux",
+  "kernel": "7.0.0-38-generic",
+  "architecture": "x86_64",
+  "logical_cpus": 16,
+  "available_cpus": 16,
+  "database_isolation": "development cluster; exclusive host/database activity not established; no capacity/attribution claim",
+  "cpu": {
+    "CPU(s):": "16",
+    "Model name:": "AMD Ryzen 7 7840HS w/ Radeon 780M Graphics",
+    "Thread(s) per core:": "2",
+    "Core(s) per socket:": "8",
+    "Socket(s):": "1"
+  },
+  "database": {
+    "server_version": "18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)",
+    "synchronous_commit": "on",
+    "fsync": "on",
+    "full_page_writes": "on"
+  }
+}

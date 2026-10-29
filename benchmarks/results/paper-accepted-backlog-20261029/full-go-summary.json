@@ -1,0 +1,135 @@
+{
+  "source": {
+    "revision": "883704c02d925d7585440e67e845751e39e38850",
+    "dirty": false,
+    "after_revision": "883704c02d925d7585440e67e845751e39e38850",
+    "after_dirty": false
+  },
+  "exit_code": 0,
+  "elapsed_ns": 84331718722,
+  "packages": [
+    {
+      "Time": "2026-10-29T19:12:20.097671016+05:30",
+      "Action": "skip",
+      "Package": "github.com/liquiditylab/liquiditylab/benchmarks/native",
+      "Elapsed": 0
+    },
+    {
+      "Time": "2026-10-29T19:12:21.030412194+05:30",
+      "Action": "skip",
+      "Package": "github.com/liquiditylab/liquiditylab/gen/go/liquiditylab/v1",
+      "Elapsed": 0
+    },
+    {
+      "Time": "2026-10-29T19:12:22.046809789+05:30",
+      "Action": "pass",
+      "Package": "github.com/liquiditylab/liquiditylab/internal/faultpoint",
+      "Elapsed": 1.016
+    },
+    {
+      "Time": "2026-10-29T19:12:22.053756086+05:30",
+      "Action": "pass",
+      "Package": "github.com/liquiditylab/liquiditylab/internal/domain",
+      "Elapsed": 1.023
+    },
+    {
+      "Time": "2026-10-29T19:12:22.054667843+05:30",
+      "Action": "skip",
+      "Package": "github.com/liquiditylab/liquiditylab/migrations",
+      "Elapsed": 0
+    },
+    {
+      "Time": "2026-10-29T19:12:22.112493312+05:30",
+      "Action": "pass",
+      "Package": "github.com/liquiditylab/liquiditylab/internal/api",
+      "Elapsed": 1.082
+    },
+    {
+      "Time": "2026-10-29T19:12:22.302097808+05:30",
+      "Action": "pass",
+      "Package": "github.com/liquiditylab/liquiditylab/internal/replayrpc",
+      "Elapsed": 1.102
+    },
+    {
+      "Time": "2026-10-29T19:12:22.764158771+05:30",
+      "Action": "pass",
+      "Package": "github.com/liquiditylab/liquiditylab/internal/replay",
+      "Elapsed": 1.6840000000000002
+    },
+    {
+      "Time": "2026-10-29T19:12:22.77864177+05:30",
+      "Action": "pass",
+      "Package": "github.com/liquiditylab/liquiditylab/internal/telemetry",
+      "Elapsed": 1.5779999999999998
+    },
+    {
+      "Time": "2026-10-29T19:12:23.065903661+05:30",
+      "Action": "pass",
+      "Package": "github.com/liquiditylab/liquiditylab/internal/marketdata",
+      "Elapsed": 1.986
+    },
+    {
+      "Time": "2026-10-29T19:12:23.14798011+05:30",
+      "Action": "pass",
+      "Package": "github.com/liquiditylab/liquiditylab/internal/venue/kraken",
+      "Elapsed": 1.1
+    },
+    {
+      "Time": "2026-10-29T19:12:28.612001815+05:30",
+      "Action": "pass",
+      "Package": "github.com/liquiditylab/liquiditylab/internal/store/postgres",
+      "Elapsed": 7.412
+    },
+    {
+      "Time": "2026-10-29T19:12:29.328865533+05:30",
+      "Action": "pass",
+      "Package": "github.com/liquiditylab/liquiditylab/cmd/liquiditylab",
+      "Elapsed": 8.346
+    },
+    {
+      "Time": "2026-10-29T19:12:29.793795956+05:30",
+      "Action": "pass",
+      "Package": "github.com/liquiditylab/liquiditylab/benchmarks/runtime",
+      "Elapsed": 8.811
+    },
+    {
+      "Time": "2026-10-29T19:12:30.428231486+05:30",
+      "Action": "pass",
+      "Package": "github.com/liquiditylab/liquiditylab/internal/execution",
+      "Elapsed": 9.398
+    },
+    {
+      "Time": "2026-10-29T19:12:31.75305128+05:30",
+      "Action": "pass",
+      "Package": "github.com/liquiditylab/liquiditylab/internal/marketarchive",
+      "Elapsed": 10.674
+    },
+    {
+      "Time": "2026-10-29T19:12:32.602266703+05:30",
+      "Action": "pass",
+      "Package": "github.com/liquiditylab/liquiditylab/internal/inference",
+      "Elapsed": 11.523
+    },
+    {
+      "Time": "2026-10-29T19:12:34.621747583+05:30",
+      "Action": "pass",
+      "Package": "github.com/liquiditylab/liquiditylab/internal/historicalreplay",
+      "Elapsed": 13.591
+    },
+    {
+      "Time": "2026-10-29T19:13:27.065817789+05:30",
+      "Action": "pass",
+      "Package": "github.com/liquiditylab/liquiditylab/cmd/liquiditylabd",
+      "Elapsed": 66.036
+    },
+    {
+      "Time": "2026-10-29T19:13:44.110236534+05:30",
+      "Action": "pass",
+      "Package": "github.com/liquiditylab/liquiditylab/internal/runtime",
+      "Elapsed": 82.91
+    }
+  ],
+  "failures": [],
+  "log_sha256": "ab795cabafce6dfebbd36a9cdbc423e879e71f1a60a9bc7166130aeda951fb75",
+  "scope": "Full uncached Go race suite with development PostgreSQL and actual Python/replay paths"
+}

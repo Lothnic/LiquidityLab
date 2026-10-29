@@ -1,0 +1,160 @@
+{
+  "status": "passed",
+  "method": "independent Fraction arithmetic, raw observation SHA and read-only retained PostgreSQL projections/executions",
+  "limits": "Local simulated fixtures only; no live, capacity, power-loss or database-restore claim",
+  "reports": [
+    {
+      "file": "trial-01.json",
+      "sha256": "57ead0fe68f427750ada5d350a9c52135dfb9d8e29beb69f89a63dc6e99059c8",
+      "source": "883704c02d925d7585440e67e845751e39e38850",
+      "binary_sha256": "5046cdcf4aba516241b7c6d59db14d527fbaca1f988607e99516d5707532d92d",
+      "crash_prefix": 2,
+      "exact_database_and_cashflow_checks": [
+        {
+          "role": "victim",
+          "accepted_fills": 128,
+          "balances": [
+            {
+              "currency": "BTC",
+              "total": "0.003",
+              "free": "0.003",
+              "locked": "0"
+            },
+            {
+              "currency": "USD",
+              "total": "19.69973003",
+              "free": "19.69973003",
+              "locked": "0"
+            }
+          ],
+          "filled": "0.003",
+          "residual": "0.047",
+          "fees_quote": "0.00029997"
+        },
+        {
+          "role": "bystander",
+          "accepted_fills": 1,
+          "balances": [
+            {
+              "currency": "BTC",
+              "total": "0.006",
+              "free": "0.006",
+              "locked": "0"
+            },
+            {
+              "currency": "USD",
+              "total": "19.39873988",
+              "free": "19.39873988",
+              "locked": "0"
+            }
+          ],
+          "filled": "0.006",
+          "residual": "0.044",
+          "fees_quote": "0.00120012"
+        }
+      ]
+    },
+    {
+      "file": "trial-02.json",
+      "sha256": "692ad1f1f78313373247cfa2961bf7e8285bbf48b16edcde3c5fb9319fd45deb",
+      "source": "883704c02d925d7585440e67e845751e39e38850",
+      "binary_sha256": "5046cdcf4aba516241b7c6d59db14d527fbaca1f988607e99516d5707532d92d",
+      "crash_prefix": 1,
+      "exact_database_and_cashflow_checks": [
+        {
+          "role": "victim",
+          "accepted_fills": 128,
+          "balances": [
+            {
+              "currency": "BTC",
+              "total": "0.003",
+              "free": "0.003",
+              "locked": "0"
+            },
+            {
+              "currency": "USD",
+              "total": "19.69973003",
+              "free": "19.69973003",
+              "locked": "0"
+            }
+          ],
+          "filled": "0.003",
+          "residual": "0.047",
+          "fees_quote": "0.00029997"
+        },
+        {
+          "role": "bystander",
+          "accepted_fills": 1,
+          "balances": [
+            {
+              "currency": "BTC",
+              "total": "0.006",
+              "free": "0.006",
+              "locked": "0"
+            },
+            {
+              "currency": "USD",
+              "total": "19.39873988",
+              "free": "19.39873988",
+              "locked": "0"
+            }
+          ],
+          "filled": "0.006",
+          "residual": "0.044",
+          "fees_quote": "0.00120012"
+        }
+      ]
+    },
+    {
+      "file": "trial-03.json",
+      "sha256": "e11dc0647751b4fc21b519959202971c1f98688ea040a94b31c4594792bbb583",
+      "source": "883704c02d925d7585440e67e845751e39e38850",
+      "binary_sha256": "5046cdcf4aba516241b7c6d59db14d527fbaca1f988607e99516d5707532d92d",
+      "crash_prefix": 2,
+      "exact_database_and_cashflow_checks": [
+        {
+          "role": "victim",
+          "accepted_fills": 128,
+          "balances": [
+            {
+              "currency": "BTC",
+              "total": "0.003",
+              "free": "0.003",
+              "locked": "0"
+            },
+            {
+              "currency": "USD",
+              "total": "19.69973003",
+              "free": "19.69973003",
+              "locked": "0"
+            }
+          ],
+          "filled": "0.003",
+          "residual": "0.047",
+          "fees_quote": "0.00029997"
+        },
+        {
+          "role": "bystander",
+          "accepted_fills": 1,
+          "balances": [
+            {
+              "currency": "BTC",
+              "total": "0.006",
+              "free": "0.006",
+              "locked": "0"
+            },
+            {
+              "currency": "USD",
+              "total": "19.39873988",
+              "free": "19.39873988",
+              "locked": "0"
+            }
+          ],
+          "filled": "0.006",
+          "residual": "0.044",
+          "fees_quote": "0.00120012"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,943 @@
+{
+  "financial_verification": "none performed by packager; source report audits are copied as evidence",
+  "schema": "paper-process-accepted-backlog-recovery-summary-v1",
+  "source_report_status_is_authoritative": true,
+  "trials": [
+    {
+      "all_sample_rows_preserved_in_original_report": true,
+      "backlog_fixture": {
+        "batch_commit_observed_utc": "2026-10-29T13:44:47.100360167Z",
+        "batch_quantity_and_fees": {
+          "calculation_note": "exact decimal sum projected from the 128 source-report fill rows; not independent financial verification",
+          "exact_fee_totals_by_currency": {
+            "quote": "0.000299970000000"
+          },
+          "exact_fill_quantity_sum": "0.0030000000",
+          "source_report_batch_quantity": "0.003"
+        },
+        "child_remaining_after_reap": "0.005953125",
+        "child_remaining_before": "0.006",
+        "exact_fill_count": 128,
+        "execution_rows_after_reap": 2,
+        "fixture_setup_started_utc": "2026-10-29T13:44:47.070758201Z",
+        "held_reservation_after_reap": "0.5964434746875",
+        "lease_remaining_at_fixture_ns": 59935103000,
+        "observation_sequence": 6,
+        "observed_debt_after_sigkill": 1,
+        "partial_prefix_observed_utc": "2026-10-29T13:44:47.525132435Z",
+        "prefix_after_reap": 2,
+        "prefix_observed_before_sigkill": 1,
+        "provenance": "harness-authored simulated transport outcome; not emitted by the 2 Hz synthetic source",
+        "stored_payload_sha256": "4a7eda8b3743f7e4156424f6bbb5d78e6e7de27ff2a2933236877d8a12eeaea4",
+        "victim_backends_without_open_transaction": 1,
+        "victim_sigcont_issued_utc": "2026-10-29T13:44:47.100561524Z",
+        "victim_stopped_confirmed_utc": "2026-10-29T13:44:47.073135191Z"
+      },
+      "counts_by_role": {
+        "bystander": {
+          "admitted": 200,
+          "offered": 200,
+          "offered_routes": {
+            "report": 40,
+            "sessions": 40,
+            "state": 120
+          },
+          "outcomes": {
+            "completed": 200
+          }
+        },
+        "victim": {
+          "admitted": 176,
+          "offered": 200,
+          "offered_routes": {
+            "report": 40,
+            "sessions": 40,
+            "state": 120
+          },
+          "outcomes": {
+            "completed": 176,
+            "endpoint_unbound": 24
+          }
+        }
+      },
+      "daemon_build_identity": {
+        "GOARCH": "amd64",
+        "GOOS": "linux",
+        "fault_hooks": false,
+        "go_version": "go1.26.8",
+        "module": "github.com/liquiditylab/liquiditylab",
+        "package": "github.com/liquiditylab/liquiditylab/cmd/liquiditylabd",
+        "race_instrumented": false,
+        "sha256": "5046cdcf4aba516241b7c6d59db14d527fbaca1f988607e99516d5707532d92d",
+        "vcs.revision": "883704c02d925d7585440e67e845751e39e38850",
+        "vcs.time": "2026-10-29T13:41:22Z"
+      },
+      "daemon_source_state": "clean",
+      "events_ns_as_reported": {
+        "cold_launch_started_ns": 694756778,
+        "cold_launch_to_first_ready_paused_ns": 938208319,
+        "first_ready_paused_observed_ns": 1632965097,
+        "graceful_processes_reaped_ns": 10038612194,
+        "kill_to_first_ready_paused_ns": 1207468843,
+        "listener_observed_ns": 1618318102,
+        "paused_proof_finished_ns": 2791369221,
+        "read_schedules_and_calls_drained_ns": 10000722861,
+        "sigkill_issued_ns": 425496254,
+        "sigkill_reaped_ns": 426910602
+      },
+      "financial_audits_as_reported": {
+        "final_by_role": {
+          "bystander": {
+            "account_ready": true,
+            "book_valid": true,
+            "boundary": {
+              "known_final": true,
+              "phase": "after_reaped_known_final_shutdown",
+              "process_reaped": true
+            },
+            "clock_discontinuity": false,
+            "exact_balances": [
+              {
+                "currency": "BTC",
+                "free": "0.006",
+                "locked": "0",
+                "total": "0.006"
+              },
+              {
+                "currency": "USD",
+                "free": "19.39873988",
+                "locked": "0",
+                "total": "19.39873988"
+              }
+            ],
+            "fees_quote": "0.00120012",
+            "filled_quantity": "0.006",
+            "issues": [],
+            "market_valid": true,
+            "observed_sequence": 25,
+            "original_pins_retained": true,
+            "ownership_epoch": 1,
+            "processed_sequence": 25,
+            "reason": "hold",
+            "recovery_required": false,
+            "remaining_quantity": "0.044",
+            "status": "cancelled",
+            "valid": true
+          },
+          "victim": {
+            "account_ready": true,
+            "book_valid": true,
+            "boundary": {
+              "known_final": true,
+              "phase": "after_reaped_known_final_shutdown",
+              "process_reaped": true
+            },
+            "clock_discontinuity": false,
+            "exact_balances": [
+              {
+                "currency": "BTC",
+                "free": "0.003",
+                "locked": "0",
+                "total": "0.003"
+              },
+              {
+                "currency": "USD",
+                "free": "19.69973003",
+                "locked": "0",
+                "total": "19.69973003"
+              }
+            ],
+            "fees_quote": "0.00029997",
+            "filled_quantity": "0.003",
+            "issues": [],
+            "market_valid": true,
+            "observed_sequence": 23,
+            "original_pins_retained": true,
+            "ownership_epoch": 2,
+            "processed_sequence": 23,
+            "reason": "paper_reconciliation_asserted",
+            "recovery_required": false,
+            "remaining_quantity": "0.047",
+            "status": "cancelled",
+            "valid": true
+          }
+        },
+        "victim_recovered_paused": {
+          "account_ready": true,
+          "book_valid": true,
+          "boundary": {
+            "known_final": false,
+            "phase": "recovered_ready_paused",
+            "process_reaped": false
+          },
+          "clock_discontinuity": false,
+          "exact_balances": [
+            {
+              "currency": "BTC",
+              "free": "0.003",
+              "locked": "0",
+              "total": "0.003"
+            },
+            {
+              "currency": "USD",
+              "free": "19.69973003",
+              "locked": "0",
+              "total": "19.69973003"
+            }
+          ],
+          "fees_quote": "0.00029997",
+          "filled_quantity": "0.003",
+          "issues": [],
+          "market_valid": true,
+          "observed_sequence": 7,
+          "original_pins_retained": true,
+          "ownership_epoch": 2,
+          "processed_sequence": 7,
+          "reason": "paper_reconciliation_asserted",
+          "recovery_required": false,
+          "remaining_quantity": "0.047",
+          "status": "paused",
+          "valid": true
+        }
+      },
+      "financial_interpretation": "source audit strings and exact balances are copied; the package does not independently verify their economics",
+      "label": "trial-01",
+      "original_plan_pins": {
+        "bystander": {
+          "arrival_mid": "100",
+          "average_price": "100.01",
+          "benchmark_valid": true,
+          "deadline": "2026-10-29T13:46:46.074974Z",
+          "executed_cost_quote": "0.00126012",
+          "fees_base": "0",
+          "fees_quote": "0.00120012",
+          "filled": "0.006",
+          "id": "bystander-load-plan",
+          "policy": "scheduled",
+          "remaining": "0.044",
+          "revision": 2,
+          "spec": {
+            "base_balance": "0",
+            "deadline_ns": 119992821291,
+            "limit_price": "102",
+            "max_child_quantity": "0.01",
+            "quantity": "0.05",
+            "quote_budget": "20",
+            "side": "buy",
+            "symbol": "BTC/USD"
+          },
+          "start": "2026-10-29T13:44:46.082152709Z",
+          "started": true,
+          "status": "active"
+        },
+        "victim": {
+          "arrival_mid": "100",
+          "average_price": "0",
+          "benchmark_valid": true,
+          "deadline": "2026-10-29T13:46:45.051692Z",
+          "executed_cost_quote": "0",
+          "fees_base": "0",
+          "fees_quote": "0",
+          "filled": "0",
+          "id": "recovery-load-plan",
+          "policy": "liquidity-aware",
+          "remaining": "0.05",
+          "revision": 2,
+          "spec": {
+            "base_balance": "0",
+            "deadline_ns": 119992602260,
+            "limit_price": "102",
+            "max_child_quantity": "0.01",
+            "quantity": "0.05",
+            "quote_budget": "20",
+            "side": "buy",
+            "symbol": "BTC/USD"
+          },
+          "start": "2026-10-29T13:44:45.05908974Z",
+          "started": true,
+          "status": "active"
+        }
+      },
+      "original_report_sha256": "57ead0fe68f427750ada5d350a9c52135dfb9d8e29beb69f89a63dc6e99059c8",
+      "report_version": "paper-process-accepted-backlog-recovery-v1",
+      "sample_row_count_by_role": {
+        "bystander": 200,
+        "victim": 200
+      },
+      "source_cursors_and_process_flags": {
+        "all_pollers_drained": true,
+        "bystander_observed_sequence_after_load": 25,
+        "bystander_observed_sequence_at_crash": 5,
+        "graceful_known_final": {
+          "bystander": true,
+          "victim": true
+        },
+        "observed_debt_after_sigkill": 1,
+        "observed_sequence_after_sigkill": 6,
+        "original_start_retry_duplicate": true,
+        "ownership_epoch_after_sigkill": 1,
+        "processed_sequence_after_sigkill": 5,
+        "processes_reaped": {
+          "bystander": true,
+          "victim_resumed": true,
+          "victim_sigkill": true
+        }
+      },
+      "source_issues": [],
+      "source_report_name": "trial-01.json",
+      "source_status": "complete",
+      "source_valid": true,
+      "timing_interpretation": "event fields are copied from the report; cold-launch and kill-to-ready are first-ready observations with poll/request time and are upper bounds, not SLOs",
+      "workload": {
+        "accepted_backlog_fixture": "harness-authored simulated transport outcome; not emitted by the 2 Hz synthetic source",
+        "account_schema_retention": "fresh randomized development schema retained; never reset or dropped",
+        "accounts": 2,
+        "audit_sql_connections_at_once_max": 1,
+        "audit_store_pool_max": 2,
+        "backlog_fill_count": 128,
+        "configured_daemon_pool_total": 32,
+        "configured_max_connections_including_observers": 35,
+        "daemon_pool_max_per_process": 16,
+        "fixture_setup_outside_schedule": true,
+        "processes": 2,
+        "read_rate_per_account_hz": 20,
+        "read_slots_per_account": 4,
+        "read_timeout_ns": 750000000,
+        "response_limit_bytes": 1048576,
+        "route_cycle": [
+          "state",
+          "state",
+          "sessions",
+          "state",
+          "report"
+        ],
+        "schedule_duration_ns": 10000000000,
+        "source": "ordinary daemon fixed 2 Hz synthetic trades and initial snapshot per process"
+      }
+    },
+    {
+      "all_sample_rows_preserved_in_original_report": true,
+      "backlog_fixture": {
+        "batch_commit_observed_utc": "2026-10-29T13:45:01.686709591Z",
+        "batch_quantity_and_fees": {
+          "calculation_note": "exact decimal sum projected from the 128 source-report fill rows; not independent financial verification",
+          "exact_fee_totals_by_currency": {
+            "quote": "0.000299970000000"
+          },
+          "exact_fill_quantity_sum": "0.0030000000",
+          "source_report_batch_quantity": "0.003"
+        },
+        "child_remaining_after_reap": "0.0059765625",
+        "child_remaining_before": "0.006",
+        "exact_fill_count": 128,
+        "execution_rows_after_reap": 1,
+        "fixture_setup_started_utc": "2026-10-29T13:45:01.655863887Z",
+        "held_reservation_after_reap": "0.59879167734375",
+        "lease_remaining_at_fixture_ns": 59932082000,
+        "observation_sequence": 6,
+        "observed_debt_after_sigkill": 1,
+        "partial_prefix_observed_utc": "2026-10-29T13:45:02.115520036Z",
+        "prefix_after_reap": 1,
+        "prefix_observed_before_sigkill": 1,
+        "provenance": "harness-authored simulated transport outcome; not emitted by the 2 Hz synthetic source",
+        "stored_payload_sha256": "db31a16a3256c4c8ff32afe8182d41b7863de57f950744605143ab056536c1c9",
+        "victim_backends_without_open_transaction": 1,
+        "victim_sigcont_issued_utc": "2026-10-29T13:45:01.686923151Z",
+        "victim_stopped_confirmed_utc": "2026-10-29T13:45:01.658795507Z"
+      },
+      "counts_by_role": {
+        "bystander": {
+          "admitted": 200,
+          "offered": 200,
+          "offered_routes": {
+            "report": 40,
+            "sessions": 40,
+            "state": 120
+          },
+          "outcomes": {
+            "completed": 200
+          }
+        },
+        "victim": {
+          "admitted": 176,
+          "offered": 200,
+          "offered_routes": {
+            "report": 40,
+            "sessions": 40,
+            "state": 120
+          },
+          "outcomes": {
+            "completed": 176,
+            "endpoint_unbound": 24
+          }
+        }
+      },
+      "daemon_build_identity": {
+        "GOARCH": "amd64",
+        "GOOS": "linux",
+        "fault_hooks": false,
+        "go_version": "go1.26.8",
+        "module": "github.com/liquiditylab/liquiditylab",
+        "package": "github.com/liquiditylab/liquiditylab/cmd/liquiditylabd",
+        "race_instrumented": false,
+        "sha256": "5046cdcf4aba516241b7c6d59db14d527fbaca1f988607e99516d5707532d92d",
+        "vcs.revision": "883704c02d925d7585440e67e845751e39e38850",
+        "vcs.time": "2026-10-29T13:41:22Z"
+      },
+      "daemon_source_state": "clean",
+      "events_ns_as_reported": {
+        "cold_launch_started_ns": 701058930,
+        "cold_launch_to_first_ready_paused_ns": 969231433,
+        "first_ready_paused_observed_ns": 1670290363,
+        "graceful_processes_reaped_ns": 10039734000,
+        "kill_to_first_ready_paused_ns": 1240807209,
+        "listener_observed_ns": 1626182648,
+        "paused_proof_finished_ns": 2834153274,
+        "read_schedules_and_calls_drained_ns": 10000260001,
+        "sigkill_issued_ns": 429483154,
+        "sigkill_reaped_ns": 431329511
+      },
+      "financial_audits_as_reported": {
+        "final_by_role": {
+          "bystander": {
+            "account_ready": true,
+            "book_valid": true,
+            "boundary": {
+              "known_final": true,
+              "phase": "after_reaped_known_final_shutdown",
+              "process_reaped": true
+            },
+            "clock_discontinuity": false,
+            "exact_balances": [
+              {
+                "currency": "BTC",
+                "free": "0.006",
+                "locked": "0",
+                "total": "0.006"
+              },
+              {
+                "currency": "USD",
+                "free": "19.39873988",
+                "locked": "0",
+                "total": "19.39873988"
+              }
+            ],
+            "fees_quote": "0.00120012",
+            "filled_quantity": "0.006",
+            "issues": [],
+            "market_valid": true,
+            "observed_sequence": 25,
+            "original_pins_retained": true,
+            "ownership_epoch": 1,
+            "processed_sequence": 25,
+            "reason": "hold",
+            "recovery_required": false,
+            "remaining_quantity": "0.044",
+            "status": "cancelled",
+            "valid": true
+          },
+          "victim": {
+            "account_ready": true,
+            "book_valid": true,
+            "boundary": {
+              "known_final": true,
+              "phase": "after_reaped_known_final_shutdown",
+              "process_reaped": true
+            },
+            "clock_discontinuity": false,
+            "exact_balances": [
+              {
+                "currency": "BTC",
+                "free": "0.003",
+                "locked": "0",
+                "total": "0.003"
+              },
+              {
+                "currency": "USD",
+                "free": "19.69973003",
+                "locked": "0",
+                "total": "19.69973003"
+              }
+            ],
+            "fees_quote": "0.00029997",
+            "filled_quantity": "0.003",
+            "issues": [],
+            "market_valid": true,
+            "observed_sequence": 23,
+            "original_pins_retained": true,
+            "ownership_epoch": 2,
+            "processed_sequence": 23,
+            "reason": "paper_reconciliation_asserted",
+            "recovery_required": false,
+            "remaining_quantity": "0.047",
+            "status": "cancelled",
+            "valid": true
+          }
+        },
+        "victim_recovered_paused": {
+          "account_ready": true,
+          "book_valid": true,
+          "boundary": {
+            "known_final": false,
+            "phase": "recovered_ready_paused",
+            "process_reaped": false
+          },
+          "clock_discontinuity": false,
+          "exact_balances": [
+            {
+              "currency": "BTC",
+              "free": "0.003",
+              "locked": "0",
+              "total": "0.003"
+            },
+            {
+              "currency": "USD",
+              "free": "19.69973003",
+              "locked": "0",
+              "total": "19.69973003"
+            }
+          ],
+          "fees_quote": "0.00029997",
+          "filled_quantity": "0.003",
+          "issues": [],
+          "market_valid": true,
+          "observed_sequence": 7,
+          "original_pins_retained": true,
+          "ownership_epoch": 2,
+          "processed_sequence": 7,
+          "reason": "paper_reconciliation_asserted",
+          "recovery_required": false,
+          "remaining_quantity": "0.047",
+          "status": "paused",
+          "valid": true
+        }
+      },
+      "financial_interpretation": "source audit strings and exact balances are copied; the package does not independently verify their economics",
+      "label": "trial-02",
+      "original_plan_pins": {
+        "bystander": {
+          "arrival_mid": "100",
+          "average_price": "100.01",
+          "benchmark_valid": true,
+          "deadline": "2026-10-29T13:47:00.637709Z",
+          "executed_cost_quote": "0.00126012",
+          "fees_base": "0",
+          "fees_quote": "0.00120012",
+          "filled": "0.006",
+          "id": "bystander-load-plan",
+          "policy": "scheduled",
+          "remaining": "0.044",
+          "revision": 2,
+          "spec": {
+            "base_balance": "0",
+            "deadline_ns": 119993605727,
+            "limit_price": "102",
+            "max_child_quantity": "0.01",
+            "quantity": "0.05",
+            "quote_budget": "20",
+            "side": "buy",
+            "symbol": "BTC/USD"
+          },
+          "start": "2026-10-29T13:45:00.644103273Z",
+          "started": true,
+          "status": "active"
+        },
+        "victim": {
+          "arrival_mid": "100",
+          "average_price": "0",
+          "benchmark_valid": true,
+          "deadline": "2026-10-29T13:46:59.630971Z",
+          "executed_cost_quote": "0",
+          "fees_base": "0",
+          "fees_quote": "0",
+          "filled": "0",
+          "id": "recovery-load-plan",
+          "policy": "liquidity-aware",
+          "remaining": "0.05",
+          "revision": 2,
+          "spec": {
+            "base_balance": "0",
+            "deadline_ns": 119990764328,
+            "limit_price": "102",
+            "max_child_quantity": "0.01",
+            "quantity": "0.05",
+            "quote_budget": "20",
+            "side": "buy",
+            "symbol": "BTC/USD"
+          },
+          "start": "2026-10-29T13:44:59.640206672Z",
+          "started": true,
+          "status": "active"
+        }
+      },
+      "original_report_sha256": "692ad1f1f78313373247cfa2961bf7e8285bbf48b16edcde3c5fb9319fd45deb",
+      "report_version": "paper-process-accepted-backlog-recovery-v1",
+      "sample_row_count_by_role": {
+        "bystander": 200,
+        "victim": 200
+      },
+      "source_cursors_and_process_flags": {
+        "all_pollers_drained": true,
+        "bystander_observed_sequence_after_load": 25,
+        "bystander_observed_sequence_at_crash": 5,
+        "graceful_known_final": {
+          "bystander": true,
+          "victim": true
+        },
+        "observed_debt_after_sigkill": 1,
+        "observed_sequence_after_sigkill": 6,
+        "original_start_retry_duplicate": true,
+        "ownership_epoch_after_sigkill": 1,
+        "processed_sequence_after_sigkill": 5,
+        "processes_reaped": {
+          "bystander": true,
+          "victim_resumed": true,
+          "victim_sigkill": true
+        }
+      },
+      "source_issues": [],
+      "source_report_name": "trial-02.json",
+      "source_status": "complete",
+      "source_valid": true,
+      "timing_interpretation": "event fields are copied from the report; cold-launch and kill-to-ready are first-ready observations with poll/request time and are upper bounds, not SLOs",
+      "workload": {
+        "accepted_backlog_fixture": "harness-authored simulated transport outcome; not emitted by the 2 Hz synthetic source",
+        "account_schema_retention": "fresh randomized development schema retained; never reset or dropped",
+        "accounts": 2,
+        "audit_sql_connections_at_once_max": 1,
+        "audit_store_pool_max": 2,
+        "backlog_fill_count": 128,
+        "configured_daemon_pool_total": 32,
+        "configured_max_connections_including_observers": 35,
+        "daemon_pool_max_per_process": 16,
+        "fixture_setup_outside_schedule": true,
+        "processes": 2,
+        "read_rate_per_account_hz": 20,
+        "read_slots_per_account": 4,
+        "read_timeout_ns": 750000000,
+        "response_limit_bytes": 1048576,
+        "route_cycle": [
+          "state",
+          "state",
+          "sessions",
+          "state",
+          "report"
+        ],
+        "schedule_duration_ns": 10000000000,
+        "source": "ordinary daemon fixed 2 Hz synthetic trades and initial snapshot per process"
+      }
+    },
+    {
+      "all_sample_rows_preserved_in_original_report": true,
+      "backlog_fixture": {
+        "batch_commit_observed_utc": "2026-10-29T13:45:16.306421703Z",
+        "batch_quantity_and_fees": {
+          "calculation_note": "exact decimal sum projected from the 128 source-report fill rows; not independent financial verification",
+          "exact_fee_totals_by_currency": {
+            "quote": "0.000299970000000"
+          },
+          "exact_fill_quantity_sum": "0.0030000000",
+          "source_report_batch_quantity": "0.003"
+        },
+        "child_remaining_after_reap": "0.005953125",
+        "child_remaining_before": "0.006",
+        "exact_fill_count": 128,
+        "execution_rows_after_reap": 2,
+        "fixture_setup_started_utc": "2026-10-29T13:45:16.276834726Z",
+        "held_reservation_after_reap": "0.5964434746875",
+        "lease_remaining_at_fixture_ns": 59921215000,
+        "observation_sequence": 6,
+        "observed_debt_after_sigkill": 1,
+        "partial_prefix_observed_utc": "2026-10-29T13:45:16.730798962Z",
+        "prefix_after_reap": 2,
+        "prefix_observed_before_sigkill": 1,
+        "provenance": "harness-authored simulated transport outcome; not emitted by the 2 Hz synthetic source",
+        "stored_payload_sha256": "5c08a88f083e557ab178a00e79a079af1008df1e98e35ee29bb352b5e2336175",
+        "victim_backends_without_open_transaction": 1,
+        "victim_sigcont_issued_utc": "2026-10-29T13:45:16.306639741Z",
+        "victim_stopped_confirmed_utc": "2026-10-29T13:45:16.279074009Z"
+      },
+      "counts_by_role": {
+        "bystander": {
+          "admitted": 200,
+          "offered": 200,
+          "offered_routes": {
+            "report": 40,
+            "sessions": 40,
+            "state": 120
+          },
+          "outcomes": {
+            "completed": 200
+          }
+        },
+        "victim": {
+          "admitted": 176,
+          "offered": 200,
+          "offered_routes": {
+            "report": 40,
+            "sessions": 40,
+            "state": 120
+          },
+          "outcomes": {
+            "completed": 176,
+            "endpoint_unbound": 24
+          }
+        }
+      },
+      "daemon_build_identity": {
+        "GOARCH": "amd64",
+        "GOOS": "linux",
+        "fault_hooks": false,
+        "go_version": "go1.26.8",
+        "module": "github.com/liquiditylab/liquiditylab",
+        "package": "github.com/liquiditylab/liquiditylab/cmd/liquiditylabd",
+        "race_instrumented": false,
+        "sha256": "5046cdcf4aba516241b7c6d59db14d527fbaca1f988607e99516d5707532d92d",
+        "vcs.revision": "883704c02d925d7585440e67e845751e39e38850",
+        "vcs.time": "2026-10-29T13:41:22Z"
+      },
+      "daemon_source_state": "clean",
+      "events_ns_as_reported": {
+        "cold_launch_started_ns": 699838747,
+        "cold_launch_to_first_ready_paused_ns": 968068274,
+        "first_ready_paused_observed_ns": 1667907021,
+        "graceful_processes_reaped_ns": 10038729164,
+        "kill_to_first_ready_paused_ns": 1243104426,
+        "listener_observed_ns": 1624773741,
+        "paused_proof_finished_ns": 2819412881,
+        "read_schedules_and_calls_drained_ns": 10000415307,
+        "sigkill_issued_ns": 424802595,
+        "sigkill_reaped_ns": 426402732
+      },
+      "financial_audits_as_reported": {
+        "final_by_role": {
+          "bystander": {
+            "account_ready": true,
+            "book_valid": true,
+            "boundary": {
+              "known_final": true,
+              "phase": "after_reaped_known_final_shutdown",
+              "process_reaped": true
+            },
+            "clock_discontinuity": false,
+            "exact_balances": [
+              {
+                "currency": "BTC",
+                "free": "0.006",
+                "locked": "0",
+                "total": "0.006"
+              },
+              {
+                "currency": "USD",
+                "free": "19.39873988",
+                "locked": "0",
+                "total": "19.39873988"
+              }
+            ],
+            "fees_quote": "0.00120012",
+            "filled_quantity": "0.006",
+            "issues": [],
+            "market_valid": true,
+            "observed_sequence": 25,
+            "original_pins_retained": true,
+            "ownership_epoch": 1,
+            "processed_sequence": 25,
+            "reason": "hold",
+            "recovery_required": false,
+            "remaining_quantity": "0.044",
+            "status": "cancelled",
+            "valid": true
+          },
+          "victim": {
+            "account_ready": true,
+            "book_valid": true,
+            "boundary": {
+              "known_final": true,
+              "phase": "after_reaped_known_final_shutdown",
+              "process_reaped": true
+            },
+            "clock_discontinuity": false,
+            "exact_balances": [
+              {
+                "currency": "BTC",
+                "free": "0.003",
+                "locked": "0",
+                "total": "0.003"
+              },
+              {
+                "currency": "USD",
+                "free": "19.69973003",
+                "locked": "0",
+                "total": "19.69973003"
+              }
+            ],
+            "fees_quote": "0.00029997",
+            "filled_quantity": "0.003",
+            "issues": [],
+            "market_valid": true,
+            "observed_sequence": 23,
+            "original_pins_retained": true,
+            "ownership_epoch": 2,
+            "processed_sequence": 23,
+            "reason": "paper_reconciliation_asserted",
+            "recovery_required": false,
+            "remaining_quantity": "0.047",
+            "status": "cancelled",
+            "valid": true
+          }
+        },
+        "victim_recovered_paused": {
+          "account_ready": true,
+          "book_valid": true,
+          "boundary": {
+            "known_final": false,
+            "phase": "recovered_ready_paused",
+            "process_reaped": false
+          },
+          "clock_discontinuity": false,
+          "exact_balances": [
+            {
+              "currency": "BTC",
+              "free": "0.003",
+              "locked": "0",
+              "total": "0.003"
+            },
+            {
+              "currency": "USD",
+              "free": "19.69973003",
+              "locked": "0",
+              "total": "19.69973003"
+            }
+          ],
+          "fees_quote": "0.00029997",
+          "filled_quantity": "0.003",
+          "issues": [],
+          "market_valid": true,
+          "observed_sequence": 7,
+          "original_pins_retained": true,
+          "ownership_epoch": 2,
+          "processed_sequence": 7,
+          "reason": "paper_reconciliation_asserted",
+          "recovery_required": false,
+          "remaining_quantity": "0.047",
+          "status": "paused",
+          "valid": true
+        }
+      },
+      "financial_interpretation": "source audit strings and exact balances are copied; the package does not independently verify their economics",
+      "label": "trial-03",
+      "original_plan_pins": {
+        "bystander": {
+          "arrival_mid": "100",
+          "average_price": "100.01",
+          "benchmark_valid": true,
+          "deadline": "2026-10-29T13:47:15.25582Z",
+          "executed_cost_quote": "0.00126012",
+          "fees_base": "0",
+          "fees_quote": "0.00120012",
+          "filled": "0.006",
+          "id": "bystander-load-plan",
+          "policy": "scheduled",
+          "remaining": "0.044",
+          "revision": 2,
+          "spec": {
+            "base_balance": "0",
+            "deadline_ns": 119993032076,
+            "limit_price": "102",
+            "max_child_quantity": "0.01",
+            "quantity": "0.05",
+            "quote_budget": "20",
+            "side": "buy",
+            "symbol": "BTC/USD"
+          },
+          "start": "2026-10-29T13:45:15.262787924Z",
+          "started": true,
+          "status": "active"
+        },
+        "victim": {
+          "arrival_mid": "100",
+          "average_price": "0",
+          "benchmark_valid": true,
+          "deadline": "2026-10-29T13:47:14.240054Z",
+          "executed_cost_quote": "0",
+          "fees_base": "0",
+          "fees_quote": "0",
+          "filled": "0",
+          "id": "recovery-load-plan",
+          "policy": "liquidity-aware",
+          "remaining": "0.05",
+          "revision": 2,
+          "spec": {
+            "base_balance": "0",
+            "deadline_ns": 119991231828,
+            "limit_price": "102",
+            "max_child_quantity": "0.01",
+            "quantity": "0.05",
+            "quote_budget": "20",
+            "side": "buy",
+            "symbol": "BTC/USD"
+          },
+          "start": "2026-10-29T13:45:14.248822172Z",
+          "started": true,
+          "status": "active"
+        }
+      },
+      "original_report_sha256": "e11dc0647751b4fc21b519959202971c1f98688ea040a94b31c4594792bbb583",
+      "report_version": "paper-process-accepted-backlog-recovery-v1",
+      "sample_row_count_by_role": {
+        "bystander": 200,
+        "victim": 200
+      },
+      "source_cursors_and_process_flags": {
+        "all_pollers_drained": true,
+        "bystander_observed_sequence_after_load": 25,
+        "bystander_observed_sequence_at_crash": 5,
+        "graceful_known_final": {
+          "bystander": true,
+          "victim": true
+        },
+        "observed_debt_after_sigkill": 1,
+        "observed_sequence_after_sigkill": 6,
+        "original_start_retry_duplicate": true,
+        "ownership_epoch_after_sigkill": 1,
+        "processed_sequence_after_sigkill": 5,
+        "processes_reaped": {
+          "bystander": true,
+          "victim_resumed": true,
+          "victim_sigkill": true
+        }
+      },
+      "source_issues": [],
+      "source_report_name": "trial-03.json",
+      "source_status": "complete",
+      "source_valid": true,
+      "timing_interpretation": "event fields are copied from the report; cold-launch and kill-to-ready are first-ready observations with poll/request time and are upper bounds, not SLOs",
+      "workload": {
+        "accepted_backlog_fixture": "harness-authored simulated transport outcome; not emitted by the 2 Hz synthetic source",
+        "account_schema_retention": "fresh randomized development schema retained; never reset or dropped",
+        "accounts": 2,
+        "audit_sql_connections_at_once_max": 1,
+        "audit_store_pool_max": 2,
+        "backlog_fill_count": 128,
+        "configured_daemon_pool_total": 32,
+        "configured_max_connections_including_observers": 35,
+        "daemon_pool_max_per_process": 16,
+        "fixture_setup_outside_schedule": true,
+        "processes": 2,
+        "read_rate_per_account_hz": 20,
+        "read_slots_per_account": 4,
+        "read_timeout_ns": 750000000,
+        "response_limit_bytes": 1048576,
+        "route_cycle": [
+          "state",
+          "state",
+          "sessions",
+          "state",
+          "report"
+        ],
+        "schedule_duration_ns": 10000000000,
+        "source": "ordinary daemon fixed 2 Hz synthetic trades and initial snapshot per process"
+      }
+    }
+  ]
+}

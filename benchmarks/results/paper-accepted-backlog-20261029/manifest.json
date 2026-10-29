@@ -1,0 +1,34 @@
+{
+  "compression": "gzip level 9, mtime 0, empty member filename",
+  "report_version": "paper-process-accepted-backlog-recovery-v1",
+  "reports": [
+    {
+      "decompresses_to_exact_original_bytes": true,
+      "file": "trial-01.json.gz",
+      "gzip_bytes": 21445,
+      "gzip_sha256": "0fb900a83b8c077560e405f418361667dbaadd4a3f0fd513e31581ba2bd461ed",
+      "label": "trial-01",
+      "original_bytes": 305338,
+      "original_sha256": "57ead0fe68f427750ada5d350a9c52135dfb9d8e29beb69f89a63dc6e99059c8"
+    },
+    {
+      "decompresses_to_exact_original_bytes": true,
+      "file": "trial-02.json.gz",
+      "gzip_bytes": 21486,
+      "gzip_sha256": "290d81ea4cfeda9d0f1509f8c9f61bc52a8d63ca6cd9630dd5e22f47d4f349f2",
+      "label": "trial-02",
+      "original_bytes": 305330,
+      "original_sha256": "692ad1f1f78313373247cfa2961bf7e8285bbf48b16edcde3c5fb9319fd45deb"
+    },
+    {
+      "decompresses_to_exact_original_bytes": true,
+      "file": "trial-03.json.gz",
+      "gzip_bytes": 21447,
+      "gzip_sha256": "93845f06ea74cec0bc25b7338c1b4d959dad429b505f81986cb59f44070767db",
+      "label": "trial-03",
+      "original_bytes": 305330,
+      "original_sha256": "e11dc0647751b4fc21b519959202971c1f98688ea040a94b31c4594792bbb583"
+    }
+  ],
+  "schema": "paper-process-accepted-backlog-recovery-bundle-v1"
+}

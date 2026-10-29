@@ -1,0 +1,70 @@
+{
+  "source": "883704c02d925d7585440e67e845751e39e38850",
+  "after_source": "883704c02d925d7585440e67e845751e39e38850",
+  "after_dirty": false,
+  "trials": [
+    {
+      "trial": 1,
+      "exit_code": 0,
+      "status": "complete",
+      "valid": true,
+      "issues": [],
+      "crash_prefix": 2,
+      "executions": 2,
+      "events": {
+        "sigkill_issued_ns": 425496254,
+        "sigkill_reaped_ns": 426910602,
+        "cold_launch_started_ns": 694756778,
+        "listener_observed_ns": 1618318102,
+        "first_ready_paused_observed_ns": 1632965097,
+        "paused_proof_finished_ns": 2791369221,
+        "read_schedules_and_calls_drained_ns": 10000722861,
+        "graceful_processes_reaped_ns": 10038612194,
+        "kill_to_first_ready_paused_ns": 1207468843,
+        "cold_launch_to_first_ready_paused_ns": 938208319
+      }
+    },
+    {
+      "trial": 2,
+      "exit_code": 0,
+      "status": "complete",
+      "valid": true,
+      "issues": [],
+      "crash_prefix": 1,
+      "executions": 1,
+      "events": {
+        "sigkill_issued_ns": 429483154,
+        "sigkill_reaped_ns": 431329511,
+        "cold_launch_started_ns": 701058930,
+        "listener_observed_ns": 1626182648,
+        "first_ready_paused_observed_ns": 1670290363,
+        "paused_proof_finished_ns": 2834153274,
+        "read_schedules_and_calls_drained_ns": 10000260001,
+        "graceful_processes_reaped_ns": 10039734000,
+        "kill_to_first_ready_paused_ns": 1240807209,
+        "cold_launch_to_first_ready_paused_ns": 969231433
+      }
+    },
+    {
+      "trial": 3,
+      "exit_code": 0,
+      "status": "complete",
+      "valid": true,
+      "issues": [],
+      "crash_prefix": 2,
+      "executions": 2,
+      "events": {
+        "sigkill_issued_ns": 424802595,
+        "sigkill_reaped_ns": 426402732,
+        "cold_launch_started_ns": 699838747,
+        "listener_observed_ns": 1624773741,
+        "first_ready_paused_observed_ns": 1667907021,
+        "paused_proof_finished_ns": 2819412881,
+        "read_schedules_and_calls_drained_ns": 10000415307,
+        "graceful_processes_reaped_ns": 10038729164,
+        "kill_to_first_ready_paused_ns": 1243104426,
+        "cold_launch_to_first_ready_paused_ns": 968068274
+      }
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "schema": "liquiditylab.local-recovery-artifacts.v1",
+  "artifacts": [
+    {
+      "file": "README.md",
+      "bytes": 7279,
+      "sha256": "b70958aa53e163e6aff75520d247f2018507d02af0cfb34225105c979bcd7d88"
+    },
+    {
+      "file": "manifest.json",
+      "bytes": 1316,
+      "sha256": "273da9fd8138f0a9e68cbdeaa15cc171bdcfbcb19404e06b3a69ed88fd9fef4d"
+    },
+    {
+      "file": "summary.json",
+      "bytes": 33539,
+      "sha256": "972220d525694c20c40a61173a7767e7934e9a9ff1715ecd387028301f89eba8"
+    },
+    {
+      "file": "independent-audit.json",
+      "bytes": 4543,
+      "sha256": "b6443acd06961582598381f2e138bf6652f7ae0414b4a0bf2b4b06729ad98631"
+    },
+    {
+      "file": "cohort.json",
+      "bytes": 2236,
+      "sha256": "8aceca908575ce015ff2649f6978e0115c92bcce29b8741e0458ec633cc5c28e"
+    },
+    {
+      "file": "environment.json",
+      "bytes": 700,
+      "sha256": "e2092fca1e953e9bbd89d45c9b17f5fe1742fa17f742754cb0580f1be6017ac7"
+    },
+    {
+      "file": "full-go-summary.json",
+      "bytes": 4255,
+      "sha256": "150c44ef8af4029628285a7c48070c903c8ce8efb4ea66aa85c03540faafe75e"
+    },
+    {
+      "file": "full-go.jsonl.gz",
+      "bytes": 72218,
+      "sha256": "f8b3ad184e3fba34686243fca8751496613d9456a82a9822945e7346d630a25d"
+    }
+  ],
+  "conformance": {
+    "path": "../../../conformance/results/20261029-contracts-883704c.json",
+    "bytes": 1673,
+    "sha256": "e37b948a7d10c5b177058cbc2c398dc04d9b943e506c9e195ed9ef84fbfe4e2b"
+  }
+}
