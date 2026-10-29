@@ -305,13 +305,23 @@ func TestPaperTradeIgnoredAndQueueOnlyObservationsDeduplicate(t *testing.T) {
 	if err != nil || !reflect.DeepEqual(retry, ignored) {
 		t.Fatalf("previously ignored trade rematched: %+v %v", retry, err)
 	}
+	// A new identity cannot freeze an outcome against unreduced predecessor
+	// state. Transport-only fixtures consume that ignored predecessor explicitly.
+	account, err := store.GetAccount(context.Background(), key)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = store.Apply(context.Background(), pg.Change{Key: key, Ownership: owner, Command: pg.Command{ID: "consume-ignored-trade", Kind: "reduce", ExpectedRevision: account.Revision}, Snapshot: account.Snapshot, ConsumeObservationThrough: account.ObservedSequence})
+	if err != nil {
+		t.Fatal(err)
+	}
 	trade.ReceiptIndex++
 	queued, err := transport.ObserveTrade(context.Background(), "session-1", trade, child, paperTestFees())
 	if err != nil || queued.IntentID != child.ID || !queued.QueueAhead.Equal(d.MustDecimal("0.3")) || len(queued.Fills) != 0 {
 		t.Fatalf("queue-only source trade result=%+v err=%v", queued, err)
 	}
 	pending, err := store.PendingObservations(context.Background(), key, 10)
-	if err != nil || len(pending) != 2 {
+	if err != nil || len(pending) != 1 {
 		t.Fatalf("duplicate trade added observations: %+v %v", pending, err)
 	}
 }

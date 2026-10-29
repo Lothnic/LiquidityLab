@@ -187,10 +187,11 @@ func TestRecoveryConsumesTransportAfterFullFillCheckpoint(t *testing.T) {
 		t.Fatalf("full fill checkpoint has wrong projection: %+v", before.Balances)
 	}
 
-	recovered := recoveryTestNew(t, store, key, "paper-process-recovery-cursor")
-	if recovered.state.Child == nil || !recovered.state.Child.Order.Remaining.IsZero() {
-		t.Fatalf("restart did not retain the zero-remaining child needed for cursor recovery: %#v", recovered.state.Child)
+	checkpointState, err := DecodeSnapshot(before.Snapshot)
+	if err != nil || checkpointState.Child == nil || !checkpointState.Child.Order.Remaining.IsZero() {
+		t.Fatalf("durable checkpoint lost zero-remaining child before cursor: state=%+v err=%v", checkpointState, err)
 	}
+	recovered := recoveryTestNew(t, store, key, "paper-process-recovery-cursor")
 	if err := recoveryTestDrain(t, recovered); err != nil {
 		t.Fatalf("consume pending full-fill transport: %v", err)
 	}

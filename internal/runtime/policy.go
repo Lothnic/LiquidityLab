@@ -111,6 +111,9 @@ func (a *Actor) policyBinding(p *PolicyDecision) *pb.DecisionBinding {
 	return &pb.DecisionBinding{RequestId: p.RequestID, TenantId: a.config.Key.TenantID, AccountId: a.config.Key.AccountID, SessionId: p.ParentID, SessionRevision: p.ParentRevision, AccountRevision: p.AuthorityRevision, PolicySha256: p.Bundle.PolicySHA256, ObservationVersion: p.Bundle.ObservationVersion, ObservationSchemaSha256: p.Bundle.ObservationSchemaSHA256, MarketSnapshotId: p.MarketSnapshotID, ExpiresAtUnixNs: p.ExpiresAt.UnixNano()}
 }
 func (a *Actor) startPolicy(ctx context.Context) error {
+	if a.pending != nil || a.account.ObservedSequence != a.account.ProcessedSequence {
+		return ErrRecoveryRequired
+	}
 	if a.state.PolicyPending != nil {
 		return nil
 	}
@@ -148,7 +151,7 @@ func (a *Actor) startPolicy(ctx context.Context) error {
 		return err
 	}
 	next.PolicyPending = pending
-	if _, err = a.persistRevision(ctx, next, pg.Command{ID: pending.RequestID, Kind: "policy_request", ExpectedRevision: a.account.Revision}, pg.Change{}, true); err != nil {
+	if _, err = a.persistRevision(ctx, next, pg.Command{ID: pending.RequestID, Kind: "policy_request", ExpectedRevision: a.account.Revision}, pg.Change{RequireCaughtUp: true}, true); err != nil {
 		return err
 	}
 	a.policyStartedAt = started
@@ -193,6 +196,9 @@ func (a *Actor) receivePolicy(result policyResult) {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
+	if err := a.refreshOwned(ctx); err != nil {
+		return
+	}
 	pending := a.state.PolicyPending
 	if pending == nil || result.audit.RequestID != pending.RequestID {
 		next, err := cloneState(a.state)
@@ -220,7 +226,8 @@ func (a *Actor) receivePolicy(result policyResult) {
 	// Facts precede eligibility, including observations durably accepted while the
 	// RPC was running but not yet consumed by the ordinary actor mailbox. Late
 	// outcomes above grant no authority and remain auditable during recovery.
-	if err := a.drainFacts(ctx); err != nil {
+	if a.account.ObservedSequence != a.account.ProcessedSequence {
+		_ = a.resolvePolicy(ctx, "fallback", "source_facts_pending", nil)
 		return
 	}
 	if result.err != nil {
@@ -280,7 +287,7 @@ func (a *Actor) resolvePolicy(ctx context.Context, result, reason string, propos
 	}
 	p := a.state.Parent
 	active := p != nil && p.ID == audit.ParentID && p.Status == "active" && a.now().Before(p.Deadline)
-	ready := active && a.account.Ready && a.state.Book.Valid && !a.state.RecoveryRequired && !a.overflow.Load()
+	ready := active && a.pending == nil && a.account.ObservedSequence == a.account.ProcessedSequence && a.account.Ready && a.state.Book.Valid && !a.state.RecoveryRequired && !a.overflow.Load()
 	baseline := result == "shadow_baseline" || result == "fallback" && audit.Bundle.Fallback == "baseline"
 	if ready && (result == "policy_action" || baseline) {
 		if baseline {
@@ -292,6 +299,11 @@ func (a *Actor) resolvePolicy(ctx context.Context, result, reason string, propos
 		_, err := a.command(ctx, Command{ID: audit.RequestID + "-resolve", Kind: "decision", Action: audit.Action, ExpectedRevision: a.account.Revision, policy: &policyResolution{audit: audit, baseline: baseline}})
 		if err == nil {
 			return nil
+		}
+		if a.needsReload {
+			if reloadErr := a.refreshOwned(ctx); reloadErr != nil {
+				return reloadErr
+			}
 		}
 		// Compilation/persistence errors cannot authorize a second action. If the
 		// slot was durably consumed, its original outcome already owns the decision.
@@ -347,8 +359,9 @@ func (a *Actor) handlePolicyExpiry() {
 	a.policyExpiry = nil
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
-	_ = a.drainFacts(ctx)
-	_ = a.expirePolicy(ctx)
+	if a.refreshOwned(ctx) == nil {
+		_ = a.expirePolicy(ctx)
+	}
 	if a.state.PolicyPending != nil {
 		a.resetPolicyTimer(a.now().Add(100 * time.Millisecond))
 	}

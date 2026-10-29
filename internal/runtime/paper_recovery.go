@@ -38,6 +38,7 @@ func (a *Actor) recoverPaper(ctx context.Context) error {
 		if err := a.cancelChild(ctx); err != nil {
 			return err
 		}
+		return errFactsPending
 	}
 	account, err = a.config.Store.GetAccount(ctx, a.config.Key)
 	if err != nil {

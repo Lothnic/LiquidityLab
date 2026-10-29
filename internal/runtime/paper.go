@@ -82,31 +82,47 @@ func (p *paperTransport) storedTrade(ctx context.Context, id, digest string) (pa
 // deduplication. This per-trade database cost has not been capacity benchmarked.
 // No in-memory child, book, balance, or reservation is changed here.
 func (p *paperTransport) ObserveTrade(ctx context.Context, sourceID string, event d.MarketEvent, child *Child, fees d.FeeConfig) (paperTradeFact, error) {
+	if p == nil || p.store == nil {
+		return paperTradeFact{}, ErrInvalid
+	}
+	account, err := p.store.GetAccount(ctx, p.key)
+	if err != nil {
+		return paperTradeFact{}, err
+	}
+	fact, _, err := p.observeTradeAt(ctx, sourceID, event, child, fees, account.Revision)
+	return fact, err
+}
+
+func (p *paperTransport) observeTradeAt(ctx context.Context, sourceID string, event d.MarketEvent, child *Child, fees d.FeeConfig, revision int64) (paperTradeFact, int64, error) {
 	if p == nil || p.store == nil || sourceID == "" || len(sourceID) > 128 ||
 		event.Kind != "trade" || event.Invalid || event.Time < 0 ||
 		(event.Side != "buy" && event.Side != "sell") || event.Price.Sign() <= 0 || event.Quantity.Sign() <= 0 ||
 		len(event.Symbol) > 128 || len(event.TradeID) > 128 || len(event.Bids)+len(event.Asks) != 0 {
-		return paperTradeFact{}, ErrInvalid
+		return paperTradeFact{}, 0, ErrInvalid
 	}
 	id, digest := paperTradeIdentity(sourceID, event)
 	prior, found, err := p.storedTrade(ctx, id, digest)
 	if err != nil || found {
-		return prior, err
+		if err != nil {
+			return prior, 0, err
+		}
+		observation, readErr := p.store.GetObservation(ctx, p.key, id)
+		return prior, observation.Sequence, readErr
 	}
 	fact := paperTradeFact{ID: id, InputDigest: digest, SourceID: sourceID, Event: event, QueueAhead: d.Zero, Fills: []d.Fill{}}
 	if child != nil && child.Order.Intent.Passive {
 		if child.ID == "" || child.ID != child.Order.OrderID || child.Order.Remaining.Sign() < 0 || child.Order.QueueAhead.Sign() < 0 {
-			return paperTradeFact{}, ErrInvalid
+			return paperTradeFact{}, 0, ErrInvalid
 		}
 		match := x.MatchPassiveTrade(child.Order, event)
 		fact.IntentID, fact.QueueAhead = child.ID, match.QueueAhead
 		if match.Quantity.Sign() > 0 {
 			if err := fees.Validate(); err != nil {
-				return paperTradeFact{}, ErrInvalid
+				return paperTradeFact{}, 0, ErrInvalid
 			}
 			fee, err := x.FeeFor(match.Quantity, child.Order.Intent.Price, fees.Maker, fees.Currency)
 			if err != nil {
-				return paperTradeFact{}, err
+				return paperTradeFact{}, 0, err
 			}
 			fact.Fills = append(fact.Fills, d.Fill{
 				ExecutionID: id + "-fill", OrderID: child.ID, Side: child.Order.Intent.Side,
@@ -115,23 +131,28 @@ func (p *paperTransport) ObserveTrade(ctx context.Context, sourceID string, even
 			})
 		}
 	}
-	if _, err := p.store.RecordPaperObservation(ctx, p.key, p.owner, pg.Observation{ID: id, Kind: paperTradeKind, Payload: jsonBytes(fact)}); err != nil {
+	sequence, err := p.store.RecordPaperTradeObservation(ctx, p.key, p.owner, pg.Observation{ID: id, Kind: paperTradeKind, Payload: jsonBytes(fact)}, revision)
+	if err != nil {
+		if errors.Is(err, pg.ErrNotReady) || errors.Is(err, pg.ErrStaleRevision) {
+			return paperTradeFact{}, 0, err
+		}
 		if errors.Is(err, pg.ErrOwnership) {
-			return paperTradeFact{}, err
+			return paperTradeFact{}, 0, err
 		}
 		// A concurrent or uncertain first write may have committed a result based
 		// on earlier child state. Its durable result wins over any recomputation.
 		if prior, found, readErr := p.storedTrade(ctx, id, digest); readErr == nil && found {
-			return prior, nil
+			observation, readErr := p.store.GetObservation(ctx, p.key, id)
+			return prior, observation.Sequence, readErr
 		} else if errors.Is(readErr, pg.ErrConflict) {
-			return paperTradeFact{}, readErr
+			return paperTradeFact{}, 0, readErr
 		}
-		return paperTradeFact{}, fmt.Errorf("%w: paper trade observation persistence: %w", ErrOutcomeUnknown, err)
+		return paperTradeFact{}, 0, fmt.Errorf("%w: paper trade observation persistence: %w", ErrOutcomeUnknown, err)
 	}
 	if fact.IntentID != "" {
 		faultpoint.Hit("trade_fact_committed")
 	}
-	return fact, nil
+	return fact, sequence, nil
 }
 
 // paperTransport persists each simulated venue result as one durable inbox

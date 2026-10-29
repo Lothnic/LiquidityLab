@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"testing"
+	"time"
 
 	d "github.com/liquiditylab/liquiditylab/internal/domain"
 	pg "github.com/liquiditylab/liquiditylab/internal/store/postgres"
@@ -62,38 +63,34 @@ func TestActorResolvedOldParentFactDoesNotForceAbortOfNewParent(t *testing.T) {
 	if err != nil {
 		t.Fatalf("reconcile and explicitly abort old parent: %v", err)
 	}
-	oldResolved := actorTestView(t, actor)
+	oldResolved := actorTestWaitView(t, actor, 2*time.Second, func(v View) bool {
+		return v.State.Parent != nil && v.State.Parent.Status == "cancelled" && v.Account.ObservedSequence == v.Account.ProcessedSequence
+	})
 	if oldResolved.State.Parent == nil || oldResolved.State.Parent.ID != oldParentID || oldResolved.State.Parent.Status != "cancelled" || oldResolved.State.Child != nil {
 		t.Fatalf("old parent/child did not reach known final canceled state: parent=%+v child=%+v", oldResolved.State.Parent, oldResolved.State.Child)
 	}
 	if len(oldResolved.State.UnresolvedFacts) != 1 || !oldResolved.State.UnresolvedFacts[0].Resolved || oldResolved.State.UnresolvedFacts[0].ParentID != oldParentID {
 		t.Fatalf("resolved old-parent fact lost its audit scope: %+v", oldResolved.State.UnresolvedFacts)
 	}
-	if oldResolved.Account.ProcessedSequence >= oldResolved.Account.ObservedSequence {
-		t.Fatalf("reconciliation unexpectedly consumed source fact before the next control: observed=%d processed=%d", oldResolved.Account.ObservedSequence, oldResolved.Account.ProcessedSequence)
-	}
-
-	// This control first drains the now-resolved inbox fact. Its captured account
-	// revision is consequently stale; the caller retries the same uncommitted
-	// command identity with the refreshed revision.
+	// The coalesced continuation may already have consumed the resolved source.
+	// A create still cannot cross debt; a stale receipt revision is retried.
 	newPlan := actorTestPlan()
 	create := Command{ID: "create-after-old-fact", ExpectedRevision: oldResolved.Account.Revision, Kind: "create", PlanID: "plan-new-after-old-fact", Plan: newPlan}
 	ctx, cancel = actorTestContext(t)
 	_, err = actor.Do(ctx, create)
 	cancel()
-	if !errors.Is(err, pg.ErrStaleRevision) {
-		t.Fatalf("first control after resolving fact should drain then report stale revision, got %v", err)
+	if errors.Is(err, pg.ErrStaleRevision) {
+		consumed := actorTestView(t, actor)
+		if consumed.Account.ProcessedSequence != consumed.Account.ObservedSequence {
+			t.Fatal("resolved source debt not consumed")
+		}
+		create.ExpectedRevision = consumed.Account.Revision
+		ctx, cancel = actorTestContext(t)
+		_, err = actor.Do(ctx, create)
+		cancel()
 	}
-	consumed := actorTestView(t, actor)
-	if consumed.Account.ProcessedSequence != consumed.Account.ObservedSequence {
-		t.Fatalf("next control did not consume resolved source fact: observed=%d processed=%d", consumed.Account.ObservedSequence, consumed.Account.ProcessedSequence)
-	}
-	create.ExpectedRevision = consumed.Account.Revision
-	ctx, cancel = actorTestContext(t)
-	_, err = actor.Do(ctx, create)
-	cancel()
 	if err != nil {
-		t.Fatalf("retry create with refreshed revision: %v", err)
+		t.Fatalf("create after resolved source drain: %v", err)
 	}
 	actorTestDo(t, actor, Command{ID: "start-new-after-old-fact", Kind: "start"})
 	newParent := actorTestView(t, actor)

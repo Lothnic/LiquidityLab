@@ -54,8 +54,8 @@ func TestActorCancelControlPersistsThroughQuarantinedInbox(t *testing.T) {
 		Kind: "cancel",
 	})
 	cancel()
-	if !errors.Is(cancelErr, ErrRecoveryRequired) || cancelResult.Revision == 0 {
-		t.Fatalf("cancel should commit before blocked ack reduction and report recovery: result=%+v err=%v", cancelResult, cancelErr)
+	if cancelErr != nil || cancelResult.Revision == 0 {
+		t.Fatalf("cancel should acknowledge its durable local state despite blocked reduction: result=%+v err=%v", cancelResult, cancelErr)
 	}
 	view := actorTestView(t, actor)
 	if view.State.Parent == nil || view.State.Parent.Status != "cancel_requested" || view.State.Child == nil ||

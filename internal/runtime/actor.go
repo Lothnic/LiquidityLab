@@ -28,23 +28,33 @@ type Actor struct {
 	policyTimer       *time.Timer
 	policyExpiry      <-chan time.Time
 
-	config               Config
-	state                State
-	account              pg.Account
-	owner                pg.Ownership
-	transport            Transport
-	control, work, facts chan request
-	stop, done           chan struct{}
-	admission            sync.Mutex
-	next                 uint64
-	closing              bool
-	once                 sync.Once
-	overflow             atomic.Bool
-	now                  func() time.Time
-	lastClock            time.Time
-	elapsedPlan          string
-	elapsedAt            time.Time
-	elapsedBase          int64
+	factWake         chan struct{}
+	factCursor       *factCursor
+	factClock        func() time.Time
+	factBlocked      bool
+	needsReload      bool
+	pending          *actorOperation
+	currentOperation *actorOperation
+	cancelRecorded   string
+	cancelRetryAt    time.Time
+
+	config                      Config
+	state                       State
+	account                     pg.Account
+	owner                       pg.Ownership
+	transport                   Transport
+	control, work, facts, views chan request
+	stop, done                  chan struct{}
+	admission                   sync.Mutex
+	next                        uint64
+	closing                     bool
+	once                        sync.Once
+	overflow                    atomic.Bool
+	now                         func() time.Time
+	lastClock                   time.Time
+	elapsedPlan                 string
+	elapsedAt                   time.Time
+	elapsedBase                 int64
 }
 
 func randomID(prefix string) string {
@@ -92,10 +102,19 @@ func bootstrapState(c Config, account pg.Account, bundle *PolicyBundle) (State, 
 }
 
 func New(ctx context.Context, c Config) (*Actor, error) {
+	if c.ViewCapacity == 0 {
+		c.ViewCapacity = c.MailboxCapacity
+	}
+	if c.FactQuantumSteps == 0 {
+		c.FactQuantumSteps = 4
+	}
+	if c.FactQuantumTime == 0 {
+		c.FactQuantumTime = 5 * time.Millisecond
+	}
 	if c.Profile != ProfilePaper {
 		return nil, ErrProfile
 	}
-	if c.Store == nil || c.Lease <= 0 || c.Lease > 5*time.Minute || c.MailboxCapacity <= 0 || c.MailboxCapacity > 4096 || c.ControlCapacity <= 0 || c.ControlCapacity > 256 || c.FactCapacity <= 0 || c.FactCapacity > 4096 || c.MaxFills <= 0 || c.MaxFills > 4096 || c.MaxFacts <= 0 || c.MaxFacts > 1024 || c.BaseCurrency == "" || c.QuoteCurrency == "" || c.BaseCurrency == c.QuoteCurrency || c.InstrumentRevision == "" {
+	if c.Store == nil || c.Lease <= 0 || c.Lease > 5*time.Minute || c.MailboxCapacity <= 0 || c.MailboxCapacity > 4096 || c.ViewCapacity < 1 || c.ViewCapacity > 4096 || c.ControlCapacity <= 0 || c.ControlCapacity > 256 || c.FactCapacity <= 0 || c.FactCapacity > 4096 || c.MaxFills <= 0 || c.MaxFills > 4096 || c.MaxFacts <= 0 || c.MaxFacts > 1024 || c.FactQuantumSteps < 0 || c.FactQuantumSteps > 512 || c.FactQuantumTime < 0 || c.FactQuantumTime > time.Second || c.BaseCurrency == "" || c.QuoteCurrency == "" || c.BaseCurrency == c.QuoteCurrency || c.InstrumentRevision == "" {
 		return nil, ErrInvalid
 	}
 	for _, err := range []error{c.Rules.Validate(), c.Fees.Validate(), c.Execution.Validate()} {
@@ -200,7 +219,7 @@ func New(ctx context.Context, c Config) (*Actor, error) {
 			state.RecoveryRequired = true
 		}
 	}
-	actor := &Actor{config: c, state: state, account: a, owner: owner, transport: newPaperTransport(c.Store, c.Key, owner), control: make(chan request, c.ControlCapacity), work: make(chan request, c.MailboxCapacity), facts: make(chan request, c.FactCapacity), stop: make(chan struct{}), done: make(chan struct{}), now: time.Now, policyResults: make(chan policyResult, 1)}
+	actor := &Actor{config: c, state: state, account: a, owner: owner, transport: newPaperTransport(c.Store, c.Key, owner), views: make(chan request, c.ViewCapacity), control: make(chan request, c.ControlCapacity), work: make(chan request, c.MailboxCapacity), facts: make(chan request, c.FactCapacity), stop: make(chan struct{}), done: make(chan struct{}), now: time.Now, policyResults: make(chan policyResult, 1), factWake: make(chan struct{}, 1)}
 	ready := false
 	state.LastInputID = "boot-" + c.OwnerID
 	state.LastInputDigest = "bootstrap"
@@ -214,6 +233,7 @@ func New(ctx context.Context, c Config) (*Actor, error) {
 	if err != nil {
 		return nil, err
 	}
+	actor.wakeFacts()
 	go actor.loop()
 	return actor, nil
 }
@@ -244,6 +264,9 @@ func (a *Actor) submit(ctx context.Context, kind string, input any, priority boo
 	if kind == "facts" {
 		queue = a.facts
 	}
+	if kind == "view" {
+		queue = a.views
+	}
 	if a.config.Telemetry != nil {
 		req.enqueuedAt = time.Now()
 		// Increment before publication: the consumer may run before this sender.
@@ -252,7 +275,7 @@ func (a *Actor) submit(ctx context.Context, kind string, input any, priority boo
 	select {
 	case queue <- req:
 		a.config.Telemetry.Add(telemetry.ActorAdmitted, 1)
-		a.config.Telemetry.Observe(telemetry.ActorQueueDepth, uint64(len(a.control)+len(a.work)+len(a.facts)))
+		a.config.Telemetry.Observe(telemetry.ActorQueueDepth, uint64(len(a.control)+len(a.work)+len(a.facts)+len(a.views)))
 		a.admission.Unlock()
 	default:
 		a.admission.Unlock()
@@ -299,10 +322,15 @@ func (a *Actor) ObserveFill(ctx context.Context, eventID, intentID string, fill 
 		return ErrInvalid
 	}
 	payload := jsonBytes(Fact{ID: eventID, IntentID: intentID, Fill: fill})
-	if _, err := a.config.Store.RecordObservation(ctx, a.config.Key, pg.Observation{ID: eventID, Kind: "fill", Payload: payload}); err != nil {
+	sequence, err := a.config.Store.RecordObservation(ctx, a.config.Key, pg.Observation{ID: eventID, Kind: "fill", Payload: payload})
+	if err != nil {
 		return err
 	}
-	_, err := a.submit(ctx, "facts", nil, true)
+	a.wakeFacts()
+	_, err = a.submit(ctx, "facts", sequence, true)
+	if errors.Is(err, ErrMailboxFull) || errors.Is(err, ErrClosed) {
+		return fmt.Errorf("%w: fact durable; reducer notification queue full", ErrOutcomeUnknown)
+	}
 	return err
 }
 func (a *Actor) Reconcile(ctx context.Context, r Reconciliation) (pg.Result, error) {
@@ -317,7 +345,7 @@ func (a *Actor) Reconcile(ctx context.Context, r Reconciliation) (pg.Result, err
 // It never supplies new balances or claims isolation of an exchange sender.
 // A fresh valid snapshot is required before readiness can be restored.
 func (a *Actor) RecoverPaper(ctx context.Context) error {
-	_, err := a.submit(ctx, "recover_paper", nil, true)
+	_, err := a.submit(ctx, "recover_paper", nil, false)
 	return err
 }
 
@@ -347,184 +375,29 @@ func (a *Actor) Close(ctx context.Context) error {
 	}
 }
 
-func (a *Actor) loop() {
-	defer close(a.done)
-	defer func() {
-		if a.policyCancel != nil {
-			a.policyCancel()
-		}
-	}()
-	interval := min(a.config.Lease/3, time.Second)
-	if a.config.AutoExecute {
-		interval = min(interval, time.Duration(a.config.Execution.DecisionInterval))
-	}
-	if interval < time.Millisecond {
-		interval = time.Millisecond
-	}
-	if a.config.Policy != nil {
-		a.policyTimer = time.NewTimer(time.Hour)
-		a.policyTimer.Stop()
-		defer a.policyTimer.Stop()
-	}
-	ticker := time.NewTicker(interval)
-	defer ticker.Stop()
-	for {
-		// Maintenance and control must remain runnable under sustained fact ingress.
-		// Each control handler still reduces previously accepted durable facts before
-		// changing the parent; ordinary proposals remain revision checked.
-		select {
-		case <-ticker.C:
-			a.maintenance()
-			continue
-		default:
-		}
-		select {
-		case r := <-a.control:
-			a.handle(r)
-			continue
-		default:
-		}
-		select {
-		case <-a.policyExpiry:
-			a.handlePolicyExpiry()
-			continue
-		default:
-		}
-		select {
-		case <-a.policyExpiry:
-			a.handlePolicyExpiry()
-		case result := <-a.policyResults:
-			a.receivePolicy(result)
-		case r := <-a.facts:
-			a.handle(r)
-		case r := <-a.control:
-			a.handle(r)
-		case r := <-a.work:
-			a.handle(r)
-		case <-ticker.C:
-			a.maintenance()
-		case <-a.stop:
-			for {
-				select {
-				case r := <-a.facts:
-					a.handle(r)
-				case r := <-a.control:
-					a.handle(r)
-				case r := <-a.work:
-					a.handle(r)
-				default:
-					return
-				}
-			}
-		}
-	}
-}
-func (a *Actor) handle(req request) {
-	result := response{}
-	started := a.metricStart()
-	if !req.enqueuedAt.IsZero() {
-		a.config.Telemetry.Adjust(telemetry.ActorQueued, -1)
-		a.observeElapsed(telemetry.ActorQueueWaitNS, req.enqueuedAt)
-	}
-	a.config.Telemetry.Adjust(telemetry.ActorHandling, 1)
-	defer func() {
-		if panicValue := recover(); panicValue != nil {
-			a.state.RecoveryRequired = true
-			a.state.Reason = "runtime_arithmetic_failure"
-			a.account.Ready = false
-			result.err = fmt.Errorf("%w: runtime panic contained", ErrRecoveryRequired)
-		}
-		a.observeElapsed(telemetry.ActorHandleNS, started)
-		a.config.Telemetry.Adjust(telemetry.ActorHandling, -1)
-		if result.err == nil {
-			a.config.Telemetry.Add(telemetry.ActorCompleted, 1)
-		} else {
-			a.config.Telemetry.Add(telemetry.ActorFailed, 1)
-		}
-		if req.kind == "market" {
-			a.config.Telemetry.Add(telemetry.MarketEvents, 1)
-			a.observeElapsed(telemetry.PublicMarketApplyNS, started)
-			if result.err != nil {
-				a.config.Telemetry.Add(telemetry.MarketErrors, 1)
-			}
-		}
-		req.reply <- result
-	}()
-	// Once admitted, bounded persistence uses an internal deadline and survives a
-	// caller disappearing. An identical command ID discovers its committed result.
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	control := false
-	if req.kind == "command" {
-		kind := req.input.(Command).Kind
-		control = kind == "pause" || kind == "cancel" || kind == "deadline"
-	}
-	if err := a.checkClock(ctx); err != nil && req.kind != "view" && req.kind != "market" && req.kind != "reconcile" && !control {
-		result.err = err
-		return
-	}
-	if req.kind != "view" && req.kind != "market" {
-		if err := a.drainFacts(ctx); err != nil && req.kind != "reconcile" && !control {
-			result.err = err
-			return
-		}
-	}
-	switch req.kind {
-	case "command":
-		result.result, result.err = a.command(ctx, req.input.(Command))
-	case "market":
-		result.err = a.market(ctx, req.input.(marketInput))
-	case "facts":
-		result.err = a.drainFacts(ctx)
-	case "reconcile":
-		result.result, result.err = a.reconcile(ctx, req.input.(Reconciliation))
-	case "recover_paper":
-		result.err = a.recoverPaper(ctx)
-	case "view":
-		state, err := cloneState(a.state)
-		if err != nil {
-			result.err = err
-			return
-		}
-		current, err := a.config.Store.GetAccount(ctx, a.config.Key)
-		if err != nil {
-			result.err = err
-			return
-		}
-		if current.Ownership != a.owner {
-			result.err = pg.ErrOwnership
-			return
-		}
-		if !current.LeaseUntil.After(a.now()) || current.ObservedSequence != current.ProcessedSequence {
-			current.Ready = false
-		}
-		// Repository reads are fresh owned values; clone the raw snapshot as well
-		// so no mutable backing slice escapes the account's serialization.
-		var account pg.Account
-		if err := decodeInternal(jsonBytes(current), &account); err != nil {
-			result.err = err
-			return
-		}
-		result.view = View{Account: account, State: state}
-	default:
-		result.err = ErrInvalid
-	}
-}
 func (a *Actor) maintenance() {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
+	if err := a.refreshOwned(ctx); err != nil {
+		return
+	}
 	_ = a.checkClock(ctx)
+	if a.needsReload {
+		return
+	}
 	if err := a.config.Store.RenewOwnership(ctx, a.config.Key, a.owner, a.config.Lease); err != nil {
 		a.state.RecoveryRequired = true
 		a.state.Reason = "ownership_lease_lost"
 		a.account.Ready = false
 		return
 	}
-	if account, err := a.config.Store.GetAccount(ctx, a.config.Key); err == nil {
-		a.account = account
+	if err := a.refreshOwned(ctx); err != nil {
+		return
 	}
-	_ = a.drainFacts(ctx)
-	if p := a.state.Parent; p != nil && !a.now().Before(p.Deadline) && (p.Status == "active" || p.Status == "paused" || p.Status == "cancel_requested") {
+	if !a.factBlocked && a.account.ObservedSequence > a.account.ProcessedSequence {
+		a.wakeFacts()
+	}
+	if p := a.state.Parent; p != nil && !a.now().Before(p.Deadline) && (p.Status == "active" || p.Status == "paused") {
 		_, _ = a.command(ctx, Command{ID: fmt.Sprintf("deadline-%s-%d", p.ID, p.Revision), ExpectedRevision: a.account.Revision, Kind: "deadline"})
 	}
 	if a.config.AutoExecute {
@@ -535,8 +408,14 @@ func (a *Actor) maintenance() {
 // advance runs under account serialization. Cadence is derived from the last
 // actual decision rather than replaying missed intervals after downtime.
 func (a *Actor) advance(ctx context.Context) error {
+	// A parked request still owns the ordinary FIFO position. In particular,
+	// cadence must not create/dispatch between its predecessor cursor and the
+	// first durable acceptance of its own trade observation.
+	if a.pending != nil {
+		return nil
+	}
 	p := a.state.Parent
-	if p == nil || p.Status != "active" || !a.account.Ready || !a.state.Book.Valid || a.state.RecoveryRequired || a.overflow.Load() || !a.now().Before(p.Deadline) {
+	if p == nil || p.Status != "active" || a.account.ObservedSequence != a.account.ProcessedSequence || !a.account.Ready || !a.state.Book.Valid || a.state.RecoveryRequired || a.overflow.Load() || !a.now().Before(p.Deadline) {
 		return nil
 	}
 	if child := a.state.Child; child != nil && child.State == "queued" {
@@ -559,62 +438,87 @@ func (a *Actor) advance(ctx context.Context) error {
 	return nil
 }
 func (a *Actor) market(ctx context.Context, input marketInput) error {
-	if input.SnapshotID == "" || len(input.SnapshotID) > 128 || len(input.Event.Bids)+len(input.Event.Asks) > 512 {
-		return ErrInvalid
-	}
-	if input.Event.Symbol != "" && input.Event.Symbol != a.state.Rules.Symbol {
-		return ErrInvalid
-	}
-	if input.Event.Kind != "snapshot" && input.Event.Kind != "book" && input.Event.Kind != "trade" && input.Event.Kind != "gap" {
-		if err := a.invalidateMarket(ctx, "unsupported_market_event"); err != nil {
-			return err
+	op := a.currentOperation
+	if op == nil || !op.marketPrepared {
+		if input.SnapshotID == "" || len(input.SnapshotID) > 128 || len(input.Event.Bids)+len(input.Event.Asks) > 512 {
+			return ErrInvalid
 		}
-		return ErrInvalid
-	}
-	if err := a.state.Book.Apply(input.Event); err != nil {
-		a.state.Book.Valid = false
-		if persistErr := a.invalidateMarket(ctx, "invalid_market_event"); persistErr != nil {
-			return persistErr
+		if input.Event.Symbol != "" && input.Event.Symbol != a.state.Rules.Symbol {
+			return ErrInvalid
 		}
-		return fmt.Errorf("%w: %v", ErrInvalid, err)
-	}
-	a.state.MarketID = input.SnapshotID
-	if len(a.state.Book.Bids)+len(a.state.Book.Asks) > 2048 {
-		a.state.Book = x.NewBook()
-		if err := a.invalidateMarket(ctx, "book_capacity_exceeded"); err != nil {
-			return err
+		if input.Event.Kind != "snapshot" && input.Event.Kind != "book" && input.Event.Kind != "trade" && input.Event.Kind != "gap" {
+			if err := a.invalidateMarket(ctx, "unsupported_market_event"); err != nil {
+				return err
+			}
+			return ErrInvalid
 		}
-		return ErrHistoryLimit
-	}
-	if !a.state.Book.Valid {
-		return a.invalidateMarket(ctx, "market_invalid")
-	}
-	if input.Event.Kind == "trade" {
-		if err := a.drainFacts(ctx); err != nil {
-			return err
-		}
-		event := input.Event
-		event.Time = a.elapsed(a.state)
-		if event.Symbol == "" {
-			event.Symbol = a.state.Rules.Symbol
-		}
-		session := input.SessionID
-		if session == "" && event.TradeID != "" {
-			session = "venue-trade-id"
-		}
-		child := a.state.Child
-		if a.state.RecoveryRequired {
-			child = nil
-		}
-		if _, err := a.transport.(*paperTransport).ObserveTrade(ctx, session, event, child, a.state.Fees); err != nil {
-			if persistErr := a.invalidateMarket(ctx, "invalid_or_unrecorded_trade"); persistErr != nil {
+		if err := a.state.Book.Apply(input.Event); err != nil {
+			a.state.Book.Valid = false
+			if persistErr := a.invalidateMarket(ctx, "invalid_market_event"); persistErr != nil {
 				return persistErr
 			}
+			return fmt.Errorf("%w: %v", ErrInvalid, err)
+		}
+		a.state.MarketID = input.SnapshotID
+		if len(a.state.Book.Bids)+len(a.state.Book.Asks) > 2048 {
+			a.state.Book = x.NewBook()
+			if err := a.invalidateMarket(ctx, "book_capacity_exceeded"); err != nil {
+				return err
+			}
+			return ErrHistoryLimit
+		}
+		if !a.state.Book.Valid {
+			return a.invalidateMarket(ctx, "market_invalid")
+		}
+		if op != nil {
+			op.marketPrepared = true
+		}
+	}
+
+	if input.Event.Kind != "trade" {
+		return nil
+	}
+	if a.factBlocked {
+		return ErrRecoveryRequired
+	}
+	if op != nil {
+		if err := a.awaitFacts(ctx, op); err != nil {
 			return err
 		}
-		return a.drainFacts(ctx)
+	} else if err := a.drainFacts(ctx); err != nil {
+		return err
 	}
-	return nil
+	event := input.Event
+	event.Time = a.elapsed(a.state)
+	if event.Symbol == "" {
+		event.Symbol = a.state.Rules.Symbol
+	}
+	session := input.SessionID
+	if session == "" && event.TradeID != "" {
+		session = "venue-trade-id"
+	}
+	child := a.state.Child
+	if a.state.RecoveryRequired {
+		child = nil
+	}
+	_, sequence, err := a.transport.(*paperTransport).observeTradeAt(ctx, session, event, child, a.state.Fees, a.account.Revision)
+	if errors.Is(err, pg.ErrNotReady) || errors.Is(err, pg.ErrStaleRevision) {
+		if op != nil {
+			op.target = 0
+		}
+		return errFactsPending
+	}
+	if err != nil {
+		if persistErr := a.invalidateMarket(ctx, "invalid_or_unrecorded_trade"); persistErr != nil {
+			return persistErr
+		}
+		return err
+	}
+	a.wakeFacts()
+	if op != nil {
+		op.stage, op.target = operationAwaitFacts, sequence
+	}
+	return errFactsPending
 }
 
 func (a *Actor) invalidateMarket(ctx context.Context, reason string) error {
@@ -654,6 +558,7 @@ func (a *Actor) persist(ctx context.Context, next State, command pg.Command, ext
 }
 
 func (a *Actor) persistRevision(ctx context.Context, next State, command pg.Command, extra pg.Change, preserveAuthority bool) (pg.Result, error) {
+	extra.KeepQueuedOnSourceDebt = true
 	if !preserveAuthority {
 		next.AuthorityRevision = a.account.Revision + 1
 	}
@@ -664,6 +569,9 @@ func (a *Actor) persistRevision(ctx context.Context, next State, command pg.Comm
 	extra.Market = &pg.Market{Valid: next.Book.Valid, SnapshotID: nonempty(next.MarketID, "awaiting-snapshot"), InstrumentRevision: next.InstrumentRevision}
 	result, err := a.config.Store.Apply(ctx, extra)
 	if err != nil {
+		// Logical rejections are definite rollbacks. Other errors can hide a
+		// committed transaction and require the owned durable snapshot reload.
+		a.needsReload = a.needsReload || !(errors.Is(err, pg.ErrNotReady) || errors.Is(err, pg.ErrInvalid) || errors.Is(err, pg.ErrStaleRevision) || errors.Is(err, pg.ErrConflict) || errors.Is(err, pg.ErrExpired) || errors.Is(err, pg.ErrInsufficientFunds))
 		if errors.Is(err, pg.ErrOwnership) {
 			a.state.RecoveryRequired = true
 			a.state.Reason = "ownership_lease_lost"
@@ -679,6 +587,7 @@ func (a *Actor) persistRevision(ctx context.Context, next State, command pg.Comm
 	if err != nil {
 		a.state.RecoveryRequired = true
 		a.account.Ready = false
+		a.needsReload = true
 		return result, fmt.Errorf("%w: committed state reload failed: %v", ErrOutcomeUnknown, err)
 	}
 	a.account = account

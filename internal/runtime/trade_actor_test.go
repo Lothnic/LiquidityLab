@@ -224,10 +224,11 @@ func TestActorPaperTradePendingCursorRecoversAfterFullFillCheckpoint(t *testing.
 		t.Fatalf("checkpoint financial projection mismatch: %+v", checkpointAccount.Balances)
 	}
 
-	recovered := recoveryTestNew(t, store, key, "paper-process-paper-trade-recovery")
-	if recovered.state.Child == nil || !recovered.state.Child.Order.Remaining.IsZero() {
-		t.Fatalf("recovery did not retain zero-remaining child for pending cursor: %#v", recovered.state.Child)
+	checkpointState, err := DecodeSnapshot(checkpointAccount.Snapshot)
+	if err != nil || checkpointState.Child == nil || !checkpointState.Child.Order.Remaining.IsZero() {
+		t.Fatalf("durable trade checkpoint lost zero-remaining child: state=%+v err=%v", checkpointState, err)
 	}
+	recovered := recoveryTestNew(t, store, key, "paper-process-paper-trade-recovery")
 	actorTestMarket(t, recovered, "snapshot-paper-trade-recovery")
 	if err := recoveryTestDrain(t, recovered); err != nil {
 		t.Fatalf("recover pending durable paper trade: %v", err)

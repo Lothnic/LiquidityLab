@@ -111,21 +111,25 @@ type CommandRecord struct {
 // Known-final resolutions release reservations; unknown outcomes retain them.
 // Snapshot contains the caller's versioned reducer state, never credentials.
 type Change struct {
-	Key                       Key                     `json:"key"`
-	Ownership                 Ownership               `json:"ownership"`
-	Command                   Command                 `json:"command"`
-	Snapshot                  json.RawMessage         `json:"snapshot,omitempty"`
-	Ready                     *bool                   `json:"ready,omitempty"`
-	Market                    *Market                 `json:"market,omitempty"`
-	Balances                  []Balance               `json:"balances,omitempty"`
-	Plan                      *Plan                   `json:"plan,omitempty"`
-	Enqueue                   []Intent                `json:"enqueue,omitempty"`
-	Reservations              []Reservation           `json:"reservations,omitempty"`
-	ReservationUpdates        []ReservationAdjustment `json:"reservation_updates,omitempty"`
-	Resolutions               []Resolution            `json:"resolutions,omitempty"`
-	Execution                 *Execution              `json:"execution,omitempty"`
-	ObsoleteQueued            []string                `json:"obsolete_queued,omitempty"`
-	ConsumeObservationThrough int64                   `json:"consume_observation_through,omitempty"`
+	RequireCaughtUp    bool                    `json:"require_caught_up,omitempty"`
+	Key                Key                     `json:"key"`
+	Ownership          Ownership               `json:"ownership"`
+	Command            Command                 `json:"command"`
+	Snapshot           json.RawMessage         `json:"snapshot,omitempty"`
+	Ready              *bool                   `json:"ready,omitempty"`
+	Market             *Market                 `json:"market,omitempty"`
+	Balances           []Balance               `json:"balances,omitempty"`
+	Plan               *Plan                   `json:"plan,omitempty"`
+	Enqueue            []Intent                `json:"enqueue,omitempty"`
+	Reservations       []Reservation           `json:"reservations,omitempty"`
+	ReservationUpdates []ReservationAdjustment `json:"reservation_updates,omitempty"`
+	Resolutions        []Resolution            `json:"resolutions,omitempty"`
+	Execution          *Execution              `json:"execution,omitempty"`
+	ObsoleteQueued     []string                `json:"obsolete_queued,omitempty"`
+	// Preserve unsent obligations through accepted source reduction. Explicit
+	// caught-up disposal remains the caller's responsibility.
+	KeepQueuedOnSourceDebt    bool  `json:"keep_queued_on_source_debt,omitempty"`
+	ConsumeObservationThrough int64 `json:"consume_observation_through,omitempty"`
 }
 type Result struct {
 	Revision  int64 `json:"revision"`

@@ -221,7 +221,7 @@ func checkFunds(ctx context.Context, tx pgx.Tx, key Key) error {
 	}
 	return nil
 }
-func applyPlan(ctx context.Context, tx pgx.Tx, key Key, p Plan, now time.Time) error {
+func applyPlan(ctx context.Context, tx pgx.Tx, key Key, p Plan, now time.Time, keepQueued bool) error {
 	var revision int64
 	var oldStatus string
 	err := tx.QueryRow(ctx, "SELECT revision,status FROM plans WHERE tenant_id=$1 AND account_id=$2 AND plan_id=$3", key.TenantID, key.AccountID, p.ID).Scan(&revision, &oldStatus)
@@ -259,6 +259,9 @@ func applyPlan(ctx context.Context, tx pgx.Tx, key Key, p Plan, now time.Time) e
 	}
 	if _, err = tx.Exec(ctx, `INSERT INTO plan_revisions(tenant_id,account_id,plan_id,revision,status,deadline,detail) VALUES($1,$2,$3,$4,$5,$6,$7)`, key.TenantID, key.AccountID, p.ID, p.Revision, p.Status, p.Deadline, p.Detail); err != nil {
 		return err
+	}
+	if keepQueued {
+		return nil
 	}
 	return obsoleteQueued(ctx, tx, key, p.ID, "plan revision changed")
 }
@@ -315,6 +318,14 @@ func (s *Store) Apply(ctx context.Context, c Change) (Result, error) {
 	if err = checkOwner(a, c.Ownership, now); err != nil {
 		return Result{}, err
 	}
+	// Check under the same account lock as observation admission, after duplicate
+	// lookup: later source debt must not hide an already committed command receipt.
+	if c.RequireCaughtUp && a.ObservedSequence != a.ProcessedSequence {
+		return Result{}, ErrNotReady
+	}
+	// Use the original locked cursor, including for the transition consuming
+	// the final trailer. Cleanup follows in a separate caught-up transition.
+	keepQueued := c.KeepQueuedOnSourceDebt && a.ObservedSequence != a.ProcessedSequence
 	if e := c.Execution; e != nil {
 		var saved, encoded []byte
 		executionBody, _ := json.Marshal(e)
@@ -382,7 +393,7 @@ func (s *Store) Apply(ctx context.Context, c Change) (Result, error) {
 		return Result{}, err
 	}
 	if c.Plan != nil {
-		if err = applyPlan(ctx, tx, c.Key, *c.Plan, now); err != nil {
+		if err = applyPlan(ctx, tx, c.Key, *c.Plan, now, keepQueued); err != nil {
 			return Result{}, err
 		}
 	}
@@ -390,14 +401,14 @@ func (s *Store) Apply(ctx context.Context, c Change) (Result, error) {
 		a.Ready = *c.Ready
 	}
 	if c.Market != nil {
-		if !c.Market.Valid || a.Market.InstrumentRevision != c.Market.InstrumentRevision {
+		if !keepQueued && (!c.Market.Valid || a.Market.InstrumentRevision != c.Market.InstrumentRevision) {
 			if err = obsoleteQueued(ctx, tx, c.Key, "", "market invalid or metadata revision changed"); err != nil {
 				return Result{}, err
 			}
 		}
 		a.Market = *c.Market
 	}
-	if !a.Ready {
+	if !a.Ready && !keepQueued {
 		if err = obsoleteQueued(ctx, tx, c.Key, "", "account not ready"); err != nil {
 			return Result{}, err
 		}

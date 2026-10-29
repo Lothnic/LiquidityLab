@@ -34,6 +34,14 @@ var (
 )
 
 type Config struct {
+	// Views have a bounded lane serviced between reducer quanta. Zero inherits
+	// MailboxCapacity when constructing a custom configuration.
+	ViewCapacity int
+	// A quantum yields only between atomic reducer transitions. Individual SQL
+	// operations retain their own deadlines and may exceed the elapsed budget.
+	FactQuantumSteps int
+	FactQuantumTime  time.Duration
+
 	Policy *PolicyConfig
 	// Telemetry is optional process-local diagnostics; it grants no authority.
 	Telemetry *telemetry.Recorder
@@ -57,7 +65,7 @@ type Config struct {
 }
 
 func DefaultConfig(store *pg.Store, key pg.Key) Config {
-	return Config{Store: store, Key: key, Profile: ProfilePaper, Lease: time.Minute, MailboxCapacity: 64, ControlCapacity: 16, FactCapacity: 64, MaxFills: 2048, MaxFacts: 256, Rules: d.DefaultRules(), Fees: d.DefaultFees(), Execution: d.DefaultConfig(), BaseCurrency: "BTC", QuoteCurrency: "USD", InstrumentRevision: "synthetic-rules-v1", Baseline: x.BaselineScheduled}
+	return Config{Store: store, Key: key, Profile: ProfilePaper, Lease: time.Minute, MailboxCapacity: 64, ViewCapacity: 64, FactQuantumSteps: 4, FactQuantumTime: 5 * time.Millisecond, ControlCapacity: 16, FactCapacity: 64, MaxFills: 2048, MaxFacts: 256, Rules: d.DefaultRules(), Fees: d.DefaultFees(), Execution: d.DefaultConfig(), BaseCurrency: "BTC", QuoteCurrency: "USD", InstrumentRevision: "synthetic-rules-v1", Baseline: x.BaselineScheduled}
 }
 
 type Parent struct {

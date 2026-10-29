@@ -14,85 +14,17 @@ import (
 // A complete source outcome is durable before any individual fill is applied.
 // Each fill commits with its unique identity. The observation cursor advances
 // only after the whole source outcome is incorporated, so restart can resume it.
+// drainFacts performs one cooperative quantum. A pending result is scheduling
+// state, never a successful acknowledgement that the inbox has been consumed.
 func (a *Actor) drainFacts(ctx context.Context) error {
-	initial, err := a.config.Store.GetAccount(ctx, a.config.Key)
+	progress, err := a.reduceFactsQuantum(ctx, a.factBudget())
 	if err != nil {
 		return err
 	}
-	// A continuously producing ingress cannot move this drain's finish line.
-	// Newer facts remain durable and block new intents until a later drain.
-	target := initial.ObservedSequence
-	a.account = initial
-	for {
-		if a.account.ProcessedSequence >= target {
-			return nil
-		}
-		if err := ctx.Err(); err != nil {
-			return err
-		}
-		observations, err := a.config.Store.PendingObservations(ctx, a.config.Key, 16)
-		if err != nil {
-			return err
-		}
-		if len(observations) == 0 {
-			return nil
-		}
-		account, err := a.config.Store.GetAccount(ctx, a.config.Key)
-		if err != nil {
-			return err
-		}
-		a.account = account
-		for _, observation := range observations {
-			if observation.Sequence > target {
-				return nil
-			}
-			if observation.Sequence != a.account.ProcessedSequence+1 {
-				return ErrRecoveryRequired
-			}
-			switch observation.Kind {
-			case paperTradeKind:
-				var fact paperTradeFact
-				if err := decodeInternal(observation.Payload, &fact); err != nil || fact.ID != observation.ID || len(fact.Fills) > 1 {
-					return a.unresolved(ctx, observation, Fact{ID: observation.ID, Reason: "malformed_paper_trade_fact"})
-				}
-				for i, fill := range fact.Fills {
-					if err := a.applyFill(ctx, observation, Fact{ID: fmt.Sprintf("%s/fill/%d", fact.ID, i), IntentID: fact.IntentID, Fill: fill}, i, false); err != nil {
-						return err
-					}
-				}
-				if err := a.applyPaperTrade(ctx, observation, fact); err != nil {
-					return err
-				}
-			case "fill":
-				var fact Fact
-				if err := decodeInternal(observation.Payload, &fact); err != nil {
-					return a.unresolved(ctx, observation, Fact{ID: observation.ID, Reason: "malformed_fill_fact"})
-				}
-				if err := a.applyFill(ctx, observation, fact, 0, true); err != nil {
-					return err
-				}
-			case paperTransportKind:
-				var fact transportFact
-				if err := decodeInternal(observation.Payload, &fact); err != nil {
-					return a.unresolved(ctx, observation, Fact{ID: observation.ID, Reason: "malformed_transport_fact"})
-				}
-				if len(fact.Outcome.Fills) > 512 || fact.OperationID == "" || fact.InputDigest == "" {
-					return a.unresolved(ctx, observation, Fact{ID: observation.ID, IntentID: fact.IntentID, Reason: "invalid_transport_fact"})
-				}
-				for i, fill := range fact.Outcome.Fills {
-					input := Fact{ID: fmt.Sprintf("%s/fill/%d", observation.ID, i), IntentID: fact.IntentID, Fill: fill}
-					if err := a.applyFill(ctx, observation, input, i, false); err != nil {
-						return err
-					}
-				}
-				if err := a.applyTransport(ctx, observation, fact); err != nil {
-					return err
-				}
-			default:
-				return a.unresolved(ctx, observation, Fact{ID: observation.ID, Reason: "unsupported_account_fact"})
-			}
-		}
+	if progress.More {
+		return errFactsPending
 	}
+	return nil
 }
 
 func (a *Actor) applyPaperTrade(ctx context.Context, observation pg.Observation, fact paperTradeFact) error {
@@ -111,15 +43,6 @@ func (a *Actor) applyPaperTrade(ctx context.Context, observation pg.Observation,
 		next.Child.Order.QueueAhead = fact.QueueAhead
 		if next.Child.Order.Remaining.IsZero() {
 			next.Child = nil
-			ledger, err := a.ledger(next)
-			if err != nil {
-				return err
-			}
-			if ledger.Remaining().IsZero() {
-				next.Parent.Status = "completed"
-				next.Parent.Revision++
-				change.Plan = parentRow(next.Parent)
-			}
 		}
 	}
 	if next.Parent != nil && next.Parent.Started {
@@ -298,11 +221,6 @@ func (a *Actor) applyFill(ctx context.Context, observation pg.Observation, fact 
 		change.Resolutions = []pg.Resolution{{IntentID: fact.IntentID, State: "final", KnownFinal: true, Evidence: jsonBytes(map[string]string{"reason": "complete_fill", "profile": "paper"})}}
 		if consume {
 			next.Child = nil
-			if ledger.Remaining().IsZero() {
-				next.Parent.Status = "completed"
-				next.Parent.Revision++
-				change.Plan = parentRow(next.Parent)
-			}
 		}
 	}
 	id := fmt.Sprintf("observation-%d-fill-%d", observation.Sequence, index)
@@ -352,30 +270,20 @@ func (a *Actor) applyTransport(ctx context.Context, observation pg.Observation, 
 		resolution.State = "final"
 		resolution.KnownFinal = true
 		next.Child = nil
-		ledger, err := a.ledger(next)
-		if err != nil {
-			return err
-		}
-		oldStatus := next.Parent.Status
-		if ledger.Remaining().IsZero() {
-			next.Parent.Status = "completed"
-		} else if oldStatus == "cancel_requested" {
-			next.Parent.Status = "cancelled"
-			if !a.now().Before(next.Parent.Deadline) {
-				next.Parent.Status = "expired"
-			}
-		}
-		if oldStatus != next.Parent.Status {
-			next.Parent.Revision++
-		}
 	} else if outcome.Accepted {
 		resolution.State = "acknowledged"
-		next.Child.State = "open"
-		next.Child.Order.State = "open"
+		// A control may have committed between this observation's fill prefix and
+		// trailer. Its older submission acknowledgement cannot undo cancellation.
+		if next.Child.State != "cancel_requested" {
+			next.Child.State = "open"
+			next.Child.Order.State = "open"
+		}
 		next.Child.Order.QueueAhead = outcome.QueueAhead
 	} else {
 		resolution.State = "unknown"
-		next.Child.State = "unknown"
+		if next.Child.State != "cancel_requested" {
+			next.Child.State = "unknown"
+		}
 		next.Child.Order.State = "cancel_requested"
 		next.RecoveryRequired = true
 		next.Reason = "transport_outcome_unknown"

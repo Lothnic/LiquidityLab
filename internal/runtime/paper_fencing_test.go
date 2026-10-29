@@ -17,15 +17,15 @@ func TestPaperTakeoverFencesFreshAndCachedOldTransportEffects(t *testing.T) {
 	defer cancel()
 	old := newPaperTransport(store, key, owner)
 	submit := Submission{ID: "cached-child", OperationID: "cached-submit", InputDigest: "cached-input", Book: paperTestBook(t), Fees: paperTestFees(), Intent: d.OrderIntent{Side: "buy", Quantity: d.MustDecimal("0.01"), Price: d.MustDecimal("101")}}
+	trade := d.MarketEvent{Kind: "trade", Symbol: "BTC/USD", TradeID: "cached-trade", Side: "sell", Price: d.MustDecimal("99"), Quantity: d.One}
+	if _, err := old.ObserveTrade(ctx, "source", trade, nil, paperTestFees()); err != nil {
+		t.Fatal(err)
+	}
 	prior, err := old.Handoff(ctx, submit)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if _, err = old.Cancel(ctx, "cached-cancel"); err != nil {
-		t.Fatal(err)
-	}
-	trade := d.MarketEvent{Kind: "trade", Symbol: "BTC/USD", TradeID: "cached-trade", Side: "sell", Price: d.MustDecimal("99"), Quantity: d.One}
-	if _, err = old.ObserveTrade(ctx, "source", trade, nil, paperTestFees()); err != nil {
 		t.Fatal(err)
 	}
 	claimed, err := store.ClaimPaperOwnership(ctx, key, "next-paper-owner", time.Minute)

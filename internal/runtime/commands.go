@@ -2,6 +2,7 @@ package runtime
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"reflect"
 	"time"
@@ -35,6 +36,7 @@ func (a *Actor) elapsed(state State) int64 {
 // changing financial/control authority. Allow only the known decision fields;
 // every other state or store mutation conservatively invalidates old commands.
 func decisionBookkeepingOnly(before, after State, change pg.Change) bool {
+	change.RequireCaughtUp = false
 	if !reflect.DeepEqual(change, pg.Change{}) {
 		return false
 	}
@@ -63,6 +65,11 @@ func (a *Actor) command(ctx context.Context, c Command) (pg.Result, error) {
 	digest := inputDigest(c)
 	if result, exists, err := a.duplicate(ctx, c.ID, digest); exists || err != nil {
 		return result, err
+	}
+	if isControl(c.Kind) {
+		if err := a.refreshOwned(ctx); err != nil {
+			return pg.Result{}, err
+		}
 	}
 	if c.ExpectedAuthorityRevision == nil {
 		if c.ExpectedRevision != a.account.Revision {
@@ -93,12 +100,18 @@ func (a *Actor) command(ctx context.Context, c Command) (pg.Result, error) {
 	if c.Kind == "dispatch" {
 		return a.dispatch(ctx, c, digest)
 	}
+	if !isControl(c.Kind) && a.account.ObservedSequence != a.account.ProcessedSequence {
+		return pg.Result{}, ErrRecoveryRequired
+	}
 	next, err := cloneState(a.state)
 	if err != nil {
 		return pg.Result{}, err
 	}
 	a.stamp(&next, c.ID, digest)
 	change := pg.Change{}
+	if !isControl(c.Kind) {
+		change.RequireCaughtUp = true
+	}
 	controlAudit := false
 	if c.policy != nil && c.Kind == "pause" {
 		next.PolicyPending = nil
@@ -199,26 +212,24 @@ func (a *Actor) command(ctx context.Context, c Command) (pg.Result, error) {
 		if c.Kind == "deadline" && a.now().Before(next.Parent.Deadline) {
 			return pg.Result{}, ErrInvalid
 		}
-		if next.Child != nil && next.Child.State == "queued" {
+		if next.Child != nil && next.Child.State == "queued" && a.account.ObservedSequence == a.account.ProcessedSequence {
 			change.ObsoleteQueued = []string{next.Child.ID}
+			change.RequireCaughtUp = true
 			next.Child = nil
 		}
 		next.Parent.Status = "paused"
 		if c.Kind != "pause" {
 			next.Parent.Status = "cancel_requested"
-			if next.Child == nil {
-				next.Parent.Status = "cancelled"
-				if c.Kind == "deadline" {
-					next.Parent.Status = "expired"
-				}
-			}
 		}
 		next.Parent.Revision++
 		change.Plan = parentRow(next.Parent)
 		cancelAfter = next.Child != nil
 		if cancelAfter {
+			unsent := next.Child.State == "queued" || next.Child.Order.State == "submitting"
 			next.Child.State = "cancel_requested"
-			next.Child.Order.State = "cancel_requested"
+			if !unsent {
+				next.Child.Order.State = "cancel_requested"
+			}
 		}
 	case "action", "decision":
 		if next.Parent == nil || next.Parent.Status != "active" || !next.Parent.Started || !a.account.Ready || !next.Book.Valid || next.RecoveryRequired || a.overflow.Load() {
@@ -277,6 +288,7 @@ func (a *Actor) command(ctx context.Context, c Command) (pg.Result, error) {
 				next.Child = nil
 			} else {
 				cancelAfter = true
+				next.Child.State, next.Child.Order.State = "cancel_requested", "cancel_requested"
 			}
 			next.LastMessage = a.elapsed(next)
 			next.HasMessage = true
@@ -305,6 +317,11 @@ func (a *Actor) command(ctx context.Context, c Command) (pg.Result, error) {
 	preserveAuthority := c.Kind == "decision" && !cancelAfter && decisionBookkeepingOnly(a.state, next, change)
 	result, err := a.persistRevision(ctx, next, pg.Command{ID: c.ID, Kind: c.Kind, ExpectedRevision: a.account.Revision}, change, preserveAuthority)
 	if err != nil {
+		if isControl(c.Kind) && len(change.ObsoleteQueued) != 0 && errors.Is(err, pg.ErrNotReady) {
+			// An observation won the account lock. Retain the child and its hold
+			// while acknowledging the control, rather than erasing frozen fills.
+			return a.command(ctx, c)
+		}
 		return result, err
 	}
 	if len(change.Enqueue) > 0 {
@@ -317,15 +334,15 @@ func (a *Actor) command(ctx context.Context, c Command) (pg.Result, error) {
 		a.policyCancel()
 	}
 	if cancelAfter {
-		if err = a.cancelChild(ctx); err != nil {
-			return result, err
-		}
+		// The receipt acknowledges the durable local control. Cancellation effects
+		// and their ordered source reduction run in subsequent actor turns.
+		a.wakeFacts()
 	}
 	return result, nil
 }
 
 func (a *Actor) dispatch(ctx context.Context, c Command, digest string) (pg.Result, error) {
-	if a.state.Child == nil || a.state.Child.State != "queued" || c.IntentID != a.state.Child.ID || a.state.Parent == nil || a.state.Parent.Status != "active" || a.state.RecoveryRequired || !a.account.Ready || !a.state.Book.Valid || a.overflow.Load() {
+	if a.account.ObservedSequence != a.account.ProcessedSequence || a.state.Child == nil || a.state.Child.State != "queued" || c.IntentID != a.state.Child.ID || a.state.Parent == nil || a.state.Parent.Status != "active" || a.state.RecoveryRequired || !a.account.Ready || !a.state.Book.Valid || a.overflow.Load() {
 		return pg.Result{}, ErrRecoveryRequired
 	}
 	ledger, err := a.ledger(a.state)
@@ -391,11 +408,7 @@ func (a *Actor) dispatch(ctx context.Context, c Command, digest string) (pg.Resu
 		return pg.Result{}, fmt.Errorf("%w: %v", ErrOutcomeUnknown, transportErr)
 	}
 	_ = outcome // authoritative outcome is the durable source observation.
-	if err := a.drainFacts(ctx); err != nil {
-		return pg.Result{}, err
-	}
-	record, err := a.config.Store.LookupCommand(ctx, a.config.Key, c.ID)
-	return record.Result, err
+	return pg.Result{}, a.waitCommand(c.ID)
 }
 func (a *Actor) cancelChild(ctx context.Context) error {
 	if a.state.Child == nil {
@@ -413,7 +426,8 @@ func (a *Actor) cancelChild(ctx context.Context) error {
 		a.account.Ready = false
 		return err
 	}
-	return a.drainFacts(ctx)
+	a.wakeFacts()
+	return nil
 }
 
 // acceptOutcome is used only for a proven pre-handoff rejection. Normal paper
@@ -426,11 +440,7 @@ func (a *Actor) acceptOutcome(ctx context.Context, outcome TransportResult, id, 
 	if _, err := a.config.Store.RecordPaperObservation(ctx, a.config.Key, a.owner, pg.Observation{ID: "transport-" + id, Kind: paperTransportKind, Payload: jsonBytes(fact)}); err != nil {
 		return pg.Result{}, err
 	}
-	if err := a.drainFacts(ctx); err != nil {
-		return pg.Result{}, err
-	}
-	record, err := a.config.Store.LookupCommand(ctx, a.config.Key, id)
-	return record.Result, err
+	return pg.Result{}, a.waitCommand(id)
 }
 func (a *Actor) reconcile(ctx context.Context, r Reconciliation) (pg.Result, error) {
 	if r.ID == "" || r.Evidence == "" || len(r.Evidence) > 128 || !r.NoExternalOrders {
@@ -439,6 +449,14 @@ func (a *Actor) reconcile(ctx context.Context, r Reconciliation) (pg.Result, err
 	digest := inputDigest(r)
 	if result, exists, err := a.duplicate(ctx, r.ID, digest); exists || err != nil {
 		return result, err
+	}
+	if err := a.refreshOwned(ctx); err != nil {
+		return pg.Result{}, err
+	}
+	if !a.factBlocked && a.account.ObservedSequence != a.account.ProcessedSequence {
+		// Accepted valid fills retain their order and child until reduced.
+		// Only a quarantined source may need explicit reconciliation to resume.
+		return pg.Result{}, ErrRecoveryRequired
 	}
 	if r.ExpectedRevision != a.account.Revision {
 		return pg.Result{}, pg.ErrStaleRevision
@@ -488,14 +506,21 @@ func (a *Actor) reconcile(ctx context.Context, r Reconciliation) (pg.Result, err
 	next.Reason = "paper_reconciliation_asserted"
 	a.stamp(&next, r.ID, digest)
 	ready := true
-	change := pg.Change{Ready: &ready, Balances: r.Balances, Resolutions: r.Resolutions}
+	change := pg.Change{RequireCaughtUp: !a.factBlocked, Ready: &ready, Balances: r.Balances, Resolutions: r.Resolutions}
 	if r.AbortParent && next.Parent != nil && (next.Parent.Status == "active" || next.Parent.Status == "paused" || next.Parent.Status == "cancel_requested") {
-		next.Parent.Status = "cancelled"
+		next.Parent.Status = "cancel_requested"
+		if a.account.ObservedSequence == a.account.ProcessedSequence {
+			next.Parent.Status = "cancelled"
+			change.RequireCaughtUp = true
+		}
 		next.Parent.Revision++
 		change.Plan = parentRow(next.Parent)
 		next.Reason = "reconciled_parent_aborted"
 	}
 	result, err := a.persist(ctx, next, pg.Command{ID: r.ID, Kind: "reconcile", ExpectedRevision: r.ExpectedRevision}, change)
+	if errors.Is(err, pg.ErrNotReady) && change.RequireCaughtUp {
+		return a.reconcile(ctx, r)
+	}
 	if err == nil {
 		a.overflow.Store(false)
 	}

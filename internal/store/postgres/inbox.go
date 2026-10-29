@@ -20,7 +20,21 @@ func (s *Store) RecordObservation(ctx context.Context, key Key, observation Obse
 	return s.recordObservation(ctx, key, nil, observation)
 }
 
+// RecordPaperTradeObservation freezes a newly matched trade only against the
+// revision whose preceding source facts were fully reduced. Existing identities
+// retain their original outcome, even when newer observations are pending.
+func (s *Store) RecordPaperTradeObservation(ctx context.Context, key Key, owner Ownership, observation Observation, revision int64) (int64, error) {
+	if observation.Kind != "paper_trade" || revision < 0 {
+		return 0, ErrInvalid
+	}
+	return s.recordObservationGuarded(ctx, key, &owner, observation, &revision)
+}
+
 func (s *Store) recordObservation(ctx context.Context, key Key, ownership *Ownership, observation Observation) (int64, error) {
+	return s.recordObservationGuarded(ctx, key, ownership, observation, nil)
+}
+
+func (s *Store) recordObservationGuarded(ctx context.Context, key Key, ownership *Ownership, observation Observation, revision *int64) (int64, error) {
 	if !validKey(key) || !validID(observation.ID) || !validID(observation.Kind) || !validJSON(observation.Payload) {
 		return 0, ErrInvalid
 	}
@@ -77,6 +91,14 @@ func (s *Store) recordObservation(ctx context.Context, key Key, ownership *Owner
 	}
 	if !errors.Is(err, pgx.ErrNoRows) {
 		return 0, err
+	}
+	if revision != nil {
+		if a.ObservedSequence != a.ProcessedSequence {
+			return 0, ErrNotReady
+		}
+		if a.Revision != *revision {
+			return 0, ErrStaleRevision
+		}
 	}
 	if a.ObservedSequence == math.MaxInt64 || a.ObservedSequence-a.ProcessedSequence >= 4096 || int64(len(observation.Payload)) > 16<<20-a.PendingObservationBytes {
 		return 0, ErrInboxFull
