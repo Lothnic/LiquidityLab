@@ -12,6 +12,8 @@ import (
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 var replayInput = raw(`{"schema":"test-replay-v1","estimate_only":true}`)
@@ -209,6 +211,108 @@ func TestReplayAdmissionIsAtomicAcrossConcurrentRequests(t *testing.T) {
 	}
 	if _, _, err := s.EnqueueReplay(ctx, other, "after-cancel", replayInput, ReplayAdmission{4, 6}); err != nil {
 		t.Fatal("cancel did not free pending capacity", err)
+	}
+}
+
+func TestReplayAdmissionOverridesRepeatableReadDefault(t *testing.T) {
+	s := testStore(t)
+	key, _, _ := initialized(t, s)
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+	capacity := ReplayAdmission{PerAccount: 2, Global: 2}
+	// Establish the singleton before contenders take their snapshots. Otherwise
+	// a concurrent first insertion can fail at RR and conceal the stale count.
+	if _, _, err := s.EnqueueReplay(ctx, key, "seed", replayInput, capacity); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.CancelReplay(ctx, key, "seed"); err != nil {
+		t.Fatal(err)
+	}
+	var schema string
+	if err := s.pool.QueryRow(ctx, "SELECT current_schema()").Scan(&schema); err != nil {
+		t.Fatal(err)
+	}
+	const contenders = 6
+	config := s.pool.Config()
+	config.MaxConns = contenders + 2 // every waiter, the lock holder, and observer
+	config.ConnConfig.RuntimeParams["default_transaction_isolation"] = "repeatable read"
+	application := "replay_rr_" + schema
+	config.ConnConfig.RuntimeParams["application_name"] = application
+	// Config retains the source pool's AfterConnect schema selection.
+	pool, err := pgxpool.NewWithConfig(ctx, config)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(pool.Close)
+	var isolation string
+	if err := pool.QueryRow(ctx, "SHOW transaction_isolation").Scan(&isolation); err != nil || isolation != "repeatable read" {
+		t.Fatalf("connection isolation=%q err=%v", isolation, err)
+	}
+	queue := &Store{pool: pool}
+	blocker, err := pool.Begin(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer blocker.Rollback(context.Background())
+	if _, err := blocker.Exec(ctx, "SELECT pg_advisory_xact_lock(hashtextextended(current_schema(), 904216))"); err != nil {
+		t.Fatal(err)
+	}
+	results := make(chan error, contenders)
+	var workers sync.WaitGroup
+	for i := 0; i < contenders; i++ {
+		workers.Add(1)
+		go func(i int) {
+			defer workers.Done()
+			_, _, err := queue.EnqueueReplay(ctx, key, fmt.Sprintf("rr-%d", i), replayInput, capacity)
+			results <- err
+		}(i)
+	}
+	defer func() {
+		cancel()
+		workers.Wait()
+	}()
+	// Wait for actual advisory lock contention, not elapsed time. With the old
+	// inherited RR transactions, all snapshots now predate every contender's
+	// insert, so releasing this gate deterministically exercises stale counts.
+	gate, stopGate := context.WithTimeout(ctx, 5*time.Second)
+	defer stopGate()
+	ticker := time.NewTicker(10 * time.Millisecond)
+	defer ticker.Stop()
+	for {
+		var waiting int
+		if err := pool.QueryRow(gate, "SELECT count(*) FROM pg_stat_activity WHERE application_name=$1 AND wait_event='advisory'", application).Scan(&waiting); err != nil {
+			t.Fatal(err)
+		}
+		if waiting == contenders {
+			break
+		}
+		select {
+		case <-gate.Done():
+			t.Fatalf("only %d/%d enqueue requests reached the advisory gate", waiting, contenders)
+		case <-ticker.C:
+		}
+	}
+	if err := blocker.Commit(ctx); err != nil {
+		t.Fatal(err)
+	}
+	accepted, busy := 0, 0
+	for i := 0; i < contenders; i++ {
+		select {
+		case err := <-results:
+			switch {
+			case err == nil:
+				accepted++
+			case errors.Is(err, ErrReplayBusy):
+				busy++
+			default:
+				t.Errorf("enqueue failed instead of observing current admission capacity: %v", err)
+			}
+		case <-ctx.Done():
+			t.Fatal("enqueue did not leave the advisory gate", ctx.Err())
+		}
+	}
+	if accepted != capacity.Global || busy != contenders-capacity.Global {
+		t.Fatalf("RR connection default bypassed capacity: accepted=%d busy=%d limit=%d", accepted, busy, capacity.Global)
 	}
 }
 

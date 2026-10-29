@@ -71,7 +71,9 @@ func (s *Store) EnqueueReplay(ctx context.Context, key Key, id string, input jso
 	if !validKey(key) || !validID(id) || !replayJSON(input, ReplayMaxInputBytes) || capacity.PerAccount < 1 || capacity.PerAccount > 64 || capacity.Global < capacity.PerAccount || capacity.Global > 1024 {
 		return ReplayJob{}, false, ErrInvalid
 	}
-	tx, err := s.begin(ctx, pgx.TxOptions{})
+	// The post-advisory-lock count must see preceding accepted enqueues even
+	// when a deployment configures Repeatable Read as its connection default.
+	tx, err := s.begin(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted})
 	if err != nil {
 		return ReplayJob{}, false, err
 	}
