@@ -1,0 +1,1498 @@
+{
+  "schema": "runtime-quantum-summary-v1",
+  "trials": [
+    {
+      "actor_configuration": {
+        "accounts": 1,
+        "auto_execute": true,
+        "baseline": "scheduled",
+        "bundle_identity": "none; Go baseline without inference",
+        "control_capacity": 16,
+        "data_source": "synthetic",
+        "execution": {
+          "cancel_latency_ns": 50000000,
+          "decision_interval_ns": 100000000,
+          "fill_model": "conservative-v0",
+          "lambda_miss": 100,
+          "max_participation": "0.25",
+          "min_message_interval_ns": 100000000,
+          "min_resting_age_ns": 2000000000,
+          "settlement_allowance_ns": 30000000000,
+          "submission_latency_ns": 50000000
+        },
+        "fact_capacity": 64,
+        "fact_quantum_steps": 4,
+        "fact_quantum_time_ns": 5000000,
+        "fees": {
+          "currency": "quote",
+          "maker": "0.001",
+          "source": "synthetic-assumption",
+          "taker": "0.002"
+        },
+        "instrument_revision": "synthetic-rules-v1",
+        "instruments": 1,
+        "lease_ns": 300000000000,
+        "mailbox_capacity": 64,
+        "max_facts": 256,
+        "max_fills": 2048,
+        "profile": "paper",
+        "rules": {
+          "lot_size": "0.001",
+          "min_notional": "0.01",
+          "min_quantity": "0.001",
+          "symbol": "BTC/USD",
+          "tick_size": "0.01"
+        },
+        "scheduled_slice_interval_ns": 15000000000,
+        "view_capacity": 64
+      },
+      "cleanup_control_ack_ns": 5391687,
+      "executable": {
+        "bytes": 26382957,
+        "read_source": "proc_self_exe",
+        "sha256": "599baa9160e7961809ce69e81147cc9f172ab15dfff0c06aca922d85f242513f",
+        "status": "available"
+      },
+      "failure_reason": null,
+      "final_source_recovery_debt_count": 0,
+      "financial_conservation": {
+        "durable_execution_count": 2,
+        "durable_execution_quantity": "0.02",
+        "issues": [],
+        "remaining_plan_quantity": "9.98",
+        "snapshot_execution_count": 2,
+        "snapshot_fill_quantity": "0.02",
+        "valid": true
+      },
+      "hardware": {
+        "cpu_model": "AMD Ryzen 7 7840HS w/ Radeon 780M Graphics",
+        "gomaxprocs": 16,
+        "host_memory_total": "14842900 kB",
+        "logical_cpus": 16
+      },
+      "independent_offered_to_success_p99_ns": {
+        "market": 9732216,
+        "view": 9612650
+      },
+      "label": "ordinary-01",
+      "measurement": {
+        "elapsed_including_drain_ns": 20000045154,
+        "http_route_counts": {
+          "report": {
+            "completed": 80,
+            "failed": 0,
+            "offered": 80,
+            "rejected": 0,
+            "runner_admitted": 80,
+            "unresolved": 0
+          },
+          "sessions": {
+            "completed": 80,
+            "failed": 0,
+            "offered": 80,
+            "rejected": 0,
+            "runner_admitted": 80,
+            "unresolved": 0
+          },
+          "state": {
+            "completed": 240,
+            "failed": 0,
+            "offered": 240,
+            "rejected": 0,
+            "runner_admitted": 240,
+            "unresolved": 0
+          }
+        },
+        "input_manifest_sha256": "9c3bbbd96fed26bd10935c2136041876aa337894dc6851d53494e15b9ae6704c",
+        "market": {
+          "completed": 1000,
+          "failed": 0,
+          "offered": 1000,
+          "rejected": 0,
+          "runner_admitted": 1000,
+          "unresolved": 0
+        },
+        "read_service_boundary": "HTTP response fully consumed and JSON validated; HTTP polling, no React rendering",
+        "source_delivery_valid": true,
+        "views": {
+          "completed": 400,
+          "failed": 0,
+          "offered": 400,
+          "rejected": 0,
+          "runner_admitted": 400,
+          "unresolved": 0
+        }
+      },
+      "postgres_activity": {
+        "status": "not sampled in this baseline report"
+      },
+      "postgres_activity_interval_ns": 0,
+      "raw_report_sha256": "b3670f1a239231d23efb3ba4c88144a99146304a309da3c7c23d634ebd2d626c",
+      "read_mode": "http",
+      "report_version": "durable-runtime-benchmark-v2",
+      "resource_deltas": {
+        "elapsed_ns": 20039283783,
+        "gc_cycles": 109,
+        "gc_pause_ns": 4648516,
+        "heap_alloc_endpoint_bytes": 1882080,
+        "mallocs": 3049237,
+        "rss_endpoint_bytes": 4116480,
+        "system_cpu_us": 466552,
+        "total_alloc_bytes": 170206080,
+        "user_cpu_us": 1332648
+      },
+      "source_identity": {
+        "architecture": "amd64",
+        "binary_build": {
+          "available": true,
+          "go_version": "go1.26.8",
+          "main_module": {
+            "path": "github.com/liquiditylab/liquiditylab",
+            "version": "v0.0.0-20261029080621-75d71fd29351"
+          },
+          "package_path": "github.com/liquiditylab/liquiditylab/benchmarks/runtime",
+          "settings": {
+            "-buildmode": "exe",
+            "-compiler": "gc",
+            "CGO_ENABLED": "1",
+            "GOAMD64": "v1",
+            "GOARCH": "amd64",
+            "GOOS": "linux",
+            "vcs": "git",
+            "vcs.modified": "false",
+            "vcs.revision": "75d71fd2935104a121d29e7d78c299cfed36a835",
+            "vcs.time": "2026-10-29T08:06:21Z"
+          },
+          "vcs_status": "available"
+        },
+        "engine_version": "LiquidityLab-SpotExecution-v1",
+        "go_version": "go1.26.8",
+        "gomaxprocs": 16,
+        "launch_worktree_dirty": false,
+        "launch_worktree_revision": "75d71fd2935104a121d29e7d78c299cfed36a835",
+        "launch_worktree_status": "available",
+        "logical_cpus": 16,
+        "os": "linux",
+        "state_version": "account-state-v1"
+      },
+      "status": "complete",
+      "store_metric_delta_rule": "counter values and distribution counts/sums/bucket counts only; quantiles and extrema are not differenced",
+      "store_metric_deltas": {
+        "counters": {
+          "db_acquire_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_commit_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_durable_transitions": {
+            "delta": 606,
+            "overflow": false
+          },
+          "db_observation_duplicates": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_observation_writes": {
+            "delta": 488,
+            "overflow": false
+          },
+          "db_queries": {
+            "delta": 32841,
+            "overflow": false
+          },
+          "db_query_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_rollback_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_transactions_committed": {
+            "delta": 4162,
+            "overflow": false
+          },
+          "db_transactions_rolled_back": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_transactions_started": {
+            "delta": 4162,
+            "overflow": false
+          }
+        },
+        "distributions": {
+          "db_account_for_update_roundtrip_ns": {
+            "bucket_count_deltas": {
+              "1000": 0,
+              "10000": 0,
+              "100000": 1089,
+              "1000000": 1,
+              "10000000": 0,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 0,
+              "250000": 123,
+              "2500000": 0,
+              "25000000": 0,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 0,
+              "50000": 71,
+              "500000": 10,
+              "5000000": 0,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 1294,
+            "count_overflow": false,
+            "sum_delta": 101654327,
+            "sum_overflow": false
+          },
+          "db_acquire_ns": {
+            "bucket_count_deltas": {
+              "1000": 3733,
+              "10000": 64,
+              "100000": 0,
+              "1000000": 0,
+              "10000000": 0,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 19,
+              "250000": 1,
+              "2500000": 0,
+              "25000000": 0,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 1439,
+              "50000": 1,
+              "500000": 0,
+              "5000000": 0,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 5257,
+            "count_overflow": false,
+            "sum_delta": 5610405,
+            "sum_overflow": false
+          },
+          "db_commit_ns": {
+            "bucket_count_deltas": {
+              "1000": 0,
+              "10000": 2,
+              "100000": 41,
+              "1000000": 394,
+              "10000000": 2,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 2054,
+              "250000": 11,
+              "2500000": 869,
+              "25000000": 2,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 0,
+              "50000": 759,
+              "500000": 1,
+              "5000000": 27,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 4162,
+            "count_overflow": false,
+            "sum_delta": 2368481705,
+            "sum_overflow": false
+          },
+          "db_transaction_ns": {
+            "bucket_count_deltas": {
+              "1000": 0,
+              "10000": 0,
+              "100000": 0,
+              "1000000": 54,
+              "10000000": 2,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 0,
+              "250000": 1866,
+              "2500000": 600,
+              "25000000": 2,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 0,
+              "50000": 0,
+              "500000": 944,
+              "5000000": 694,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 4162,
+            "count_overflow": false,
+            "sum_delta": 3649170296,
+            "sum_overflow": false
+          }
+        }
+      },
+      "valid": true,
+      "workload": {
+        "baseline": "scheduled",
+        "decision_cadence_ns": 100000000,
+        "development_database_acknowledged": true,
+        "market_events_per_second": 50,
+        "maximum_generator_lag_ns": 250000000,
+        "measurement_ns": 20000000000,
+        "metrics_enabled": true,
+        "ordered_source_queue_capacity": 64,
+        "pool_max_connections": 4,
+        "seed": 42,
+        "trade_percent": 50,
+        "view_in_flight_capacity": 4,
+        "views_per_second": 20,
+        "warmup_ns": 2000000000
+      }
+    },
+    {
+      "actor_configuration": {
+        "accounts": 1,
+        "auto_execute": true,
+        "baseline": "scheduled",
+        "bundle_identity": "none; Go baseline without inference",
+        "control_capacity": 16,
+        "data_source": "synthetic",
+        "execution": {
+          "cancel_latency_ns": 50000000,
+          "decision_interval_ns": 100000000,
+          "fill_model": "conservative-v0",
+          "lambda_miss": 100,
+          "max_participation": "0.25",
+          "min_message_interval_ns": 100000000,
+          "min_resting_age_ns": 2000000000,
+          "settlement_allowance_ns": 30000000000,
+          "submission_latency_ns": 50000000
+        },
+        "fact_capacity": 64,
+        "fact_quantum_steps": 4,
+        "fact_quantum_time_ns": 5000000,
+        "fees": {
+          "currency": "quote",
+          "maker": "0.001",
+          "source": "synthetic-assumption",
+          "taker": "0.002"
+        },
+        "instrument_revision": "synthetic-rules-v1",
+        "instruments": 1,
+        "lease_ns": 300000000000,
+        "mailbox_capacity": 64,
+        "max_facts": 256,
+        "max_fills": 2048,
+        "profile": "paper",
+        "rules": {
+          "lot_size": "0.001",
+          "min_notional": "0.01",
+          "min_quantity": "0.001",
+          "symbol": "BTC/USD",
+          "tick_size": "0.01"
+        },
+        "scheduled_slice_interval_ns": 15000000000,
+        "view_capacity": 64
+      },
+      "cleanup_control_ack_ns": 5135765,
+      "executable": {
+        "bytes": 26382957,
+        "read_source": "proc_self_exe",
+        "sha256": "599baa9160e7961809ce69e81147cc9f172ab15dfff0c06aca922d85f242513f",
+        "status": "available"
+      },
+      "failure_reason": null,
+      "final_source_recovery_debt_count": 0,
+      "financial_conservation": {
+        "durable_execution_count": 2,
+        "durable_execution_quantity": "0.02",
+        "issues": [],
+        "remaining_plan_quantity": "9.98",
+        "snapshot_execution_count": 2,
+        "snapshot_fill_quantity": "0.02",
+        "valid": true
+      },
+      "hardware": {
+        "cpu_model": "AMD Ryzen 7 7840HS w/ Radeon 780M Graphics",
+        "gomaxprocs": 16,
+        "host_memory_total": "14842900 kB",
+        "logical_cpus": 16
+      },
+      "independent_offered_to_success_p99_ns": {
+        "market": 9823922,
+        "view": 8760544
+      },
+      "label": "ordinary-02",
+      "measurement": {
+        "elapsed_including_drain_ns": 20000577656,
+        "http_route_counts": {
+          "report": {
+            "completed": 80,
+            "failed": 0,
+            "offered": 80,
+            "rejected": 0,
+            "runner_admitted": 80,
+            "unresolved": 0
+          },
+          "sessions": {
+            "completed": 80,
+            "failed": 0,
+            "offered": 80,
+            "rejected": 0,
+            "runner_admitted": 80,
+            "unresolved": 0
+          },
+          "state": {
+            "completed": 240,
+            "failed": 0,
+            "offered": 240,
+            "rejected": 0,
+            "runner_admitted": 240,
+            "unresolved": 0
+          }
+        },
+        "input_manifest_sha256": "9c3bbbd96fed26bd10935c2136041876aa337894dc6851d53494e15b9ae6704c",
+        "market": {
+          "completed": 1000,
+          "failed": 0,
+          "offered": 1000,
+          "rejected": 0,
+          "runner_admitted": 1000,
+          "unresolved": 0
+        },
+        "read_service_boundary": "HTTP response fully consumed and JSON validated; HTTP polling, no React rendering",
+        "source_delivery_valid": true,
+        "views": {
+          "completed": 400,
+          "failed": 0,
+          "offered": 400,
+          "rejected": 0,
+          "runner_admitted": 400,
+          "unresolved": 0
+        }
+      },
+      "postgres_activity": {
+        "status": "not sampled in this baseline report"
+      },
+      "postgres_activity_interval_ns": 0,
+      "raw_report_sha256": "238644db85ddea85874c620a66721c68c76b26ba41a876c9a5b6758b2be2e1af",
+      "read_mode": "http",
+      "report_version": "durable-runtime-benchmark-v2",
+      "resource_deltas": {
+        "elapsed_ns": 20038832592,
+        "gc_cycles": 107,
+        "gc_pause_ns": 4994175,
+        "heap_alloc_endpoint_bytes": 2199072,
+        "mallocs": 3080142,
+        "rss_endpoint_bytes": 4112384,
+        "system_cpu_us": 462609,
+        "total_alloc_bytes": 171575320,
+        "user_cpu_us": 1397497
+      },
+      "source_identity": {
+        "architecture": "amd64",
+        "binary_build": {
+          "available": true,
+          "go_version": "go1.26.8",
+          "main_module": {
+            "path": "github.com/liquiditylab/liquiditylab",
+            "version": "v0.0.0-20261029080621-75d71fd29351"
+          },
+          "package_path": "github.com/liquiditylab/liquiditylab/benchmarks/runtime",
+          "settings": {
+            "-buildmode": "exe",
+            "-compiler": "gc",
+            "CGO_ENABLED": "1",
+            "GOAMD64": "v1",
+            "GOARCH": "amd64",
+            "GOOS": "linux",
+            "vcs": "git",
+            "vcs.modified": "false",
+            "vcs.revision": "75d71fd2935104a121d29e7d78c299cfed36a835",
+            "vcs.time": "2026-10-29T08:06:21Z"
+          },
+          "vcs_status": "available"
+        },
+        "engine_version": "LiquidityLab-SpotExecution-v1",
+        "go_version": "go1.26.8",
+        "gomaxprocs": 16,
+        "launch_worktree_dirty": false,
+        "launch_worktree_revision": "75d71fd2935104a121d29e7d78c299cfed36a835",
+        "launch_worktree_status": "available",
+        "logical_cpus": 16,
+        "os": "linux",
+        "state_version": "account-state-v1"
+      },
+      "status": "complete",
+      "store_metric_delta_rule": "counter values and distribution counts/sums/bucket counts only; quantiles and extrema are not differenced",
+      "store_metric_deltas": {
+        "counters": {
+          "db_acquire_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_commit_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_durable_transitions": {
+            "delta": 616,
+            "overflow": false
+          },
+          "db_observation_duplicates": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_observation_writes": {
+            "delta": 488,
+            "overflow": false
+          },
+          "db_queries": {
+            "delta": 33024,
+            "overflow": false
+          },
+          "db_query_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_rollback_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_transactions_committed": {
+            "delta": 4181,
+            "overflow": false
+          },
+          "db_transactions_rolled_back": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_transactions_started": {
+            "delta": 4181,
+            "overflow": false
+          }
+        },
+        "distributions": {
+          "db_account_for_update_roundtrip_ns": {
+            "bucket_count_deltas": {
+              "1000": 0,
+              "10000": 0,
+              "100000": 1091,
+              "1000000": 1,
+              "10000000": 0,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 0,
+              "250000": 138,
+              "2500000": 0,
+              "25000000": 0,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 0,
+              "50000": 68,
+              "500000": 6,
+              "5000000": 0,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 1304,
+            "count_overflow": false,
+            "sum_delta": 102320945,
+            "sum_overflow": false
+          },
+          "db_acquire_ns": {
+            "bucket_count_deltas": {
+              "1000": 3834,
+              "10000": 31,
+              "100000": 2,
+              "1000000": 0,
+              "10000000": 0,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 14,
+              "250000": 2,
+              "2500000": 0,
+              "25000000": 0,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 1401,
+              "50000": 2,
+              "500000": 0,
+              "5000000": 0,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 5286,
+            "count_overflow": false,
+            "sum_delta": 5611477,
+            "sum_overflow": false
+          },
+          "db_commit_ns": {
+            "bucket_count_deltas": {
+              "1000": 0,
+              "10000": 2,
+              "100000": 40,
+              "1000000": 466,
+              "10000000": 1,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 2112,
+              "250000": 8,
+              "2500000": 818,
+              "25000000": 0,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 0,
+              "50000": 710,
+              "500000": 4,
+              "5000000": 20,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 4181,
+            "count_overflow": false,
+            "sum_delta": 2316042729,
+            "sum_overflow": false
+          },
+          "db_transaction_ns": {
+            "bucket_count_deltas": {
+              "1000": 0,
+              "10000": 0,
+              "100000": 0,
+              "1000000": 74,
+              "10000000": 1,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 0,
+              "250000": 1904,
+              "2500000": 642,
+              "25000000": 0,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 0,
+              "50000": 0,
+              "500000": 896,
+              "5000000": 664,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 4181,
+            "count_overflow": false,
+            "sum_delta": 3622103424,
+            "sum_overflow": false
+          }
+        }
+      },
+      "valid": true,
+      "workload": {
+        "baseline": "scheduled",
+        "decision_cadence_ns": 100000000,
+        "development_database_acknowledged": true,
+        "market_events_per_second": 50,
+        "maximum_generator_lag_ns": 250000000,
+        "measurement_ns": 20000000000,
+        "metrics_enabled": true,
+        "ordered_source_queue_capacity": 64,
+        "pool_max_connections": 4,
+        "seed": 42,
+        "trade_percent": 50,
+        "view_in_flight_capacity": 4,
+        "views_per_second": 20,
+        "warmup_ns": 2000000000
+      }
+    },
+    {
+      "actor_configuration": {
+        "accounts": 1,
+        "auto_execute": true,
+        "baseline": "scheduled",
+        "bundle_identity": "none; Go baseline without inference",
+        "control_capacity": 16,
+        "data_source": "synthetic",
+        "execution": {
+          "cancel_latency_ns": 50000000,
+          "decision_interval_ns": 100000000,
+          "fill_model": "conservative-v0",
+          "lambda_miss": 100,
+          "max_participation": "0.25",
+          "min_message_interval_ns": 100000000,
+          "min_resting_age_ns": 2000000000,
+          "settlement_allowance_ns": 30000000000,
+          "submission_latency_ns": 50000000
+        },
+        "fact_capacity": 64,
+        "fact_quantum_steps": 4,
+        "fact_quantum_time_ns": 5000000,
+        "fees": {
+          "currency": "quote",
+          "maker": "0.001",
+          "source": "synthetic-assumption",
+          "taker": "0.002"
+        },
+        "instrument_revision": "synthetic-rules-v1",
+        "instruments": 1,
+        "lease_ns": 300000000000,
+        "mailbox_capacity": 64,
+        "max_facts": 256,
+        "max_fills": 2048,
+        "profile": "paper",
+        "rules": {
+          "lot_size": "0.001",
+          "min_notional": "0.01",
+          "min_quantity": "0.001",
+          "symbol": "BTC/USD",
+          "tick_size": "0.01"
+        },
+        "scheduled_slice_interval_ns": 15000000000,
+        "view_capacity": 64
+      },
+      "cleanup_control_ack_ns": 5162884,
+      "executable": {
+        "bytes": 26382957,
+        "read_source": "proc_self_exe",
+        "sha256": "599baa9160e7961809ce69e81147cc9f172ab15dfff0c06aca922d85f242513f",
+        "status": "available"
+      },
+      "failure_reason": null,
+      "final_source_recovery_debt_count": 0,
+      "financial_conservation": {
+        "durable_execution_count": 2,
+        "durable_execution_quantity": "0.02",
+        "issues": [],
+        "remaining_plan_quantity": "9.98",
+        "snapshot_execution_count": 2,
+        "snapshot_fill_quantity": "0.02",
+        "valid": true
+      },
+      "hardware": {
+        "cpu_model": "AMD Ryzen 7 7840HS w/ Radeon 780M Graphics",
+        "gomaxprocs": 16,
+        "host_memory_total": "14842900 kB",
+        "logical_cpus": 16
+      },
+      "independent_offered_to_success_p99_ns": {
+        "market": 10167940,
+        "view": 9280617
+      },
+      "label": "ordinary-03",
+      "measurement": {
+        "elapsed_including_drain_ns": 20000366396,
+        "http_route_counts": {
+          "report": {
+            "completed": 80,
+            "failed": 0,
+            "offered": 80,
+            "rejected": 0,
+            "runner_admitted": 80,
+            "unresolved": 0
+          },
+          "sessions": {
+            "completed": 80,
+            "failed": 0,
+            "offered": 80,
+            "rejected": 0,
+            "runner_admitted": 80,
+            "unresolved": 0
+          },
+          "state": {
+            "completed": 240,
+            "failed": 0,
+            "offered": 240,
+            "rejected": 0,
+            "runner_admitted": 240,
+            "unresolved": 0
+          }
+        },
+        "input_manifest_sha256": "9c3bbbd96fed26bd10935c2136041876aa337894dc6851d53494e15b9ae6704c",
+        "market": {
+          "completed": 1000,
+          "failed": 0,
+          "offered": 1000,
+          "rejected": 0,
+          "runner_admitted": 1000,
+          "unresolved": 0
+        },
+        "read_service_boundary": "HTTP response fully consumed and JSON validated; HTTP polling, no React rendering",
+        "source_delivery_valid": true,
+        "views": {
+          "completed": 400,
+          "failed": 0,
+          "offered": 400,
+          "rejected": 0,
+          "runner_admitted": 400,
+          "unresolved": 0
+        }
+      },
+      "postgres_activity": {
+        "status": "not sampled in this baseline report"
+      },
+      "postgres_activity_interval_ns": 0,
+      "raw_report_sha256": "6cb2f0805547c9fe63f341087eeca7dc9534df32192006971d4830baabd1b0f8",
+      "read_mode": "http",
+      "report_version": "durable-runtime-benchmark-v2",
+      "resource_deltas": {
+        "elapsed_ns": 20040151266,
+        "gc_cycles": 113,
+        "gc_pause_ns": 4658293,
+        "heap_alloc_endpoint_bytes": 1904976,
+        "mallocs": 3062722,
+        "rss_endpoint_bytes": 4091904,
+        "system_cpu_us": 505070,
+        "total_alloc_bytes": 170618312,
+        "user_cpu_us": 1419445
+      },
+      "source_identity": {
+        "architecture": "amd64",
+        "binary_build": {
+          "available": true,
+          "go_version": "go1.26.8",
+          "main_module": {
+            "path": "github.com/liquiditylab/liquiditylab",
+            "version": "v0.0.0-20261029080621-75d71fd29351"
+          },
+          "package_path": "github.com/liquiditylab/liquiditylab/benchmarks/runtime",
+          "settings": {
+            "-buildmode": "exe",
+            "-compiler": "gc",
+            "CGO_ENABLED": "1",
+            "GOAMD64": "v1",
+            "GOARCH": "amd64",
+            "GOOS": "linux",
+            "vcs": "git",
+            "vcs.modified": "false",
+            "vcs.revision": "75d71fd2935104a121d29e7d78c299cfed36a835",
+            "vcs.time": "2026-10-29T08:06:21Z"
+          },
+          "vcs_status": "available"
+        },
+        "engine_version": "LiquidityLab-SpotExecution-v1",
+        "go_version": "go1.26.8",
+        "gomaxprocs": 16,
+        "launch_worktree_dirty": false,
+        "launch_worktree_revision": "75d71fd2935104a121d29e7d78c299cfed36a835",
+        "launch_worktree_status": "available",
+        "logical_cpus": 16,
+        "os": "linux",
+        "state_version": "account-state-v1"
+      },
+      "status": "complete",
+      "store_metric_delta_rule": "counter values and distribution counts/sums/bucket counts only; quantiles and extrema are not differenced",
+      "store_metric_deltas": {
+        "counters": {
+          "db_acquire_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_commit_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_durable_transitions": {
+            "delta": 610,
+            "overflow": false
+          },
+          "db_observation_duplicates": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_observation_writes": {
+            "delta": 488,
+            "overflow": false
+          },
+          "db_queries": {
+            "delta": 32910,
+            "overflow": false
+          },
+          "db_query_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_rollback_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_transactions_committed": {
+            "delta": 4169,
+            "overflow": false
+          },
+          "db_transactions_rolled_back": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_transactions_started": {
+            "delta": 4169,
+            "overflow": false
+          }
+        },
+        "distributions": {
+          "db_account_for_update_roundtrip_ns": {
+            "bucket_count_deltas": {
+              "1000": 0,
+              "10000": 0,
+              "100000": 1119,
+              "1000000": 1,
+              "10000000": 0,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 0,
+              "250000": 164,
+              "2500000": 2,
+              "25000000": 0,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 0,
+              "50000": 1,
+              "500000": 11,
+              "5000000": 0,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 1298,
+            "count_overflow": false,
+            "sum_delta": 112973097,
+            "sum_overflow": false
+          },
+          "db_acquire_ns": {
+            "bucket_count_deltas": {
+              "1000": 3494,
+              "10000": 41,
+              "100000": 1,
+              "1000000": 0,
+              "10000000": 0,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 21,
+              "250000": 0,
+              "2500000": 0,
+              "25000000": 0,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 1710,
+              "50000": 1,
+              "500000": 0,
+              "5000000": 0,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 5268,
+            "count_overflow": false,
+            "sum_delta": 5988109,
+            "sum_overflow": false
+          },
+          "db_commit_ns": {
+            "bucket_count_deltas": {
+              "1000": 0,
+              "10000": 0,
+              "100000": 58,
+              "1000000": 187,
+              "10000000": 11,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 1917,
+              "250000": 11,
+              "2500000": 1074,
+              "25000000": 0,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 0,
+              "50000": 884,
+              "500000": 1,
+              "5000000": 26,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 4169,
+            "count_overflow": false,
+            "sum_delta": 2789416978,
+            "sum_overflow": false
+          },
+          "db_transaction_ns": {
+            "bucket_count_deltas": {
+              "1000": 0,
+              "10000": 0,
+              "100000": 0,
+              "1000000": 80,
+              "10000000": 13,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 0,
+              "250000": 1548,
+              "2500000": 336,
+              "25000000": 0,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 0,
+              "50000": 0,
+              "500000": 1240,
+              "5000000": 952,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 4169,
+            "count_overflow": false,
+            "sum_delta": 4166941709,
+            "sum_overflow": false
+          }
+        }
+      },
+      "valid": true,
+      "workload": {
+        "baseline": "scheduled",
+        "decision_cadence_ns": 100000000,
+        "development_database_acknowledged": true,
+        "market_events_per_second": 50,
+        "maximum_generator_lag_ns": 250000000,
+        "measurement_ns": 20000000000,
+        "metrics_enabled": true,
+        "ordered_source_queue_capacity": 64,
+        "pool_max_connections": 4,
+        "seed": 42,
+        "trade_percent": 50,
+        "view_in_flight_capacity": 4,
+        "views_per_second": 20,
+        "warmup_ns": 2000000000
+      }
+    },
+    {
+      "actor_configuration": {
+        "accounts": 1,
+        "auto_execute": true,
+        "baseline": "scheduled",
+        "bundle_identity": "none; Go baseline without inference",
+        "control_capacity": 16,
+        "data_source": "synthetic",
+        "execution": {
+          "cancel_latency_ns": 50000000,
+          "decision_interval_ns": 100000000,
+          "fill_model": "conservative-v0",
+          "lambda_miss": 100,
+          "max_participation": "0.25",
+          "min_message_interval_ns": 100000000,
+          "min_resting_age_ns": 2000000000,
+          "settlement_allowance_ns": 30000000000,
+          "submission_latency_ns": 50000000
+        },
+        "fact_capacity": 64,
+        "fact_quantum_steps": 4,
+        "fact_quantum_time_ns": 5000000,
+        "fees": {
+          "currency": "quote",
+          "maker": "0.001",
+          "source": "synthetic-assumption",
+          "taker": "0.002"
+        },
+        "instrument_revision": "synthetic-rules-v1",
+        "instruments": 1,
+        "lease_ns": 300000000000,
+        "mailbox_capacity": 64,
+        "max_facts": 256,
+        "max_fills": 2048,
+        "profile": "paper",
+        "rules": {
+          "lot_size": "0.001",
+          "min_notional": "0.01",
+          "min_quantity": "0.001",
+          "symbol": "BTC/USD",
+          "tick_size": "0.01"
+        },
+        "scheduled_slice_interval_ns": 15000000000,
+        "view_capacity": 64
+      },
+      "cleanup_control_ack_ns": 5014024,
+      "executable": {
+        "bytes": 26382957,
+        "read_source": "proc_self_exe",
+        "sha256": "599baa9160e7961809ce69e81147cc9f172ab15dfff0c06aca922d85f242513f",
+        "status": "available"
+      },
+      "failure_reason": "workload invalid; inspect report source delivery, unresolved work, optional diagnostics, and final state",
+      "final_source_recovery_debt_count": 0,
+      "financial_conservation": {
+        "durable_execution_count": 1,
+        "durable_execution_quantity": "0.01",
+        "issues": [],
+        "remaining_plan_quantity": "9.99",
+        "snapshot_execution_count": 1,
+        "snapshot_fill_quantity": "0.01",
+        "valid": true
+      },
+      "hardware": {
+        "cpu_model": "AMD Ryzen 7 7840HS w/ Radeon 780M Graphics",
+        "gomaxprocs": 16,
+        "host_memory_total": "14842900 kB",
+        "logical_cpus": 16
+      },
+      "independent_offered_to_success_p99_ns": {
+        "market": 391115856,
+        "view": 8267463
+      },
+      "label": "ramp-250",
+      "measurement": {
+        "elapsed_including_drain_ns": 10296383847,
+        "http_route_counts": null,
+        "input_manifest_sha256": "f4e8d6a50f71848ad11591292e4e922778d17611595d8c17f4ce8f128b0904f4",
+        "market": {
+          "completed": 2232,
+          "failed": 0,
+          "offered": 2500,
+          "rejected": 268,
+          "runner_admitted": 2232,
+          "unresolved": 0
+        },
+        "read_service_boundary": "actor.View completion",
+        "source_delivery_valid": false,
+        "views": {
+          "completed": 20,
+          "failed": 0,
+          "offered": 20,
+          "rejected": 0,
+          "runner_admitted": 20,
+          "unresolved": 0
+        }
+      },
+      "postgres_activity": {
+        "backend_observation_categories": {
+          "active_client": 28,
+          "active_other_io": 1,
+          "active_unclassified": 129,
+          "active_wal_io": 207,
+          "idle": 47,
+          "idle_in_transaction": 104
+        },
+        "backend_observations": 516,
+        "complete": true,
+        "contract": "scoped-postgres-activity-v1",
+        "interpretation_limits": [
+          "One existing observer connection; exact generated store application tag, same database/role, client backends only. No SQL text or client addresses selected.",
+          "PID plus backend-start identifies a lifetime; connections existing entirely between samples are unseen. Missing metadata or empty samples make this diagnostic incomplete.",
+          "Counts are backend-observation denominators, not request counts or elapsed wait/CPU durations. Active with no reported wait is unclassified; idle ClientRead is not contention.",
+          "Snapshots can miss brief waits and different backends can wait concurrently. Query execution and sampling perturb the workload. Compare repeated observer-off/on runs.",
+          "Sampling covers its own declared clock from immediately before offered measurement through accepted-call drain; setup/warmup and cleanup are excluded. No cumulative IO/WAL counters or server CPU are measured.",
+          "Attempt/end and backend first/last observation offsets are client query bounds, not exact server transition timestamps. WAL IO identifies WalSync/WalWrite samples only; LWLock WALWrite remains a lightweight-lock category.",
+          "10000 sample ticks, 50000 backend observations, 128 lifetime identities and 8 MiB serialized diagnostic cap; a cap or missed/failed sample makes evidence incomplete."
+        ],
+        "interval_ns": 20000000,
+        "issues": [],
+        "max_store_connections": 4,
+        "observer_connections": 1,
+        "query_timeout_ns": 200000000,
+        "sample_outcomes": {
+          "completed": 516
+        },
+        "sample_rows_preserved_in_raw": 516,
+        "status": "complete",
+        "stopped": true
+      },
+      "postgres_activity_interval_ns": 20000000,
+      "raw_report_sha256": "7283ce85172eaa0e7f7953b778397f89b895ca5e4a6d2f8b10ae6b7c6395a024",
+      "read_mode": "actor",
+      "report_version": "durable-runtime-benchmark-v2",
+      "resource_deltas": {
+        "elapsed_ns": 10339203498,
+        "gc_cycles": 96,
+        "gc_pause_ns": 3908912,
+        "heap_alloc_endpoint_bytes": 3161136,
+        "mallocs": 3860780,
+        "rss_endpoint_bytes": 5259264,
+        "system_cpu_us": 672041,
+        "total_alloc_bytes": 225554752,
+        "user_cpu_us": 1669942
+      },
+      "source_identity": {
+        "architecture": "amd64",
+        "binary_build": {
+          "available": true,
+          "go_version": "go1.26.8",
+          "main_module": {
+            "path": "github.com/liquiditylab/liquiditylab",
+            "version": "v0.0.0-20261029080621-75d71fd29351"
+          },
+          "package_path": "github.com/liquiditylab/liquiditylab/benchmarks/runtime",
+          "settings": {
+            "-buildmode": "exe",
+            "-compiler": "gc",
+            "CGO_ENABLED": "1",
+            "GOAMD64": "v1",
+            "GOARCH": "amd64",
+            "GOOS": "linux",
+            "vcs": "git",
+            "vcs.modified": "false",
+            "vcs.revision": "75d71fd2935104a121d29e7d78c299cfed36a835",
+            "vcs.time": "2026-10-29T08:06:21Z"
+          },
+          "vcs_status": "available"
+        },
+        "engine_version": "LiquidityLab-SpotExecution-v1",
+        "go_version": "go1.26.8",
+        "gomaxprocs": 16,
+        "launch_worktree_dirty": false,
+        "launch_worktree_revision": "75d71fd2935104a121d29e7d78c299cfed36a835",
+        "launch_worktree_status": "available",
+        "logical_cpus": 16,
+        "os": "linux",
+        "state_version": "account-state-v1"
+      },
+      "status": "invalid",
+      "store_metric_delta_rule": "counter values and distribution counts/sums/bucket counts only; quantiles and extrema are not differenced",
+      "store_metric_deltas": {
+        "counters": {
+          "db_acquire_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_commit_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_durable_transitions": {
+            "delta": 1158,
+            "overflow": false
+          },
+          "db_observation_duplicates": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_observation_writes": {
+            "delta": 1113,
+            "overflow": false
+          },
+          "db_queries": {
+            "delta": 58595,
+            "overflow": false
+          },
+          "db_query_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_rollback_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_transactions_committed": {
+            "delta": 7096,
+            "overflow": false
+          },
+          "db_transactions_rolled_back": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_transactions_started": {
+            "delta": 7096,
+            "overflow": false
+          }
+        },
+        "distributions": {
+          "db_account_for_update_roundtrip_ns": {
+            "bucket_count_deltas": {
+              "1000": 0,
+              "10000": 0,
+              "100000": 2049,
+              "1000000": 2,
+              "10000000": 0,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 0,
+              "250000": 246,
+              "2500000": 0,
+              "25000000": 0,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 0,
+              "50000": 75,
+              "500000": 2,
+              "5000000": 0,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 2374,
+            "count_overflow": false,
+            "sum_delta": 179395317,
+            "sum_overflow": false
+          },
+          "db_acquire_ns": {
+            "bucket_count_deltas": {
+              "1000": 7361,
+              "10000": 31,
+              "100000": 0,
+              "1000000": 0,
+              "10000000": 0,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 4,
+              "250000": 0,
+              "2500000": 0,
+              "25000000": 0,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 1971,
+              "50000": 0,
+              "500000": 0,
+              "5000000": 0,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 9367,
+            "count_overflow": false,
+            "sum_delta": 7492175,
+            "sum_overflow": false
+          },
+          "db_commit_ns": {
+            "bucket_count_deltas": {
+              "1000": 0,
+              "10000": 2,
+              "100000": 16,
+              "1000000": 245,
+              "10000000": 0,
+              "100000000": 1,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 4071,
+              "250000": 6,
+              "2500000": 2096,
+              "25000000": 1,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 0,
+              "50000": 625,
+              "500000": 1,
+              "5000000": 32,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 7096,
+            "count_overflow": false,
+            "sum_delta": 5322231005,
+            "sum_overflow": false
+          },
+          "db_transaction_ns": {
+            "bucket_count_deltas": {
+              "1000": 0,
+              "10000": 0,
+              "100000": 0,
+              "1000000": 32,
+              "10000000": 1,
+              "100000000": 1,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 0,
+              "250000": 3753,
+              "2500000": 401,
+              "25000000": 1,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 0,
+              "50000": 0,
+              "500000": 931,
+              "5000000": 1976,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 7096,
+            "count_overflow": false,
+            "sum_delta": 7411898386,
+            "sum_overflow": false
+          }
+        }
+      },
+      "valid": false,
+      "workload": {
+        "baseline": "scheduled",
+        "decision_cadence_ns": 100000000,
+        "development_database_acknowledged": true,
+        "market_events_per_second": 250,
+        "maximum_generator_lag_ns": 250000000,
+        "measurement_ns": 10000000000,
+        "metrics_enabled": true,
+        "ordered_source_queue_capacity": 64,
+        "pool_max_connections": 4,
+        "seed": 42,
+        "trade_percent": 50,
+        "view_in_flight_capacity": 4,
+        "views_per_second": 2,
+        "warmup_ns": 2000000000
+      }
+    }
+  ]
+}

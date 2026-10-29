@@ -1,0 +1,42 @@
+{
+  "compression": "gzip level 9, mtime 0, empty member filename",
+  "reports": [
+    {
+      "compressed_bytes": 88267,
+      "compressed_sha256": "a196502a682569c91e68cde76d42a191d26cceb74d24d18e334200ed00bac565",
+      "file": "trial-ordinary-01.json.gz",
+      "label": "ordinary-01",
+      "preserves_original_json_bytes": true,
+      "uncompressed_bytes": 1503581,
+      "uncompressed_sha256": "b3670f1a239231d23efb3ba4c88144a99146304a309da3c7c23d634ebd2d626c"
+    },
+    {
+      "compressed_bytes": 88293,
+      "compressed_sha256": "b46b7e01ab4d4f6db34131c558ff3cad22f2a8aeae14a0d78a8e5a722c5c2825",
+      "file": "trial-ordinary-02.json.gz",
+      "label": "ordinary-02",
+      "preserves_original_json_bytes": true,
+      "uncompressed_bytes": 1503551,
+      "uncompressed_sha256": "238644db85ddea85874c620a66721c68c76b26ba41a876c9a5b6758b2be2e1af"
+    },
+    {
+      "compressed_bytes": 88186,
+      "compressed_sha256": "cc27aaf92b30b388c16a837ab63bbb7d27e203f486dd942c55d54569c20d329d",
+      "file": "trial-ordinary-03.json.gz",
+      "label": "ordinary-03",
+      "preserves_original_json_bytes": true,
+      "uncompressed_bytes": 1503623,
+      "uncompressed_sha256": "6cb2f0805547c9fe63f341087eeca7dc9534df32192006971d4830baabd1b0f8"
+    },
+    {
+      "compressed_bytes": 166658,
+      "compressed_sha256": "1080dcd380dbe0309ee9baabe3c40da3d2f5aa3d39c90ca91262594d267e8690",
+      "file": "trial-ramp-250.json.gz",
+      "label": "ramp-250",
+      "preserves_original_json_bytes": true,
+      "uncompressed_bytes": 2955831,
+      "uncompressed_sha256": "7283ce85172eaa0e7f7953b778397f89b895ca5e4a6d2f8b10ae6b7c6395a024"
+    }
+  ],
+  "schema": "runtime-quantum-evidence-v1"
+}
