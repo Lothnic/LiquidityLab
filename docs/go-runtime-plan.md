@@ -554,6 +554,17 @@ backlog before exhausting the configured pool, but current CPU/Go blocking
 profiles do not identify pure database/storage wait. Measure recovery under
 demand and server-side service cost before assigning an admission limit.
 
+The [29 October scoped PostgreSQL cohort](../benchmarks/results/runtime-pg-activity-20261029/README.md)
+adds three ordinary observer-off/on pairs and a separate 250 Hz ramp, from clean
+`35fc7b7`. All six ordinary runs complete 1,000 source offers and 400 HTTP reads.
+The ramp rejects 25 of 2,500 source offers and remains invalid. It records 7,902
+commits, 5.769 s aggregate client COMMIT round trips and 248 WAL-IO classifications
+among 513 backend snapshots. These observations locate substantial cost on the
+durable commit path; sampled snapshots do not isolate pure fsync/server CPU,
+and periodic sampling can alias with source cadence. No admission/headroom gate
+is passed by these results. Next, bound the current actor's fact-reduction work
+per turn and verify controls and recovery against an accepted backlog.
+
 #### Stage 2 commit interfaces
 
 The following five-part commit sequence records how Stage 2 was implemented. All five components are now committed, but implementation alone does not satisfy the measurement gate.

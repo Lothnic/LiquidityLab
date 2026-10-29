@@ -1,5 +1,49 @@
 # Verification record
 
+## Core acceptance and scoped PostgreSQL observation — 29 October 2026
+
+Checkpoints `bf3d4d5`, `f9a6342`, `35fc7b7` and `79062b0` add rational
+ledger/compiler/replay properties, replacement-finality conformance, bounded
+PostgreSQL activity diagnostics and the [Phase 2 acceptance audit](phase2-core-audit.md).
+
+- At clean `35fc7b7`, the full uncached Go race suite passed with development
+  PostgreSQL, the real Python interpreter and newly built replay binary.
+  Workload 7.137 s, daemon 52.093 s, runtime 12.660 s, store 4.114 s and
+  inference 7.133 s are suite durations, not product latency.
+- The [combined conformance run](../conformance/results/20261029-phase2.json)
+  passed generated-binding/reference drift, four Go race packages, an owned
+  daemon build and 198 Python checks with zero skips/failures/errors. Five
+  approved economic/observation goldens now include the replacement lifecycle;
+  the previous four cases were unchanged. Existing float tolerances remain.
+- Optional activity diagnostics passed three focused race repetitions before
+  the full suite. Checks cover exact application scoping, PID reuse, observed
+  lock release, missing metadata, query deadlines, every tick through Stop,
+  caps, explicit truncation and observer connection reuse. Independent Sol
+  review found no important issues in sampler/caller integration or Phase 2
+  requirement coverage.
+- Seven [PostgreSQL activity workload reports](../benchmarks/results/runtime-pg-activity-20261029/README.md)
+  retain exact original bytes from the same clean executable. Three observer-off
+  and three observer-on ordinary runs each complete 1,000 source updates and
+  400 HTTP reads. The enabled diagnostics each retain 1,001 ticks and 2,002
+  backend observations. Periodic 20 ms sampling can alias with 50 Hz input;
+  counts are snapshots, not elapsed service or CPU time.
+- The separate 250 Hz ramp loses 25 source offers, completing 2,475/2,500, and
+  remains invalid. Its complete sampler has 513 backend observations, including
+  248 WAL IO, 47 active/unclassified and 136 idle-in-transaction classifications.
+  During its 10.232 s measurement/drain, 7,902 commits accumulate 5.769 s of
+  client COMMIT round trips, versus 7.027 ms of pool acquisition and 174.366 ms
+  of account FOR UPDATE round trips. These overlapping values locate commit
+  cost but do not establish pure storage/CPU attribution or supported load.
+- Root independently verified original/compressed hashes, all fourteen source
+  manifests, offer/admission/outcome/route counts, empirical p99s, exact cashflows,
+  residuals, unlocked balances, cursor/finality/gauge invariants, sampler lifetime
+  denominators and selected store counter/count/sum/bucket deltas. The invalid
+  ramp is retained despite its valid financial conservation and zero final debt.
+
+Phases 1–2 are locally accepted; the Go training default remains Python.
+Stage 2 service-demand/admission/recovery-headroom and the broader product,
+policy, deployment and live gates remain open. No private orders were sent.
+
 ## Shared contracts and recovery-under-demand — 29 October 2026
 
 Contract checkpoints `15bdb5c`, `3bcb69f` and `0287a0f` add shared canonical

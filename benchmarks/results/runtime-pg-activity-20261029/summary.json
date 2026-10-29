@@ -1,0 +1,2426 @@
+{
+  "schema": "runtime-pg-activity-summary-v1",
+  "trials": [
+    {
+      "database_configuration": {
+        "fsync": "on",
+        "server_version": "18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)",
+        "synchronous_commit": "on",
+        "track_io_timing": "off"
+      },
+      "failure_reason": null,
+      "final_source_recovery_debt_count": 0,
+      "financial_conservation": {
+        "durable_execution_count": 2,
+        "durable_execution_quantity": "0.02",
+        "issues": [],
+        "remaining_plan_quantity": "9.98",
+        "snapshot_execution_count": 2,
+        "snapshot_fill_quantity": "0.02",
+        "valid": true
+      },
+      "label": "off-01",
+      "measured_process_resource_deltas": {
+        "elapsed_ns": 20031734358,
+        "gc_cycles": 99,
+        "gc_pause_ns": 4638513,
+        "heap_alloc_endpoint_bytes": 1545880,
+        "mallocs": 2784590,
+        "rss_endpoint_bytes": 4001792,
+        "system_cpu_us": 462165,
+        "total_alloc_bytes": 161626904,
+        "user_cpu_us": 1438035
+      },
+      "measurement": {
+        "elapsed_including_drain_ns": 20000679132,
+        "http_route_counts": {
+          "report": {
+            "completed": 80,
+            "failed": 0,
+            "offered": 80,
+            "rejected": 0,
+            "runner_admitted": 80,
+            "unresolved": 0
+          },
+          "sessions": {
+            "completed": 80,
+            "failed": 0,
+            "offered": 80,
+            "rejected": 0,
+            "runner_admitted": 80,
+            "unresolved": 0
+          },
+          "state": {
+            "completed": 240,
+            "failed": 0,
+            "offered": 240,
+            "rejected": 0,
+            "runner_admitted": 240,
+            "unresolved": 0
+          }
+        },
+        "input_manifest_sha256": "9c3bbbd96fed26bd10935c2136041876aa337894dc6851d53494e15b9ae6704c",
+        "latencies": {
+          "market_offered_to_success": {
+            "count": 1000,
+            "max_ns": 26133759,
+            "p50_ns": 2569448,
+            "p95_ns": 9156653,
+            "p99_ns": 10436366
+          },
+          "view_offered_to_success": {
+            "count": 400,
+            "max_ns": 16971567,
+            "p50_ns": 1803962,
+            "p95_ns": 9151457,
+            "p99_ns": 10463963
+          }
+        },
+        "market": {
+          "completed": 1000,
+          "failed": 0,
+          "offered": 1000,
+          "rejected": 0,
+          "runner_admitted": 1000,
+          "unresolved": 0
+        },
+        "read_service_boundary": "HTTP response fully consumed and JSON validated; HTTP polling, no React rendering",
+        "source_delivery_valid": true,
+        "views": {
+          "completed": 400,
+          "failed": 0,
+          "offered": 400,
+          "rejected": 0,
+          "runner_admitted": 400,
+          "unresolved": 0
+        }
+      },
+      "postgres_activity": {
+        "status": "not sampled in this baseline report"
+      },
+      "postgres_activity_interval_ns": 0,
+      "raw_report_sha256": "0c7b952711160c800da57fc6b4ea1cca7187392627689e1f64e94a81791fd5ee",
+      "read_mode": "http",
+      "report_version": "durable-runtime-benchmark-v2",
+      "source_identity": {
+        "architecture": "amd64",
+        "binary_build": {
+          "available": true,
+          "go_version": "go1.26.8",
+          "main_module": {
+            "path": "github.com/liquiditylab/liquiditylab",
+            "version": "v0.0.0-20261029025035-35fc7b7a65cb"
+          },
+          "package_path": "github.com/liquiditylab/liquiditylab/benchmarks/runtime",
+          "settings": {
+            "-buildmode": "exe",
+            "-compiler": "gc",
+            "CGO_ENABLED": "1",
+            "GOAMD64": "v1",
+            "GOARCH": "amd64",
+            "GOOS": "linux",
+            "vcs": "git",
+            "vcs.modified": "false",
+            "vcs.revision": "35fc7b7a65cb0cc251c618a9e99d70409a893cf0",
+            "vcs.time": "2026-10-29T02:50:35Z"
+          },
+          "vcs_status": "available"
+        },
+        "engine_version": "LiquidityLab-SpotExecution-v1",
+        "executable": {
+          "bytes": 26349981,
+          "sha256": "e08db2ef2362c4265cc2738c49f942c3ba3269bffe54f20b214a261c81479b9d",
+          "status": "available"
+        },
+        "go_version": "go1.26.8",
+        "gomaxprocs": 16,
+        "launch_worktree_dirty": false,
+        "launch_worktree_revision": "35fc7b7a65cb0cc251c618a9e99d70409a893cf0",
+        "launch_worktree_status": "available",
+        "logical_cpus": 16,
+        "os": "linux",
+        "state_version": "account-state-v1"
+      },
+      "status": "complete",
+      "store_metric_delta_rule": "counter values and distribution counts/sums/bucket counts only; quantiles and extrema are not differenced",
+      "store_metric_deltas": {
+        "counters": {
+          "db_acquire_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_commit_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_durable_transitions": {
+            "delta": 613,
+            "overflow": false
+          },
+          "db_observation_duplicates": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_observation_writes": {
+            "delta": 488,
+            "overflow": false
+          },
+          "db_queries": {
+            "delta": 32975,
+            "overflow": false
+          },
+          "db_query_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_rollback_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_transactions_committed": {
+            "delta": 4176,
+            "overflow": false
+          },
+          "db_transactions_rolled_back": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_transactions_started": {
+            "delta": 4176,
+            "overflow": false
+          }
+        },
+        "distributions": {
+          "db_account_for_update_roundtrip_ns": {
+            "bucket_count_deltas": {
+              "1000": 0,
+              "10000": 0,
+              "100000": 1006,
+              "1000000": 0,
+              "10000000": 0,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 0,
+              "250000": 221,
+              "2500000": 0,
+              "25000000": 0,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 0,
+              "50000": 67,
+              "500000": 7,
+              "5000000": 0,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 1301,
+            "count_overflow": false,
+            "sum_delta": 107860634,
+            "sum_overflow": false
+          },
+          "db_acquire_ns": {
+            "bucket_count_deltas": {
+              "1000": 3829,
+              "10000": 32,
+              "100000": 9,
+              "1000000": 0,
+              "10000000": 0,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 12,
+              "250000": 2,
+              "2500000": 0,
+              "25000000": 0,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 1392,
+              "50000": 3,
+              "500000": 0,
+              "5000000": 0,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 5279,
+            "count_overflow": false,
+            "sum_delta": 6175411,
+            "sum_overflow": false
+          },
+          "db_commit_ns": {
+            "bucket_count_deltas": {
+              "1000": 0,
+              "10000": 0,
+              "100000": 58,
+              "1000000": 422,
+              "10000000": 3,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 2099,
+              "250000": 4,
+              "2500000": 868,
+              "25000000": 1,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 0,
+              "50000": 713,
+              "500000": 0,
+              "5000000": 8,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 4176,
+            "count_overflow": false,
+            "sum_delta": 2314286969,
+            "sum_overflow": false
+          },
+          "db_transaction_ns": {
+            "bucket_count_deltas": {
+              "1000": 0,
+              "10000": 0,
+              "100000": 0,
+              "1000000": 99,
+              "10000000": 4,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 0,
+              "250000": 1921,
+              "2500000": 630,
+              "25000000": 1,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 0,
+              "50000": 0,
+              "500000": 853,
+              "5000000": 668,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 4176,
+            "count_overflow": false,
+            "sum_delta": 3649892407,
+            "sum_overflow": false
+          }
+        }
+      },
+      "valid": true,
+      "workload": {
+        "decision_cadence_ns": 100000000,
+        "market_events_per_second": 50,
+        "measurement_ns": 20000000000,
+        "ordered_source_queue_capacity": 64,
+        "pool_max_connections": 4,
+        "seed": 42,
+        "view_in_flight_capacity": 4,
+        "views_per_second": 20,
+        "warmup_ns": 2000000000
+      }
+    },
+    {
+      "database_configuration": {
+        "fsync": "on",
+        "server_version": "18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)",
+        "synchronous_commit": "on",
+        "track_io_timing": "off"
+      },
+      "failure_reason": null,
+      "final_source_recovery_debt_count": 0,
+      "financial_conservation": {
+        "durable_execution_count": 2,
+        "durable_execution_quantity": "0.02",
+        "issues": [],
+        "remaining_plan_quantity": "9.98",
+        "snapshot_execution_count": 2,
+        "snapshot_fill_quantity": "0.02",
+        "valid": true
+      },
+      "label": "on-01",
+      "measured_process_resource_deltas": {
+        "elapsed_ns": 20045255484,
+        "gc_cycles": 97,
+        "gc_pause_ns": 4871598,
+        "heap_alloc_endpoint_bytes": 2273888,
+        "mallocs": 2846320,
+        "rss_endpoint_bytes": 5492736,
+        "system_cpu_us": 489243,
+        "total_alloc_bytes": 166005808,
+        "user_cpu_us": 1505734
+      },
+      "measurement": {
+        "elapsed_including_drain_ns": 20001088393,
+        "http_route_counts": {
+          "report": {
+            "completed": 80,
+            "failed": 0,
+            "offered": 80,
+            "rejected": 0,
+            "runner_admitted": 80,
+            "unresolved": 0
+          },
+          "sessions": {
+            "completed": 80,
+            "failed": 0,
+            "offered": 80,
+            "rejected": 0,
+            "runner_admitted": 80,
+            "unresolved": 0
+          },
+          "state": {
+            "completed": 240,
+            "failed": 0,
+            "offered": 240,
+            "rejected": 0,
+            "runner_admitted": 240,
+            "unresolved": 0
+          }
+        },
+        "input_manifest_sha256": "9c3bbbd96fed26bd10935c2136041876aa337894dc6851d53494e15b9ae6704c",
+        "latencies": {
+          "market_offered_to_success": {
+            "count": 1000,
+            "max_ns": 15853617,
+            "p50_ns": 1099468,
+            "p95_ns": 8938080,
+            "p99_ns": 9704355
+          },
+          "view_offered_to_success": {
+            "count": 400,
+            "max_ns": 18853846,
+            "p50_ns": 1808930,
+            "p95_ns": 9300801,
+            "p99_ns": 9976775
+          }
+        },
+        "market": {
+          "completed": 1000,
+          "failed": 0,
+          "offered": 1000,
+          "rejected": 0,
+          "runner_admitted": 1000,
+          "unresolved": 0
+        },
+        "read_service_boundary": "HTTP response fully consumed and JSON validated; HTTP polling, no React rendering",
+        "source_delivery_valid": true,
+        "views": {
+          "completed": 400,
+          "failed": 0,
+          "offered": 400,
+          "rejected": 0,
+          "runner_admitted": 400,
+          "unresolved": 0
+        }
+      },
+      "postgres_activity": {
+        "backend_observation_categories": {
+          "active_client": 1,
+          "active_wal_io": 30,
+          "idle": 1966,
+          "idle_in_transaction": 5
+        },
+        "backend_observations": 2002,
+        "complete": true,
+        "contract": "scoped-postgres-activity-v1",
+        "interpretation_limits": [
+          "One existing observer connection; exact generated store application tag, same database/role, client backends only. No SQL text or client addresses selected.",
+          "PID plus backend-start identifies a lifetime; connections existing entirely between samples are unseen. Missing metadata or empty samples make this diagnostic incomplete.",
+          "Counts are backend-observation denominators, not request counts or elapsed wait/CPU durations. Active with no reported wait is unclassified; idle ClientRead is not contention.",
+          "Snapshots can miss brief waits and different backends can wait concurrently. Query execution and sampling perturb the workload. Compare repeated observer-off/on runs.",
+          "Sampling covers its own declared clock from immediately before offered measurement through accepted-call drain; setup/warmup and cleanup are excluded. No cumulative IO/WAL counters or server CPU are measured.",
+          "Attempt/end and backend first/last observation offsets are client query bounds, not exact server transition timestamps. WAL IO identifies WalSync/WalWrite samples only; LWLock WALWrite remains a lightweight-lock category.",
+          "10000 sample ticks, 50000 backend observations, 128 lifetime identities and 8 MiB serialized diagnostic cap; a cap or missed/failed sample makes evidence incomplete."
+        ],
+        "interval_ns": 20000000,
+        "issues": [],
+        "max_store_connections": 4,
+        "observer_connections": 1,
+        "query_timeout_ns": 200000000,
+        "sample_outcomes": {
+          "completed": 1001
+        },
+        "sample_rows_preserved_in_raw": 1001,
+        "status": "complete",
+        "stopped": true
+      },
+      "postgres_activity_interval_ns": 20000000,
+      "raw_report_sha256": "a024235efbf849c9fabb2a5ce1e736c41617fff520f8db22a30027de968404ac",
+      "read_mode": "http",
+      "report_version": "durable-runtime-benchmark-v2",
+      "source_identity": {
+        "architecture": "amd64",
+        "binary_build": {
+          "available": true,
+          "go_version": "go1.26.8",
+          "main_module": {
+            "path": "github.com/liquiditylab/liquiditylab",
+            "version": "v0.0.0-20261029025035-35fc7b7a65cb"
+          },
+          "package_path": "github.com/liquiditylab/liquiditylab/benchmarks/runtime",
+          "settings": {
+            "-buildmode": "exe",
+            "-compiler": "gc",
+            "CGO_ENABLED": "1",
+            "GOAMD64": "v1",
+            "GOARCH": "amd64",
+            "GOOS": "linux",
+            "vcs": "git",
+            "vcs.modified": "false",
+            "vcs.revision": "35fc7b7a65cb0cc251c618a9e99d70409a893cf0",
+            "vcs.time": "2026-10-29T02:50:35Z"
+          },
+          "vcs_status": "available"
+        },
+        "engine_version": "LiquidityLab-SpotExecution-v1",
+        "executable": {
+          "bytes": 26349981,
+          "sha256": "e08db2ef2362c4265cc2738c49f942c3ba3269bffe54f20b214a261c81479b9d",
+          "status": "available"
+        },
+        "go_version": "go1.26.8",
+        "gomaxprocs": 16,
+        "launch_worktree_dirty": false,
+        "launch_worktree_revision": "35fc7b7a65cb0cc251c618a9e99d70409a893cf0",
+        "launch_worktree_status": "available",
+        "logical_cpus": 16,
+        "os": "linux",
+        "state_version": "account-state-v1"
+      },
+      "status": "complete",
+      "store_metric_delta_rule": "counter values and distribution counts/sums/bucket counts only; quantiles and extrema are not differenced",
+      "store_metric_deltas": {
+        "counters": {
+          "db_acquire_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_commit_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_durable_transitions": {
+            "delta": 616,
+            "overflow": false
+          },
+          "db_observation_duplicates": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_observation_writes": {
+            "delta": 488,
+            "overflow": false
+          },
+          "db_queries": {
+            "delta": 33032,
+            "overflow": false
+          },
+          "db_query_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_rollback_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_transactions_committed": {
+            "delta": 4182,
+            "overflow": false
+          },
+          "db_transactions_rolled_back": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_transactions_started": {
+            "delta": 4182,
+            "overflow": false
+          }
+        },
+        "distributions": {
+          "db_account_for_update_roundtrip_ns": {
+            "bucket_count_deltas": {
+              "1000": 0,
+              "10000": 0,
+              "100000": 950,
+              "1000000": 1,
+              "10000000": 0,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 0,
+              "250000": 262,
+              "2500000": 0,
+              "25000000": 0,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 0,
+              "50000": 84,
+              "500000": 7,
+              "5000000": 0,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 1304,
+            "count_overflow": false,
+            "sum_delta": 112460168,
+            "sum_overflow": false
+          },
+          "db_acquire_ns": {
+            "bucket_count_deltas": {
+              "1000": 3918,
+              "10000": 54,
+              "100000": 1,
+              "1000000": 0,
+              "10000000": 0,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 8,
+              "250000": 1,
+              "2500000": 0,
+              "25000000": 0,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 1302,
+              "50000": 3,
+              "500000": 1,
+              "5000000": 0,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 5288,
+            "count_overflow": false,
+            "sum_delta": 5673500,
+            "sum_overflow": false
+          },
+          "db_commit_ns": {
+            "bucket_count_deltas": {
+              "1000": 0,
+              "10000": 0,
+              "100000": 30,
+              "1000000": 393,
+              "10000000": 2,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 2246,
+              "250000": 3,
+              "2500000": 901,
+              "25000000": 1,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 0,
+              "50000": 599,
+              "500000": 0,
+              "5000000": 7,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 4182,
+            "count_overflow": false,
+            "sum_delta": 2311838355,
+            "sum_overflow": false
+          },
+          "db_transaction_ns": {
+            "bucket_count_deltas": {
+              "1000": 0,
+              "10000": 0,
+              "100000": 0,
+              "1000000": 47,
+              "10000000": 2,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 0,
+              "250000": 1993,
+              "2500000": 650,
+              "25000000": 1,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 0,
+              "50000": 0,
+              "500000": 837,
+              "5000000": 652,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 4182,
+            "count_overflow": false,
+            "sum_delta": 3635959843,
+            "sum_overflow": false
+          }
+        }
+      },
+      "valid": true,
+      "workload": {
+        "decision_cadence_ns": 100000000,
+        "market_events_per_second": 50,
+        "measurement_ns": 20000000000,
+        "ordered_source_queue_capacity": 64,
+        "pool_max_connections": 4,
+        "seed": 42,
+        "view_in_flight_capacity": 4,
+        "views_per_second": 20,
+        "warmup_ns": 2000000000
+      }
+    },
+    {
+      "database_configuration": {
+        "fsync": "on",
+        "server_version": "18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)",
+        "synchronous_commit": "on",
+        "track_io_timing": "off"
+      },
+      "failure_reason": null,
+      "final_source_recovery_debt_count": 0,
+      "financial_conservation": {
+        "durable_execution_count": 2,
+        "durable_execution_quantity": "0.02",
+        "issues": [],
+        "remaining_plan_quantity": "9.98",
+        "snapshot_execution_count": 2,
+        "snapshot_fill_quantity": "0.02",
+        "valid": true
+      },
+      "label": "off-02",
+      "measured_process_resource_deltas": {
+        "elapsed_ns": 20034745391,
+        "gc_cycles": 97,
+        "gc_pause_ns": 5124892,
+        "heap_alloc_endpoint_bytes": 1865184,
+        "mallocs": 2793622,
+        "rss_endpoint_bytes": 4620288,
+        "system_cpu_us": 468113,
+        "total_alloc_bytes": 161858312,
+        "user_cpu_us": 1503527
+      },
+      "measurement": {
+        "elapsed_including_drain_ns": 20000253609,
+        "http_route_counts": {
+          "report": {
+            "completed": 80,
+            "failed": 0,
+            "offered": 80,
+            "rejected": 0,
+            "runner_admitted": 80,
+            "unresolved": 0
+          },
+          "sessions": {
+            "completed": 80,
+            "failed": 0,
+            "offered": 80,
+            "rejected": 0,
+            "runner_admitted": 80,
+            "unresolved": 0
+          },
+          "state": {
+            "completed": 240,
+            "failed": 0,
+            "offered": 240,
+            "rejected": 0,
+            "runner_admitted": 240,
+            "unresolved": 0
+          }
+        },
+        "input_manifest_sha256": "9c3bbbd96fed26bd10935c2136041876aa337894dc6851d53494e15b9ae6704c",
+        "latencies": {
+          "market_offered_to_success": {
+            "count": 1000,
+            "max_ns": 22875447,
+            "p50_ns": 1280060,
+            "p95_ns": 9366831,
+            "p99_ns": 10402735
+          },
+          "view_offered_to_success": {
+            "count": 400,
+            "max_ns": 11387770,
+            "p50_ns": 1843249,
+            "p95_ns": 9521116,
+            "p99_ns": 10564450
+          }
+        },
+        "market": {
+          "completed": 1000,
+          "failed": 0,
+          "offered": 1000,
+          "rejected": 0,
+          "runner_admitted": 1000,
+          "unresolved": 0
+        },
+        "read_service_boundary": "HTTP response fully consumed and JSON validated; HTTP polling, no React rendering",
+        "source_delivery_valid": true,
+        "views": {
+          "completed": 400,
+          "failed": 0,
+          "offered": 400,
+          "rejected": 0,
+          "runner_admitted": 400,
+          "unresolved": 0
+        }
+      },
+      "postgres_activity": {
+        "status": "not sampled in this baseline report"
+      },
+      "postgres_activity_interval_ns": 0,
+      "raw_report_sha256": "d27ebc44ca3223ef3c1e20bf0ee88f1a8247131bdbc48d9b9a60888940bc4046",
+      "read_mode": "http",
+      "report_version": "durable-runtime-benchmark-v2",
+      "source_identity": {
+        "architecture": "amd64",
+        "binary_build": {
+          "available": true,
+          "go_version": "go1.26.8",
+          "main_module": {
+            "path": "github.com/liquiditylab/liquiditylab",
+            "version": "v0.0.0-20261029025035-35fc7b7a65cb"
+          },
+          "package_path": "github.com/liquiditylab/liquiditylab/benchmarks/runtime",
+          "settings": {
+            "-buildmode": "exe",
+            "-compiler": "gc",
+            "CGO_ENABLED": "1",
+            "GOAMD64": "v1",
+            "GOARCH": "amd64",
+            "GOOS": "linux",
+            "vcs": "git",
+            "vcs.modified": "false",
+            "vcs.revision": "35fc7b7a65cb0cc251c618a9e99d70409a893cf0",
+            "vcs.time": "2026-10-29T02:50:35Z"
+          },
+          "vcs_status": "available"
+        },
+        "engine_version": "LiquidityLab-SpotExecution-v1",
+        "executable": {
+          "bytes": 26349981,
+          "sha256": "e08db2ef2362c4265cc2738c49f942c3ba3269bffe54f20b214a261c81479b9d",
+          "status": "available"
+        },
+        "go_version": "go1.26.8",
+        "gomaxprocs": 16,
+        "launch_worktree_dirty": false,
+        "launch_worktree_revision": "35fc7b7a65cb0cc251c618a9e99d70409a893cf0",
+        "launch_worktree_status": "available",
+        "logical_cpus": 16,
+        "os": "linux",
+        "state_version": "account-state-v1"
+      },
+      "status": "complete",
+      "store_metric_delta_rule": "counter values and distribution counts/sums/bucket counts only; quantiles and extrema are not differenced",
+      "store_metric_deltas": {
+        "counters": {
+          "db_acquire_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_commit_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_durable_transitions": {
+            "delta": 617,
+            "overflow": false
+          },
+          "db_observation_duplicates": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_observation_writes": {
+            "delta": 488,
+            "overflow": false
+          },
+          "db_queries": {
+            "delta": 33051,
+            "overflow": false
+          },
+          "db_query_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_rollback_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_transactions_committed": {
+            "delta": 4184,
+            "overflow": false
+          },
+          "db_transactions_rolled_back": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_transactions_started": {
+            "delta": 4184,
+            "overflow": false
+          }
+        },
+        "distributions": {
+          "db_account_for_update_roundtrip_ns": {
+            "bucket_count_deltas": {
+              "1000": 0,
+              "10000": 0,
+              "100000": 983,
+              "1000000": 0,
+              "10000000": 0,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 0,
+              "250000": 259,
+              "2500000": 0,
+              "25000000": 0,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 0,
+              "50000": 56,
+              "500000": 7,
+              "5000000": 0,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 1305,
+            "count_overflow": false,
+            "sum_delta": 109659044,
+            "sum_overflow": false
+          },
+          "db_acquire_ns": {
+            "bucket_count_deltas": {
+              "1000": 3812,
+              "10000": 41,
+              "100000": 4,
+              "1000000": 0,
+              "10000000": 0,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 13,
+              "250000": 5,
+              "2500000": 0,
+              "25000000": 0,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 1413,
+              "50000": 3,
+              "500000": 0,
+              "5000000": 0,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 5291,
+            "count_overflow": false,
+            "sum_delta": 6293710,
+            "sum_overflow": false
+          },
+          "db_commit_ns": {
+            "bucket_count_deltas": {
+              "1000": 0,
+              "10000": 0,
+              "100000": 39,
+              "1000000": 342,
+              "10000000": 0,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 2139,
+              "250000": 2,
+              "2500000": 870,
+              "25000000": 1,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 0,
+              "50000": 699,
+              "500000": 0,
+              "5000000": 92,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 4184,
+            "count_overflow": false,
+            "sum_delta": 2378068543,
+            "sum_overflow": false
+          },
+          "db_transaction_ns": {
+            "bucket_count_deltas": {
+              "1000": 0,
+              "10000": 0,
+              "100000": 0,
+              "1000000": 80,
+              "10000000": 0,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 0,
+              "250000": 1946,
+              "2500000": 610,
+              "25000000": 1,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 0,
+              "50000": 0,
+              "500000": 852,
+              "5000000": 695,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 4184,
+            "count_overflow": false,
+            "sum_delta": 3743946449,
+            "sum_overflow": false
+          }
+        }
+      },
+      "valid": true,
+      "workload": {
+        "decision_cadence_ns": 100000000,
+        "market_events_per_second": 50,
+        "measurement_ns": 20000000000,
+        "ordered_source_queue_capacity": 64,
+        "pool_max_connections": 4,
+        "seed": 42,
+        "view_in_flight_capacity": 4,
+        "views_per_second": 20,
+        "warmup_ns": 2000000000
+      }
+    },
+    {
+      "database_configuration": {
+        "fsync": "on",
+        "server_version": "18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)",
+        "synchronous_commit": "on",
+        "track_io_timing": "off"
+      },
+      "failure_reason": null,
+      "final_source_recovery_debt_count": 0,
+      "financial_conservation": {
+        "durable_execution_count": 2,
+        "durable_execution_quantity": "0.02",
+        "issues": [],
+        "remaining_plan_quantity": "9.98",
+        "snapshot_execution_count": 2,
+        "snapshot_fill_quantity": "0.02",
+        "valid": true
+      },
+      "label": "on-02",
+      "measured_process_resource_deltas": {
+        "elapsed_ns": 20034050102,
+        "gc_cycles": 101,
+        "gc_pause_ns": 4743044,
+        "heap_alloc_endpoint_bytes": 2766368,
+        "mallocs": 2852909,
+        "rss_endpoint_bytes": 4435968,
+        "system_cpu_us": 549970,
+        "total_alloc_bytes": 166705712,
+        "user_cpu_us": 1496641
+      },
+      "measurement": {
+        "elapsed_including_drain_ns": 20000797834,
+        "http_route_counts": {
+          "report": {
+            "completed": 80,
+            "failed": 0,
+            "offered": 80,
+            "rejected": 0,
+            "runner_admitted": 80,
+            "unresolved": 0
+          },
+          "sessions": {
+            "completed": 80,
+            "failed": 0,
+            "offered": 80,
+            "rejected": 0,
+            "runner_admitted": 80,
+            "unresolved": 0
+          },
+          "state": {
+            "completed": 240,
+            "failed": 0,
+            "offered": 240,
+            "rejected": 0,
+            "runner_admitted": 240,
+            "unresolved": 0
+          }
+        },
+        "input_manifest_sha256": "9c3bbbd96fed26bd10935c2136041876aa337894dc6851d53494e15b9ae6704c",
+        "latencies": {
+          "market_offered_to_success": {
+            "count": 1000,
+            "max_ns": 18984612,
+            "p50_ns": 3555178,
+            "p95_ns": 9168726,
+            "p99_ns": 11346676
+          },
+          "view_offered_to_success": {
+            "count": 400,
+            "max_ns": 14047050,
+            "p50_ns": 1772651,
+            "p95_ns": 8908613,
+            "p99_ns": 10131095
+          }
+        },
+        "market": {
+          "completed": 1000,
+          "failed": 0,
+          "offered": 1000,
+          "rejected": 0,
+          "runner_admitted": 1000,
+          "unresolved": 0
+        },
+        "read_service_boundary": "HTTP response fully consumed and JSON validated; HTTP polling, no React rendering",
+        "source_delivery_valid": true,
+        "views": {
+          "completed": 400,
+          "failed": 0,
+          "offered": 400,
+          "rejected": 0,
+          "runner_admitted": 400,
+          "unresolved": 0
+        }
+      },
+      "postgres_activity": {
+        "backend_observation_categories": {
+          "active_unclassified": 1,
+          "active_wal_io": 1,
+          "idle": 1999,
+          "idle_in_transaction": 1
+        },
+        "backend_observations": 2002,
+        "complete": true,
+        "contract": "scoped-postgres-activity-v1",
+        "interpretation_limits": [
+          "One existing observer connection; exact generated store application tag, same database/role, client backends only. No SQL text or client addresses selected.",
+          "PID plus backend-start identifies a lifetime; connections existing entirely between samples are unseen. Missing metadata or empty samples make this diagnostic incomplete.",
+          "Counts are backend-observation denominators, not request counts or elapsed wait/CPU durations. Active with no reported wait is unclassified; idle ClientRead is not contention.",
+          "Snapshots can miss brief waits and different backends can wait concurrently. Query execution and sampling perturb the workload. Compare repeated observer-off/on runs.",
+          "Sampling covers its own declared clock from immediately before offered measurement through accepted-call drain; setup/warmup and cleanup are excluded. No cumulative IO/WAL counters or server CPU are measured.",
+          "Attempt/end and backend first/last observation offsets are client query bounds, not exact server transition timestamps. WAL IO identifies WalSync/WalWrite samples only; LWLock WALWrite remains a lightweight-lock category.",
+          "10000 sample ticks, 50000 backend observations, 128 lifetime identities and 8 MiB serialized diagnostic cap; a cap or missed/failed sample makes evidence incomplete."
+        ],
+        "interval_ns": 20000000,
+        "issues": [],
+        "max_store_connections": 4,
+        "observer_connections": 1,
+        "query_timeout_ns": 200000000,
+        "sample_outcomes": {
+          "completed": 1001
+        },
+        "sample_rows_preserved_in_raw": 1001,
+        "status": "complete",
+        "stopped": true
+      },
+      "postgres_activity_interval_ns": 20000000,
+      "raw_report_sha256": "dd30c232902cbd2091aea0e72f4d760ab0033c9b2c9d73e39684b553e5637715",
+      "read_mode": "http",
+      "report_version": "durable-runtime-benchmark-v2",
+      "source_identity": {
+        "architecture": "amd64",
+        "binary_build": {
+          "available": true,
+          "go_version": "go1.26.8",
+          "main_module": {
+            "path": "github.com/liquiditylab/liquiditylab",
+            "version": "v0.0.0-20261029025035-35fc7b7a65cb"
+          },
+          "package_path": "github.com/liquiditylab/liquiditylab/benchmarks/runtime",
+          "settings": {
+            "-buildmode": "exe",
+            "-compiler": "gc",
+            "CGO_ENABLED": "1",
+            "GOAMD64": "v1",
+            "GOARCH": "amd64",
+            "GOOS": "linux",
+            "vcs": "git",
+            "vcs.modified": "false",
+            "vcs.revision": "35fc7b7a65cb0cc251c618a9e99d70409a893cf0",
+            "vcs.time": "2026-10-29T02:50:35Z"
+          },
+          "vcs_status": "available"
+        },
+        "engine_version": "LiquidityLab-SpotExecution-v1",
+        "executable": {
+          "bytes": 26349981,
+          "sha256": "e08db2ef2362c4265cc2738c49f942c3ba3269bffe54f20b214a261c81479b9d",
+          "status": "available"
+        },
+        "go_version": "go1.26.8",
+        "gomaxprocs": 16,
+        "launch_worktree_dirty": false,
+        "launch_worktree_revision": "35fc7b7a65cb0cc251c618a9e99d70409a893cf0",
+        "launch_worktree_status": "available",
+        "logical_cpus": 16,
+        "os": "linux",
+        "state_version": "account-state-v1"
+      },
+      "status": "complete",
+      "store_metric_delta_rule": "counter values and distribution counts/sums/bucket counts only; quantiles and extrema are not differenced",
+      "store_metric_deltas": {
+        "counters": {
+          "db_acquire_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_commit_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_durable_transitions": {
+            "delta": 618,
+            "overflow": false
+          },
+          "db_observation_duplicates": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_observation_writes": {
+            "delta": 488,
+            "overflow": false
+          },
+          "db_queries": {
+            "delta": 33070,
+            "overflow": false
+          },
+          "db_query_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_rollback_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_transactions_committed": {
+            "delta": 4186,
+            "overflow": false
+          },
+          "db_transactions_rolled_back": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_transactions_started": {
+            "delta": 4186,
+            "overflow": false
+          }
+        },
+        "distributions": {
+          "db_account_for_update_roundtrip_ns": {
+            "bucket_count_deltas": {
+              "1000": 0,
+              "10000": 0,
+              "100000": 1003,
+              "1000000": 0,
+              "10000000": 0,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 0,
+              "250000": 245,
+              "2500000": 1,
+              "25000000": 0,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 0,
+              "50000": 53,
+              "500000": 4,
+              "5000000": 0,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 1306,
+            "count_overflow": false,
+            "sum_delta": 109589331,
+            "sum_overflow": false
+          },
+          "db_acquire_ns": {
+            "bucket_count_deltas": {
+              "1000": 3893,
+              "10000": 27,
+              "100000": 1,
+              "1000000": 0,
+              "10000000": 0,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 12,
+              "250000": 5,
+              "2500000": 0,
+              "25000000": 0,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 1354,
+              "50000": 2,
+              "500000": 0,
+              "5000000": 0,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 5294,
+            "count_overflow": false,
+            "sum_delta": 5842536,
+            "sum_overflow": false
+          },
+          "db_commit_ns": {
+            "bucket_count_deltas": {
+              "1000": 0,
+              "10000": 0,
+              "100000": 44,
+              "1000000": 369,
+              "10000000": 5,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 2181,
+              "250000": 3,
+              "2500000": 901,
+              "25000000": 0,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 0,
+              "50000": 651,
+              "500000": 0,
+              "5000000": 32,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 4186,
+            "count_overflow": false,
+            "sum_delta": 2366467904,
+            "sum_overflow": false
+          },
+          "db_transaction_ns": {
+            "bucket_count_deltas": {
+              "1000": 0,
+              "10000": 0,
+              "100000": 0,
+              "1000000": 71,
+              "10000000": 6,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 0,
+              "250000": 1970,
+              "2500000": 621,
+              "25000000": 0,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 0,
+              "50000": 0,
+              "500000": 833,
+              "5000000": 685,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 4186,
+            "count_overflow": false,
+            "sum_delta": 3692608210,
+            "sum_overflow": false
+          }
+        }
+      },
+      "valid": true,
+      "workload": {
+        "decision_cadence_ns": 100000000,
+        "market_events_per_second": 50,
+        "measurement_ns": 20000000000,
+        "ordered_source_queue_capacity": 64,
+        "pool_max_connections": 4,
+        "seed": 42,
+        "view_in_flight_capacity": 4,
+        "views_per_second": 20,
+        "warmup_ns": 2000000000
+      }
+    },
+    {
+      "database_configuration": {
+        "fsync": "on",
+        "server_version": "18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)",
+        "synchronous_commit": "on",
+        "track_io_timing": "off"
+      },
+      "failure_reason": null,
+      "final_source_recovery_debt_count": 0,
+      "financial_conservation": {
+        "durable_execution_count": 2,
+        "durable_execution_quantity": "0.02",
+        "issues": [],
+        "remaining_plan_quantity": "9.98",
+        "snapshot_execution_count": 2,
+        "snapshot_fill_quantity": "0.02",
+        "valid": true
+      },
+      "label": "off-03",
+      "measured_process_resource_deltas": {
+        "elapsed_ns": 20033982801,
+        "gc_cycles": 107,
+        "gc_pause_ns": 5310365,
+        "heap_alloc_endpoint_bytes": 1741928,
+        "mallocs": 2793225,
+        "rss_endpoint_bytes": 3764224,
+        "system_cpu_us": 482441,
+        "total_alloc_bytes": 162453896,
+        "user_cpu_us": 1496654
+      },
+      "measurement": {
+        "elapsed_including_drain_ns": 20000194108,
+        "http_route_counts": {
+          "report": {
+            "completed": 80,
+            "failed": 0,
+            "offered": 80,
+            "rejected": 0,
+            "runner_admitted": 80,
+            "unresolved": 0
+          },
+          "sessions": {
+            "completed": 80,
+            "failed": 0,
+            "offered": 80,
+            "rejected": 0,
+            "runner_admitted": 80,
+            "unresolved": 0
+          },
+          "state": {
+            "completed": 240,
+            "failed": 0,
+            "offered": 240,
+            "rejected": 0,
+            "runner_admitted": 240,
+            "unresolved": 0
+          }
+        },
+        "input_manifest_sha256": "9c3bbbd96fed26bd10935c2136041876aa337894dc6851d53494e15b9ae6704c",
+        "latencies": {
+          "market_offered_to_success": {
+            "count": 1000,
+            "max_ns": 16444427,
+            "p50_ns": 1097930,
+            "p95_ns": 9129053,
+            "p99_ns": 9779388
+          },
+          "view_offered_to_success": {
+            "count": 400,
+            "max_ns": 10862051,
+            "p50_ns": 1900509,
+            "p95_ns": 9581135,
+            "p99_ns": 10255126
+          }
+        },
+        "market": {
+          "completed": 1000,
+          "failed": 0,
+          "offered": 1000,
+          "rejected": 0,
+          "runner_admitted": 1000,
+          "unresolved": 0
+        },
+        "read_service_boundary": "HTTP response fully consumed and JSON validated; HTTP polling, no React rendering",
+        "source_delivery_valid": true,
+        "views": {
+          "completed": 400,
+          "failed": 0,
+          "offered": 400,
+          "rejected": 0,
+          "runner_admitted": 400,
+          "unresolved": 0
+        }
+      },
+      "postgres_activity": {
+        "status": "not sampled in this baseline report"
+      },
+      "postgres_activity_interval_ns": 0,
+      "raw_report_sha256": "886c0d12ed1b03d7f88319e6fe964fe94abd7619d1b2cc69b48b37a71a27a134",
+      "read_mode": "http",
+      "report_version": "durable-runtime-benchmark-v2",
+      "source_identity": {
+        "architecture": "amd64",
+        "binary_build": {
+          "available": true,
+          "go_version": "go1.26.8",
+          "main_module": {
+            "path": "github.com/liquiditylab/liquiditylab",
+            "version": "v0.0.0-20261029025035-35fc7b7a65cb"
+          },
+          "package_path": "github.com/liquiditylab/liquiditylab/benchmarks/runtime",
+          "settings": {
+            "-buildmode": "exe",
+            "-compiler": "gc",
+            "CGO_ENABLED": "1",
+            "GOAMD64": "v1",
+            "GOARCH": "amd64",
+            "GOOS": "linux",
+            "vcs": "git",
+            "vcs.modified": "false",
+            "vcs.revision": "35fc7b7a65cb0cc251c618a9e99d70409a893cf0",
+            "vcs.time": "2026-10-29T02:50:35Z"
+          },
+          "vcs_status": "available"
+        },
+        "engine_version": "LiquidityLab-SpotExecution-v1",
+        "executable": {
+          "bytes": 26349981,
+          "sha256": "e08db2ef2362c4265cc2738c49f942c3ba3269bffe54f20b214a261c81479b9d",
+          "status": "available"
+        },
+        "go_version": "go1.26.8",
+        "gomaxprocs": 16,
+        "launch_worktree_dirty": false,
+        "launch_worktree_revision": "35fc7b7a65cb0cc251c618a9e99d70409a893cf0",
+        "launch_worktree_status": "available",
+        "logical_cpus": 16,
+        "os": "linux",
+        "state_version": "account-state-v1"
+      },
+      "status": "complete",
+      "store_metric_delta_rule": "counter values and distribution counts/sums/bucket counts only; quantiles and extrema are not differenced",
+      "store_metric_deltas": {
+        "counters": {
+          "db_acquire_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_commit_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_durable_transitions": {
+            "delta": 616,
+            "overflow": false
+          },
+          "db_observation_duplicates": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_observation_writes": {
+            "delta": 488,
+            "overflow": false
+          },
+          "db_queries": {
+            "delta": 33032,
+            "overflow": false
+          },
+          "db_query_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_rollback_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_transactions_committed": {
+            "delta": 4182,
+            "overflow": false
+          },
+          "db_transactions_rolled_back": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_transactions_started": {
+            "delta": 4182,
+            "overflow": false
+          }
+        },
+        "distributions": {
+          "db_account_for_update_roundtrip_ns": {
+            "bucket_count_deltas": {
+              "1000": 0,
+              "10000": 0,
+              "100000": 974,
+              "1000000": 3,
+              "10000000": 0,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 0,
+              "250000": 255,
+              "2500000": 0,
+              "25000000": 0,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 0,
+              "50000": 61,
+              "500000": 11,
+              "5000000": 0,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 1304,
+            "count_overflow": false,
+            "sum_delta": 114372041,
+            "sum_overflow": false
+          },
+          "db_acquire_ns": {
+            "bucket_count_deltas": {
+              "1000": 3815,
+              "10000": 39,
+              "100000": 3,
+              "1000000": 0,
+              "10000000": 0,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 18,
+              "250000": 0,
+              "2500000": 0,
+              "25000000": 0,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 1408,
+              "50000": 5,
+              "500000": 0,
+              "5000000": 0,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 5288,
+            "count_overflow": false,
+            "sum_delta": 5572966,
+            "sum_overflow": false
+          },
+          "db_commit_ns": {
+            "bucket_count_deltas": {
+              "1000": 0,
+              "10000": 0,
+              "100000": 56,
+              "1000000": 345,
+              "10000000": 0,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 2164,
+              "250000": 9,
+              "2500000": 882,
+              "25000000": 0,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 0,
+              "50000": 646,
+              "500000": 3,
+              "5000000": 77,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 4182,
+            "count_overflow": false,
+            "sum_delta": 2380444532,
+            "sum_overflow": false
+          },
+          "db_transaction_ns": {
+            "bucket_count_deltas": {
+              "1000": 0,
+              "10000": 0,
+              "100000": 0,
+              "1000000": 78,
+              "10000000": 0,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 0,
+              "250000": 1906,
+              "2500000": 600,
+              "25000000": 0,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 0,
+              "50000": 0,
+              "500000": 891,
+              "5000000": 707,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 4182,
+            "count_overflow": false,
+            "sum_delta": 3755456393,
+            "sum_overflow": false
+          }
+        }
+      },
+      "valid": true,
+      "workload": {
+        "decision_cadence_ns": 100000000,
+        "market_events_per_second": 50,
+        "measurement_ns": 20000000000,
+        "ordered_source_queue_capacity": 64,
+        "pool_max_connections": 4,
+        "seed": 42,
+        "view_in_flight_capacity": 4,
+        "views_per_second": 20,
+        "warmup_ns": 2000000000
+      }
+    },
+    {
+      "database_configuration": {
+        "fsync": "on",
+        "server_version": "18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)",
+        "synchronous_commit": "on",
+        "track_io_timing": "off"
+      },
+      "failure_reason": null,
+      "final_source_recovery_debt_count": 0,
+      "financial_conservation": {
+        "durable_execution_count": 2,
+        "durable_execution_quantity": "0.02",
+        "issues": [],
+        "remaining_plan_quantity": "9.98",
+        "snapshot_execution_count": 2,
+        "snapshot_fill_quantity": "0.02",
+        "valid": true
+      },
+      "label": "on-03",
+      "measured_process_resource_deltas": {
+        "elapsed_ns": 20043208229,
+        "gc_cycles": 103,
+        "gc_pause_ns": 5318129,
+        "heap_alloc_endpoint_bytes": 2803488,
+        "mallocs": 2850536,
+        "rss_endpoint_bytes": 5079040,
+        "system_cpu_us": 535361,
+        "total_alloc_bytes": 166506592,
+        "user_cpu_us": 1533202
+      },
+      "measurement": {
+        "elapsed_including_drain_ns": 20000712887,
+        "http_route_counts": {
+          "report": {
+            "completed": 80,
+            "failed": 0,
+            "offered": 80,
+            "rejected": 0,
+            "runner_admitted": 80,
+            "unresolved": 0
+          },
+          "sessions": {
+            "completed": 80,
+            "failed": 0,
+            "offered": 80,
+            "rejected": 0,
+            "runner_admitted": 80,
+            "unresolved": 0
+          },
+          "state": {
+            "completed": 240,
+            "failed": 0,
+            "offered": 240,
+            "rejected": 0,
+            "runner_admitted": 240,
+            "unresolved": 0
+          }
+        },
+        "input_manifest_sha256": "9c3bbbd96fed26bd10935c2136041876aa337894dc6851d53494e15b9ae6704c",
+        "latencies": {
+          "market_offered_to_success": {
+            "count": 1000,
+            "max_ns": 13028829,
+            "p50_ns": 1081969,
+            "p95_ns": 9195067,
+            "p99_ns": 10455076
+          },
+          "view_offered_to_success": {
+            "count": 400,
+            "max_ns": 9979281,
+            "p50_ns": 1890578,
+            "p95_ns": 8599342,
+            "p99_ns": 9624699
+          }
+        },
+        "market": {
+          "completed": 1000,
+          "failed": 0,
+          "offered": 1000,
+          "rejected": 0,
+          "runner_admitted": 1000,
+          "unresolved": 0
+        },
+        "read_service_boundary": "HTTP response fully consumed and JSON validated; HTTP polling, no React rendering",
+        "source_delivery_valid": true,
+        "views": {
+          "completed": 400,
+          "failed": 0,
+          "offered": 400,
+          "rejected": 0,
+          "runner_admitted": 400,
+          "unresolved": 0
+        }
+      },
+      "postgres_activity": {
+        "backend_observation_categories": {
+          "active_client": 4,
+          "active_unclassified": 1,
+          "active_wal_io": 20,
+          "idle": 1958,
+          "idle_in_transaction": 19
+        },
+        "backend_observations": 2002,
+        "complete": true,
+        "contract": "scoped-postgres-activity-v1",
+        "interpretation_limits": [
+          "One existing observer connection; exact generated store application tag, same database/role, client backends only. No SQL text or client addresses selected.",
+          "PID plus backend-start identifies a lifetime; connections existing entirely between samples are unseen. Missing metadata or empty samples make this diagnostic incomplete.",
+          "Counts are backend-observation denominators, not request counts or elapsed wait/CPU durations. Active with no reported wait is unclassified; idle ClientRead is not contention.",
+          "Snapshots can miss brief waits and different backends can wait concurrently. Query execution and sampling perturb the workload. Compare repeated observer-off/on runs.",
+          "Sampling covers its own declared clock from immediately before offered measurement through accepted-call drain; setup/warmup and cleanup are excluded. No cumulative IO/WAL counters or server CPU are measured.",
+          "Attempt/end and backend first/last observation offsets are client query bounds, not exact server transition timestamps. WAL IO identifies WalSync/WalWrite samples only; LWLock WALWrite remains a lightweight-lock category.",
+          "10000 sample ticks, 50000 backend observations, 128 lifetime identities and 8 MiB serialized diagnostic cap; a cap or missed/failed sample makes evidence incomplete."
+        ],
+        "interval_ns": 20000000,
+        "issues": [],
+        "max_store_connections": 4,
+        "observer_connections": 1,
+        "query_timeout_ns": 200000000,
+        "sample_outcomes": {
+          "completed": 1001
+        },
+        "sample_rows_preserved_in_raw": 1001,
+        "status": "complete",
+        "stopped": true
+      },
+      "postgres_activity_interval_ns": 20000000,
+      "raw_report_sha256": "bc379fd9ab9b55709e0bb9535fb2e4f265b21009f70a1dc5fad96468a6bf1c46",
+      "read_mode": "http",
+      "report_version": "durable-runtime-benchmark-v2",
+      "source_identity": {
+        "architecture": "amd64",
+        "binary_build": {
+          "available": true,
+          "go_version": "go1.26.8",
+          "main_module": {
+            "path": "github.com/liquiditylab/liquiditylab",
+            "version": "v0.0.0-20261029025035-35fc7b7a65cb"
+          },
+          "package_path": "github.com/liquiditylab/liquiditylab/benchmarks/runtime",
+          "settings": {
+            "-buildmode": "exe",
+            "-compiler": "gc",
+            "CGO_ENABLED": "1",
+            "GOAMD64": "v1",
+            "GOARCH": "amd64",
+            "GOOS": "linux",
+            "vcs": "git",
+            "vcs.modified": "false",
+            "vcs.revision": "35fc7b7a65cb0cc251c618a9e99d70409a893cf0",
+            "vcs.time": "2026-10-29T02:50:35Z"
+          },
+          "vcs_status": "available"
+        },
+        "engine_version": "LiquidityLab-SpotExecution-v1",
+        "executable": {
+          "bytes": 26349981,
+          "sha256": "e08db2ef2362c4265cc2738c49f942c3ba3269bffe54f20b214a261c81479b9d",
+          "status": "available"
+        },
+        "go_version": "go1.26.8",
+        "gomaxprocs": 16,
+        "launch_worktree_dirty": false,
+        "launch_worktree_revision": "35fc7b7a65cb0cc251c618a9e99d70409a893cf0",
+        "launch_worktree_status": "available",
+        "logical_cpus": 16,
+        "os": "linux",
+        "state_version": "account-state-v1"
+      },
+      "status": "complete",
+      "store_metric_delta_rule": "counter values and distribution counts/sums/bucket counts only; quantiles and extrema are not differenced",
+      "store_metric_deltas": {
+        "counters": {
+          "db_acquire_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_commit_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_durable_transitions": {
+            "delta": 617,
+            "overflow": false
+          },
+          "db_observation_duplicates": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_observation_writes": {
+            "delta": 488,
+            "overflow": false
+          },
+          "db_queries": {
+            "delta": 33051,
+            "overflow": false
+          },
+          "db_query_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_rollback_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_transactions_committed": {
+            "delta": 4184,
+            "overflow": false
+          },
+          "db_transactions_rolled_back": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_transactions_started": {
+            "delta": 4184,
+            "overflow": false
+          }
+        },
+        "distributions": {
+          "db_account_for_update_roundtrip_ns": {
+            "bucket_count_deltas": {
+              "1000": 0,
+              "10000": 0,
+              "100000": 946,
+              "1000000": 2,
+              "10000000": 0,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 0,
+              "250000": 290,
+              "2500000": 0,
+              "25000000": 0,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 0,
+              "50000": 49,
+              "500000": 18,
+              "5000000": 0,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 1305,
+            "count_overflow": false,
+            "sum_delta": 119226722,
+            "sum_overflow": false
+          },
+          "db_acquire_ns": {
+            "bucket_count_deltas": {
+              "1000": 3734,
+              "10000": 73,
+              "100000": 2,
+              "1000000": 0,
+              "10000000": 0,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 35,
+              "250000": 1,
+              "2500000": 0,
+              "25000000": 0,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 1442,
+              "50000": 4,
+              "500000": 0,
+              "5000000": 0,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 5291,
+            "count_overflow": false,
+            "sum_delta": 6339548,
+            "sum_overflow": false
+          },
+          "db_commit_ns": {
+            "bucket_count_deltas": {
+              "1000": 0,
+              "10000": 0,
+              "100000": 45,
+              "1000000": 309,
+              "10000000": 2,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 2159,
+              "250000": 5,
+              "2500000": 929,
+              "25000000": 0,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 0,
+              "50000": 668,
+              "500000": 2,
+              "5000000": 65,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 4184,
+            "count_overflow": false,
+            "sum_delta": 2393489224,
+            "sum_overflow": false
+          },
+          "db_transaction_ns": {
+            "bucket_count_deltas": {
+              "1000": 0,
+              "10000": 0,
+              "100000": 0,
+              "1000000": 103,
+              "10000000": 3,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 0,
+              "250000": 1944,
+              "2500000": 597,
+              "25000000": 0,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 0,
+              "50000": 0,
+              "500000": 830,
+              "5000000": 707,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 4184,
+            "count_overflow": false,
+            "sum_delta": 3793760215,
+            "sum_overflow": false
+          }
+        }
+      },
+      "valid": true,
+      "workload": {
+        "decision_cadence_ns": 100000000,
+        "market_events_per_second": 50,
+        "measurement_ns": 20000000000,
+        "ordered_source_queue_capacity": 64,
+        "pool_max_connections": 4,
+        "seed": 42,
+        "view_in_flight_capacity": 4,
+        "views_per_second": 20,
+        "warmup_ns": 2000000000
+      }
+    },
+    {
+      "database_configuration": {
+        "fsync": "on",
+        "server_version": "18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)",
+        "synchronous_commit": "on",
+        "track_io_timing": "off"
+      },
+      "failure_reason": "workload invalid; inspect report source delivery, unresolved work, optional diagnostics, and final state",
+      "final_source_recovery_debt_count": 0,
+      "financial_conservation": {
+        "durable_execution_count": 1,
+        "durable_execution_quantity": "0.01",
+        "issues": [],
+        "remaining_plan_quantity": "9.99",
+        "snapshot_execution_count": 1,
+        "snapshot_fill_quantity": "0.01",
+        "valid": true
+      },
+      "label": "on-ramp-250",
+      "measured_process_resource_deltas": {
+        "elapsed_ns": 10282674534,
+        "gc_cycles": 101,
+        "gc_pause_ns": 4377089,
+        "heap_alloc_endpoint_bytes": 3950768,
+        "mallocs": 3827241,
+        "rss_endpoint_bytes": 5865472,
+        "system_cpu_us": 766236,
+        "total_alloc_bytes": 236714328,
+        "user_cpu_us": 1739871
+      },
+      "measurement": {
+        "elapsed_including_drain_ns": 10231980282,
+        "http_route_counts": null,
+        "input_manifest_sha256": "f4e8d6a50f71848ad11591292e4e922778d17611595d8c17f4ce8f128b0904f4",
+        "latencies": {
+          "market_offered_to_success": {
+            "count": 2475,
+            "max_ns": 323098118,
+            "p50_ns": 25089779,
+            "p95_ns": 267774835,
+            "p99_ns": 311321772
+          },
+          "view_offered_to_success": {
+            "count": 20,
+            "max_ns": 7989098,
+            "p50_ns": 3343459,
+            "p95_ns": 7433501,
+            "p99_ns": 7989098
+          }
+        },
+        "market": {
+          "completed": 2475,
+          "failed": 0,
+          "offered": 2500,
+          "rejected": 25,
+          "runner_admitted": 2475,
+          "unresolved": 0
+        },
+        "read_service_boundary": "actor.View completion",
+        "source_delivery_valid": false,
+        "views": {
+          "completed": 20,
+          "failed": 0,
+          "offered": 20,
+          "rejected": 0,
+          "runner_admitted": 20,
+          "unresolved": 0
+        }
+      },
+      "postgres_activity": {
+        "backend_observation_categories": {
+          "active_client": 35,
+          "active_other_io": 1,
+          "active_unclassified": 47,
+          "active_wal_io": 248,
+          "idle": 46,
+          "idle_in_transaction": 136
+        },
+        "backend_observations": 513,
+        "complete": true,
+        "contract": "scoped-postgres-activity-v1",
+        "interpretation_limits": [
+          "One existing observer connection; exact generated store application tag, same database/role, client backends only. No SQL text or client addresses selected.",
+          "PID plus backend-start identifies a lifetime; connections existing entirely between samples are unseen. Missing metadata or empty samples make this diagnostic incomplete.",
+          "Counts are backend-observation denominators, not request counts or elapsed wait/CPU durations. Active with no reported wait is unclassified; idle ClientRead is not contention.",
+          "Snapshots can miss brief waits and different backends can wait concurrently. Query execution and sampling perturb the workload. Compare repeated observer-off/on runs.",
+          "Sampling covers its own declared clock from immediately before offered measurement through accepted-call drain; setup/warmup and cleanup are excluded. No cumulative IO/WAL counters or server CPU are measured.",
+          "Attempt/end and backend first/last observation offsets are client query bounds, not exact server transition timestamps. WAL IO identifies WalSync/WalWrite samples only; LWLock WALWrite remains a lightweight-lock category.",
+          "10000 sample ticks, 50000 backend observations, 128 lifetime identities and 8 MiB serialized diagnostic cap; a cap or missed/failed sample makes evidence incomplete."
+        ],
+        "interval_ns": 20000000,
+        "issues": [],
+        "max_store_connections": 4,
+        "observer_connections": 1,
+        "query_timeout_ns": 200000000,
+        "sample_outcomes": {
+          "completed": 513
+        },
+        "sample_rows_preserved_in_raw": 513,
+        "status": "complete",
+        "stopped": true
+      },
+      "postgres_activity_interval_ns": 20000000,
+      "raw_report_sha256": "6802dd8e7ff5596b90eda177ddbbe33269fdb25472e1299ffda5ef1d66e962af",
+      "read_mode": "actor",
+      "report_version": "durable-runtime-benchmark-v2",
+      "source_identity": {
+        "architecture": "amd64",
+        "binary_build": {
+          "available": true,
+          "go_version": "go1.26.8",
+          "main_module": {
+            "path": "github.com/liquiditylab/liquiditylab",
+            "version": "v0.0.0-20261029025035-35fc7b7a65cb"
+          },
+          "package_path": "github.com/liquiditylab/liquiditylab/benchmarks/runtime",
+          "settings": {
+            "-buildmode": "exe",
+            "-compiler": "gc",
+            "CGO_ENABLED": "1",
+            "GOAMD64": "v1",
+            "GOARCH": "amd64",
+            "GOOS": "linux",
+            "vcs": "git",
+            "vcs.modified": "false",
+            "vcs.revision": "35fc7b7a65cb0cc251c618a9e99d70409a893cf0",
+            "vcs.time": "2026-10-29T02:50:35Z"
+          },
+          "vcs_status": "available"
+        },
+        "engine_version": "LiquidityLab-SpotExecution-v1",
+        "executable": {
+          "bytes": 26349981,
+          "sha256": "e08db2ef2362c4265cc2738c49f942c3ba3269bffe54f20b214a261c81479b9d",
+          "status": "available"
+        },
+        "go_version": "go1.26.8",
+        "gomaxprocs": 16,
+        "launch_worktree_dirty": false,
+        "launch_worktree_revision": "35fc7b7a65cb0cc251c618a9e99d70409a893cf0",
+        "launch_worktree_status": "available",
+        "logical_cpus": 16,
+        "os": "linux",
+        "state_version": "account-state-v1"
+      },
+      "status": "invalid",
+      "store_metric_delta_rule": "counter values and distribution counts/sums/bucket counts only; quantiles and extrema are not differenced",
+      "store_metric_deltas": {
+        "counters": {
+          "db_acquire_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_commit_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_durable_transitions": {
+            "delta": 1304,
+            "overflow": false
+          },
+          "db_observation_duplicates": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_observation_writes": {
+            "delta": 1242,
+            "overflow": false
+          },
+          "db_queries": {
+            "delta": 65357,
+            "overflow": false
+          },
+          "db_query_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_rollback_errors": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_transactions_committed": {
+            "delta": 7902,
+            "overflow": false
+          },
+          "db_transactions_rolled_back": {
+            "delta": 0,
+            "overflow": false
+          },
+          "db_transactions_started": {
+            "delta": 7902,
+            "overflow": false
+          }
+        },
+        "distributions": {
+          "db_account_for_update_roundtrip_ns": {
+            "bucket_count_deltas": {
+              "1000": 0,
+              "10000": 0,
+              "100000": 2210,
+              "1000000": 0,
+              "10000000": 0,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 0,
+              "250000": 115,
+              "2500000": 0,
+              "25000000": 0,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 0,
+              "50000": 322,
+              "500000": 1,
+              "5000000": 0,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 2648,
+            "count_overflow": false,
+            "sum_delta": 174366393,
+            "sum_overflow": false
+          },
+          "db_acquire_ns": {
+            "bucket_count_deltas": {
+              "1000": 9222,
+              "10000": 17,
+              "100000": 2,
+              "1000000": 0,
+              "10000000": 0,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 6,
+              "250000": 0,
+              "2500000": 0,
+              "25000000": 0,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 1201,
+              "50000": 1,
+              "500000": 0,
+              "5000000": 0,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 10449,
+            "count_overflow": false,
+            "sum_delta": 7027102,
+            "sum_overflow": false
+          },
+          "db_commit_ns": {
+            "bucket_count_deltas": {
+              "1000": 0,
+              "10000": 1,
+              "100000": 14,
+              "1000000": 234,
+              "10000000": 2,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 4825,
+              "250000": 2,
+              "2500000": 1930,
+              "25000000": 2,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 0,
+              "50000": 410,
+              "500000": 1,
+              "5000000": 481,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 7902,
+            "count_overflow": false,
+            "sum_delta": 5769125183,
+            "sum_overflow": false
+          },
+          "db_transaction_ns": {
+            "bucket_count_deltas": {
+              "1000": 0,
+              "10000": 0,
+              "100000": 0,
+              "1000000": 14,
+              "10000000": 7,
+              "100000000": 0,
+              "1000000000": 0,
+              "10000000000": 0,
+              "150000000": 0,
+              "200000000": 0,
+              "25000": 0,
+              "250000": 4747,
+              "2500000": 670,
+              "25000000": 2,
+              "250000000": 0,
+              "2500000000": 0,
+              "5000": 0,
+              "50000": 0,
+              "500000": 492,
+              "5000000": 1970,
+              "50000000": 0,
+              "500000000": 0,
+              "5000000000": 0,
+              "overflow": 0
+            },
+            "count_delta": 7902,
+            "count_overflow": false,
+            "sum_delta": 8105504511,
+            "sum_overflow": false
+          }
+        }
+      },
+      "valid": false,
+      "workload": {
+        "decision_cadence_ns": 100000000,
+        "market_events_per_second": 250,
+        "measurement_ns": 10000000000,
+        "ordered_source_queue_capacity": 64,
+        "pool_max_connections": 4,
+        "seed": 42,
+        "view_in_flight_capacity": 4,
+        "views_per_second": 2,
+        "warmup_ns": 2000000000
+      }
+    }
+  ]
+}
