@@ -17,6 +17,10 @@ import (
 	"github.com/liquiditylab/liquiditylab/internal/replay"
 )
 
+// ErrArchiveUnavailable distinguishes missing or unverifiable source bytes
+// from a comparison which cannot run under the supplied execution assumptions.
+var ErrArchiveUnavailable = errors.New("archive unavailable or invalid")
+
 type BuildIdentity struct {
 	GoVersion   string `json:"go_version"`
 	Module      string `json:"module"`
@@ -116,7 +120,7 @@ func Compare(ctx context.Context, root, id string, spec Spec) (Report, error) {
 	}
 	recording, err := marketarchive.Load(ctx, root, id)
 	if err != nil {
-		return Report{}, err
+		return Report{}, fmt.Errorf("%w: %w", ErrArchiveUnavailable, err)
 	}
 	if err := ctx.Err(); err != nil {
 		return Report{}, err
