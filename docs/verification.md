@@ -493,3 +493,34 @@ The full verification environment includes Gymnasium 1.4.0, NumPy 2.5.4, Stable-
 A 15-second public Kraken WebSocket capture attempt received no usable book messages because the opening handshake timed out. The recorder wrote gap records and a failure manifest; no real-data replay result is claimed. Protocol tests use Kraken's published checksum example and local fixtures.
 
 At that original slice, private account access, live orders, trader interface, durable live sessions, holdout evaluation and promotion were absent. The current paper implementation is recorded above; private live execution, holdout evidence and promotion remain incomplete.
+
+
+## Archive import and inference duplicate checkpoint — 29 October 2026
+
+- `79a90dd` adds the bounded immutable recording archive and import/inspect CLI.
+  A real ordinary-CLI import, duplicate import and inspect agreed on dataset
+  `2a409892cbf06e56141fd23bc5bbf33bba4920400f753740e0b0020e2cb7e80a`.
+  Independent hashes/byte lengths match the retained raw capture, original
+  manifest and all 45 normalized events. The focused archive/CLI race checks
+  pass (8.088 s and 1.399 s). See [the operator checkpoint](market-archive.md#executed-local-checkpoint--29-october-2026).
+- `e8de84b` adds direct accepted-proposal result replay: one original financial
+  effect, three separately durable late audits, 100 newer logical book updates,
+  and compilation against the latest valid book. This is handler-level evidence.
+- The [fresh combined conformance report](../conformance/results/20261029-contracts-19a35c9.json)
+  records clean source `19a35c90030803d2a2c3afcdd320189e04ce62e4`, all five steps
+  passed, 216 Python checks, zero skips/failures/errors, and unchanged hashes for
+  all four fixtures. Its Go scope is contracts/replay/RPC, not the full product.
+- The separate full uncached Go race attempt against the same source, development
+  PostgreSQL and actual Python/replay paths **failed** the new accepted-backlog
+  process audit: `fixture crash durable execution prefix differs from snapshot`.
+  The daemon package failed at 54.205 s; the runtime package passed at 80.120 s,
+  and the archive, CLI, inference, store and other listed packages passed. This
+  run is not a full-suite pass. The initial report used temporary output and is
+  not part of a retained clean process cohort. Investigation found that the
+  account snapshot and execution rows were collected in separate transactions
+  after OS process reap, allowing a previously received server-side COMMIT to
+  become visible between reads. A bounded coherent post-reap observation is
+  required before publishing accepted-backlog recovery evidence.
+
+Neither the archive nor this contract result passes product capacity, historical
+session binding, policy evaluation, private transport, soak or restore gates.

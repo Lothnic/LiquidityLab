@@ -1,0 +1,59 @@
+{
+  "schema": "liquiditylab-contract-check-v1",
+  "status": "passed",
+  "steps": [
+    {
+      "name": "generated-bindings",
+      "status": "passed",
+      "exit_code": 0,
+      "elapsed_ns": 264515169
+    },
+    {
+      "name": "python-reference-vectors",
+      "status": "passed",
+      "exit_code": 0,
+      "elapsed_ns": 214455643
+    },
+    {
+      "name": "go-contract-replay-race",
+      "status": "passed",
+      "exit_code": 0,
+      "elapsed_ns": 8480842918
+    },
+    {
+      "name": "owned-replay-build",
+      "status": "passed",
+      "exit_code": 0,
+      "elapsed_ns": 715255573
+    },
+    {
+      "name": "python-suite",
+      "status": "passed",
+      "exit_code": 0,
+      "elapsed_ns": 13987971546
+    }
+  ],
+  "step_timeout_seconds": 180,
+  "python_version": "3.12.11",
+  "limits": [
+    "Contract/replay conformance only; no venue, capacity, or policy-quality gate.",
+    "Go race coverage here is domain/execution/replay/RPC; not the full product suite."
+  ],
+  "source": {
+    "revision": "19a35c90030803d2a2c3afcdd320189e04ce62e4",
+    "dirty": false
+  },
+  "python_tests": {
+    "tests": 216,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "replay_binary_sha256": "e49c1fe68ed5e9dc207d8cca895ad9308d570520ee92471f00c6110c2aae31c6",
+  "fixture_sha256": {
+    "golden.json": "03680e888eae6f0c8859938429025dda044a7c1d2babd20e0224f9a51425a7e9",
+    "contracts.json": "d4f01cca94a3c8db62fbf8c6ba94b120a34e3fe347caa80cff93aa92a4e23985",
+    "time-compatibility.json": "b90103e94d728b40ec1da71ff98a7b4dd98d32a0818a20d897d6aa0b3c12dde6",
+    "kraken-checksums.json": "4ae96986593af66d2094074ff0f294bbf374e05b8bb73421b971fe3f661f8030"
+  }
+}
