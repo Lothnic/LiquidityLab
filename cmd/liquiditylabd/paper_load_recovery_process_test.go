@@ -695,14 +695,22 @@ func runPaperProcessLoadRecovery(t *testing.T, backlog bool) {
 	killPaperTestProcess(t, victim)
 	report.Events.ReapedNS = time.Since(origin).Nanoseconds()
 	report.Reaped["victim_sigkill"] = true
-	crashed, err := store.GetAccount(ctx, report.Accounts["victim"])
+	var crashed pg.Account
+	var crashExecutions []d.Fill
+	if backlog {
+		crashCtx, crashCancel := context.WithTimeout(ctx, 2*time.Second)
+		crashed, crashExecutions, err = loadRecoveryCrashObservation(crashCtx, store, dsn, opt.schema, report.Accounts["victim"])
+		crashCancel()
+	} else {
+		crashed, err = store.GetAccount(ctx, report.Accounts["victim"])
+	}
 	if err != nil {
-		t.Fatal("crashed account unavailable")
+		t.Fatal("crashed account/execution observation unavailable or exceeded bounded account-lock barrier")
 	}
 	report.CrashEpoch, report.CrashObserved, report.CrashProcessed = crashed.Ownership.Epoch, crashed.ObservedSequence, crashed.ProcessedSequence
 	report.CrashDebt = crashed.ObservedSequence - crashed.ProcessedSequence
 	if backlog {
-		checkLoadRecoveryBacklogCrash(t, dsn, opt, crashed, report.Backlog)
+		checkLoadRecoveryBacklogCrash(t, crashed, crashExecutions, report.Backlog)
 	}
 	report.CrashFacts = loadRecoveryFacts(t, dsn, opt)
 	acceptedBefore := loadRecoveryAcceptedFills(t, dsn, opt)
