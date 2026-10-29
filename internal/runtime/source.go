@@ -125,6 +125,10 @@ func validateSourceState(s State) error {
 	return nil
 }
 
+// ValidateSource checks persisted source metadata without changing account or
+// market authority. Legacy states with no binding remain explicitly unbound.
+func (s State) ValidateSource() error { return validateSourceState(s) }
+
 func validateCursor(s *SealedSource, c *SourceCursor) error {
 	if s == nil || c == nil || c.ArchiveID != s.ArchiveID || c.NativeSessionID != s.NativeSessionID || c.NormalizedReceiptIndex >= s.NormalizedEvents || c.RawReceiptIndex < s.FirstSnapshotRawReceiptIndex || c.RawReceiptIndex >= s.RawReceipts-1 || c.NormalizedTimeNS < 0 || c.NormalizedTimeNS > s.CoverageEndNS || c.NativeElapsedNS != s.FirstSnapshotElapsedNS+c.NormalizedTimeNS {
 		return ErrInvalid

@@ -39,13 +39,14 @@ type SessionSummary struct {
 	PolicySHA256    string    `json:"policy_sha256,omitempty"`
 }
 type SessionReport struct {
-	Rules         d.InstrumentRules `json:"rules"`
-	Fees          d.FeeConfig       `json:"fees"`
-	Simulation    d.ReplayConfig    `json:"simulation"`
-	PolicyRuntime *PolicyRuntimeDTO `json:"policy_runtime,omitempty"`
-	TenantID      string            `json:"tenant_id"`
-	AccountID     string            `json:"account_id"`
-	Version       string            `json:"version"`
+	SourceProvenance *SourceProvenanceDTO `json:"source_provenance,omitempty"`
+	Rules            d.InstrumentRules    `json:"rules"`
+	Fees             d.FeeConfig          `json:"fees"`
+	Simulation       d.ReplayConfig       `json:"simulation"`
+	PolicyRuntime    *PolicyRuntimeDTO    `json:"policy_runtime,omitempty"`
+	TenantID         string               `json:"tenant_id"`
+	AccountID        string               `json:"account_id"`
+	Version          string               `json:"version"`
 	SessionSummary
 	AsOfRevision              int64      `json:"as_of_revision"`
 	Plan                      *PlanDTO   `json:"plan"`
@@ -91,6 +92,10 @@ func buildSessionReport(key pg.Key, id string, saved pg.SessionSnapshot) (report
 	out.Fees = s.Fees
 	out.Simulation = s.Execution
 	out.PolicyRuntime = policyProjection(s)
+	out.SourceProvenance, err = sourceProvenance(s)
+	if err != nil {
+		return SessionReport{}, rt.ErrInvalid
+	}
 	out.CompletionPercent = dto.Plan.Filled.Mul(d.MustDecimal("100")).Quo(s.Parent.Spec.Quantity)
 	final := s.Parent.Status == "completed" || s.Parent.Status == "cancelled" || s.Parent.Status == "expired"
 	// Retained legacy snapshots can still contain accepted, unapplied facts.
@@ -116,6 +121,9 @@ func buildSessionReport(key pg.Key, id string, saved pg.SessionSnapshot) (report
 	if len(saved.TerminalSnapshot) > 0 {
 		reference, err = rt.DecodeSnapshot(saved.TerminalSnapshot)
 		if err != nil || reference.Parent == nil || reference.Parent.ID != id {
+			return SessionReport{}, rt.ErrInvalid
+		}
+		if _, err := sourceProvenance(reference); err != nil || !matchingSourceReference(s, reference) {
 			return SessionReport{}, rt.ErrInvalid
 		}
 		out.ResidualReferenceRevision = saved.TerminalRevision

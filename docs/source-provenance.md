@@ -23,6 +23,14 @@ and resolutions retain requested/applied cursors with their existing audit.
 Ordinary book updates remain in memory until a durable transition captures them;
 the cursor is not an assertion that every book update has its own journal row.
 
+Revision-pinned session reports include optional `source_provenance` with the
+curated sealed descriptor, frozen start cursor, current durable cursor, latest
+decision cursor and matching policy request/applied cursor pair. They validate
+the archive ID against its raw/source-manifest hashes, cursor ordering and
+terminal-reference consistency before publishing the projection. No raw book,
+receipt, source payload digest or filesystem path is exposed. Unbound legacy
+reports omit this field.
+
 Missing or inconsistent bound provenance invalidates readiness. An older accepted
 trade retry discovers its frozen durable economic outcome, without rewinding the
 book or rematching a child. This lookup proves trade identity, not an independent
