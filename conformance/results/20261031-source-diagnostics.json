@@ -1,0 +1,66 @@
+{
+  "schema": "liquiditylab.beta-conformance-results.v1",
+  "date": "2026-10-31",
+  "purpose": "Full Go race verification of safe source-failure diagnostics. Historical source-stop cause remains unknown.",
+  "source_commit": "9788269207a0438ef3ae4e4c3563331a6f11674e",
+  "source_files": {
+    "cmd/liquiditylabd/paper.go": {
+      "sha256": "0ea97b5d57c142c56b275ba2d2b531766e9604d743d4569827e4d7b780162371"
+    },
+    "cmd/liquiditylabd/paper_lifecycle_test.go": {
+      "sha256": "8904a3d05773a91492c98da53b8743612c101ebaf17f0cd46a96b424d8b6e561"
+    }
+  },
+  "command": "GOMAXPROCS=4 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 go test -race -count=1 -json ./...",
+  "prerequisites": {
+    "LIQUIDITYLAB_TEST_POSTGRES_DSN": "Actual local PostgreSQL 18.6 fixture database configured; value withheld.",
+    "LIQUIDITYLAB_PYTHON": "$REPO/.venv/bin/python",
+    "LIQUIDITYLAB_REPLAY_BINARY": "$WORK/bin/liquiditylabd-20261030-policy-handoff"
+  },
+  "go_version": "go version go1.26.8 linux/amd64",
+  "exit_code": 0,
+  "test_events": {
+    "pass": 1190,
+    "fail": 0,
+    "skip": 0
+  },
+  "no_test_packages": 3,
+  "package_pass_events": 18,
+  "real_python_ppo_worker_boundary": true,
+  "retained_log": {
+    "path": "20261031-source-diagnostics-go.jsonl.gz",
+    "sha256": "f77b077e1223460260239eeb5782a5ccf7558b7be3ef57b79aa236e878b40339",
+    "uncompressed_sha256": "1a3c3cdab028bc6cc357b5f9e7d816aee8bd81c9a88bf6229a5af0b81bff7b67",
+    "uncompressed_bytes": 1153903
+  },
+  "scope": "Software correctness only; no model quality, performance, feed reliability, hosted readiness or capacity claim. The full Go suite used the earlier listed replay binary; subsequent 216-check Python run used the freshly built binary identified below. CLI code itself is exercised by Go tests built from the listed source. UI tests and production build also reran; browser/mobile visual review remains open.",
+  "subsequent_suites": {
+    "python": {
+      "command": "LIQUIDITYLAB_REPLAY_BINARY=\"$WORK/bin/liquiditylabd-20261031-diagnostics\" LIQUIDITYLAB_PYTHON=\"$REPO/.venv/bin/python\" OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 .venv/bin/python -m pytest -q --junitxml=\"$WORK/beta-suites-20261031/python-diagnostics.xml\"",
+      "passed": 216,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duration_seconds": 12.39,
+      "raw_log_sha256": "0331efb3aed5f510cadf72a59d350fab1b8598130721337810b1fef922b20ede",
+      "junit_sha256": "5c91ed1fd2851e581cac3d428fd48dbfae990d8fd8703b8c402220a7c6c6de24",
+      "warning": "Existing LiquidityLab-SpotExecution-v0 deprecation warning."
+    },
+    "frontend": {
+      "command": "npm test && npm run build",
+      "working_directory": "$REPO/apps/web",
+      "tests_passed": 78,
+      "files_passed": 7,
+      "failures": 0,
+      "production_build_passed": true,
+      "raw_log_sha256": "9e541bd5999aa57b067f47063b2d42e53db50da714dc294b66b22faa5ee634ac",
+      "browser_visual_review": false
+    },
+    "replay_binary": {
+      "sha256": "25178bfe59032a971dab92c52ac5cacb3ef6e5e8c4b85ff0a0df3e65c19bef94",
+      "build_vcs_revision": "153d85639cb15750cee8b6ae9384c1e7f687beb0",
+      "build_vcs_modified": true,
+      "note": "Fresh ordinary Go binary; CLI Go source matches 9788269. Working tree includes documentation changes and untracked drafts, so this is not a clean-source release build."
+    }
+  }
+}

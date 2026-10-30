@@ -187,10 +187,16 @@ fallback states, current versus next-plan configuration, saved decision binding
 and strict calendar timestamps. This does not establish browser or mobile coverage.
 The 216 Python checks pass without skips using the updated Go replay binary.
 The full uncached Go race suite passes with actual PostgreSQL and Python paths:
-1,186 test/subtest pass events, zero failing or skipped test cases. Three packages
-have no test files. The source design detector reports no findings. The
+1,190 test/subtest pass events after the source diagnostics change, zero failing
+or skipped test cases. Three packages have no test files. The
+[fresh race record](../conformance/results/20261031-source-diagnostics.json) retains
+the compressed raw event log. The source design detector reports no findings. The
 [suite record](../conformance/results/20261030-paper-beta-handoff.json) retains
 commands, counts, artifact hashes and the pre-commit binary build caveat.
+The retained container subsequently required source recovery again while HTTP
+remained healthy. The ready refresh snapshot is a point observation, not continuous
+feed evidence. Source diagnostics now preserve an allowlisted reason and
+invalidation outcome; they do not by themselves fix that interruption.
 Post-cleanup browser/mobile sign-off remains open after browser access was
 blocked. Earlier PostgreSQL race, conformance and process-recovery evidence is
 recorded in [verification.md](verification.md); it does not validate deployment

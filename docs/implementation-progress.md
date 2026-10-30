@@ -25,10 +25,13 @@ initial healthy-worker attempts paused on expiry/source backlog. The bounded
 handoff fix `b795231` subsequently completed a packaged `0.1 BTC` plan through 50
 simulated fills without operator resumes; restart preserved both reports, 51 fill
 identities and balances across two sessions. Full Go race verification passes
-1,186 test/subtest events with no skipped test cases, and the updated binary passes
+1,190 test/subtest events after source diagnostics, with no skipped test cases;
+the earlier handoff replay binary passes
 216 Python checks. The UI now passes 78 checks across seven files plus its
 production build. An explicit 31 October image refresh resumed the retained
-account ready with both pinned reports intact. Supported reliability/latency, active-session recovery under
+account ready with both pinned reports intact. A later source interruption again
+required recovery despite healthy HTTP; diagnostics now retain a safe reason and
+invalidation result, and its cause remains unestablished. Supported reliability/latency, active-session recovery under
 load, hosted access, operational gates and browser sign-off remain open. See
 the [demo guide](rl-paper-demo.md) and [package evidence](../deployment/README.md).
 

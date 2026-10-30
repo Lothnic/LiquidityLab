@@ -1,0 +1,35 @@
+{
+  "schema": "liquiditylab.beta-source-diagnostics.v1",
+  "date": "2026-10-31",
+  "source_commit": "9788269",
+  "historical_cause": "unknown",
+  "previous_container": {
+    "startup_at_utc": "2026-10-30T20:40:31.022811883Z",
+    "failure_logged_at_utc": "2026-10-30T20:45:24.830493657Z",
+    "last_durable_trade_revision": 15643,
+    "last_durable_trade_receipt_index": 559,
+    "invalidation_revisions": [
+      15644,
+      15645
+    ],
+    "account_ready_after_failure": false,
+    "recovery_required": true,
+    "http_service_remained_healthy": true,
+    "current_parent_status": "cancelled",
+    "scope": "Failure preceded the fresh full Go suite. Old binary retained no causal ingress error; timestamps and later lease expiry do not establish its cause."
+  },
+  "controlled_regression": {
+    "before": "Missing causal classification and invalidation result assertions failed.",
+    "after": "Focused race checks passed with real PostgreSQL fixtures, including ownership takeover and source failure injection.",
+    "safety_scope": "Diagnostic coverage only. No source cadence, operation budget, financial guard, automatic restart or trading behavior changed."
+  },
+  "diagnostic_build_observation": {
+    "duration_from_startup_seconds": 480,
+    "final_revision": 16607,
+    "last_receipt_index": 959,
+    "all_account_probes_ready": true,
+    "source_failed_log_seen": false,
+    "orders_or_plan_commands_issued": false,
+    "scope": "Cancelled parent with synthetic 2Hz source. Eight-minute observation only, not continuous uptime, a soak, capacity proof or resolution of historical interruption."
+  }
+}

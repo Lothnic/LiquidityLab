@@ -92,6 +92,16 @@ sender-isolation assertion is supplied by the daemon.
 A source gap, invalid event, source failure or natural end invalidates market
 readiness. A later snapshot in that running source cannot clear the gap. Inspect
 the retained account before explicit recovery with a fresh receipt session.
+On unexpected source return, the daemon logs a UTC `observed_at` timestamp,
+an allowlisted failure category and `invalidation=confirmed` or `unconfirmed`.
+An unconfirmed invalidation has a separate sanitized diagnostic. The timestamp
+records source return, not the last durable receipt or necessarily the start of
+the incident. Raw connection errors, credentials and worker details are withheld.
+A normal source cancellation during shutdown does not emit this failure message.
+Preserve these logs and the account revision before an explicit resume; an HTTP
+health check can pass while source readiness requires recovery. The daemon does
+not automatically retry or resume trading after a source failure.
+
 The fence applies only to the PostgreSQL-backed simulated venue; private exchange
 balance verification, transport and exchange failover remain unavailable.
 

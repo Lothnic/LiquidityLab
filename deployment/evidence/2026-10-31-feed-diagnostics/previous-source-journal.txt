@@ -1,0 +1,9 @@
+2026-10-30 20:51:09.899215+00|15645|f|f|web-source-ended|2026-10-30 20:46:56.039114+00|15070|15070|market_invalid|true
+15638|paper_trade|2026-10-30 20:45:08.057762+00|paper_reconciliation_asserted|false|web-feed-30ac2427c72ddfb7b87047d1-554
+15639|paper_trade|2026-10-30 20:45:08.557729+00|paper_reconciliation_asserted|false|web-feed-30ac2427c72ddfb7b87047d1-555
+15640|paper_trade|2026-10-30 20:45:09.052908+00|paper_reconciliation_asserted|false|web-feed-30ac2427c72ddfb7b87047d1-556
+15641|paper_trade|2026-10-30 20:45:09.557267+00|paper_reconciliation_asserted|false|web-feed-30ac2427c72ddfb7b87047d1-557
+15642|paper_trade|2026-10-30 20:45:10.216817+00|paper_reconciliation_asserted|false|web-feed-30ac2427c72ddfb7b87047d1-558
+15643|paper_trade|2026-10-30 20:45:10.581065+00|paper_reconciliation_asserted|false|web-feed-30ac2427c72ddfb7b87047d1-559
+15644|market_invalid|2026-10-30 20:45:24.651423+00|market_invalid|true|web-source-ended
+15645|market_invalid|2026-10-30 20:45:24.81593+00|market_invalid|true|web-source-ended

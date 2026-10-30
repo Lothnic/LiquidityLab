@@ -1,0 +1,4 @@
+2026-10-30T20:40:31.022811883Z PAPER startup state=recovering; retained balances and original deadline preserved
+2026-10-30T20:40:31.024936736Z PAPER server http://127.0.0.1:8080 account=synthetic-paper-daemon/demo source=synthetic; balances, rules, fees and fills are SYNTHETIC; no exchange orders
+2026-10-30T20:40:31.043656887Z PAPER startup state=ready; recovered plans remain paused until explicit trader resume
+2026-10-30T20:45:24.830493657Z PAPER public-data source failed; readiness invalidated; account remains available for inspection/cancellation

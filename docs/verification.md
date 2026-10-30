@@ -634,3 +634,36 @@ Browser/mobile review remains blocked by the browser access restriction. The
 historical native feed interruption still has no established cause; supported
 feed reliability, hosted access, backup/restore, retention and soak remain beta
 gates in the [milestone checklist](hosted-paper-beta.md).
+
+
+### Source diagnostics follow-up — 31 October 2026
+
+The retained local container later lost source readiness while HTTP remained
+healthy. This observation is later than the ready snapshot above, so that snapshot
+must not be read as continuous feed evidence. The old binary logged only a generic
+failure; the exact ingress error and historical cause remain unknown. Its failure
+preceded the fresh Go suite, so this suite cannot explain that occurrence.
+
+Commit `9788269` preserves internal error identity while retaining safe outward
+messages. Unexpected source return logs the UTC observation time, an allowlisted
+reason and whether invalidation was confirmed. Controlled tests first failed on
+the missing classification, then passed with actual randomized PostgreSQL fixtures,
+including an injected ownership takeover. This establishes diagnostic behavior,
+not the historical failure's cause or its resolution. No timeout, ordering,
+financial guard or automatic recovery behavior was changed.
+
+The [fresh full Go race record](../conformance/results/20261031-source-diagnostics.json)
+retains the compressed raw event log and hashes: 1,190 passing test/subtest events,
+no failures or skipped test cases, three packages without tests, and a passing real
+Python PPO boundary. The Python suite also reran against a fresh ordinary Go binary: 216 checks pass
+without skips. All 78 UI checks and the production build reran successfully. The
+record identifies both replay binaries and modified build metadata. Feed
+reliability remains an open release gate.
+
+
+The [curated source diagnostic record](../deployment/evidence/2026-10-31-feed-diagnostics/README.md)
+retains the previous failure boundary and the controlled red/green checks. The
+diagnostic build subsequently stayed ready at every probe through 480 seconds
+from startup, reaching synthetic receipt 959 with an already cancelled parent.
+No new trades or operator plan commands were issued. This bounded observation
+does not resolve the earlier interruption or satisfy the 24-hour soak gate.

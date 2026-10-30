@@ -1,0 +1,8 @@
+--- FAIL: TestPaperServerErrorRetainsSafeClassification (0.00s)
+    paper_lifecycle_test.go:22: sanitized ingress error lost ownership classification
+--- FAIL: TestPaperDaemonSourceFailureReportsSafeReasonAndInvalidation (0.27s)
+    paper_lifecycle_test.go:58: source failure did not expose safe causal class and invalidation outcome: PAPER startup state=ready; recovered plans remain paused until explicit trader resume
+        PAPER public-data source failed; readiness invalidated; account remains available for inspection/cancellation
+FAIL
+FAIL	github.com/liquiditylab/liquiditylab/cmd/liquiditylabd	0.274s
+FAIL
