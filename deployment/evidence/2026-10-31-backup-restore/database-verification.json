@@ -1,0 +1,86 @@
+{
+  "account_journal": {
+    "bytes": 144607100,
+    "kind": "r",
+    "rows": 23922,
+    "sha256": "8ac373faaea7c969560a44a5d1023d9127fe88244b9fa8fa602821e50f2b6394"
+  },
+  "accounts": {
+    "bytes": 5911,
+    "kind": "r",
+    "rows": 1,
+    "sha256": "2b014f94033ff7c0b01a9a8fe0d7f01a5988661b7bbb73bd93fdf01f1e34d51f"
+  },
+  "balances": {
+    "bytes": 266,
+    "kind": "r",
+    "rows": 2,
+    "sha256": "d7e48ed9f2eb3de5ff365bdefa013baab110746948edd97bcf212f69e7c7c2d0"
+  },
+  "commands": {
+    "bytes": 8253783,
+    "kind": "r",
+    "rows": 23863,
+    "sha256": "d08d4e0e62b9f45a52ec3a58f0100a18c645919ec340275ede840192d0fb39a4"
+  },
+  "executions": {
+    "bytes": 33651,
+    "kind": "r",
+    "rows": 51,
+    "sha256": "9abeec9bc11aca459406056be1ed7855d37a7e376f5a493fe172f0b1e9d5a985"
+  },
+  "observations": {
+    "bytes": 18113390,
+    "kind": "r",
+    "rows": 23344,
+    "sha256": "b6506b23ec26596b4ca5f3fa20d25666431249924dc3d37f04148e6e333f50ec"
+  },
+  "outbox": {
+    "bytes": 35061,
+    "kind": "r",
+    "rows": 51,
+    "sha256": "03006a318748eab0f5f808afdf695240737690e601beed370d59d2fab8db2b2f"
+  },
+  "plan_revisions": {
+    "bytes": 20786,
+    "kind": "r",
+    "rows": 19,
+    "sha256": "9dd1a14e9c38ee53a532c3cf3b63436d3f000022d4da9c4625de45f5506743f5"
+  },
+  "plans": {
+    "bytes": 3163,
+    "kind": "r",
+    "rows": 3,
+    "sha256": "6a029578e3bf24a24651aa4f277b4fcd276e92a8329ee3aadacac03bec35e7b6"
+  },
+  "replay_admission": {
+    "bytes": 0,
+    "kind": "r",
+    "rows": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "replay_jobs": {
+    "bytes": 0,
+    "kind": "r",
+    "rows": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "replay_jobs_sequence_seq": {
+    "bytes": 38,
+    "kind": "S",
+    "rows": 1,
+    "sha256": "398a1977a112ccf635392fe8cb1a93ccb401f5dd39473c9f052da9c15b517b4f"
+  },
+  "reservations": {
+    "bytes": 10149,
+    "kind": "r",
+    "rows": 51,
+    "sha256": "a5f9b5c45618ba8dd1561bffc7db41826f8979b3c5ea7caec785f82cf77fc8ea"
+  },
+  "schema_migrations": {
+    "bytes": 900,
+    "kind": "r",
+    "rows": 5,
+    "sha256": "ce61875724ef5d90c43b18b5813a4f4ea528020a87c7b71215ba560ea6f422b4"
+  }
+}

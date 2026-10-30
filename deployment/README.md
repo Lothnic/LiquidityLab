@@ -176,3 +176,10 @@ without retraining or new trading. The account was ready with no recovery
 requirement, child or reservations; both pinned reports remained known final.
 The [refresh evidence](evidence/2026-10-31-refresh/README.md) records the observed
 service health separately from account readiness and includes image identifiers.
+
+
+The [31 October backup/restore drill](evidence/2026-10-31-backup-restore/README.md)
+verified every schema table and sequence plus bundle-file readback in fresh local
+volumes. Explicit clone inspection returned both exact pinned reports with all
+51 fills. The source account was terminal and recordings empty; this evidence
+does not close active-parent recovery or nonempty recording restoration.

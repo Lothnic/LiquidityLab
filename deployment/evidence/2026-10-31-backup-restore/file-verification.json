@@ -1,0 +1,27 @@
+{
+  "bundle": {
+    "policy": {
+      "gid": 10001,
+      "kind": "directory",
+      "mode": 493,
+      "uid": 10001
+    },
+    "policy/manifest.json": {
+      "gid": 10001,
+      "kind": "file",
+      "mode": 420,
+      "sha256": "bdd1101a06829ca4cc55388157babe8dbe61086d242c2f6198b885942aa46c44",
+      "size": 3281,
+      "uid": 10001
+    },
+    "policy/policy.zip": {
+      "gid": 10001,
+      "kind": "file",
+      "mode": 420,
+      "sha256": "506b1eff74b090e0a8b72c407e8271aa649db87f8323ad344f643a1f67697b26",
+      "size": 165731,
+      "uid": 10001
+    }
+  },
+  "recordings": {}
+}

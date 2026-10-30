@@ -1,0 +1,23 @@
+[
+  {
+    "service": "db",
+    "network_mode": "none",
+    "ports": {},
+    "image_id": "sha256:dc3f873bf9f13956c6821197edd8e0224b93086f3312830faf5d76699d43710b",
+    "health": "healthy"
+  },
+  {
+    "service": "paper",
+    "network_mode": "container:45c5e37f008a1dc943542f0d285108bcfd1cc7d73a13b8f66bb7842e41ec3587",
+    "ports": {},
+    "image_id": "sha256:e32c0bb8796ca88366265bfaccc89518ac91f16279033d099754d46b68b56fb5",
+    "health": "healthy"
+  },
+  {
+    "service": "worker",
+    "network_mode": "none",
+    "ports": {},
+    "image_id": "sha256:faf22453eadbb77582665df63bdf4fe8f4dbc2404e6d6615e30ce508b6610a55",
+    "health": "healthy"
+  }
+]

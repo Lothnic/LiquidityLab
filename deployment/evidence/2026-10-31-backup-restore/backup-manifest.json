@@ -1,0 +1,10 @@
+{
+  "complete": true,
+  "format": 1,
+  "sha256": {
+    "bundle.tar": "117fdabb375167b9f2313b9f2ebb6aa0e5bff00774c868992fc8bb3dfd1e8a8a",
+    "metadata.json": "eb0800d312da73b12bcf8e456364db16ed5fa4be86fa87c2d006929d0405a249",
+    "recordings.tar": "84ff92691f909a05b224e1c56abb4864f01b4f8e3c854e4bb4c7baf1d3f6d652",
+    "schema.dump": "8620107dc9809ed71cae64b123477f2f86be2e6d4a5b12405eb180af9df7c120"
+  }
+}

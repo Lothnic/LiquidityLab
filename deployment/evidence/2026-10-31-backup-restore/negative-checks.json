@@ -1,0 +1,7 @@
+{
+  "same-project-refused": "passed",
+  "corrupt-payload-refused": "passed",
+  "symlink-contained-destination-refused": "passed",
+  "existing-target-refused": "passed",
+  "running-source-writer-refused": "passed"
+}

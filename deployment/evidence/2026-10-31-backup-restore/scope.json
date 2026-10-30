@@ -1,0 +1,39 @@
+{
+  "date": "2026-10-31",
+  "source_project": "liquiditylab-rlbeta-20261030",
+  "schema": "paper_beta",
+  "backup_created_utc": "2026-10-30T22:01:49.201854+00:00",
+  "backup_manifest_sha256": "f3af955291dbbb0eaff8411e6ede25186ad023be3667604c65b818811a40cc2d",
+  "database_image": "sha256:dc3f873bf9f13956c6821197edd8e0224b93086f3312830faf5d76699d43710b",
+  "helper_image": "sha256:e32c0bb8796ca88366265bfaccc89518ac91f16279033d099754d46b68b56fb5",
+  "source_account_revision": 23922,
+  "verified_relations": 14,
+  "verified_tables": 13,
+  "verified_sequences": 1,
+  "bundle_regular_files": 2,
+  "recording_entries": 0,
+  "targets": [
+    "liquiditylab-restore-20261031-a",
+    "liquiditylab-restore-20261031-b"
+  ],
+  "restore_finished_utc": "2026-10-30T22:09:30.672850+00:00",
+  "explicit_inspection": {
+    "target": "liquiditylab-restore-20261031-a",
+    "current_parent": "cancelled",
+    "pinned_reports_exact": true,
+    "completed_report_revision": 3569,
+    "cancelled_report_revision": 3736,
+    "executions_retained": 51,
+    "new_trading_commands": 0,
+    "api_auth": "Fresh clone token, not retained in evidence.",
+    "network": "DB network none; paper shares DB network namespace; worker network none; no published ports.",
+    "after_observation": "Inspection app/worker and both target databases explicitly stopped; all target volumes and backups retained. Original source resumed ready."
+  },
+  "limitations": [
+    "Offline restore itself starts only the database. Inspection was an explicit separate operator step.",
+    "Restored account was already terminal; no active-parent/held-obligation recovery claim.",
+    "Synthetic source; recordings volume empty, so nonempty recording restore and retention remain unverified.",
+    "Exact local images required; fresh-host image transfer, hosted ingress and operations gates remain open.",
+    "No power-loss drill, uptime/capacity or model-quality claim. Policy remains unvalidated."
+  ]
+}

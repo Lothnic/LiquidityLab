@@ -26,14 +26,22 @@ handoff fix `b795231` subsequently completed a packaged `0.1 BTC` plan through 5
 simulated fills without operator resumes; restart preserved both reports, 51 fill
 identities and balances across two sessions. Full Go race verification passes
 1,190 test/subtest events after source diagnostics, with no skipped test cases;
-the earlier handoff replay binary passes
-216 Python checks. The UI now passes 78 checks across seven files plus its
+the updated ordinary Go replay binary passes
+232 Python checks including 16 backup regressions. The UI now passes 78 checks across seven files plus its
 production build. An explicit 31 October image refresh resumed the retained
 account ready with both pinned reports intact. A later source interruption again
 required recovery despite healthy HTTP; diagnostics now retain a safe reason and
 invalidation result, and its cause remains unestablished. Supported reliability/latency, active-session recovery under
 load, hosted access, operational gates and browser sign-off remain open. See
 the [demo guide](rl-paper-demo.md) and [package evidence](../deployment/README.md).
+
+The explicit [backup/restore workflow](../deployment/backup-restore.md) now refuses
+running writers and restores only into fresh isolated database/file volumes.
+The local drill verified all 13 tables and one sequence, policy file contents and
+permissions, then read both exact pinned reports from an explicitly inspected
+clone. All 51 executions and exact balances survived; no trading command was
+sent. The account was already terminal and recordings were empty, so this does
+not close active-parent recovery, nonempty recording restore or broader beta ops.
 
 ## Verified starting state
 

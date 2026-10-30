@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-31",
+  "component_commit": "679c442235209bc71a724322435633ace5202794",
+  "source_files": {
+    "deployment/backup.py": "5dff90f440c1db5ebcc95ae707a1b84ec15a3ecf7c268aed31d135effcbe0998",
+    "tests/test_deployment_backup.py": "d4811897c4c04d1fb43fbdb349390de267419450efc677f0b5702cb98980d897"
+  },
+  "python": {
+    "command": "LIQUIDITYLAB_REPLAY_BINARY=\"$WORK/bin/liquiditylabd-20261031-diagnostics\" LIQUIDITYLAB_PYTHON=\"$REPO/.venv/bin/python\" OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 .venv/bin/python -m pytest -q --junitxml=\"$WORK/paper-backup-drill-20261031/python-backup.xml\"",
+    "passed": 232,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "duration_seconds": 14.42,
+    "raw_log_sha256": "dddd86db64a937095fefe4caf256ceeb03db0695875fa458b2c4f069bb52826c",
+    "junit_sha256": "dc497da93d2b0f61e870a62288c8816f80645b57aa6d7a76f70343b3f1e8aec0",
+    "backup_regression_cases": 16,
+    "warning": "Existing Gymnasium LiquidityLab-SpotExecution-v0 deprecation warning."
+  },
+  "style": "Ruff check and format --check passed for both new Python files.",
+  "go_and_ui": "No Go/UI code changed in this component. Separately retained full Go race1190, UI78 and production build results are in conformance/results/20261031-source-diagnostics.json."
+}

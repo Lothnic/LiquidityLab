@@ -667,3 +667,33 @@ diagnostic build subsequently stayed ready at every probe through 480 seconds
 from startup, reaching synthetic receipt 959 with an already cancelled parent.
 No new trades or operator plan commands were issued. This bounded observation
 does not resolve the earlier interruption or satisfy the 24-hour soak gate.
+
+
+### Offline backup and isolated restore — 31 October 2026
+
+Component `679c442` adds a quiescent, whole-schema backup plus immutable bundle
+and recordings archives, private output permissions and an atomic completion
+manifest. Restore refuses existing resources, verifies every payload, uses fresh
+volumes/credentials and starts only a network-isolated PostgreSQL database.
+All table rows and sequence values are compared using sorted JSON-row SHA-256;
+restored file contents, ownership and modes are independently reread.
+
+The [actual drill record](../deployment/evidence/2026-10-31-backup-restore/README.md)
+retains the source cutoff and verification inventory: 13 tables plus one sequence,
+23,922 journal entries, 23,863 command rows and 51 execution identities. Both fresh
+offline restores passed. An explicit, separately configured clone inspection with
+Go/PPO and fresh auth returned the exact completed revision-3569 and cancelled
+revision-3736 reports, all 51 fills and exact balances. No ports were published,
+no trading command was sent, and inspection/target databases were subsequently
+stopped with volumes retained. The original source resumed ready with reports
+unchanged. The restore script never starts those inspection services itself.
+
+Sixteen focused archive/integrity/refusal regressions pass. The full Python suite
+also passes 232 checks without failures or skips using actual Python/replay
+integration paths; its existing Gymnasium v0 warning remains. Ruff check and
+format verification pass for the two new Python files. No Go or UI code changed;
+the prior full Go race and UI evidence remains separately scoped.
+
+This terminal-account drill does not establish active-parent/held-obligation
+recovery, nonempty recording restoration, fresh-host image transfer, power-loss
+behavior or hosted reliability. Those broader operations gates remain open.

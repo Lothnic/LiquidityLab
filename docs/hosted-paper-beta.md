@@ -185,7 +185,8 @@ implemented. All 78 UI checks across seven files pass, along with the production
 build. Dedicated cases cover proposal/action labels, pending, stale, shadow and
 fallback states, current versus next-plan configuration, saved decision binding
 and strict calendar timestamps. This does not establish browser or mobile coverage.
-The 216 Python checks pass without skips using the updated Go replay binary.
+The current 232 Python checks, including 16 backup regressions, pass without
+skips using the updated Go replay binary.
 The full uncached Go race suite passes with actual PostgreSQL and Python paths:
 1,190 test/subtest pass events after the source diagnostics change, zero failing
 or skipped test cases. Three packages have no test files. The
@@ -203,3 +204,13 @@ recorded in [verification.md](verification.md); it does not validate deployment
 capacity, the new RL views or the eventual hosting environment. Hosting, TLS,
 credential lifecycle, storage retention, backup/restore and soak release gates
 remain open.
+
+
+The [local backup/restore drill](../deployment/evidence/2026-10-31-backup-restore/README.md)
+then verified all 13 schema tables and one sequence, the policy files and their
+permissions in fresh isolated volumes. Explicit clone inspection returned the
+exact original pinned reports with all 51 fills; both clone and source retained
+the exact balances and terminal plan. The restore command itself starts only an
+isolated database. Active-parent/held-obligation recovery, nonempty recording
+restore, migration rollback and fresh-host image delivery remain unverified, so
+the broader restore/operations gate stays open.
