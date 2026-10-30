@@ -1,0 +1,32 @@
+# ARCHIVED DRILL HARNESS. Do not execute against retained project names.
+import active_harness as h
+import pathlib,json,time,subprocess,decimal,hashlib
+D=decimal.Decimal; PROJECT='liquiditylab-restore-active-20261031';DB=PROJECT+'-db-1';PAPER=PROJECT+'-paper-1';root=h.ROOT
+crash=json.loads((root/'crash-durable.json').read_text()); original=crash['accounts'][0];parent=original['snapshot']['parent'];checks={}
+def check(name,value):checks[name]=bool(value)
+off=json.loads((root/'restored-offline-durable.json').read_text());check('offline_snapshot_equals_crash',off==crash)
+start=time.monotonic();states=[]
+while time.monotonic()-start<90:
+ try:
+  r=h.api(paper=PAPER)
+  if r['status']==200:
+   s=r['body'];states.append({k:s.get(k) for k in ['revision','ready','plan_status','recovery_required','child','reserved']})
+   if s.get('ready') and s.get('plan_status')=='paused' and not s.get('recovery_required') and not any(D(x['amount'])>0 for x in s.get('reserved',[])):
+    h.save('recovered-paused-state',s);break
+ except Exception:pass
+ time.sleep(.25)
+else:
+ h.save('recovery-poll-states',states);raise RuntimeError('90s recovered paused timeout')
+# No trader command is issued here; show a bounded paused interval.
+time.sleep(3);s2=h.api(paper=PAPER)['body'];h.save('recovered-paused-state-after-3s',s2)
+after=h.snapshot(DB);h.save('recovered-durable',after);a=after['accounts'][0];p=next(x for x in after['plans'] if x['plan_id']==parent['id']);oldchild=original['snapshot']['child']['id'];ob=next(x for x in after['outbox'] if x['intent_id']==oldchild)
+check('ownership_epoch_incremented',a['ownership_epoch']>original['ownership_epoch']);check('parent_paused',p['status']=='paused' and s2['plan_status']=='paused');check('original_parent_deadline_preserved',p['deadline']==next(x['deadline'] for x in crash['plans'] if x['plan_id']==parent['id']));check('original_spec_and_policy_pins_preserved',p['detail']['spec']==parent['spec'] and p['detail']['policy_bundle']==parent['policy_bundle']);check('old_child_settled',ob['state'] in ('obsolete','final') and s2.get('child') is None);check('no_held_reservations',not any(x['state']=='held' for x in after['reservations']));check('observed_processed_caught_up',a['observed_sequence']==a['processed_sequence']);check('no_new_execution',after['executions']==crash['executions']);check('balances_preserved',after['balances']==crash['balances']);after_obs={x['sequence']:x for x in after['observations']};check('all_previous_accepted_observation_facts_retained',all(after_obs.get(x['sequence'])==x for x in crash['observations']));after_cmd={x['command_id']:x for x in after['commands']};check('all_previous_command_results_retained',all(after_cmd.get(x['command_id'])==x for x in crash['commands']))
+# Derive account balances from initial 1 BTC/10000 USD and every durable accepted execution.
+bal={'BTC':D('1'),'USD':D('10000')}
+for x in after['executions']:
+ f=x['detail'];q=D(f['quantity']);price=D(f['price']);fee=D(f['fee']);sign=1 if f['side']=='buy' else -1;bal['BTC']+=sign*q;bal['USD']-=sign*q*price;bal['BTC' if f['fee_currency']=='base' else 'USD']-=fee
+exact=h.sql("SELECT json_agg(json_build_object('currency',currency,'total',trim_scale(total)::text,'free',trim_scale(free)::text,'locked',trim_scale(locked)::text)) FROM paper_beta.balances;",DB);h.save('recovered-exact-balances',exact);check('balances_derived_from_all_accepted_fills',all(D(x['total'])==bal[x['currency']] for x in exact));reports=[]
+for path in list(root.glob('pinned-*.json'))+[root/'active-pinned-report.json']:
+ expected=json.loads(path.read_text());pid=expected['plan_id'];suffix='/sessions/'+pid+'?as_of_revision='+str(expected['as_of_revision']);got=h.api(suffix,paper=PAPER);h.save('restored-'+path.stem,got['body']);reports.append({'plan_id':pid,'as_of_revision':expected['as_of_revision'],'unchanged':got['status']==200 and got['body']==expected})
+check('all_original_pinned_reports_unchanged',all(x['unchanged'] for x in reports));h.save('recovery-poll-states',states)
+summary={'valid':all(checks.values()),'checks':checks,'parent_id':parent['id'],'deadline':parent['deadline'],'held_child':oldchild,'settled_child_state':ob['state'],'source_epoch':original['ownership_epoch'],'restored_epoch':a['ownership_epoch'],'source_revision':original['revision'],'restored_revision':a['revision'],'source_observed_sequence':original['observed_sequence'],'source_processed_sequence':original['processed_sequence'],'restored_observed_sequence':a['observed_sequence'],'restored_processed_sequence':a['processed_sequence'],'accepted_execution_count':len(after['executions']),'derived_balances':{k:str(v) for k,v in bal.items()},'original_pinned_reports':reports,'no_trader_commands_issued_after_restore':True,'paused_observation_seconds':3,'limitations':['Synthetic account source; retained public Kraken recording is copied file evidence, not bound as the session market source.','Crash caught a durable queued child with a held reservation before dispatch; no post-crash accepted fill debt was manufactured.','No live exchange, hosting, strategy quality, 24-hour soak, or capacity claim.']};h.save('verification-summary',summary);print(json.dumps(summary,indent=2));assert summary['valid']

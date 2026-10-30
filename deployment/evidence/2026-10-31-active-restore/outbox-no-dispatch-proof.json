@@ -1,0 +1,5323 @@
+{
+  "checks": {
+    "outbox_intent_ids_unchanged": true,
+    "queued_child_attempt_id_unset_after_recovery": true,
+    "no_previously_unset_attempt_became_bound": true,
+    "all_existing_attempt_bindings_preserved": true
+  },
+  "source_outbox": [
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-34a6c872802da824c6dc722db87e09f9",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "99.99",
+        "passive": true,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-199864636e1deb58ae4b94ee365c92f8",
+      "venue_order_id": "paper-child-34a6c872802da824c6dc722db87e09f9",
+      "authorization_revision": 3042,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-15",
+      "attempted_at": "2026-10-30T12:41:00.916932+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-224bdec140dc3dd55cdb0e40b88f30b8",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-f89c8275e3f717d912706aed9b08567a",
+      "venue_order_id": "",
+      "authorization_revision": 3133,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-73",
+      "attempted_at": "2026-10-30T12:41:29.917485+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-d053d344ede7556a2e6fbf3a67771b5c",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-9e340d028e7280a47f3465f9b6d93fdd",
+      "venue_order_id": "",
+      "authorization_revision": 3142,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-77",
+      "attempted_at": "2026-10-30T12:41:31.908735+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-ac4b65513d014c8259ef06e34235e146",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-a1ab6c4fdde27442be72cb56212bacde",
+      "venue_order_id": "",
+      "authorization_revision": 3151,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-81",
+      "attempted_at": "2026-10-30T12:41:33.893501+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-7d50755d892e15148d9c3a5f5edc0dd0",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-6a697be0d7aad06b1a19834d404f7567",
+      "venue_order_id": "",
+      "authorization_revision": 3160,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-85",
+      "attempted_at": "2026-10-30T12:41:35.896215+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-2861e77e212cbca811a52d6c6f2176f8",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-b2cb4bf1446a5376cd10a7adf3552614",
+      "venue_order_id": "",
+      "authorization_revision": 3169,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-89",
+      "attempted_at": "2026-10-30T12:41:37.894122+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-5fd2ebf9eb528e00255853fe23f89ae8",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-17df3ce4ea7e96d438761ca05c51deb7",
+      "venue_order_id": "",
+      "authorization_revision": 3178,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-93",
+      "attempted_at": "2026-10-30T12:41:39.916185+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-c188ff9901203d5b707d2015674a8af3",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-71ad8e84fe44bfec44df5bd62d321d85",
+      "venue_order_id": "",
+      "authorization_revision": 3187,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-97",
+      "attempted_at": "2026-10-30T12:41:41.908052+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-e6fcfe081737db02b791ff6d2c4ce3b2",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-405b089e3494854cd666a9863fb4b47a",
+      "venue_order_id": "",
+      "authorization_revision": 3196,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-101",
+      "attempted_at": "2026-10-30T12:41:43.907741+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-a4b4c5f89f34c3127a92a508f8cfc681",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-f31b1e509063bef3a9b14f79cb6a81b4",
+      "venue_order_id": "",
+      "authorization_revision": 3205,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-105",
+      "attempted_at": "2026-10-30T12:41:45.893739+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-c8f2a1f4eafce37b0d0d9a9150d0fb40",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-35ccfca5152e3a82b755e6d90efc8ddf",
+      "venue_order_id": "",
+      "authorization_revision": 3214,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-109",
+      "attempted_at": "2026-10-30T12:41:47.901501+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-4d10fd9cfd5cfdcd2cf04524f706066f",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-8d2ef69c4d51b6f95e0e1446233ae097",
+      "venue_order_id": "",
+      "authorization_revision": 3223,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-113",
+      "attempted_at": "2026-10-30T12:41:49.906061+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-187ce9850f8115b0787194fcf872d3f3",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-7df4f755d9edd113a6e62f20d951987a",
+      "venue_order_id": "",
+      "authorization_revision": 3232,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-117",
+      "attempted_at": "2026-10-30T12:41:51.893386+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-e148e5ca029b7fc4306562b8bca3ccd9",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-a617b2dad39ea58fa73a245667b3c97c",
+      "venue_order_id": "",
+      "authorization_revision": 3241,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-121",
+      "attempted_at": "2026-10-30T12:41:53.923017+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-1e46f3ffad5a9f34309d0f2c29e3f823",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-ff16e40e77f4ca4d2d7263dc1b9ac6e1",
+      "venue_order_id": "",
+      "authorization_revision": 3250,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-125",
+      "attempted_at": "2026-10-30T12:41:55.892833+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-d60c2963ee64f0327159b93deb517318",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-7248da2a3297b5fedef7626288c3cc58",
+      "venue_order_id": "",
+      "authorization_revision": 3259,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-129",
+      "attempted_at": "2026-10-30T12:41:57.893116+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-ca380a7fd6512c71571f34e41fbbe9f5",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-9e02967eb0694454d8eeee2a42ee4534",
+      "venue_order_id": "",
+      "authorization_revision": 3268,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-133",
+      "attempted_at": "2026-10-30T12:41:59.892763+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-56071ccb321b49d8c3484fd003b3c9f0",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-07f989e1d82f06326ca3efc732527d3e",
+      "venue_order_id": "",
+      "authorization_revision": 3277,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-137",
+      "attempted_at": "2026-10-30T12:42:01.893012+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-6ae026ef58c3d0e4887270328c6966ef",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-ae32316ee212bec1153c3c002af657f1",
+      "venue_order_id": "",
+      "authorization_revision": 3286,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-141",
+      "attempted_at": "2026-10-30T12:42:03.893395+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-14033d168c85c283778d657d262f127f",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-d5336f555f91475f2df590a0f4675055",
+      "venue_order_id": "",
+      "authorization_revision": 3295,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-145",
+      "attempted_at": "2026-10-30T12:42:05.893247+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-a14c1d6f2567db6c4711592df60b0beb",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-770e5eaaa58944f11070bf1732178544",
+      "venue_order_id": "",
+      "authorization_revision": 3304,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-149",
+      "attempted_at": "2026-10-30T12:42:07.893633+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-142c3411da9b0048b118d1fa7b86bfe1",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-4847e3be4c75a4e8e739848f8113f677",
+      "venue_order_id": "",
+      "authorization_revision": 3313,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-153",
+      "attempted_at": "2026-10-30T12:42:09.910707+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-eed787c349912e3a82dc67b8a8867e92",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-ffc323bea4f92cc3a0cfe287b52d60ad",
+      "venue_order_id": "",
+      "authorization_revision": 3322,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-157",
+      "attempted_at": "2026-10-30T12:42:11.893166+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-8ab56f6c93a625df807c03265b6b0570",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-a0037e312f8aee00057f23ccae7146af",
+      "venue_order_id": "",
+      "authorization_revision": 3331,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-161",
+      "attempted_at": "2026-10-30T12:42:13.893724+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-56c59157cc5b4482128d78407c7d2f4d",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-9ca12553f19b9d8911d64c3974837251",
+      "venue_order_id": "",
+      "authorization_revision": 3340,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-165",
+      "attempted_at": "2026-10-30T12:42:15.894358+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-e6d2f688f5d32a669e48d8358caef7af",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-61362d3ab45c8fd889e4b43471beb7a0",
+      "venue_order_id": "",
+      "authorization_revision": 3349,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-169",
+      "attempted_at": "2026-10-30T12:42:17.893965+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-215895217ca82cf3f26c6946c3aad88c",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-1cba62e133f25bf44e1e4f4fa6108fa2",
+      "venue_order_id": "",
+      "authorization_revision": 3358,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-173",
+      "attempted_at": "2026-10-30T12:42:19.903577+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-28cd27015197e69b9a9fedba2e1fb450",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-d2eb943c4e46459a62ab0cef66cbf7d5",
+      "venue_order_id": "",
+      "authorization_revision": 3367,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-177",
+      "attempted_at": "2026-10-30T12:42:21.920563+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-fd37c6912a4c480666fd93f8a88e0678",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-d7bf7ced2fe6dd158907950dd4ee4e80",
+      "venue_order_id": "",
+      "authorization_revision": 3376,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-181",
+      "attempted_at": "2026-10-30T12:42:23.895784+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-7face180aa0282765c45b07c8b2acb85",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-ea643274dafd7cc31e0ccd43416c82ff",
+      "venue_order_id": "",
+      "authorization_revision": 3385,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-185",
+      "attempted_at": "2026-10-30T12:42:25.893589+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-dac91adaad558ce4f9e72ed7850b5867",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-fb5a9d266748ae2cdd8de17d77caf6d8",
+      "venue_order_id": "",
+      "authorization_revision": 3394,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-189",
+      "attempted_at": "2026-10-30T12:42:27.894412+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-5638201672221fed9135459751992822",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-94c615869476843175c387b8a05b84b9",
+      "venue_order_id": "",
+      "authorization_revision": 3403,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-193",
+      "attempted_at": "2026-10-30T12:42:29.902377+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-b1d120b801d61d3b3621400bff7ffc31",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-492acc8238ff0dd8c0075de58bc0157f",
+      "venue_order_id": "",
+      "authorization_revision": 3412,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-197",
+      "attempted_at": "2026-10-30T12:42:31.892702+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-ecb36b5b0b63654032aa15040028bd21",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-275d65531e9be1eb5bca8ea77d67dde4",
+      "venue_order_id": "",
+      "authorization_revision": 3421,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-201",
+      "attempted_at": "2026-10-30T12:42:33.89196+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-bd47d36a70aaafd10010e59707609aad",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-8e5bba2972671b00c1349602d7d5a321",
+      "venue_order_id": "",
+      "authorization_revision": 3430,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-205",
+      "attempted_at": "2026-10-30T12:42:35.893349+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-d10519439fd920f1f86564319ac4ce03",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-317112e6369f4c09dd8d81b542ce40aa",
+      "venue_order_id": "",
+      "authorization_revision": 3439,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-209",
+      "attempted_at": "2026-10-30T12:42:37.894054+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-788ebf661169324798aea4d6b054d96a",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-ab25c04a2353a8298c34ef9ac6579f51",
+      "venue_order_id": "",
+      "authorization_revision": 3547,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-257",
+      "attempted_at": "2026-10-30T12:43:01.89455+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-0bd60ebe6fdfb6c032ac85a50b440270",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-9cdfce59c8bbe8f928e56b72116d64a4",
+      "venue_order_id": "",
+      "authorization_revision": 3448,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-213",
+      "attempted_at": "2026-10-30T12:42:39.893593+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-117f93c58089223b9962f9e8c846c59b",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-c849c96eebf453b10e285eb9d6e696fc",
+      "venue_order_id": "",
+      "authorization_revision": 3457,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-217",
+      "attempted_at": "2026-10-30T12:42:41.893414+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-ad4eaf540c12e0d7716ea88a97d5fb24",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-086ff401300b4937dd19e9168247694a",
+      "venue_order_id": "",
+      "authorization_revision": 3556,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-261",
+      "attempted_at": "2026-10-30T12:43:03.893602+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-342b5db6c6abf64c4674b1f6c7460023",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-24d74a5431d9af66c2032098b42e3fe5",
+      "venue_order_id": "",
+      "authorization_revision": 3466,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-221",
+      "attempted_at": "2026-10-30T12:42:43.891895+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-1973931fac6b94e0a5bd2c1172b8306f",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-8fce94bff944b531033b1d0cd3491da1",
+      "venue_order_id": "",
+      "authorization_revision": 3565,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-265",
+      "attempted_at": "2026-10-30T12:43:05.902595+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-e297c07dd9a7fc07052b01b1e4f4fa5c",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-db6a9eb131c0be15b17cf59d17b35060",
+      "venue_order_id": "",
+      "authorization_revision": 3475,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-225",
+      "attempted_at": "2026-10-30T12:42:45.902149+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-690ed0c5958e409babd3e58d8e795044",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-b43d70878f6e2a3688704dd4e0ba9a0a",
+      "venue_order_id": "",
+      "authorization_revision": 3484,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-229",
+      "attempted_at": "2026-10-30T12:42:47.928288+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-9e94171c40b53c784671562a3854017a",
+      "plan_id": "container-ppo-handoff-loss-20261030-c",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:48:39.863278+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "99.99",
+        "passive": true,
+        "quantity": "0.001"
+      },
+      "state": "final",
+      "attempt_id": "attempt-bc86e9934d8def85dc5a163b8890a561",
+      "venue_order_id": "paper-child-9e94171c40b53c784671562a3854017a",
+      "authorization_revision": 3645,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-337",
+      "attempted_at": "2026-10-30T12:43:41.9019+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-6e5cae6ed6132dce58a6d8a3e116723e",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-cb36391355fee6e33cec01530e3005ed",
+      "venue_order_id": "",
+      "authorization_revision": 3493,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-233",
+      "attempted_at": "2026-10-30T12:42:49.901206+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-08a12f7c66d4b7e07fc6865096aeedda",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-f2de3e5862e56bfdbf0dd5b10af71bdb",
+      "venue_order_id": "",
+      "authorization_revision": 3502,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-237",
+      "attempted_at": "2026-10-30T12:42:51.895643+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-99f7cec3370e77d561752d00fdb8ece6",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-468459f6bd60badea9a4cb0065af88ff",
+      "venue_order_id": "",
+      "authorization_revision": 3511,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-241",
+      "attempted_at": "2026-10-30T12:42:53.901038+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-81f06962435a960f2fd92b4d7059a673",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-5ba9174b050638ac873b31b67408d154",
+      "venue_order_id": "",
+      "authorization_revision": 3520,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-245",
+      "attempted_at": "2026-10-30T12:42:55.893797+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-a86dea9f33ab2bd89dfe96fb0808c037",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-f8cefee8fa6b76b1a6071ac909abdcff",
+      "venue_order_id": "",
+      "authorization_revision": 3529,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-249",
+      "attempted_at": "2026-10-30T12:42:57.89597+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-ea2f9f5b3f88fcab311b93a52bb9ec80",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-7179da187543d6533f2268c6f0e8db47",
+      "venue_order_id": "",
+      "authorization_revision": 3538,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-253",
+      "attempted_at": "2026-10-30T12:42:59.91304+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-1fca834d7140060c15455a6ba39700c4",
+      "plan_id": "active-restore-20261031-passive-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T22:28:13.552685+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "99.99",
+        "passive": true,
+        "quantity": "0.002"
+      },
+      "state": "queued",
+      "attempt_id": "",
+      "venue_order_id": "",
+      "authorization_revision": 0,
+      "authorization_snapshot": "",
+      "attempted_at": null,
+      "resolution_evidence": null
+    }
+  ],
+  "offline_outbox": [
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-34a6c872802da824c6dc722db87e09f9",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "99.99",
+        "passive": true,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-199864636e1deb58ae4b94ee365c92f8",
+      "venue_order_id": "paper-child-34a6c872802da824c6dc722db87e09f9",
+      "authorization_revision": 3042,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-15",
+      "attempted_at": "2026-10-30T12:41:00.916932+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-224bdec140dc3dd55cdb0e40b88f30b8",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-f89c8275e3f717d912706aed9b08567a",
+      "venue_order_id": "",
+      "authorization_revision": 3133,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-73",
+      "attempted_at": "2026-10-30T12:41:29.917485+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-d053d344ede7556a2e6fbf3a67771b5c",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-9e340d028e7280a47f3465f9b6d93fdd",
+      "venue_order_id": "",
+      "authorization_revision": 3142,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-77",
+      "attempted_at": "2026-10-30T12:41:31.908735+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-ac4b65513d014c8259ef06e34235e146",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-a1ab6c4fdde27442be72cb56212bacde",
+      "venue_order_id": "",
+      "authorization_revision": 3151,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-81",
+      "attempted_at": "2026-10-30T12:41:33.893501+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-7d50755d892e15148d9c3a5f5edc0dd0",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-6a697be0d7aad06b1a19834d404f7567",
+      "venue_order_id": "",
+      "authorization_revision": 3160,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-85",
+      "attempted_at": "2026-10-30T12:41:35.896215+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-2861e77e212cbca811a52d6c6f2176f8",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-b2cb4bf1446a5376cd10a7adf3552614",
+      "venue_order_id": "",
+      "authorization_revision": 3169,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-89",
+      "attempted_at": "2026-10-30T12:41:37.894122+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-5fd2ebf9eb528e00255853fe23f89ae8",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-17df3ce4ea7e96d438761ca05c51deb7",
+      "venue_order_id": "",
+      "authorization_revision": 3178,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-93",
+      "attempted_at": "2026-10-30T12:41:39.916185+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-c188ff9901203d5b707d2015674a8af3",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-71ad8e84fe44bfec44df5bd62d321d85",
+      "venue_order_id": "",
+      "authorization_revision": 3187,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-97",
+      "attempted_at": "2026-10-30T12:41:41.908052+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-e6fcfe081737db02b791ff6d2c4ce3b2",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-405b089e3494854cd666a9863fb4b47a",
+      "venue_order_id": "",
+      "authorization_revision": 3196,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-101",
+      "attempted_at": "2026-10-30T12:41:43.907741+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-a4b4c5f89f34c3127a92a508f8cfc681",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-f31b1e509063bef3a9b14f79cb6a81b4",
+      "venue_order_id": "",
+      "authorization_revision": 3205,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-105",
+      "attempted_at": "2026-10-30T12:41:45.893739+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-c8f2a1f4eafce37b0d0d9a9150d0fb40",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-35ccfca5152e3a82b755e6d90efc8ddf",
+      "venue_order_id": "",
+      "authorization_revision": 3214,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-109",
+      "attempted_at": "2026-10-30T12:41:47.901501+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-4d10fd9cfd5cfdcd2cf04524f706066f",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-8d2ef69c4d51b6f95e0e1446233ae097",
+      "venue_order_id": "",
+      "authorization_revision": 3223,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-113",
+      "attempted_at": "2026-10-30T12:41:49.906061+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-187ce9850f8115b0787194fcf872d3f3",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-7df4f755d9edd113a6e62f20d951987a",
+      "venue_order_id": "",
+      "authorization_revision": 3232,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-117",
+      "attempted_at": "2026-10-30T12:41:51.893386+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-e148e5ca029b7fc4306562b8bca3ccd9",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-a617b2dad39ea58fa73a245667b3c97c",
+      "venue_order_id": "",
+      "authorization_revision": 3241,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-121",
+      "attempted_at": "2026-10-30T12:41:53.923017+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-1e46f3ffad5a9f34309d0f2c29e3f823",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-ff16e40e77f4ca4d2d7263dc1b9ac6e1",
+      "venue_order_id": "",
+      "authorization_revision": 3250,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-125",
+      "attempted_at": "2026-10-30T12:41:55.892833+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-d60c2963ee64f0327159b93deb517318",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-7248da2a3297b5fedef7626288c3cc58",
+      "venue_order_id": "",
+      "authorization_revision": 3259,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-129",
+      "attempted_at": "2026-10-30T12:41:57.893116+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-ca380a7fd6512c71571f34e41fbbe9f5",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-9e02967eb0694454d8eeee2a42ee4534",
+      "venue_order_id": "",
+      "authorization_revision": 3268,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-133",
+      "attempted_at": "2026-10-30T12:41:59.892763+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-56071ccb321b49d8c3484fd003b3c9f0",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-07f989e1d82f06326ca3efc732527d3e",
+      "venue_order_id": "",
+      "authorization_revision": 3277,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-137",
+      "attempted_at": "2026-10-30T12:42:01.893012+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-6ae026ef58c3d0e4887270328c6966ef",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-ae32316ee212bec1153c3c002af657f1",
+      "venue_order_id": "",
+      "authorization_revision": 3286,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-141",
+      "attempted_at": "2026-10-30T12:42:03.893395+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-14033d168c85c283778d657d262f127f",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-d5336f555f91475f2df590a0f4675055",
+      "venue_order_id": "",
+      "authorization_revision": 3295,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-145",
+      "attempted_at": "2026-10-30T12:42:05.893247+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-a14c1d6f2567db6c4711592df60b0beb",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-770e5eaaa58944f11070bf1732178544",
+      "venue_order_id": "",
+      "authorization_revision": 3304,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-149",
+      "attempted_at": "2026-10-30T12:42:07.893633+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-142c3411da9b0048b118d1fa7b86bfe1",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-4847e3be4c75a4e8e739848f8113f677",
+      "venue_order_id": "",
+      "authorization_revision": 3313,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-153",
+      "attempted_at": "2026-10-30T12:42:09.910707+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-eed787c349912e3a82dc67b8a8867e92",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-ffc323bea4f92cc3a0cfe287b52d60ad",
+      "venue_order_id": "",
+      "authorization_revision": 3322,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-157",
+      "attempted_at": "2026-10-30T12:42:11.893166+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-8ab56f6c93a625df807c03265b6b0570",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-a0037e312f8aee00057f23ccae7146af",
+      "venue_order_id": "",
+      "authorization_revision": 3331,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-161",
+      "attempted_at": "2026-10-30T12:42:13.893724+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-56c59157cc5b4482128d78407c7d2f4d",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-9ca12553f19b9d8911d64c3974837251",
+      "venue_order_id": "",
+      "authorization_revision": 3340,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-165",
+      "attempted_at": "2026-10-30T12:42:15.894358+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-e6d2f688f5d32a669e48d8358caef7af",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-61362d3ab45c8fd889e4b43471beb7a0",
+      "venue_order_id": "",
+      "authorization_revision": 3349,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-169",
+      "attempted_at": "2026-10-30T12:42:17.893965+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-215895217ca82cf3f26c6946c3aad88c",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-1cba62e133f25bf44e1e4f4fa6108fa2",
+      "venue_order_id": "",
+      "authorization_revision": 3358,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-173",
+      "attempted_at": "2026-10-30T12:42:19.903577+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-28cd27015197e69b9a9fedba2e1fb450",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-d2eb943c4e46459a62ab0cef66cbf7d5",
+      "venue_order_id": "",
+      "authorization_revision": 3367,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-177",
+      "attempted_at": "2026-10-30T12:42:21.920563+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-fd37c6912a4c480666fd93f8a88e0678",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-d7bf7ced2fe6dd158907950dd4ee4e80",
+      "venue_order_id": "",
+      "authorization_revision": 3376,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-181",
+      "attempted_at": "2026-10-30T12:42:23.895784+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-7face180aa0282765c45b07c8b2acb85",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-ea643274dafd7cc31e0ccd43416c82ff",
+      "venue_order_id": "",
+      "authorization_revision": 3385,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-185",
+      "attempted_at": "2026-10-30T12:42:25.893589+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-dac91adaad558ce4f9e72ed7850b5867",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-fb5a9d266748ae2cdd8de17d77caf6d8",
+      "venue_order_id": "",
+      "authorization_revision": 3394,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-189",
+      "attempted_at": "2026-10-30T12:42:27.894412+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-5638201672221fed9135459751992822",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-94c615869476843175c387b8a05b84b9",
+      "venue_order_id": "",
+      "authorization_revision": 3403,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-193",
+      "attempted_at": "2026-10-30T12:42:29.902377+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-b1d120b801d61d3b3621400bff7ffc31",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-492acc8238ff0dd8c0075de58bc0157f",
+      "venue_order_id": "",
+      "authorization_revision": 3412,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-197",
+      "attempted_at": "2026-10-30T12:42:31.892702+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-ecb36b5b0b63654032aa15040028bd21",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-275d65531e9be1eb5bca8ea77d67dde4",
+      "venue_order_id": "",
+      "authorization_revision": 3421,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-201",
+      "attempted_at": "2026-10-30T12:42:33.89196+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-bd47d36a70aaafd10010e59707609aad",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-8e5bba2972671b00c1349602d7d5a321",
+      "venue_order_id": "",
+      "authorization_revision": 3430,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-205",
+      "attempted_at": "2026-10-30T12:42:35.893349+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-d10519439fd920f1f86564319ac4ce03",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-317112e6369f4c09dd8d81b542ce40aa",
+      "venue_order_id": "",
+      "authorization_revision": 3439,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-209",
+      "attempted_at": "2026-10-30T12:42:37.894054+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-788ebf661169324798aea4d6b054d96a",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-ab25c04a2353a8298c34ef9ac6579f51",
+      "venue_order_id": "",
+      "authorization_revision": 3547,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-257",
+      "attempted_at": "2026-10-30T12:43:01.89455+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-0bd60ebe6fdfb6c032ac85a50b440270",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-9cdfce59c8bbe8f928e56b72116d64a4",
+      "venue_order_id": "",
+      "authorization_revision": 3448,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-213",
+      "attempted_at": "2026-10-30T12:42:39.893593+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-117f93c58089223b9962f9e8c846c59b",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-c849c96eebf453b10e285eb9d6e696fc",
+      "venue_order_id": "",
+      "authorization_revision": 3457,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-217",
+      "attempted_at": "2026-10-30T12:42:41.893414+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-ad4eaf540c12e0d7716ea88a97d5fb24",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-086ff401300b4937dd19e9168247694a",
+      "venue_order_id": "",
+      "authorization_revision": 3556,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-261",
+      "attempted_at": "2026-10-30T12:43:03.893602+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-342b5db6c6abf64c4674b1f6c7460023",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-24d74a5431d9af66c2032098b42e3fe5",
+      "venue_order_id": "",
+      "authorization_revision": 3466,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-221",
+      "attempted_at": "2026-10-30T12:42:43.891895+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-1973931fac6b94e0a5bd2c1172b8306f",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-8fce94bff944b531033b1d0cd3491da1",
+      "venue_order_id": "",
+      "authorization_revision": 3565,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-265",
+      "attempted_at": "2026-10-30T12:43:05.902595+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-e297c07dd9a7fc07052b01b1e4f4fa5c",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-db6a9eb131c0be15b17cf59d17b35060",
+      "venue_order_id": "",
+      "authorization_revision": 3475,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-225",
+      "attempted_at": "2026-10-30T12:42:45.902149+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-690ed0c5958e409babd3e58d8e795044",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-b43d70878f6e2a3688704dd4e0ba9a0a",
+      "venue_order_id": "",
+      "authorization_revision": 3484,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-229",
+      "attempted_at": "2026-10-30T12:42:47.928288+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-9e94171c40b53c784671562a3854017a",
+      "plan_id": "container-ppo-handoff-loss-20261030-c",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:48:39.863278+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "99.99",
+        "passive": true,
+        "quantity": "0.001"
+      },
+      "state": "final",
+      "attempt_id": "attempt-bc86e9934d8def85dc5a163b8890a561",
+      "venue_order_id": "paper-child-9e94171c40b53c784671562a3854017a",
+      "authorization_revision": 3645,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-337",
+      "attempted_at": "2026-10-30T12:43:41.9019+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-6e5cae6ed6132dce58a6d8a3e116723e",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-cb36391355fee6e33cec01530e3005ed",
+      "venue_order_id": "",
+      "authorization_revision": 3493,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-233",
+      "attempted_at": "2026-10-30T12:42:49.901206+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-08a12f7c66d4b7e07fc6865096aeedda",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-f2de3e5862e56bfdbf0dd5b10af71bdb",
+      "venue_order_id": "",
+      "authorization_revision": 3502,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-237",
+      "attempted_at": "2026-10-30T12:42:51.895643+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-99f7cec3370e77d561752d00fdb8ece6",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-468459f6bd60badea9a4cb0065af88ff",
+      "venue_order_id": "",
+      "authorization_revision": 3511,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-241",
+      "attempted_at": "2026-10-30T12:42:53.901038+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-81f06962435a960f2fd92b4d7059a673",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-5ba9174b050638ac873b31b67408d154",
+      "venue_order_id": "",
+      "authorization_revision": 3520,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-245",
+      "attempted_at": "2026-10-30T12:42:55.893797+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-a86dea9f33ab2bd89dfe96fb0808c037",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-f8cefee8fa6b76b1a6071ac909abdcff",
+      "venue_order_id": "",
+      "authorization_revision": 3529,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-249",
+      "attempted_at": "2026-10-30T12:42:57.89597+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-ea2f9f5b3f88fcab311b93a52bb9ec80",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-7179da187543d6533f2268c6f0e8db47",
+      "venue_order_id": "",
+      "authorization_revision": 3538,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-253",
+      "attempted_at": "2026-10-30T12:42:59.91304+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-1fca834d7140060c15455a6ba39700c4",
+      "plan_id": "active-restore-20261031-passive-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T22:28:13.552685+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "99.99",
+        "passive": true,
+        "quantity": "0.002"
+      },
+      "state": "queued",
+      "attempt_id": "",
+      "venue_order_id": "",
+      "authorization_revision": 0,
+      "authorization_snapshot": "",
+      "attempted_at": null,
+      "resolution_evidence": null
+    }
+  ],
+  "recovered_outbox": [
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-34a6c872802da824c6dc722db87e09f9",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "99.99",
+        "passive": true,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-199864636e1deb58ae4b94ee365c92f8",
+      "venue_order_id": "paper-child-34a6c872802da824c6dc722db87e09f9",
+      "authorization_revision": 3042,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-15",
+      "attempted_at": "2026-10-30T12:41:00.916932+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-224bdec140dc3dd55cdb0e40b88f30b8",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-f89c8275e3f717d912706aed9b08567a",
+      "venue_order_id": "",
+      "authorization_revision": 3133,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-73",
+      "attempted_at": "2026-10-30T12:41:29.917485+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-d053d344ede7556a2e6fbf3a67771b5c",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-9e340d028e7280a47f3465f9b6d93fdd",
+      "venue_order_id": "",
+      "authorization_revision": 3142,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-77",
+      "attempted_at": "2026-10-30T12:41:31.908735+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-ac4b65513d014c8259ef06e34235e146",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-a1ab6c4fdde27442be72cb56212bacde",
+      "venue_order_id": "",
+      "authorization_revision": 3151,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-81",
+      "attempted_at": "2026-10-30T12:41:33.893501+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-7d50755d892e15148d9c3a5f5edc0dd0",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-6a697be0d7aad06b1a19834d404f7567",
+      "venue_order_id": "",
+      "authorization_revision": 3160,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-85",
+      "attempted_at": "2026-10-30T12:41:35.896215+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-2861e77e212cbca811a52d6c6f2176f8",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-b2cb4bf1446a5376cd10a7adf3552614",
+      "venue_order_id": "",
+      "authorization_revision": 3169,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-89",
+      "attempted_at": "2026-10-30T12:41:37.894122+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-5fd2ebf9eb528e00255853fe23f89ae8",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-17df3ce4ea7e96d438761ca05c51deb7",
+      "venue_order_id": "",
+      "authorization_revision": 3178,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-93",
+      "attempted_at": "2026-10-30T12:41:39.916185+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-c188ff9901203d5b707d2015674a8af3",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-71ad8e84fe44bfec44df5bd62d321d85",
+      "venue_order_id": "",
+      "authorization_revision": 3187,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-97",
+      "attempted_at": "2026-10-30T12:41:41.908052+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-e6fcfe081737db02b791ff6d2c4ce3b2",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-405b089e3494854cd666a9863fb4b47a",
+      "venue_order_id": "",
+      "authorization_revision": 3196,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-101",
+      "attempted_at": "2026-10-30T12:41:43.907741+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-a4b4c5f89f34c3127a92a508f8cfc681",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-f31b1e509063bef3a9b14f79cb6a81b4",
+      "venue_order_id": "",
+      "authorization_revision": 3205,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-105",
+      "attempted_at": "2026-10-30T12:41:45.893739+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-c8f2a1f4eafce37b0d0d9a9150d0fb40",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-35ccfca5152e3a82b755e6d90efc8ddf",
+      "venue_order_id": "",
+      "authorization_revision": 3214,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-109",
+      "attempted_at": "2026-10-30T12:41:47.901501+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-4d10fd9cfd5cfdcd2cf04524f706066f",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-8d2ef69c4d51b6f95e0e1446233ae097",
+      "venue_order_id": "",
+      "authorization_revision": 3223,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-113",
+      "attempted_at": "2026-10-30T12:41:49.906061+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-187ce9850f8115b0787194fcf872d3f3",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-7df4f755d9edd113a6e62f20d951987a",
+      "venue_order_id": "",
+      "authorization_revision": 3232,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-117",
+      "attempted_at": "2026-10-30T12:41:51.893386+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-e148e5ca029b7fc4306562b8bca3ccd9",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-a617b2dad39ea58fa73a245667b3c97c",
+      "venue_order_id": "",
+      "authorization_revision": 3241,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-121",
+      "attempted_at": "2026-10-30T12:41:53.923017+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-1e46f3ffad5a9f34309d0f2c29e3f823",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-ff16e40e77f4ca4d2d7263dc1b9ac6e1",
+      "venue_order_id": "",
+      "authorization_revision": 3250,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-125",
+      "attempted_at": "2026-10-30T12:41:55.892833+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-d60c2963ee64f0327159b93deb517318",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-7248da2a3297b5fedef7626288c3cc58",
+      "venue_order_id": "",
+      "authorization_revision": 3259,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-129",
+      "attempted_at": "2026-10-30T12:41:57.893116+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-ca380a7fd6512c71571f34e41fbbe9f5",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-9e02967eb0694454d8eeee2a42ee4534",
+      "venue_order_id": "",
+      "authorization_revision": 3268,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-133",
+      "attempted_at": "2026-10-30T12:41:59.892763+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-56071ccb321b49d8c3484fd003b3c9f0",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-07f989e1d82f06326ca3efc732527d3e",
+      "venue_order_id": "",
+      "authorization_revision": 3277,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-137",
+      "attempted_at": "2026-10-30T12:42:01.893012+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-6ae026ef58c3d0e4887270328c6966ef",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-ae32316ee212bec1153c3c002af657f1",
+      "venue_order_id": "",
+      "authorization_revision": 3286,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-141",
+      "attempted_at": "2026-10-30T12:42:03.893395+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-14033d168c85c283778d657d262f127f",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-d5336f555f91475f2df590a0f4675055",
+      "venue_order_id": "",
+      "authorization_revision": 3295,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-145",
+      "attempted_at": "2026-10-30T12:42:05.893247+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-a14c1d6f2567db6c4711592df60b0beb",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-770e5eaaa58944f11070bf1732178544",
+      "venue_order_id": "",
+      "authorization_revision": 3304,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-149",
+      "attempted_at": "2026-10-30T12:42:07.893633+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-142c3411da9b0048b118d1fa7b86bfe1",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-4847e3be4c75a4e8e739848f8113f677",
+      "venue_order_id": "",
+      "authorization_revision": 3313,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-153",
+      "attempted_at": "2026-10-30T12:42:09.910707+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-eed787c349912e3a82dc67b8a8867e92",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-ffc323bea4f92cc3a0cfe287b52d60ad",
+      "venue_order_id": "",
+      "authorization_revision": 3322,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-157",
+      "attempted_at": "2026-10-30T12:42:11.893166+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-8ab56f6c93a625df807c03265b6b0570",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-a0037e312f8aee00057f23ccae7146af",
+      "venue_order_id": "",
+      "authorization_revision": 3331,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-161",
+      "attempted_at": "2026-10-30T12:42:13.893724+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-56c59157cc5b4482128d78407c7d2f4d",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-9ca12553f19b9d8911d64c3974837251",
+      "venue_order_id": "",
+      "authorization_revision": 3340,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-165",
+      "attempted_at": "2026-10-30T12:42:15.894358+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-e6d2f688f5d32a669e48d8358caef7af",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-61362d3ab45c8fd889e4b43471beb7a0",
+      "venue_order_id": "",
+      "authorization_revision": 3349,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-169",
+      "attempted_at": "2026-10-30T12:42:17.893965+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-215895217ca82cf3f26c6946c3aad88c",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-1cba62e133f25bf44e1e4f4fa6108fa2",
+      "venue_order_id": "",
+      "authorization_revision": 3358,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-173",
+      "attempted_at": "2026-10-30T12:42:19.903577+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-28cd27015197e69b9a9fedba2e1fb450",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-d2eb943c4e46459a62ab0cef66cbf7d5",
+      "venue_order_id": "",
+      "authorization_revision": 3367,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-177",
+      "attempted_at": "2026-10-30T12:42:21.920563+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-fd37c6912a4c480666fd93f8a88e0678",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-d7bf7ced2fe6dd158907950dd4ee4e80",
+      "venue_order_id": "",
+      "authorization_revision": 3376,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-181",
+      "attempted_at": "2026-10-30T12:42:23.895784+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-7face180aa0282765c45b07c8b2acb85",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-ea643274dafd7cc31e0ccd43416c82ff",
+      "venue_order_id": "",
+      "authorization_revision": 3385,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-185",
+      "attempted_at": "2026-10-30T12:42:25.893589+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-dac91adaad558ce4f9e72ed7850b5867",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-fb5a9d266748ae2cdd8de17d77caf6d8",
+      "venue_order_id": "",
+      "authorization_revision": 3394,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-189",
+      "attempted_at": "2026-10-30T12:42:27.894412+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-5638201672221fed9135459751992822",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-94c615869476843175c387b8a05b84b9",
+      "venue_order_id": "",
+      "authorization_revision": 3403,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-193",
+      "attempted_at": "2026-10-30T12:42:29.902377+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-b1d120b801d61d3b3621400bff7ffc31",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-492acc8238ff0dd8c0075de58bc0157f",
+      "venue_order_id": "",
+      "authorization_revision": 3412,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-197",
+      "attempted_at": "2026-10-30T12:42:31.892702+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-ecb36b5b0b63654032aa15040028bd21",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-275d65531e9be1eb5bca8ea77d67dde4",
+      "venue_order_id": "",
+      "authorization_revision": 3421,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-201",
+      "attempted_at": "2026-10-30T12:42:33.89196+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-bd47d36a70aaafd10010e59707609aad",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-8e5bba2972671b00c1349602d7d5a321",
+      "venue_order_id": "",
+      "authorization_revision": 3430,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-205",
+      "attempted_at": "2026-10-30T12:42:35.893349+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-d10519439fd920f1f86564319ac4ce03",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-317112e6369f4c09dd8d81b542ce40aa",
+      "venue_order_id": "",
+      "authorization_revision": 3439,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-209",
+      "attempted_at": "2026-10-30T12:42:37.894054+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-788ebf661169324798aea4d6b054d96a",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-ab25c04a2353a8298c34ef9ac6579f51",
+      "venue_order_id": "",
+      "authorization_revision": 3547,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-257",
+      "attempted_at": "2026-10-30T12:43:01.89455+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-0bd60ebe6fdfb6c032ac85a50b440270",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-9cdfce59c8bbe8f928e56b72116d64a4",
+      "venue_order_id": "",
+      "authorization_revision": 3448,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-213",
+      "attempted_at": "2026-10-30T12:42:39.893593+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-117f93c58089223b9962f9e8c846c59b",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-c849c96eebf453b10e285eb9d6e696fc",
+      "venue_order_id": "",
+      "authorization_revision": 3457,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-217",
+      "attempted_at": "2026-10-30T12:42:41.893414+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-ad4eaf540c12e0d7716ea88a97d5fb24",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-086ff401300b4937dd19e9168247694a",
+      "venue_order_id": "",
+      "authorization_revision": 3556,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-261",
+      "attempted_at": "2026-10-30T12:43:03.893602+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-342b5db6c6abf64c4674b1f6c7460023",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-24d74a5431d9af66c2032098b42e3fe5",
+      "venue_order_id": "",
+      "authorization_revision": 3466,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-221",
+      "attempted_at": "2026-10-30T12:42:43.891895+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-1973931fac6b94e0a5bd2c1172b8306f",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-8fce94bff944b531033b1d0cd3491da1",
+      "venue_order_id": "",
+      "authorization_revision": 3565,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-265",
+      "attempted_at": "2026-10-30T12:43:05.902595+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-e297c07dd9a7fc07052b01b1e4f4fa5c",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-db6a9eb131c0be15b17cf59d17b35060",
+      "venue_order_id": "",
+      "authorization_revision": 3475,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-225",
+      "attempted_at": "2026-10-30T12:42:45.902149+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-690ed0c5958e409babd3e58d8e795044",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-b43d70878f6e2a3688704dd4e0ba9a0a",
+      "venue_order_id": "",
+      "authorization_revision": 3484,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-229",
+      "attempted_at": "2026-10-30T12:42:47.928288+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-9e94171c40b53c784671562a3854017a",
+      "plan_id": "container-ppo-handoff-loss-20261030-c",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:48:39.863278+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "99.99",
+        "passive": true,
+        "quantity": "0.001"
+      },
+      "state": "final",
+      "attempt_id": "attempt-bc86e9934d8def85dc5a163b8890a561",
+      "venue_order_id": "paper-child-9e94171c40b53c784671562a3854017a",
+      "authorization_revision": 3645,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-337",
+      "attempted_at": "2026-10-30T12:43:41.9019+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-6e5cae6ed6132dce58a6d8a3e116723e",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-cb36391355fee6e33cec01530e3005ed",
+      "venue_order_id": "",
+      "authorization_revision": 3493,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-233",
+      "attempted_at": "2026-10-30T12:42:49.901206+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-08a12f7c66d4b7e07fc6865096aeedda",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-f2de3e5862e56bfdbf0dd5b10af71bdb",
+      "venue_order_id": "",
+      "authorization_revision": 3502,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-237",
+      "attempted_at": "2026-10-30T12:42:51.895643+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-99f7cec3370e77d561752d00fdb8ece6",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-468459f6bd60badea9a4cb0065af88ff",
+      "venue_order_id": "",
+      "authorization_revision": 3511,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-241",
+      "attempted_at": "2026-10-30T12:42:53.901038+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-81f06962435a960f2fd92b4d7059a673",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-5ba9174b050638ac873b31b67408d154",
+      "venue_order_id": "",
+      "authorization_revision": 3520,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-245",
+      "attempted_at": "2026-10-30T12:42:55.893797+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-a86dea9f33ab2bd89dfe96fb0808c037",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-f8cefee8fa6b76b1a6071ac909abdcff",
+      "venue_order_id": "",
+      "authorization_revision": 3529,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-249",
+      "attempted_at": "2026-10-30T12:42:57.89597+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-ea2f9f5b3f88fcab311b93a52bb9ec80",
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T12:50:58.975108+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "100.02",
+        "passive": false,
+        "quantity": "0.002"
+      },
+      "state": "final",
+      "attempt_id": "attempt-7179da187543d6533f2268c6f0e8db47",
+      "venue_order_id": "",
+      "authorization_revision": 3538,
+      "authorization_snapshot": "web-feed-d4ef7de9df5ba74bb3b96f8b-253",
+      "attempted_at": "2026-10-30T12:42:59.91304+00:00",
+      "resolution_evidence": {
+        "reason": "complete_fill",
+        "profile": "paper"
+      }
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-1fca834d7140060c15455a6ba39700c4",
+      "plan_id": "active-restore-20261031-passive-b",
+      "plan_revision": 2,
+      "instrument_revision": "synthetic-rules-v1",
+      "expires_at": "2026-10-30T22:28:13.552685+00:00",
+      "payload": {
+        "side": "buy",
+        "price": "99.99",
+        "passive": true,
+        "quantity": "0.002"
+      },
+      "state": "obsolete",
+      "attempt_id": "",
+      "venue_order_id": "",
+      "authorization_revision": 0,
+      "authorization_snapshot": "",
+      "attempted_at": null,
+      "resolution_evidence": {
+        "reason": "paper ownership change"
+      }
+    }
+  ],
+  "queued_child_intent_id": "child-1fca834d7140060c15455a6ba39700c4",
+  "previously_unset_attempt_ids": [
+    "child-1fca834d7140060c15455a6ba39700c4"
+  ],
+  "source_outbox_count": 52,
+  "recovered_outbox_count": 52,
+  "source_reservations": [
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-34a6c872802da824c6dc722db87e09f9",
+      "currency": "USD",
+      "amount": 0.20037996,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-224bdec140dc3dd55cdb0e40b88f30b8",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-d053d344ede7556a2e6fbf3a67771b5c",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-ac4b65513d014c8259ef06e34235e146",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-7d50755d892e15148d9c3a5f5edc0dd0",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-2861e77e212cbca811a52d6c6f2176f8",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-5fd2ebf9eb528e00255853fe23f89ae8",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-c188ff9901203d5b707d2015674a8af3",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-e6fcfe081737db02b791ff6d2c4ce3b2",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-a4b4c5f89f34c3127a92a508f8cfc681",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-c8f2a1f4eafce37b0d0d9a9150d0fb40",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-4d10fd9cfd5cfdcd2cf04524f706066f",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-187ce9850f8115b0787194fcf872d3f3",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-e148e5ca029b7fc4306562b8bca3ccd9",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-1e46f3ffad5a9f34309d0f2c29e3f823",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-d60c2963ee64f0327159b93deb517318",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-ca380a7fd6512c71571f34e41fbbe9f5",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-56071ccb321b49d8c3484fd003b3c9f0",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-6ae026ef58c3d0e4887270328c6966ef",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-14033d168c85c283778d657d262f127f",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-a14c1d6f2567db6c4711592df60b0beb",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-142c3411da9b0048b118d1fa7b86bfe1",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-eed787c349912e3a82dc67b8a8867e92",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-8ab56f6c93a625df807c03265b6b0570",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-56c59157cc5b4482128d78407c7d2f4d",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-e6d2f688f5d32a669e48d8358caef7af",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-215895217ca82cf3f26c6946c3aad88c",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-28cd27015197e69b9a9fedba2e1fb450",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-fd37c6912a4c480666fd93f8a88e0678",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-7face180aa0282765c45b07c8b2acb85",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-dac91adaad558ce4f9e72ed7850b5867",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-5638201672221fed9135459751992822",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-b1d120b801d61d3b3621400bff7ffc31",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-ecb36b5b0b63654032aa15040028bd21",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-bd47d36a70aaafd10010e59707609aad",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-d10519439fd920f1f86564319ac4ce03",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-0bd60ebe6fdfb6c032ac85a50b440270",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-117f93c58089223b9962f9e8c846c59b",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-342b5db6c6abf64c4674b1f6c7460023",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-e297c07dd9a7fc07052b01b1e4f4fa5c",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-690ed0c5958e409babd3e58d8e795044",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-6e5cae6ed6132dce58a6d8a3e116723e",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-08a12f7c66d4b7e07fc6865096aeedda",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-99f7cec3370e77d561752d00fdb8ece6",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-81f06962435a960f2fd92b4d7059a673",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-a86dea9f33ab2bd89dfe96fb0808c037",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-ea2f9f5b3f88fcab311b93a52bb9ec80",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-788ebf661169324798aea4d6b054d96a",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-ad4eaf540c12e0d7716ea88a97d5fb24",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-1973931fac6b94e0a5bd2c1172b8306f",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-9e94171c40b53c784671562a3854017a",
+      "currency": "USD",
+      "amount": 0.10018998,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-1fca834d7140060c15455a6ba39700c4",
+      "currency": "USD",
+      "amount": 0.20037996,
+      "reflected": false,
+      "state": "held"
+    }
+  ],
+  "offline_reservations": [
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-34a6c872802da824c6dc722db87e09f9",
+      "currency": "USD",
+      "amount": 0.20037996,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-224bdec140dc3dd55cdb0e40b88f30b8",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-d053d344ede7556a2e6fbf3a67771b5c",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-ac4b65513d014c8259ef06e34235e146",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-7d50755d892e15148d9c3a5f5edc0dd0",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-2861e77e212cbca811a52d6c6f2176f8",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-5fd2ebf9eb528e00255853fe23f89ae8",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-c188ff9901203d5b707d2015674a8af3",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-e6fcfe081737db02b791ff6d2c4ce3b2",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-a4b4c5f89f34c3127a92a508f8cfc681",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-c8f2a1f4eafce37b0d0d9a9150d0fb40",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-4d10fd9cfd5cfdcd2cf04524f706066f",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-187ce9850f8115b0787194fcf872d3f3",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-e148e5ca029b7fc4306562b8bca3ccd9",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-1e46f3ffad5a9f34309d0f2c29e3f823",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-d60c2963ee64f0327159b93deb517318",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-ca380a7fd6512c71571f34e41fbbe9f5",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-56071ccb321b49d8c3484fd003b3c9f0",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-6ae026ef58c3d0e4887270328c6966ef",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-14033d168c85c283778d657d262f127f",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-a14c1d6f2567db6c4711592df60b0beb",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-142c3411da9b0048b118d1fa7b86bfe1",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-eed787c349912e3a82dc67b8a8867e92",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-8ab56f6c93a625df807c03265b6b0570",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-56c59157cc5b4482128d78407c7d2f4d",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-e6d2f688f5d32a669e48d8358caef7af",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-215895217ca82cf3f26c6946c3aad88c",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-28cd27015197e69b9a9fedba2e1fb450",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-fd37c6912a4c480666fd93f8a88e0678",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-7face180aa0282765c45b07c8b2acb85",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-dac91adaad558ce4f9e72ed7850b5867",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-5638201672221fed9135459751992822",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-b1d120b801d61d3b3621400bff7ffc31",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-ecb36b5b0b63654032aa15040028bd21",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-bd47d36a70aaafd10010e59707609aad",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-d10519439fd920f1f86564319ac4ce03",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-0bd60ebe6fdfb6c032ac85a50b440270",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-117f93c58089223b9962f9e8c846c59b",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-342b5db6c6abf64c4674b1f6c7460023",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-e297c07dd9a7fc07052b01b1e4f4fa5c",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-690ed0c5958e409babd3e58d8e795044",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-6e5cae6ed6132dce58a6d8a3e116723e",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-08a12f7c66d4b7e07fc6865096aeedda",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-99f7cec3370e77d561752d00fdb8ece6",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-81f06962435a960f2fd92b4d7059a673",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-a86dea9f33ab2bd89dfe96fb0808c037",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-ea2f9f5b3f88fcab311b93a52bb9ec80",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-788ebf661169324798aea4d6b054d96a",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-ad4eaf540c12e0d7716ea88a97d5fb24",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-1973931fac6b94e0a5bd2c1172b8306f",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-9e94171c40b53c784671562a3854017a",
+      "currency": "USD",
+      "amount": 0.10018998,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-1fca834d7140060c15455a6ba39700c4",
+      "currency": "USD",
+      "amount": 0.20037996,
+      "reflected": false,
+      "state": "held"
+    }
+  ],
+  "recovered_reservations": [
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-34a6c872802da824c6dc722db87e09f9",
+      "currency": "USD",
+      "amount": 0.20037996,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-224bdec140dc3dd55cdb0e40b88f30b8",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-d053d344ede7556a2e6fbf3a67771b5c",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-ac4b65513d014c8259ef06e34235e146",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-7d50755d892e15148d9c3a5f5edc0dd0",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-2861e77e212cbca811a52d6c6f2176f8",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-5fd2ebf9eb528e00255853fe23f89ae8",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-c188ff9901203d5b707d2015674a8af3",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-e6fcfe081737db02b791ff6d2c4ce3b2",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-a4b4c5f89f34c3127a92a508f8cfc681",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-c8f2a1f4eafce37b0d0d9a9150d0fb40",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-4d10fd9cfd5cfdcd2cf04524f706066f",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-187ce9850f8115b0787194fcf872d3f3",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-e148e5ca029b7fc4306562b8bca3ccd9",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-1e46f3ffad5a9f34309d0f2c29e3f823",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-d60c2963ee64f0327159b93deb517318",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-ca380a7fd6512c71571f34e41fbbe9f5",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-56071ccb321b49d8c3484fd003b3c9f0",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-6ae026ef58c3d0e4887270328c6966ef",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-14033d168c85c283778d657d262f127f",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-a14c1d6f2567db6c4711592df60b0beb",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-142c3411da9b0048b118d1fa7b86bfe1",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-eed787c349912e3a82dc67b8a8867e92",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-8ab56f6c93a625df807c03265b6b0570",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-56c59157cc5b4482128d78407c7d2f4d",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-e6d2f688f5d32a669e48d8358caef7af",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-215895217ca82cf3f26c6946c3aad88c",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-28cd27015197e69b9a9fedba2e1fb450",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-fd37c6912a4c480666fd93f8a88e0678",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-7face180aa0282765c45b07c8b2acb85",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-dac91adaad558ce4f9e72ed7850b5867",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-5638201672221fed9135459751992822",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-b1d120b801d61d3b3621400bff7ffc31",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-ecb36b5b0b63654032aa15040028bd21",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-bd47d36a70aaafd10010e59707609aad",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-d10519439fd920f1f86564319ac4ce03",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-0bd60ebe6fdfb6c032ac85a50b440270",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-117f93c58089223b9962f9e8c846c59b",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-342b5db6c6abf64c4674b1f6c7460023",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-e297c07dd9a7fc07052b01b1e4f4fa5c",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-690ed0c5958e409babd3e58d8e795044",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-6e5cae6ed6132dce58a6d8a3e116723e",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-08a12f7c66d4b7e07fc6865096aeedda",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-99f7cec3370e77d561752d00fdb8ece6",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-81f06962435a960f2fd92b4d7059a673",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-a86dea9f33ab2bd89dfe96fb0808c037",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-ea2f9f5b3f88fcab311b93a52bb9ec80",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-788ebf661169324798aea4d6b054d96a",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-ad4eaf540c12e0d7716ea88a97d5fb24",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-1973931fac6b94e0a5bd2c1172b8306f",
+      "currency": "USD",
+      "amount": 0.20044008,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-9e94171c40b53c784671562a3854017a",
+      "currency": "USD",
+      "amount": 0.10018998,
+      "reflected": false,
+      "state": "released"
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-1fca834d7140060c15455a6ba39700c4",
+      "currency": "USD",
+      "amount": 0.20037996,
+      "reflected": false,
+      "state": "released"
+    }
+  ]
+}

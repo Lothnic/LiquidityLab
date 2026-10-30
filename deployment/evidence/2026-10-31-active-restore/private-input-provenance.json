@@ -1,0 +1,24 @@
+{
+  "private_parent": "BASE/work/paper-active-restore-20261031",
+  "inputs": {
+    "crash-durable.json": "74977c12f77a70036e4c7e50c360cbebac97e39a6c49b144311b025d8c1dd706",
+    "restored-offline-durable.json": "74977c12f77a70036e4c7e50c360cbebac97e39a6c49b144311b025d8c1dd706",
+    "recovered-durable.json": "1ae7d802d1379c53248dbea9d8b325c05690156562eed437fa27ff02e75e2aa1",
+    "post-kill-commit-barrier.json": "8c6301e4fcfa9a5e94151351667fb94f3d0fc3df705bd94a009b386871f415b1",
+    "backup/metadata.json": "44a68b8e5706138a81ab6f8db4f312174e5954b10c8a93cf35dce08e40e3ef74",
+    "backup/manifest.json": "5dadf5e9c39e25dfc469a2d1963c23df734761a00b57b461d10d4a85bad15f8d",
+    "restored/restore.json": "011848897a06e42efc1707d519f89a7d30ff3eb13d07338e408f419da338ae48",
+    "active_harness.py": "ecc79dc263593a45992529e52165aac9eb6b94d563994e720d3d29ed2c3888c0",
+    "recover_harness.py": "3928641e7cfa3467f6937ca85492da42f141d58525d37909513f80efffc19a59"
+  },
+  "excluded": [
+    "API tokens",
+    "PostgreSQL passwords",
+    "schema.dump",
+    "bundle.tar",
+    "recordings.tar",
+    "policy model bytes",
+    "full observation payloads",
+    "full command results"
+  ]
+}

@@ -1,0 +1,114 @@
+{
+  "accounts": [
+    {
+      "account_id": "demo",
+      "instrument_revision": "synthetic-rules-v1",
+      "revision": 24115,
+      "snapshot_md5": "82698c1d7f82ddb94e0514384cc2c908",
+      "tenant_id": "synthetic-paper-daemon"
+    }
+  ],
+  "backup_manifest_sha256": "5dadf5e9c39e25dfc469a2d1963c23df734761a00b57b461d10d4a85bad15f8d",
+  "completed_utc": "2026-10-30T22:19:03.082616+00:00",
+  "format": 1,
+  "limitations": "Only isolated DB/files restored. No app started, network, published port or recovery claim. Model remains unvalidated.",
+  "offline_restore_complete": true,
+  "target_context": "default",
+  "target_database_container": "d652970eff8b1188c828f782e1dd1b827906cbf78a1fc0311108b78e13a8bb94",
+  "target_project": "liquiditylab-restore-active-20261031",
+  "target_volumes": {
+    "bundle": "liquiditylab-restore-active-20261031_bundle",
+    "database": "liquiditylab-restore-active-20261031_database",
+    "recordings": "liquiditylab-restore-active-20261031_recordings"
+  },
+  "verified_file_volumes": [
+    "bundle",
+    "recordings"
+  ],
+  "verified_relations": {
+    "account_journal": {
+      "bytes": 145645327,
+      "kind": "r",
+      "rows": 24115,
+      "sha256": "0480b6a1fdc529faf9f63014b0547fd2e3971e001b1056e33ebee57b3352703a"
+    },
+    "accounts": {
+      "bytes": 4973,
+      "kind": "r",
+      "rows": 1,
+      "sha256": "6dd84f00693a4efcdd47f33d5c12e06295e1df3132782c27983209122257316a"
+    },
+    "balances": {
+      "bytes": 266,
+      "kind": "r",
+      "rows": 2,
+      "sha256": "d7e48ed9f2eb3de5ff365bdefa013baab110746948edd97bcf212f69e7c7c2d0"
+    },
+    "commands": {
+      "bytes": 8321110,
+      "kind": "r",
+      "rows": 24055,
+      "sha256": "07e315d9c5cebb211e91acc070ecb1a084ab2e1a7a157d7934287a5e15a6396a"
+    },
+    "executions": {
+      "bytes": 33651,
+      "kind": "r",
+      "rows": 51,
+      "sha256": "9abeec9bc11aca459406056be1ed7855d37a7e376f5a493fe172f0b1e9d5a985"
+    },
+    "observations": {
+      "bytes": 18227913,
+      "kind": "r",
+      "rows": 23492,
+      "sha256": "9c600a25db36b80a8be19a6db3f72b144f6566f08eec31012329199a6ea13870"
+    },
+    "outbox": {
+      "bytes": 35594,
+      "kind": "r",
+      "rows": 52,
+      "sha256": "8ef2212e19a1c08735b7de9516a92553ef2a62efa858073b5b4ce296eeadc99f"
+    },
+    "plan_revisions": {
+      "bytes": 27437,
+      "kind": "r",
+      "rows": 25,
+      "sha256": "d580b8f24c71210e76f599f0f8584896fbbabd222ca6d8947b7f259adcedb971"
+    },
+    "plans": {
+      "bytes": 5286,
+      "kind": "r",
+      "rows": 5,
+      "sha256": "9e51a45307d3b30f9cb9b58758828d40ab6f2091605529acb2c1b58fe9d4383f"
+    },
+    "replay_admission": {
+      "bytes": 0,
+      "kind": "r",
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "replay_jobs": {
+      "bytes": 0,
+      "kind": "r",
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "replay_jobs_sequence_seq": {
+      "bytes": 38,
+      "kind": "S",
+      "rows": 1,
+      "sha256": "398a1977a112ccf635392fe8cb1a93ccb401f5dd39473c9f052da9c15b517b4f"
+    },
+    "reservations": {
+      "bytes": 10344,
+      "kind": "r",
+      "rows": 52,
+      "sha256": "c19c64def6ff839d0a82d6ea7e3eeb36b90271b3183c2293f8f63c33c460292c"
+    },
+    "schema_migrations": {
+      "bytes": 900,
+      "kind": "r",
+      "rows": 5,
+      "sha256": "ce61875724ef5d90c43b18b5813a4f4ea528020a87c7b71215ba560ea6f422b4"
+    }
+  }
+}

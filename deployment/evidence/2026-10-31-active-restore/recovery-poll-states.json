@@ -1,0 +1,19 @@
+[
+  {
+    "revision": 24193,
+    "ready": true,
+    "plan_status": "paused",
+    "recovery_required": false,
+    "child": null,
+    "reserved": [
+      {
+        "currency": "BTC",
+        "amount": "0"
+      },
+      {
+        "currency": "USD",
+        "amount": "0"
+      }
+    ]
+  }
+]

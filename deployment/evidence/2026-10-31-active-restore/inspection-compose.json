@@ -1,0 +1,94 @@
+{
+  "services": {
+    "worker": {
+      "image": "sha256:faf22453eadbb77582665df63bdf4fe8f4dbc2404e6d6615e30ce508b6610a55",
+      "pull_policy": "never",
+      "network_mode": "none",
+      "restart": "no",
+      "mem_limit": "1g",
+      "cpus": 1,
+      "pids_limit": 64,
+      "volumes": [
+        "bundle:/bundle:ro",
+        "inspection-policy-run:/policy-run"
+      ],
+      "healthcheck": {
+        "test": [
+          "CMD",
+          "python",
+          "-c",
+          "import socket; s=socket.socket(socket.AF_UNIX); s.settimeout(1); s.connect(\"/policy-run/inference.sock\"); s.close()"
+        ],
+        "interval": "2s",
+        "timeout": "2s",
+        "retries": 60
+      }
+    },
+    "paper": {
+      "image": "sha256:e32c0bb8796ca88366265bfaccc89518ac91f16279033d099754d46b68b56fb5",
+      "pull_policy": "never",
+      "network_mode": "service:db",
+      "restart": "no",
+      "mem_limit": "1g",
+      "cpus": 1,
+      "pids_limit": 128,
+      "entrypoint": [
+        "/bin/sh",
+        "/inspection-entrypoint.sh"
+      ],
+      "environment": {
+        "PAPER_MODE": "resume",
+        "PAPER_SOURCE": "synthetic",
+        "PAPER_SCHEMA": "paper_beta",
+        "PAPER_ACCOUNT": "demo",
+        "PAPER_DURATION": "20m"
+      },
+      "secrets": [
+        {
+          "source": "postgres_password",
+          "target": "postgres_password"
+        },
+        {
+          "source": "inspection-api-token",
+          "target": "api_token"
+        }
+      ],
+      "volumes": [
+        "bundle:/bundle:ro",
+        "recordings:/recordings",
+        "inspection-policy-run:/policy-run",
+        "./inspection-entrypoint.sh:/inspection-entrypoint.sh:ro"
+      ],
+      "depends_on": {
+        "db": {
+          "condition": "service_healthy"
+        },
+        "worker": {
+          "condition": "service_healthy"
+        }
+      },
+      "healthcheck": {
+        "test": [
+          "CMD",
+          "python3",
+          "-c",
+          "import urllib.request; r=urllib.request.urlopen(\"http://127.0.0.1:8080/healthz\",timeout=2); raise SystemExit(0 if r.status==200 else 1)"
+        ],
+        "interval": "2s",
+        "timeout": "3s",
+        "retries": 60
+      },
+      "stop_grace_period": "45s"
+    }
+  },
+  "volumes": {
+    "inspection-policy-run": {
+      "name": "liquiditylab-backup-active-20261031_inspection-policy-run"
+    }
+  },
+  "secrets": {
+    "inspection-api-token": {
+      "file": "./inspection-api-token"
+    }
+  }
+}

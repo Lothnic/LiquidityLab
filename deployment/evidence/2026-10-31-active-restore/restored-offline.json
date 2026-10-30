@@ -1,0 +1,336 @@
+{
+  "accounts": [
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "revision": 24115,
+      "owner_id": "process-cae86165ab49fa9262cbc3240594b21f",
+      "ownership_epoch": 9,
+      "lease_until": "2026-10-30T22:19:14.138163+00:00",
+      "ready": true,
+      "market_valid": true,
+      "market_snapshot_id": "web-feed-c0ca367a59db0969011dd35d-148",
+      "instrument_revision": "synthetic-rules-v1",
+      "snapshot": {
+        "book": {
+          "Asks": {
+            "100.01": {
+              "price": "100.01",
+              "quantity": "2"
+            }
+          },
+          "Bids": {
+            "99.99": {
+              "price": "99.99",
+              "quantity": "2"
+            }
+          },
+          "Debt": {
+            "asks": {
+              "100.01": "0.098"
+            },
+            "bids": {}
+          },
+          "Valid": true
+        },
+        "fees": {
+          "maker": "0.001",
+          "taker": "0.002",
+          "source": "synthetic-assumption",
+          "currency": "quote"
+        },
+        "child": {
+          "id": "child-1fca834d7140060c15455a6ba39700c4",
+          "order": {
+            "state": "submitting",
+            "intent": {
+              "side": "buy",
+              "price": "99.99",
+              "passive": true,
+              "quantity": "0.002"
+            },
+            "order_id": "child-1fca834d7140060c15455a6ba39700c4",
+            "remaining": "0.002",
+            "queue_ahead": "0",
+            "cancel_at_ns": null,
+            "arrival_at_ns": 430154069,
+            "submitted_at_ns": 430153779
+          },
+          "state": "queued",
+          "action": 4,
+          "known_final": false,
+          "final_reason": ""
+        },
+        "fills": null,
+        "rules": {
+          "symbol": "BTC/USD",
+          "lot_size": "0.001",
+          "tick_size": "0.01",
+          "min_notional": "0.01",
+          "min_quantity": "0.001"
+        },
+        "parent": {
+          "id": "active-restore-20261031-passive-b",
+          "spec": {
+            "side": "buy",
+            "symbol": "BTC/USD",
+            "quantity": "0.1",
+            "deadline_ns": 599837137997,
+            "limit_price": "100.01",
+            "base_balance": "1.101",
+            "quote_budget": "1000",
+            "max_child_quantity": "0.01"
+          },
+          "start": "2026-10-30T22:18:13.715547003Z",
+          "status": "active",
+          "started": true,
+          "baseline": "liquidity-aware",
+          "deadline": "2026-10-30T22:28:13.552685Z",
+          "revision": 2,
+          "arrival_mid": "100",
+          "policy_bundle": {
+            "profile": "shadow",
+            "version": "policy-bundle-v1",
+            "fallback": "pause",
+            "timeout_ns": 100000000,
+            "policy_sha256": "506b1eff74b090e0a8b72c407e8271aa649db87f8323ad344f643a1f67697b26",
+            "promotion_status": "unvalidated",
+            "observation_version": "compact-v1",
+            "observation_schema_sha256": "96e4088967693e4b7e7e5653c13e8128f0507a09d6255acf88eea3e05107441a"
+          },
+          "sealed_source": null,
+          "source_start_cursor": null
+        },
+        "reason": "submit_passive",
+        "profile": "paper",
+        "version": "account-state-v1",
+        "execution": {
+          "fill_model": "conservative-v0",
+          "lambda_miss": 100,
+          "cancel_latency_ns": 50000000,
+          "max_participation": "0.25",
+          "min_resting_age_ns": 2000000000,
+          "decision_interval_ns": 1000000000,
+          "submission_latency_ns": 50000000,
+          "min_message_interval_ns": 100000000,
+          "settlement_allowance_ns": 30000000000
+        },
+        "market_id": "web-feed-c0ca367a59db0969011dd35d-148",
+        "trade_flow": "-0.4",
+        "data_source": "synthetic",
+        "has_message": true,
+        "base_currency": "BTC",
+        "decision_mids": [
+          "100"
+        ],
+        "last_input_id": "observation-23492-trade-complete",
+        "next_slice_ns": 0,
+        "pending_facts": null,
+        "policy_bundle": {
+          "profile": "shadow",
+          "version": "policy-bundle-v1",
+          "fallback": "pause",
+          "timeout_ns": 100000000,
+          "policy_sha256": "506b1eff74b090e0a8b72c407e8271aa649db87f8323ad344f643a1f67697b26",
+          "promotion_status": "unvalidated",
+          "observation_version": "compact-v1",
+          "observation_schema_sha256": "96e4088967693e4b7e7e5653c13e8128f0507a09d6255acf88eea3e05107441a"
+        },
+        "reference_mid": "100",
+        "sealed_source": null,
+        "source_cursor": null,
+        "decision_count": 1,
+        "quote_currency": "USD",
+        "last_message_ns": 430159139,
+        "last_observation": [
+          1,
+          0.9992829,
+          0,
+          0,
+          0,
+          1,
+          0.0001,
+          2,
+          20,
+          19.02,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          0
+        ],
+        "next_decision_ns": 1430143740,
+        "unresolved_facts": null,
+        "last_input_digest": "441189e6658815dff57cd472b1023257089396dd2827a0a05183ea614a203f75",
+        "recovery_required": false,
+        "authority_revision": 24114,
+        "clock_discontinuity": false,
+        "instrument_revision": "synthetic-rules-v1",
+        "last_policy_decision": {
+          "mode": "unvalidated",
+          "slot": 1,
+          "action": 4,
+          "bundle": {
+            "profile": "shadow",
+            "version": "policy-bundle-v1",
+            "fallback": "pause",
+            "timeout_ns": 100000000,
+            "policy_sha256": "506b1eff74b090e0a8b72c407e8271aa649db87f8323ad344f643a1f67697b26",
+            "promotion_status": "unvalidated",
+            "observation_version": "compact-v1",
+            "observation_schema_sha256": "96e4088967693e4b7e7e5653c13e8128f0507a09d6255acf88eea3e05107441a"
+          },
+          "reason": "shadow_policy",
+          "result": "shadow_baseline",
+          "parent_id": "active-restore-20261031-passive-b",
+          "expires_at": "2026-10-30T22:18:14.239708579Z",
+          "request_id": "runtime-policy-1d893c9d081684198d89958c816915da",
+          "observation": [
+            1,
+            0.9992929,
+            0,
+            0,
+            0,
+            1,
+            0.0001,
+            2,
+            20,
+            19.02,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            1,
+            0
+          ],
+          "resolved_at": "2026-10-30T22:18:14.145416179Z",
+          "parent_revision": 2,
+          "proposed_action": 4,
+          "journal_revision": 24112,
+          "owner_generation": 9,
+          "authority_revision": 24112,
+          "market_snapshot_id": "web-feed-c0ca367a59db0969011dd35d-147",
+          "applied_source_cursor": null,
+          "requested_source_cursor": null,
+          "applied_market_snapshot_id": "web-feed-c0ca367a59db0969011dd35d-147"
+        },
+        "source_receipt_digest": "",
+        "last_decision_source_cursor": null
+      },
+      "observed_sequence": 23492,
+      "processed_sequence": 23492,
+      "pending_observation_bytes": 0,
+      "paper_transport_contract": "postgres-paper-v1"
+    }
+  ],
+  "current_plan": {
+    "tenant_id": "synthetic-paper-daemon",
+    "account_id": "demo",
+    "plan_id": "active-restore-20261031-passive-b",
+    "revision": 2,
+    "status": "active",
+    "deadline": "2026-10-30T22:28:13.552685+00:00",
+    "detail": {
+      "id": "active-restore-20261031-passive-b",
+      "spec": {
+        "side": "buy",
+        "symbol": "BTC/USD",
+        "quantity": "0.1",
+        "deadline_ns": 599837137997,
+        "limit_price": "100.01",
+        "base_balance": "1.101",
+        "quote_budget": "1000",
+        "max_child_quantity": "0.01"
+      },
+      "start": "2026-10-30T22:18:13.715547003Z",
+      "status": "active",
+      "started": true,
+      "baseline": "liquidity-aware",
+      "deadline": "2026-10-30T22:28:13.552685Z",
+      "revision": 2,
+      "arrival_mid": "100",
+      "policy_bundle": {
+        "profile": "shadow",
+        "version": "policy-bundle-v1",
+        "fallback": "pause",
+        "timeout_ns": 100000000,
+        "policy_sha256": "506b1eff74b090e0a8b72c407e8271aa649db87f8323ad344f643a1f67697b26",
+        "promotion_status": "unvalidated",
+        "observation_version": "compact-v1",
+        "observation_schema_sha256": "96e4088967693e4b7e7e5653c13e8128f0507a09d6255acf88eea3e05107441a"
+      },
+      "sealed_source": null,
+      "source_start_cursor": null
+    }
+  },
+  "current_child_outbox": {
+    "tenant_id": "synthetic-paper-daemon",
+    "account_id": "demo",
+    "intent_id": "child-1fca834d7140060c15455a6ba39700c4",
+    "plan_id": "active-restore-20261031-passive-b",
+    "plan_revision": 2,
+    "instrument_revision": "synthetic-rules-v1",
+    "expires_at": "2026-10-30T22:28:13.552685+00:00",
+    "payload": {
+      "side": "buy",
+      "price": "99.99",
+      "passive": true,
+      "quantity": "0.002"
+    },
+    "state": "queued",
+    "attempt_id": "",
+    "venue_order_id": "",
+    "authorization_revision": 0,
+    "authorization_snapshot": "",
+    "attempted_at": null,
+    "resolution_evidence": null
+  },
+  "current_child_reservations": [
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "intent_id": "child-1fca834d7140060c15455a6ba39700c4",
+      "currency": "USD",
+      "amount": 0.20037996,
+      "reflected": false,
+      "state": "held"
+    }
+  ],
+  "balances": [
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "currency": "BTC",
+      "total": 1.101,
+      "free": 1.101,
+      "locked": 0
+    },
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "currency": "USD",
+      "total": 9989.87914807,
+      "free": 9989.87914807,
+      "locked": 0
+    }
+  ],
+  "counts": {
+    "accounts": 1,
+    "plans": 5,
+    "reservations": 52,
+    "balances": 2,
+    "outbox": 52,
+    "executions": 51,
+    "observations": 23492,
+    "commands": 24055
+  }
+}

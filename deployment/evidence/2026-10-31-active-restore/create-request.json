@@ -1,0 +1,18 @@
+{
+  "id": "active-restore-b-create-20261031",
+  "kind": "create",
+  "expected_revision": 24109,
+  "expected_authority_revision": 24107,
+  "plan_id": "active-restore-20261031-passive-b",
+  "policy": "liquidity-aware",
+  "plan": {
+    "symbol": "BTC/USD",
+    "side": "buy",
+    "quantity": "0.1",
+    "limit_price": "100.01",
+    "deadline_ns": 600000000000,
+    "max_child_quantity": "0.01",
+    "quote_budget": "1000",
+    "base_balance": "1.101"
+  }
+}

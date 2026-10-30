@@ -1,0 +1,82 @@
+{
+  "canonical_encoding": "UTF-8 json.dumps(sort_keys=True,separators=(comma,colon),ensure_ascii=False) using Python JSON-decoded source row. NDJSON sorted by identity tuple; gzip mtime=0. canonical_row_sha256 covers every retained database field. One deduplicated canonical index is retained per table; independently computed stage stream digests and private raw snapshot digests establish stage provenance.",
+  "tables": {
+    "observations": {
+      "identity_fields": [
+        "tenant_id",
+        "account_id",
+        "sequence"
+      ],
+      "retained_count": 23492,
+      "source_count": 23492,
+      "offline_count": 23492,
+      "recovered_count": 23573,
+      "index_uncompressed_sha256": "096c5b870dd3d9459c52e9135889682807879ba1c052d31364f6aaaeebe6ccd7",
+      "index_uncompressed_bytes": 11193201,
+      "all_original_canonical_rows_identical_at_all_three_boundaries": true,
+      "missing_or_changed_source_rows": [],
+      "stage_observed_canonical_prefix_sha256": {
+        "source": "096c5b870dd3d9459c52e9135889682807879ba1c052d31364f6aaaeebe6ccd7",
+        "offline": "096c5b870dd3d9459c52e9135889682807879ba1c052d31364f6aaaeebe6ccd7",
+        "recovered": "096c5b870dd3d9459c52e9135889682807879ba1c052d31364f6aaaeebe6ccd7"
+      },
+      "capture_method": "Independently project each actual private full SQL snapshot; filter recovered rows to complete source identity set, sort identity tuples, serialize canonical index records, compute SHA256; retain one identical stream per table."
+    },
+    "commands": {
+      "identity_fields": [
+        "tenant_id",
+        "account_id",
+        "command_id"
+      ],
+      "retained_count": 24055,
+      "source_count": 24055,
+      "offline_count": 24055,
+      "recovered_count": 24138,
+      "index_uncompressed_sha256": "78469550429c3660ff6fb29406feb86721e6b2282d9866f554315349fa43ad16",
+      "index_uncompressed_bytes": 9885433,
+      "all_original_canonical_rows_identical_at_all_three_boundaries": true,
+      "missing_or_changed_source_rows": [],
+      "stage_observed_canonical_prefix_sha256": {
+        "source": "78469550429c3660ff6fb29406feb86721e6b2282d9866f554315349fa43ad16",
+        "offline": "78469550429c3660ff6fb29406feb86721e6b2282d9866f554315349fa43ad16",
+        "recovered": "78469550429c3660ff6fb29406feb86721e6b2282d9866f554315349fa43ad16"
+      },
+      "capture_method": "Independently project each actual private full SQL snapshot; filter recovered rows to complete source identity set, sort identity tuples, serialize canonical index records, compute SHA256; retain one identical stream per table."
+    },
+    "executions": {
+      "identity_fields": [
+        "tenant_id",
+        "account_id",
+        "venue",
+        "execution_id"
+      ],
+      "retained_count": 51,
+      "source_count": 51,
+      "offline_count": 51,
+      "recovered_count": 51,
+      "index_uncompressed_sha256": "29c8c3194ca54360fe6d0429dcadb48b8a0fcc6a161fb99449b3ae5737d64e12",
+      "index_uncompressed_bytes": 34879,
+      "all_original_canonical_rows_identical_at_all_three_boundaries": true,
+      "missing_or_changed_source_rows": [],
+      "stage_observed_canonical_prefix_sha256": {
+        "source": "29c8c3194ca54360fe6d0429dcadb48b8a0fcc6a161fb99449b3ae5737d64e12",
+        "offline": "29c8c3194ca54360fe6d0429dcadb48b8a0fcc6a161fb99449b3ae5737d64e12",
+        "recovered": "29c8c3194ca54360fe6d0429dcadb48b8a0fcc6a161fb99449b3ae5737d64e12"
+      },
+      "capture_method": "Independently project each actual private full SQL snapshot; filter recovered rows to complete source identity set, sort identity tuples, serialize canonical index records, compute SHA256; retain one identical stream per table."
+    }
+  },
+  "accepted_execution_initial_balances": {
+    "BTC": "1",
+    "USD": "10000"
+  },
+  "accepted_execution_final_derived_balances": {
+    "BTC": "1.101",
+    "USD": "9989.87914807"
+  },
+  "stage_private_full_snapshot_sha256": {
+    "source": "74977c12f77a70036e4c7e50c360cbebac97e39a6c49b144311b025d8c1dd706",
+    "offline": "74977c12f77a70036e4c7e50c360cbebac97e39a6c49b144311b025d8c1dd706",
+    "recovered": "1ae7d802d1379c53248dbea9d8b325c05690156562eed437fa27ff02e75e2aa1"
+  }
+}

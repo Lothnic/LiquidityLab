@@ -1,0 +1,185 @@
+{
+  "accounts": [
+    {
+      "account_id": "demo",
+      "instrument_revision": "synthetic-rules-v1",
+      "revision": 24115,
+      "snapshot_md5": "82698c1d7f82ddb94e0514384cc2c908",
+      "tenant_id": "synthetic-paper-daemon"
+    }
+  ],
+  "archive_helper_image": "sha256:e32c0bb8796ca88366265bfaccc89518ac91f16279033d099754d46b68b56fb5",
+  "created_utc": "2026-10-30T22:18:39.979886+00:00",
+  "database_image": "sha256:dc3f873bf9f13956c6821197edd8e0224b93086f3312830faf5d76699d43710b",
+  "files": {
+    "bundle": {
+      "policy": {
+        "gid": 10001,
+        "kind": "directory",
+        "mode": 493,
+        "uid": 10001
+      },
+      "policy/manifest.json": {
+        "gid": 10001,
+        "kind": "file",
+        "mode": 420,
+        "sha256": "bdd1101a06829ca4cc55388157babe8dbe61086d242c2f6198b885942aa46c44",
+        "size": 3281,
+        "uid": 10001
+      },
+      "policy/policy.zip": {
+        "gid": 10001,
+        "kind": "file",
+        "mode": 420,
+        "sha256": "506b1eff74b090e0a8b72c407e8271aa649db87f8323ad344f643a1f67697b26",
+        "size": 165731,
+        "uid": 10001
+      }
+    },
+    "recordings": {
+      "retained-public-kraken-20261031": {
+        "gid": 10001,
+        "kind": "directory",
+        "mode": 493,
+        "uid": 10001
+      },
+      "retained-public-kraken-20261031/provenance.json": {
+        "gid": 10001,
+        "kind": "file",
+        "mode": 420,
+        "sha256": "c0178c9c53dcd4c33f7567d5de9f7b72b450cfa0ac67865f6e0853e0ecdf39a8",
+        "size": 3360,
+        "uid": 10001
+      },
+      "retained-public-kraken-20261031/public-capture.jsonl": {
+        "gid": 10001,
+        "kind": "file",
+        "mode": 420,
+        "sha256": "d13f0af7da5c57ee9d058a62f439ec8ffc7f396ab924ecbfe2694ad8f5e876eb",
+        "size": 31817,
+        "uid": 10001
+      },
+      "retained-public-kraken-20261031/public-capture.manifest.json": {
+        "gid": 10001,
+        "kind": "file",
+        "mode": 420,
+        "sha256": "8fbe63380820bcf49a5ee892829b9360f5f3ecde6112d5fad896299f56a294a3",
+        "size": 778,
+        "uid": 10001
+      }
+    }
+  },
+  "format": 1,
+  "images": {
+    "db": "sha256:dc3f873bf9f13956c6821197edd8e0224b93086f3312830faf5d76699d43710b",
+    "paper": "sha256:e32c0bb8796ca88366265bfaccc89518ac91f16279033d099754d46b68b56fb5",
+    "worker": "sha256:faf22453eadbb77582665df63bdf4fe8f4dbc2404e6d6615e30ce508b6610a55"
+  },
+  "limitations": "Offline restore only; active-session recovery is a separate gate. Model remains unvalidated.",
+  "paper_configuration": {
+    "PAPER_ACCOUNT": "demo",
+    "PAPER_DURATION": "20m",
+    "PAPER_MODE": "resume",
+    "PAPER_SCHEMA": "paper_beta",
+    "PAPER_SOURCE": "synthetic"
+  },
+  "relations": {
+    "account_journal": {
+      "bytes": 145645327,
+      "kind": "r",
+      "rows": 24115,
+      "sha256": "0480b6a1fdc529faf9f63014b0547fd2e3971e001b1056e33ebee57b3352703a"
+    },
+    "accounts": {
+      "bytes": 4973,
+      "kind": "r",
+      "rows": 1,
+      "sha256": "6dd84f00693a4efcdd47f33d5c12e06295e1df3132782c27983209122257316a"
+    },
+    "balances": {
+      "bytes": 266,
+      "kind": "r",
+      "rows": 2,
+      "sha256": "d7e48ed9f2eb3de5ff365bdefa013baab110746948edd97bcf212f69e7c7c2d0"
+    },
+    "commands": {
+      "bytes": 8321110,
+      "kind": "r",
+      "rows": 24055,
+      "sha256": "07e315d9c5cebb211e91acc070ecb1a084ab2e1a7a157d7934287a5e15a6396a"
+    },
+    "executions": {
+      "bytes": 33651,
+      "kind": "r",
+      "rows": 51,
+      "sha256": "9abeec9bc11aca459406056be1ed7855d37a7e376f5a493fe172f0b1e9d5a985"
+    },
+    "observations": {
+      "bytes": 18227913,
+      "kind": "r",
+      "rows": 23492,
+      "sha256": "9c600a25db36b80a8be19a6db3f72b144f6566f08eec31012329199a6ea13870"
+    },
+    "outbox": {
+      "bytes": 35594,
+      "kind": "r",
+      "rows": 52,
+      "sha256": "8ef2212e19a1c08735b7de9516a92553ef2a62efa858073b5b4ce296eeadc99f"
+    },
+    "plan_revisions": {
+      "bytes": 27437,
+      "kind": "r",
+      "rows": 25,
+      "sha256": "d580b8f24c71210e76f599f0f8584896fbbabd222ca6d8947b7f259adcedb971"
+    },
+    "plans": {
+      "bytes": 5286,
+      "kind": "r",
+      "rows": 5,
+      "sha256": "9e51a45307d3b30f9cb9b58758828d40ab6f2091605529acb2c1b58fe9d4383f"
+    },
+    "replay_admission": {
+      "bytes": 0,
+      "kind": "r",
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "replay_jobs": {
+      "bytes": 0,
+      "kind": "r",
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "replay_jobs_sequence_seq": {
+      "bytes": 38,
+      "kind": "S",
+      "rows": 1,
+      "sha256": "398a1977a112ccf635392fe8cb1a93ccb401f5dd39473c9f052da9c15b517b4f"
+    },
+    "reservations": {
+      "bytes": 10344,
+      "kind": "r",
+      "rows": 52,
+      "sha256": "c19c64def6ff839d0a82d6ea7e3eeb36b90271b3183c2293f8f63c33c460292c"
+    },
+    "schema_migrations": {
+      "bytes": 900,
+      "kind": "r",
+      "rows": 5,
+      "sha256": "ce61875724ef5d90c43b18b5813a4f4ea528020a87c7b71215ba560ea6f422b4"
+    }
+  },
+  "scope": "Entire application schema and immutable bundle/recordings; no secrets or policy socket.",
+  "source": {
+    "context": "default",
+    "database_name": "liquiditylab",
+    "database_user": "liquiditylab",
+    "project": "liquiditylab-backup-active-20261031",
+    "schema": "paper_beta",
+    "volumes": {
+      "bundle": "liquiditylab-backup-active-20261031_bundle",
+      "database": "liquiditylab-backup-active-20261031_database",
+      "recordings": "liquiditylab-backup-active-20261031_recordings"
+    }
+  }
+}

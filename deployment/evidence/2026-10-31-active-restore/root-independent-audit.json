@@ -1,0 +1,21 @@
+{
+  "valid": true,
+  "independent_full_private_snapshot_comparison": true,
+  "public_canonical_row_hashes_match_actual_sql_rows": true,
+  "retained_counts": {
+    "observations": 23492,
+    "commands": 24055,
+    "executions": 51
+  },
+  "intent_ids": 52,
+  "queued_child_never_attempted": true,
+  "source_held_reservations": 1,
+  "recovered_held_reservations": 0,
+  "original_deadline_and_policy_pin_preserved": true,
+  "pinned_reports_compared": 5,
+  "exact_balance_derivation": "Independent rational arithmetic using fractions.Fraction over every accepted execution.",
+  "balances": {
+    "BTC": "1.101",
+    "USD": "9989.87914807"
+  }
+}

@@ -1,0 +1,121 @@
+{
+  "policy_runtime": {
+    "policy_sha256": "506b1eff74b090e0a8b72c407e8271aa649db87f8323ad344f643a1f67697b26",
+    "profile": "shadow",
+    "fallback": "pause",
+    "promotion_status": "unvalidated",
+    "result": "shadow_baseline",
+    "reason": "shadow_policy",
+    "action": 4,
+    "proposed_action": 4,
+    "observation_snapshot_id": "web-feed-c0ca367a59db0969011dd35d-147",
+    "applied_snapshot_id": "web-feed-c0ca367a59db0969011dd35d-147",
+    "expires_at": "2026-10-30T22:18:14.239708579Z",
+    "resolved_at": "2026-10-30T22:18:14.145416179Z"
+  },
+  "policy_config": {
+    "policy_sha256": "506b1eff74b090e0a8b72c407e8271aa649db87f8323ad344f643a1f67697b26",
+    "profile": "shadow",
+    "fallback": "pause",
+    "promotion_status": "unvalidated"
+  },
+  "tenant_id": "synthetic-paper-daemon",
+  "account_id": "demo",
+  "profile": "paper",
+  "data_source": "synthetic",
+  "revision": 24114,
+  "authority_revision": 24114,
+  "ready": true,
+  "recovery_required": false,
+  "plan_status": "active",
+  "base_currency": "BTC",
+  "quote_currency": "USD",
+  "clock_discontinuity": false,
+  "market": {
+    "valid": true,
+    "snapshot_id": "web-feed-c0ca367a59db0969011dd35d-147",
+    "instrument_revision": "synthetic-rules-v1",
+    "best_bid": "99.99",
+    "best_ask": "100.01"
+  },
+  "rules": {
+    "symbol": "BTC/USD",
+    "tick_size": "0.01",
+    "lot_size": "0.001",
+    "min_quantity": "0.001",
+    "min_notional": "0.01"
+  },
+  "fees": {
+    "maker": "0.001",
+    "taker": "0.002",
+    "currency": "quote",
+    "source": "synthetic-assumption"
+  },
+  "balances": [
+    {
+      "currency": "BTC",
+      "total": "1.101",
+      "free": "1.101",
+      "locked": "0"
+    },
+    {
+      "currency": "USD",
+      "total": "9989.87914807",
+      "free": "9989.87914807",
+      "locked": "0"
+    }
+  ],
+  "reserved": [
+    {
+      "currency": "BTC",
+      "amount": "0"
+    },
+    {
+      "currency": "USD",
+      "amount": "0.20037996"
+    }
+  ],
+  "plan": {
+    "id": "active-restore-20261031-passive-b",
+    "revision": 2,
+    "status": "active",
+    "started": true,
+    "start": "2026-10-30T22:18:13.715547003Z",
+    "deadline": "2026-10-30T22:28:13.552685Z",
+    "spec": {
+      "side": "buy",
+      "quantity": "0.1",
+      "limit_price": "100.01",
+      "deadline_ns": 599837137997,
+      "max_child_quantity": "0.01",
+      "quote_budget": "1000",
+      "base_balance": "1.101",
+      "symbol": "BTC/USD"
+    },
+    "policy": "liquidity-aware",
+    "filled": "0",
+    "remaining": "0.1",
+    "average_price": "0",
+    "arrival_mid": "100",
+    "benchmark_valid": true,
+    "executed_cost_quote": "0",
+    "fees_base": "0",
+    "fees_quote": "0"
+  },
+  "child": {
+    "id": "child-1fca834d7140060c15455a6ba39700c4",
+    "intent": {
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "99.99",
+      "passive": true
+    },
+    "remaining": "0.002",
+    "state": "queued",
+    "known_final": false,
+    "cancel_requested": false
+  },
+  "fills": [],
+  "fill_count": 0,
+  "fills_truncated": false
+}

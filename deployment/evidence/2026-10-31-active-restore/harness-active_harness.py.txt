@@ -1,0 +1,51 @@
+# ARCHIVED DRILL HARNESS. Do not execute against retained project names.
+import subprocess,json,time,pathlib,hashlib,os
+ROOT=pathlib.Path(__file__).parent
+PROJECT='liquiditylab-backup-active-20261031'; PLAN='active-restore-20261031-passive-b'; PAPER=PROJECT+'-paper-1'; DB=PROJECT+'-db-1'
+def run(a,input=None,timeout=40):
+ p=subprocess.run(['docker','--context','default']+a,input=input,text=True,capture_output=True,timeout=timeout)
+ if p.returncode: raise RuntimeError('docker command failed: '+str(a[:3])+' '+p.stderr[:200])
+ return p.stdout
+def save(name,x):
+ p=ROOT/(name+'.json');p.write_text(json.dumps(x,indent=2)+'\n');p.chmod(0o600)
+def api(suffix='',body=None,paper=None):
+ code='''import urllib.request,json,sys,urllib.error
+p=json.load(sys.stdin);token=open('/run/secrets/api_token').read().strip();data=None if p['body'] is None else json.dumps(p['body']).encode();r=urllib.request.Request('http://127.0.0.1:8080/v1/accounts/synthetic-paper-daemon/demo'+p['suffix'],data=data,headers={'Authorization':'Bearer '+token,'Content-Type':'application/json'})
+try:
+ response=urllib.request.urlopen(r,timeout=5);print(json.dumps({'status':response.status,'body':json.load(response)}))
+except urllib.error.HTTPError as e: print(json.dumps({'status':e.code,'body':json.load(e)}))
+'''
+ return json.loads(run(['exec','-i',paper or PAPER,'python3','-c',code],json.dumps({'suffix':suffix,'body':body})))
+def sql(query,db=None): return json.loads(run(['exec','-i',db or DB,'psql','-X','-qAt','-U','liquiditylab','-d','liquiditylab'],query))
+def snapshot(db=None):
+ return sql("BEGIN; SET LOCAL search_path=paper_beta; SELECT json_build_object('accounts',(SELECT json_agg(t) FROM accounts t),'plans',(SELECT json_agg(t) FROM plans t),'reservations',(SELECT json_agg(t) FROM reservations t),'balances',(SELECT json_agg(t) FROM balances t),'outbox',(SELECT json_agg(t) FROM outbox t),'executions',(SELECT json_agg(t) FROM executions t),'observations',(SELECT json_agg(t) FROM observations t),'commands',(SELECT json_agg(t) FROM commands t));COMMIT;",db)
+if __name__=='__main__':
+ before=api()['body'];save('source-before',before)
+ sessions=api('/sessions?limit=20')['body'];save('source-before-sessions',sessions)
+ for e in sessions['entries']:
+  pid=e['plan_id'] if 'plan_id' in e else e['id'];r=api('/sessions/'+pid)['body'];save('pinned-'+pid,r)
+ def command(kind):
+  for n in range(12):
+   state=api()['body']; b={'id':'active-restore-b-'+kind+'-20261031','kind':kind,'expected_revision':state['revision'],'expected_authority_revision':state['authority_revision']}
+   if kind=='create': b.update(plan_id=PLAN,policy='liquidity-aware',plan={'symbol':'BTC/USD','side':'buy','quantity':'0.1','limit_price':'100.01','deadline_ns':600000000000,'max_child_quantity':'0.01','quote_budget':'1000','base_balance':'1.101'})
+   r=api('/commands',b)
+   if r['status']==200:save(kind+'-request',b);save(kind+'-result',r);return
+   if r['status']!=409: save(kind+'-failure',r);raise RuntimeError('command rejected '+str(r))
+   time.sleep(.05)
+  raise RuntimeError('revision retries exhausted')
+ command('create');command('start');start=time.monotonic();samples=[]
+ while time.monotonic()-start<180:
+  state=api()['body'];samples.append({k:state.get(k) for k in ('revision','plan_status','child','reserved','policy_runtime','fill_count')})
+  if state.get('plan_status')=='active' and state.get('child') and any(float(r['amount'])>0 for r in state.get('reserved',[])) and state.get('policy_runtime',{}).get('profile')=='shadow':
+   save('observed-active-held',state);save('active-pinned-report',api('/sessions/'+PLAN+'?as_of_revision='+str(state['revision']))['body'])
+   run(['kill','--signal','KILL',PAPER]);run(['wait',PAPER]);
+   # Account lock is acquired only after the container is dead. It waits for any server-side commit from a disconnected client.
+   barrier=sql("BEGIN; SET LOCAL lock_timeout='20s'; SET LOCAL search_path=paper_beta; SELECT json_build_object('revision',revision,'ownership_epoch',ownership_epoch,'observed_sequence',observed_sequence,'processed_sequence',processed_sequence) FROM accounts WHERE account_id='demo' FOR UPDATE;COMMIT;")
+   save('post-kill-commit-barrier',barrier);snap=snapshot();save('crash-durable',snap);save('poll-samples',samples)
+   assert any(p['plan_id']==PLAN and p['status']=='active' for p in snap['plans']), 'durable parent not active'
+   assert any(r['state']=='held' for r in snap['reservations']), 'no durable held reservation'
+   print(json.dumps({'status':'crashed_active_held','elapsed_seconds':time.monotonic()-start,'barrier':barrier,'held':sum(r['state']=='held' for r in snap['reservations'])}));break
+  if state.get('plan_status') in ('paused','completed','expired','cancelled'):
+   save('early-stop-state',state);raise RuntimeError('plan ended/paused before active held')
+  time.sleep(.1)
+ else:save('poll-samples',samples);raise RuntimeError('180s active held timeout')

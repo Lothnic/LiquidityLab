@@ -1,0 +1,427 @@
+{
+  "valid": true,
+  "checks": {
+    "offline_snapshot_equals_crash": true,
+    "ownership_epoch_incremented": true,
+    "parent_paused": true,
+    "original_parent_deadline_preserved": true,
+    "original_spec_and_policy_pins_preserved": true,
+    "old_child_settled": true,
+    "no_held_reservations": true,
+    "observed_processed_caught_up": true,
+    "no_new_execution": true,
+    "balances_preserved": true,
+    "all_previous_accepted_observation_facts_retained": true,
+    "all_previous_command_results_retained": true,
+    "balances_derived_from_all_accepted_fills": true,
+    "all_original_pinned_reports_unchanged": true,
+    "outbox_intent_ids_unchanged": true,
+    "queued_child_attempt_id_unset_after_recovery": true,
+    "no_previously_unset_attempt_became_bound": true,
+    "all_existing_attempt_bindings_preserved": true
+  },
+  "parent_id": "active-restore-20261031-passive-b",
+  "deadline": "2026-10-30T22:28:13.552685Z",
+  "held_child": "child-1fca834d7140060c15455a6ba39700c4",
+  "settled_child_state": "obsolete",
+  "source_epoch": 9,
+  "restored_epoch": 10,
+  "source_revision": 24115,
+  "restored_revision": 24199,
+  "source_observed_sequence": 23492,
+  "source_processed_sequence": 23492,
+  "restored_observed_sequence": 23573,
+  "restored_processed_sequence": 23573,
+  "accepted_execution_count": 51,
+  "derived_balances": {
+    "BTC": "1.101",
+    "USD": "9989.87914807"
+  },
+  "original_pinned_reports": [
+    {
+      "plan_id": "container-ppo-20261030-a",
+      "as_of_revision": 24109,
+      "unchanged": true
+    },
+    {
+      "plan_id": "container-ppo-handoff-loss-20261030-c",
+      "as_of_revision": 24109,
+      "unchanged": true
+    },
+    {
+      "plan_id": "active-restore-20261031-passive",
+      "as_of_revision": 24108,
+      "unchanged": true
+    },
+    {
+      "plan_id": "container-ppo-handoff-20261030-b",
+      "as_of_revision": 24109,
+      "unchanged": true
+    },
+    {
+      "plan_id": "active-restore-20261031-passive-b",
+      "as_of_revision": 24114,
+      "unchanged": true
+    }
+  ],
+  "no_trader_commands_issued_after_restore": true,
+  "paused_observation_seconds": 3,
+  "limitations": [
+    "Synthetic account source; retained public Kraken recording is copied file evidence, not bound as the session market source.",
+    "Crash caught a durable queued child with a held reservation before dispatch; no post-crash accepted fill debt was manufactured.",
+    "No live exchange, hosting, strategy quality, 24-hour soak, or capacity claim."
+  ],
+  "backup_manifest_sha256": "5dadf5e9c39e25dfc469a2d1963c23df734761a00b57b461d10d4a85bad15f8d",
+  "offline_relations": {
+    "account_journal": {
+      "bytes": 145645327,
+      "kind": "r",
+      "rows": 24115,
+      "sha256": "0480b6a1fdc529faf9f63014b0547fd2e3971e001b1056e33ebee57b3352703a"
+    },
+    "accounts": {
+      "bytes": 4973,
+      "kind": "r",
+      "rows": 1,
+      "sha256": "6dd84f00693a4efcdd47f33d5c12e06295e1df3132782c27983209122257316a"
+    },
+    "balances": {
+      "bytes": 266,
+      "kind": "r",
+      "rows": 2,
+      "sha256": "d7e48ed9f2eb3de5ff365bdefa013baab110746948edd97bcf212f69e7c7c2d0"
+    },
+    "commands": {
+      "bytes": 8321110,
+      "kind": "r",
+      "rows": 24055,
+      "sha256": "07e315d9c5cebb211e91acc070ecb1a084ab2e1a7a157d7934287a5e15a6396a"
+    },
+    "executions": {
+      "bytes": 33651,
+      "kind": "r",
+      "rows": 51,
+      "sha256": "9abeec9bc11aca459406056be1ed7855d37a7e376f5a493fe172f0b1e9d5a985"
+    },
+    "observations": {
+      "bytes": 18227913,
+      "kind": "r",
+      "rows": 23492,
+      "sha256": "9c600a25db36b80a8be19a6db3f72b144f6566f08eec31012329199a6ea13870"
+    },
+    "outbox": {
+      "bytes": 35594,
+      "kind": "r",
+      "rows": 52,
+      "sha256": "8ef2212e19a1c08735b7de9516a92553ef2a62efa858073b5b4ce296eeadc99f"
+    },
+    "plan_revisions": {
+      "bytes": 27437,
+      "kind": "r",
+      "rows": 25,
+      "sha256": "d580b8f24c71210e76f599f0f8584896fbbabd222ca6d8947b7f259adcedb971"
+    },
+    "plans": {
+      "bytes": 5286,
+      "kind": "r",
+      "rows": 5,
+      "sha256": "9e51a45307d3b30f9cb9b58758828d40ab6f2091605529acb2c1b58fe9d4383f"
+    },
+    "replay_admission": {
+      "bytes": 0,
+      "kind": "r",
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "replay_jobs": {
+      "bytes": 0,
+      "kind": "r",
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "replay_jobs_sequence_seq": {
+      "bytes": 38,
+      "kind": "S",
+      "rows": 1,
+      "sha256": "398a1977a112ccf635392fe8cb1a93ccb401f5dd39473c9f052da9c15b517b4f"
+    },
+    "reservations": {
+      "bytes": 10344,
+      "kind": "r",
+      "rows": 52,
+      "sha256": "c19c64def6ff839d0a82d6ea7e3eeb36b90271b3183c2293f8f63c33c460292c"
+    },
+    "schema_migrations": {
+      "bytes": 900,
+      "kind": "r",
+      "rows": 5,
+      "sha256": "ce61875724ef5d90c43b18b5813a4f4ea528020a87c7b71215ba560ea6f422b4"
+    }
+  },
+  "retained_files": {
+    "bundle": {
+      "policy": {
+        "gid": 10001,
+        "kind": "directory",
+        "mode": 493,
+        "uid": 10001
+      },
+      "policy/manifest.json": {
+        "gid": 10001,
+        "kind": "file",
+        "mode": 420,
+        "sha256": "bdd1101a06829ca4cc55388157babe8dbe61086d242c2f6198b885942aa46c44",
+        "size": 3281,
+        "uid": 10001
+      },
+      "policy/policy.zip": {
+        "gid": 10001,
+        "kind": "file",
+        "mode": 420,
+        "sha256": "506b1eff74b090e0a8b72c407e8271aa649db87f8323ad344f643a1f67697b26",
+        "size": 165731,
+        "uid": 10001
+      }
+    },
+    "recordings": {
+      "retained-public-kraken-20261031": {
+        "gid": 10001,
+        "kind": "directory",
+        "mode": 493,
+        "uid": 10001
+      },
+      "retained-public-kraken-20261031/provenance.json": {
+        "gid": 10001,
+        "kind": "file",
+        "mode": 420,
+        "sha256": "c0178c9c53dcd4c33f7567d5de9f7b72b450cfa0ac67865f6e0853e0ecdf39a8",
+        "size": 3360,
+        "uid": 10001
+      },
+      "retained-public-kraken-20261031/public-capture.jsonl": {
+        "gid": 10001,
+        "kind": "file",
+        "mode": 420,
+        "sha256": "d13f0af7da5c57ee9d058a62f439ec8ffc7f396ab924ecbfe2694ad8f5e876eb",
+        "size": 31817,
+        "uid": 10001
+      },
+      "retained-public-kraken-20261031/public-capture.manifest.json": {
+        "gid": 10001,
+        "kind": "file",
+        "mode": 420,
+        "sha256": "8fbe63380820bcf49a5ee892829b9360f5f3ecde6112d5fad896299f56a294a3",
+        "size": 778,
+        "uid": 10001
+      }
+    }
+  },
+  "policy_runtime_at_crash_observation": {
+    "policy_sha256": "506b1eff74b090e0a8b72c407e8271aa649db87f8323ad344f643a1f67697b26",
+    "profile": "shadow",
+    "fallback": "pause",
+    "promotion_status": "unvalidated",
+    "result": "shadow_baseline",
+    "reason": "shadow_policy",
+    "action": 4,
+    "proposed_action": 4,
+    "observation_snapshot_id": "web-feed-c0ca367a59db0969011dd35d-147",
+    "applied_snapshot_id": "web-feed-c0ca367a59db0969011dd35d-147",
+    "expires_at": "2026-10-30T22:18:14.239708579Z",
+    "resolved_at": "2026-10-30T22:18:14.145416179Z"
+  },
+  "isolated_containers_before_stop": [
+    {
+      "name": "liquiditylab-backup-active-20261031-db-1",
+      "image_id": "sha256:dc3f873bf9f13956c6821197edd8e0224b93086f3312830faf5d76699d43710b",
+      "network_mode": "none",
+      "published_ports": {},
+      "state": "running",
+      "restart_policy": "no",
+      "network_memberships": [
+        "none"
+      ]
+    },
+    {
+      "name": "liquiditylab-backup-active-20261031-worker-1",
+      "image_id": "sha256:faf22453eadbb77582665df63bdf4fe8f4dbc2404e6d6615e30ce508b6610a55",
+      "network_mode": "none",
+      "published_ports": {},
+      "state": "exited",
+      "restart_policy": "no",
+      "network_memberships": [
+        "none"
+      ]
+    },
+    {
+      "name": "liquiditylab-backup-active-20261031-paper-1",
+      "image_id": "sha256:e32c0bb8796ca88366265bfaccc89518ac91f16279033d099754d46b68b56fb5",
+      "network_mode": "container:4d1a4de58f823041eca6d8e2764e40ef9b9780c238baa59c917ee92d69ce691e",
+      "published_ports": {},
+      "state": "exited",
+      "restart_policy": "no",
+      "network_memberships": []
+    },
+    {
+      "name": "liquiditylab-restore-active-20261031-db-1",
+      "image_id": "sha256:dc3f873bf9f13956c6821197edd8e0224b93086f3312830faf5d76699d43710b",
+      "network_mode": "none",
+      "published_ports": {},
+      "state": "running",
+      "restart_policy": "no",
+      "network_memberships": [
+        "none"
+      ]
+    },
+    {
+      "name": "liquiditylab-restore-active-20261031-worker-1",
+      "image_id": "sha256:faf22453eadbb77582665df63bdf4fe8f4dbc2404e6d6615e30ce508b6610a55",
+      "network_mode": "none",
+      "published_ports": {},
+      "state": "running",
+      "restart_policy": "no",
+      "network_memberships": [
+        "none"
+      ]
+    },
+    {
+      "name": "liquiditylab-restore-active-20261031-paper-1",
+      "image_id": "sha256:e32c0bb8796ca88366265bfaccc89518ac91f16279033d099754d46b68b56fb5",
+      "network_mode": "container:d652970eff8b1188c828f782e1dd1b827906cbf78a1fc0311108b78e13a8bb94",
+      "published_ports": {},
+      "state": "running",
+      "restart_policy": "no",
+      "network_memberships": []
+    }
+  ],
+  "fresh_credentials": {
+    "postgres_password_differs_source_target": true,
+    "inspection-api-token_differs_source_target": true
+  },
+  "operator_commands": [
+    "python3 deployment/backup.py restore --context default --project liquiditylab-backup-active-20261031 --backup PRIVATE/terminal-backup --destination PRIVATE/source",
+    "docker --context default compose --project-name liquiditylab-backup-active-20261031 --file PRIVATE/source/compose.json --file PRIVATE/source/inspection.compose.json up -d worker paper",
+    "python3 PRIVATE/active_harness.py",
+    "docker --context default kill --signal KILL liquiditylab-backup-active-20261031-paper-1",
+    "docker --context default wait liquiditylab-backup-active-20261031-paper-1",
+    "psql through docker exec: BEGIN; SELECT account row FOR UPDATE; COMMIT; after container death",
+    "network none exact image Python helper copied three exclusive files into new source recording volume",
+    "docker --context default compose --project-name liquiditylab-backup-active-20261031 --file PRIVATE/source/compose.json --file PRIVATE/source/inspection.compose.json stop worker",
+    "python3 deployment/backup.py backup --context default --project liquiditylab-backup-active-20261031 --schema paper_beta --destination PRIVATE/backup",
+    "python3 deployment/backup.py restore --context default --project liquiditylab-restore-active-20261031 --backup PRIVATE/backup --destination PRIVATE/restored",
+    "docker --context default compose --project-name liquiditylab-restore-active-20261031 --file PRIVATE/restored/compose.json --file PRIVATE/restored/inspection.compose.json up -d worker paper",
+    "python3 PRIVATE/recover_harness.py",
+    "docker --context default compose --project-name liquiditylab-backup-active-20261031 --file PRIVATE/source/compose.json --file PRIVATE/source/inspection.compose.json stop paper worker db",
+    "docker --context default compose --project-name liquiditylab-restore-active-20261031 --file PRIVATE/restored/compose.json --file PRIVATE/restored/inspection.compose.json stop paper worker db"
+  ],
+  "final_fixture_containers": [
+    {
+      "name": "liquiditylab-backup-active-20261031-paper-1",
+      "state": "exited",
+      "exit_code": 137,
+      "finished_at": "2026-10-30T22:18:14.267853679Z",
+      "published_ports": {},
+      "network_mode": "container:4d1a4de58f823041eca6d8e2764e40ef9b9780c238baa59c917ee92d69ce691e",
+      "started_at": "2026-10-30T22:16:59.964286151Z",
+      "container_runtime_seconds": 74.303567
+    },
+    {
+      "name": "liquiditylab-backup-active-20261031-worker-1",
+      "state": "exited",
+      "exit_code": 0,
+      "finished_at": "2026-10-30T22:18:27.659592127Z",
+      "published_ports": {},
+      "network_mode": "none",
+      "started_at": "2026-10-30T22:16:51.285079272Z",
+      "container_runtime_seconds": 96.374513
+    },
+    {
+      "name": "liquiditylab-backup-active-20261031-db-1",
+      "state": "exited",
+      "exit_code": 0,
+      "finished_at": "2026-10-30T22:20:39.197213689Z",
+      "published_ports": {},
+      "network_mode": "none",
+      "started_at": "2026-10-30T22:16:18.5652414Z",
+      "container_runtime_seconds": 260.631972
+    },
+    {
+      "name": "liquiditylab-restore-active-20261031-paper-1",
+      "state": "exited",
+      "exit_code": 0,
+      "finished_at": "2026-10-30T22:20:39.403595432Z",
+      "published_ports": {},
+      "network_mode": "container:d652970eff8b1188c828f782e1dd1b827906cbf78a1fc0311108b78e13a8bb94",
+      "started_at": "2026-10-30T22:19:37.617960403Z",
+      "container_runtime_seconds": 61.785635
+    },
+    {
+      "name": "liquiditylab-restore-active-20261031-worker-1",
+      "state": "exited",
+      "exit_code": 0,
+      "finished_at": "2026-10-30T22:20:40.095908261Z",
+      "published_ports": {},
+      "network_mode": "none",
+      "started_at": "2026-10-30T22:19:31.002339752Z",
+      "container_runtime_seconds": 69.093569
+    },
+    {
+      "name": "liquiditylab-restore-active-20261031-db-1",
+      "state": "exited",
+      "exit_code": 0,
+      "finished_at": "2026-10-30T22:20:39.936281584Z",
+      "published_ports": {},
+      "network_mode": "none",
+      "started_at": "2026-10-30T22:18:50.662727938Z",
+      "container_runtime_seconds": 109.273554
+    }
+  ],
+  "fixtures_stopped_volumes_retained": true,
+  "initial_fixture_input_correction": {
+    "first_parent_id": "active-restore-20261031-passive",
+    "deadline_ns": 3600000000000,
+    "outcome": "No child: .1 /240 slices is below .001 BTC minimum lot. Cancelled through normal authenticated API.",
+    "corrected_parent_id": "active-restore-20261031-passive-b",
+    "deadline_ns_corrected": 600000000000,
+    "guards_unchanged": true
+  },
+  "additional_shadow_observations": [
+    {
+      "evidence_file": "source-before.json",
+      "policy_runtime": {
+        "policy_sha256": "506b1eff74b090e0a8b72c407e8271aa649db87f8323ad344f643a1f67697b26",
+        "profile": "shadow",
+        "fallback": "pause",
+        "promotion_status": "unvalidated",
+        "result": "shadow_baseline",
+        "reason": "shadow_policy",
+        "action": 4,
+        "proposed_action": 6,
+        "observation_snapshot_id": "web-feed-c0ca367a59db0969011dd35d-141",
+        "applied_snapshot_id": "web-feed-c0ca367a59db0969011dd35d-142",
+        "expires_at": "2026-10-30T22:18:11.240734731Z",
+        "resolved_at": "2026-10-30T22:18:11.157030875Z"
+      }
+    },
+    {
+      "evidence_file": "early-stop-state.json",
+      "policy_runtime": {
+        "policy_sha256": "506b1eff74b090e0a8b72c407e8271aa649db87f8323ad344f643a1f67697b26",
+        "profile": "shadow",
+        "fallback": "pause",
+        "promotion_status": "unvalidated",
+        "result": "shadow_baseline",
+        "reason": "shadow_policy",
+        "action": 4,
+        "proposed_action": 6,
+        "observation_snapshot_id": "web-feed-c0ca367a59db0969011dd35d-141",
+        "applied_snapshot_id": "web-feed-c0ca367a59db0969011dd35d-142",
+        "expires_at": "2026-10-30T22:18:11.240734731Z",
+        "resolved_at": "2026-10-30T22:18:11.157030875Z"
+      }
+    }
+  ],
+  "all_fixture_container_runtimes_under_20_minutes": true,
+  "original_paper_observed_running_after_drill": true,
+  "check_count": 18
+}
