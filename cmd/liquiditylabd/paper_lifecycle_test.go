@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 	"testing"
@@ -13,6 +14,142 @@ import (
 	rt "github.com/liquiditylab/liquiditylab/internal/runtime"
 	pg "github.com/liquiditylab/liquiditylab/internal/store/postgres"
 )
+
+func TestPaperServerErrorRetainsSafeClassification(t *testing.T) {
+	const secret = "postgres://secret-user:secret-password@private-host/database"
+	err := paperServerError("paper public market ingress", fmt.Errorf("%w: %s", pg.ErrOwnership, secret))
+	if !errors.Is(err, pg.ErrOwnership) {
+		t.Fatal("sanitized ingress error lost ownership classification")
+	}
+	if strings.Contains(err.Error(), secret) || !strings.Contains(err.Error(), "ownership or lease lost") {
+		t.Fatal("sanitized ingress error leaked private details or lost safe reason")
+	}
+}
+
+func TestPaperServerErrorWithholdsUnknownSourceCredentials(t *testing.T) {
+	err := paperServerError("source", errors.New("postgres://private:password@host/db token=private-source-token"))
+	if err.Error() != "source: operation failed; connection details withheld" {
+		t.Fatal("unknown source error exposed non-allowlisted details")
+	}
+}
+
+func TestPaperDaemonOwnershipLossPreservesIngressClassification(t *testing.T) {
+	opt := daemonOptions(t)
+	dsn := daemonPostgres(t, &opt)
+	var log bytes.Buffer
+	static, err := paperStatic(opt.webDir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	callbackError := make(chan error, 1)
+	source := func(ctx context.Context, deliver func(context.Context, marketdata.Event) error) error {
+		if err := deliver(ctx, daemonSnapshot()); err != nil {
+			return err
+		}
+		store, err := pg.Open(ctx, dsn, opt.schema)
+		if err != nil {
+			return err
+		}
+		defer store.Close()
+		// Fence only this test's randomized account through the real paper
+		// ownership seam, then pass its next receipt through actual ingress.
+		_, err = store.ClaimPaperOwnership(ctx, pg.Key{TenantID: paperDaemonTenant, AccountID: opt.account}, "controlled-replacement-owner", time.Minute)
+		if err != nil {
+			return err
+		}
+		event := marketdata.Event{Kind: "trade", Type: "trade", Symbol: "BTC/USD", Valid: true,
+			ReceiptSessionID: "ownership-loss-session", ReceiptIndex: 1, Price: "100", Quantity: "0.1", Side: "sell"}
+		err = deliver(ctx, event)
+		callbackError <- err
+		return err
+	}
+	daemon, err := newPaperDaemon(context.Background(), opt, dsn, daemonTestToken, static, &log, source)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() {
+		if err := daemon.Close(); !errors.Is(err, pg.ErrOwnership) {
+			t.Error("fenced daemon shutdown did not report ownership loss")
+		}
+	})
+	select {
+	case <-daemon.sourceDone:
+	case <-time.After(5 * time.Second):
+		t.Fatal("controlled ownership failure did not finish")
+	}
+	select {
+	case err := <-callbackError:
+		if !errors.Is(err, pg.ErrOwnership) {
+			t.Fatalf("actual ingress lost ownership error identity: %v", err)
+		}
+	default:
+		t.Fatal("test did not reach actual ingress after ownership fencing")
+	}
+	if !strings.Contains(log.String(), "source: ownership or lease lost") ||
+		!strings.Contains(log.String(), "invalidation=unconfirmed") ||
+		!strings.Contains(log.String(), "source invalidation: ownership or lease lost") {
+		t.Fatalf("ownership diagnostics missing safe source/invalidation outcomes: %s", log.String())
+	}
+}
+
+func TestPaperDaemonSourceFailureReportsSafeReasonAndInvalidation(t *testing.T) {
+	opt := daemonOptions(t)
+	dsn := daemonPostgres(t, &opt)
+	var log bytes.Buffer
+	static, err := paperStatic(opt.webDir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	source := func(ctx context.Context, deliver func(context.Context, marketdata.Event) error) error {
+		if err := deliver(ctx, daemonSnapshot()); err != nil {
+			return err
+		}
+		return paperServerError("paper public market ingress", fmt.Errorf("%w: private-source-token", pg.ErrOwnership))
+	}
+	daemon, err := newPaperDaemon(context.Background(), opt, dsn, daemonTestToken, static, &log, source)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() {
+		if err := daemon.Close(); err != nil {
+			t.Error(err)
+		}
+	})
+	select {
+	case <-daemon.sourceDone:
+	case <-time.After(5 * time.Second):
+		t.Fatal("controlled source failure did not finish")
+	}
+	if !strings.Contains(log.String(), "ownership or lease lost") || !strings.Contains(log.String(), "invalidation=confirmed") {
+		t.Fatalf("source failure did not expose safe causal class and invalidation outcome: %s", log.String())
+	}
+	if strings.Contains(log.String(), "private-source-token") {
+		t.Fatal("source diagnostics leaked raw source error")
+	}
+	_, timestamp, found := strings.Cut(log.String(), "observed_at=")
+	if !found {
+		t.Fatal("source failure omitted observation time")
+	}
+	timestamp, _, _ = strings.Cut(timestamp, ";")
+	if _, err := time.Parse(time.RFC3339Nano, timestamp); err != nil || !strings.HasSuffix(timestamp, "Z") {
+		t.Fatal("source failure observation time must be RFC3339Nano UTC")
+	}
+	view := daemonView(t, daemon)
+	if view.Account.Ready || view.State.Book.Valid || !view.State.RecoveryRequired {
+		t.Fatal("controlled source failure did not quarantine paper readiness")
+	}
+	route := "/v1/accounts/" + daemon.key.TenantID + "/" + daemon.key.AccountID
+	if response := daemonRequest(t, daemon.handler, http.MethodGet, route, daemonTestToken, nil); response.Code != http.StatusOK {
+		t.Fatal("source failure made authenticated account inspection unavailable")
+	}
+	response := daemonRequest(t, daemon.handler, http.MethodPost, route+"/commands", daemonTestToken,
+		map[string]any{"id": "source-failure-cancel", "kind": "cancel", "expected_revision": view.Account.Revision})
+	// This fixture has no parent to cancel. Its control endpoint still reaches
+	// the account validator rather than disappearing when the source ends.
+	if response.Code != http.StatusBadRequest || !strings.Contains(response.Body.String(), "invalid_command") {
+		t.Fatalf("source failure control endpoint unavailable: %d %s", response.Code, response.Body.String())
+	}
+}
 
 func TestPaperDaemonCanceledIngressLeavesDurableStateAndCursorsUntouched(t *testing.T) {
 	opt := daemonOptions(t)

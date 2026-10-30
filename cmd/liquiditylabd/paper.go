@@ -214,6 +214,16 @@ func paperServerOperation() (context.Context, context.CancelFunc) {
 	return context.WithTimeout(context.Background(), 7*time.Second)
 }
 
+// Keep the causal identity for internal classification while exposing only a
+// fixed safe description. Underlying database/source errors can contain secrets.
+type paperSafeError struct {
+	message string
+	cause   error
+}
+
+func (e *paperSafeError) Error() string { return e.message }
+func (e *paperSafeError) Unwrap() error { return e.cause }
+
 func paperServerError(stage string, err error) error {
 	reason := "operation failed; connection details withheld"
 	for _, kind := range []struct {
@@ -225,7 +235,7 @@ func paperServerError(stage string, err error) error {
 			break
 		}
 	}
-	return fmt.Errorf("%s: %s", stage, reason)
+	return &paperSafeError{message: fmt.Sprintf("%s: %s", stage, reason), cause: err}
 }
 
 func servePaper(ctx context.Context, opt paperServerOptions, dsn, token string, output io.Writer) error {
@@ -438,11 +448,19 @@ func newPaperDaemon(ctx context.Context, opt paperServerOptions, dsn, token stri
 		defer close(daemon.sourceDone)
 		err := source(sourceCtx, daemon.Ingest)
 		if sourceCtx.Err() == nil {
-			_ = daemon.invalidate()
+			observedAt := time.Now().UTC().Format(time.RFC3339Nano)
+			invalidationErr := daemon.invalidate()
+			invalidation := "confirmed"
+			if invalidationErr != nil {
+				invalidation = "unconfirmed"
+			}
 			if err != nil {
-				fmt.Fprintln(output, "PAPER public-data source failed; readiness invalidated; account remains available for inspection/cancellation")
+				fmt.Fprintf(output, "PAPER public-data source failed; observed_at=%s; %s; invalidation=%s; account remains available for inspection/cancellation\n", observedAt, paperServerError("source", err), invalidation)
 			} else {
-				fmt.Fprintln(output, "PAPER public-data source ended; readiness invalidated; account remains available for inspection/cancellation")
+				fmt.Fprintf(output, "PAPER public-data source ended; observed_at=%s; invalidation=%s; account remains available for inspection/cancellation\n", observedAt, invalidation)
+			}
+			if invalidationErr != nil {
+				fmt.Fprintf(output, "PAPER observed_at=%s; %s\n", observedAt, paperServerError("source invalidation", invalidationErr))
 			}
 		}
 	}()
