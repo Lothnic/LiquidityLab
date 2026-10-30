@@ -6,6 +6,12 @@ A crypto spot execution assistant for planning orders, supervising paper trades,
 
 **Status:** local paper trading is implemented. Balances, orders, fees, and fills are simulated; live exchange execution is not enabled. The current desk supports one BTC/USD paper account per daemon.
 
+**Current milestone:** [hosted paper-trading beta](docs/hosted-paper-beta.md).
+The beta includes a real RL-assisted paper demo, with visible model proposals,
+Go execution checks and fallback behavior; the demo policy remains unvalidated.
+Deployment preparation comes first; the hosting provider and domain will be
+selected afterward.
+
 ## The trading workflow
 
 1. **Set limits:** choose buy or sell, an amount, a hard price boundary, a deadline, and a maximum size per order.

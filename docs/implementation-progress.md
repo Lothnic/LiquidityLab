@@ -2,6 +2,19 @@
 
 Scope: `docs/go-runtime-plan.md` plus the trader workflow, policy evaluation/promotion, and operational gates in `docs/implementation-plan.md`. The active goal stays open until all required implementation and verification is complete. A working replay slice is not the completion condition.
 
+## Current milestone
+
+As selected on 30 October 2026, delivery now prioritizes the
+[hosted paper-trading beta](hosted-paper-beta.md). Prepare portable deployment
+artifacts first; choose the hosting provider and domain later. Its release gate
+covers the trader workflow, a real RL-assisted paper demo, secure invite-only
+access, persistence, packaged restart/recovery, backup/restore, soak evidence and
+hosted verification. The demo uses actual Python policy inference and Go execution
+checks, with unvalidated model status and visible proposal/action/fallback states;
+it does not pass the separate policy-quality or live-promotion gates.
+The remaining full-project requirements below stay open and are not implied
+complete by a paper-beta release.
+
 ## Verified starting state
 
 - Python reference environment, accounting, recorder, baseline CLI, PPO integration, and 40 checks were implemented before this migration.
@@ -71,7 +84,7 @@ Checkboxes represent full exit criteria, including required integration evidence
 
 ## Current work
 
-The active goal continues full implementation of both plans with component commits and reviewed subagents. Stage 0 of the current Go delivery plan is committed:
+The active goal continues full implementation of both plans with component commits and reviewed subagents. The immediate delivery sequence is the hosted paper-beta milestone above; the numbered scale/full-product sequence below remains the wider roadmap. Stage 0 of the current Go delivery plan is committed:
 
 - `f9125d7`: revision-pinned PostgreSQL session reads and migration.
 - `ec293eb`: asynchronous actor policy proposals, bounded inference/fallback, restart/late-result checks and paper daemon opt-in.
