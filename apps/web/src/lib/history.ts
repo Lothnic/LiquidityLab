@@ -1,4 +1,4 @@
-import { ApiError, request, type Account, type Fill } from './api';
+import { ApiError, isPolicyRuntime, request, type Account, type Fill, type PolicyRuntime } from './api';
 
 export type SessionSummary = {
   plan_id: string; created_revision: number; revision: number; created_at: string; updated_at: string;
@@ -6,6 +6,7 @@ export type SessionSummary = {
   side: string; symbol: string; quantity: string; limit_price: string; policy: string; policy_sha256?: string;
 };
 export type SessionReport = SessionSummary & {
+  policy_runtime?: PolicyRuntime;
   tenant_id: string; account_id: string;
   version: 'session-report-v1'; as_of_revision: number; plan: NonNullable<Account['plan']>;
   child: Record<string, unknown> | null; fills: Fill[]; completion_percent: string; known_final: boolean;
@@ -58,7 +59,8 @@ function reportValid(x: unknown, tenant: string, account: string, planId: string
   const validChild = c === null || (record(c) && identifier(c.id) && record(c.intent) && str(c.intent.side) && decimal(c.intent.quantity) &&
     decimal(c.intent.price) && typeof c.intent.passive === 'boolean' && decimal(c.remaining) && str(c.state) && typeof c.known_final === 'boolean' && typeof c.cancel_requested === 'boolean');
   return r.tenant_id === tenant && r.account_id === account && r.plan_id === planId && r.version === 'session-report-v1' && rev(r.as_of_revision) && (asOf === 0 || r.as_of_revision === asOf) &&
-    validPlan && validChild && Array.isArray(r.fills) && r.fills.every(fill) &&
+    validPlan && validChild && (r.policy_runtime === undefined || (isPolicyRuntime(r.policy_runtime) && r.policy_runtime.policy_sha256 === r.policy_sha256)) &&
+    Array.isArray(r.fills) && r.fills.every(fill) &&
     decimal(r.completion_percent) && typeof r.known_final === 'boolean' && typeof r.recovery_required === 'boolean' && str(r.deadline_result) &&
     record(m) && typeof m.valid === 'boolean' && str(m.snapshot_id) && str(m.instrument_revision) && decimal(m.best_bid) && decimal(m.best_ask) &&
     (r.residual_reference_mid === null || decimal(r.residual_reference_mid)) && rev(r.residual_reference_revision) && str(r.residual_reference_kind) &&

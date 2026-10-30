@@ -149,7 +149,7 @@ function validPolicyConfig(value: unknown): boolean {
 function validPolicyAction(value: unknown): boolean {
   return typeof value === 'number' && Number.isInteger(value) && value >= 1 && value <= 6;
 }
-function validPolicyRuntime(value: unknown): boolean {
+export function isPolicyRuntime(value: unknown): value is PolicyRuntime {
   return record(value) && validPolicyConfig(value) && typeof value.result === 'string' &&
     ['waiting', 'pending', 'policy_action', 'shadow_baseline', 'fallback_baseline', 'fallback_pause'].includes(value.result) &&
     validString(value.reason) && validPolicyAction(value.action) &&
@@ -160,7 +160,7 @@ function validPolicyRuntime(value: unknown): boolean {
 function validAccount(value: unknown, tenant?: string, account?: string): value is Account {
   if (!record(value) || !validSummary(value) || (tenant !== undefined && value.tenant_id !== tenant) || (account !== undefined && value.account_id !== account)) return false;
   return (value.policy_config === undefined || validPolicyConfig(value.policy_config)) &&
-    (value.policy_runtime === undefined || validPolicyRuntime(value.policy_runtime)) &&
+    (value.policy_runtime === undefined || isPolicyRuntime(value.policy_runtime)) &&
     validString(value.base_currency) && validString(value.quote_currency) && validBoolean(value.clock_discontinuity) &&
     validMarket(value.market) &&
     record(value.rules) && validString(value.rules.symbol) && validDecimal(value.rules.tick_size) && validDecimal(value.rules.lot_size) &&

@@ -48,6 +48,12 @@
 .history-panel .journal-empty { display: grid; gap: 6px; padding: 16px 0; color: var(--paper-dim); font-size: 13px; line-height: 1.5; }
 .history-panel .journal-empty strong { color: var(--paper); font-size: 15px; font-weight: 500; }
 .history-panel :focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; }
+.history-policy { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); }
+.history-policy h4 { margin: 0; font-size: 16px; font-weight: 600; }
+.history-policy-details { margin-top: 16px; color: var(--paper-dim); font-size: 13px; }
+.history-policy-details summary { cursor: pointer; padding: 8px 0; }
+.history-policy-details dl { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 8px 16px; }
+.history-policy-details dd { margin: 0; overflow-wrap: anywhere; }
 @media (max-width: 900px) { .history-layout { grid-template-columns: 1fr; } .history-detail { border-left: 0; border-top: 1px solid var(--line); padding: 24px 0 0; } }
 @media (max-width: 560px) {
   .history-panel { padding: 20px 16px; }

@@ -1,16 +1,9 @@
-import type { PolicyAction, PolicyConfig, PolicyRuntime } from '../lib/api';
+import type { PolicyConfig, PolicyRuntime } from '../lib/api';
+import { policyActionLabel } from '../lib/policy';
 import './policy.css';
 
-const actions: Record<PolicyAction, string> = {
-  1: 'Wait',
-  2: 'Cancel current order',
-  3: 'Post small limit order',
-  4: 'Post limit order',
-  5: 'Cross spread with small limit order',
-  6: 'Cross spread with limit order',
-};
 const outcomes: Record<PolicyRuntime['result'], { label: string; description: string }> = {
-  waiting: { label: 'Waiting to start', description: 'Start the plan to request the first model proposal.' },
+  waiting: { label: 'Waiting for the first decision', description: 'Go requests a model proposal once the plan is active and eligible.' },
   pending: { label: 'Requesting a proposal', description: 'Go is waiting for the model. A response must arrive before its deadline and pass the current execution checks.' },
   policy_action: { label: 'Model action accepted', description: 'Go recorded the model action after checking the current account and market. Execution constraints can still produce no new order; inspect orders and fills above.' },
   shadow_baseline: { label: 'Shadow proposal recorded', description: 'The model is observing. The selected baseline decides the paper orders.' },
@@ -21,7 +14,7 @@ const reasons: Record<string, string> = {
   accepted: 'Proposal accepted', shadow_policy: 'Shadow mode', worker_busy: 'Model worker is busy',
   incompatible_response: 'Response did not match the pinned model or request', invalid_response: 'Invalid model response',
   expired: 'Proposal deadline elapsed', worker_unavailable: 'Model worker unavailable',
-  source_facts_pending: 'Market updates still being processed', stale_authority_or_expired: 'Account state changed or proposal expired',
+  source_facts_pending: 'Market updates arrived while the proposal was being checked. Review the plan and resume when the account is ready.', stale_authority_or_expired: 'Account state changed or proposal expired',
   action_rejected: 'Execution checks rejected the action', owner_restart: 'Account owner restarted',
   control_pause: 'Trader paused the plan', control_cancel: 'Trader cancelled the plan',
   control_deadline: 'Plan deadline elapsed',
@@ -49,8 +42,8 @@ export function PolicyPanel({ config, runtime, fresh }: { config?: PolicyConfig;
       <p>{!fresh ? 'Refresh the account to see the latest recorded decision. These values are from the last loaded snapshot.' : outcome?.description ?? 'Create and start a plan to see real model proposals and Go decisions here.'}</p>
     </div>
     {runtime && <dl className="policy-actions">
-      <div><dt>Model proposal</dt><dd>{runtime.proposed_action ? actions[runtime.proposed_action] : runtime.result === 'pending' ? 'Waiting for response' : 'No usable proposal recorded'}</dd></div>
-      <div><dt>Go decision</dt><dd>{resolved ? runtime.result === 'fallback_pause' ? 'No model order applied' : actions[runtime.action] : 'No decision yet'}</dd></div>
+      <div><dt>Model proposal</dt><dd>{runtime.proposed_action ? policyActionLabel(runtime.proposed_action) : runtime.result === 'pending' ? 'Waiting for response' : 'No usable proposal recorded'}</dd></div>
+      <div><dt>Go decision</dt><dd>{resolved ? runtime.result === 'fallback_pause' ? 'No model order applied' : policyActionLabel(runtime.action) : 'No decision yet'}</dd></div>
     </dl>}
     {runtime?.reason && <p className="policy-reason">{reasons[runtime.reason] ?? 'See the recorded reason in decision details.'}</p>}
     <div className="policy-footer"><span>On unavailable/invalid proposals: <strong>{policy.fallback === 'pause' ? 'Pause trading' : 'Use baseline when eligible'}</strong></span>{resolved && decisionTime(runtime.resolved_at) && <time dateTime={runtime.resolved_at}>Decided {decisionTime(runtime.resolved_at)}</time>}</div>

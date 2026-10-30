@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { Download, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
 import { ApiError } from '../lib/api';
 import { history, type SessionEvent, type SessionReport, type SessionSummary } from '../lib/history';
+import { policyActionLabel } from '../lib/policy';
+import './policy.css';
 import './history.css';
 
 const PAGE_SIZE = 20;
@@ -197,6 +199,8 @@ function ReportView({ report, provisional }: { report: SessionReport; provisiona
   const costs = report.marked_cost_estimate_quote === null ? '—' : `${report.marked_cost_estimate_quote} ${report.quote_currency}`;
   const opportunity = report.residual_opportunity_quote === null ? '—' : `${report.residual_opportunity_quote} ${report.quote_currency}`;
   const feeCurrency = (currency: string) => currency === 'quote' ? report.quote_currency : currency === 'base' ? report.base_currency : currency;
+  const policy = report.policy_runtime;
+  const decisionResolved = policy && policy.result !== 'waiting' && policy.result !== 'pending';
   return <div className="history-report">
     <div className="history-report-title"><div><h3>{report.side.toUpperCase()} {report.symbol}</h3></div><span className={`state-tag ${report.known_final ? 'tag-done' : 'tag-wait'}`}>{report.known_final ? 'Final' : 'Provisional'}</span></div>
     <p className="history-status">{report.known_final ? 'Final state is known' : 'State is provisional'} · Saved revision {report.as_of_revision} · {report.deadline_result.replaceAll('-', ' ')} · {report.profile} / {report.data_source}{provisional ? ' · Inspecting saved revision' : ''}</p>
@@ -205,6 +209,13 @@ function ReportView({ report, provisional }: { report: SessionReport; provisiona
     <div className="history-metrics"><Metric label="Completion" value={`${report.completion_percent}%`} /><Metric label="Filled / size" value={`${report.plan.filled} / ${report.quantity}`} /><Metric label="Remaining" value={report.plan.remaining} /><Metric label="Average price" value={report.plan.average_price} unit={report.quote_currency} /><Metric label="Cost vs. start price" value={String(report.plan.executed_cost_quote ?? '—')} unit={report.quote_currency} /><Metric label="Fees paid" value={`${report.plan.fees_quote} ${report.quote_currency}`} /><Metric label="Base fees" value={`${report.plan.fees_base} ${report.base_currency}`} /></div>
     <div className="history-accounting"><div><span>Unfilled amount cost estimate</span><strong>{opportunity}</strong></div><div><span>Total marked cost estimate</span><strong>{costs}</strong></div></div>
     <p className="panel-note">These estimates compare fills and unfilled quantity with the starting price. They are not profit or loss. The unfilled amount uses the {report.residual_reference_kind.replaceAll('-', ' ')}{report.residual_reference_mid !== null ? ` midpoint ${report.residual_reference_mid}` : ''} recorded at revision {report.residual_reference_revision}. The reference is fixed at the first final state when available; otherwise it uses the observed report revision.</p>
+    {policy && <section className="history-policy" aria-label="Saved model decision">
+      <h4>Saved model decision</h4>
+      <p className="history-status">{policy.profile === 'shadow' ? 'Shadow mode' : 'Paper mode'} · {policy.promotion_status === 'unvalidated' ? 'Unvalidated model' : policy.promotion_status} · {policy.result.replaceAll('_', ' ')}</p>
+      <dl className="policy-actions"><div><dt>Model proposal</dt><dd>{policy.proposed_action ? policyActionLabel(policy.proposed_action) : 'No usable proposal recorded'}</dd></div><div><dt>Go decision</dt><dd>{decisionResolved ? policy.result === 'fallback_pause' ? 'No model order applied' : policyActionLabel(policy.action) : 'No decision at this revision'}</dd></div></dl>
+      <p className="panel-note">Recorded reason: {policy.reason ? policy.reason.replaceAll('_', ' ') : 'none yet'}. This is the decision saved at revision {report.as_of_revision}; it does not describe the current account. Execution constraints can produce no new order. Choose a policy activity event below to inspect another saved decision.</p>
+      <details className="history-policy-details"><summary>Decision provenance</summary><dl><dt>Observed snapshot</dt><dd>{policy.observation_snapshot_id || 'None yet'}</dd><dt>Applied snapshot</dt><dd>{policy.applied_snapshot_id || 'None yet'}</dd><dt>Resolved at</dt><dd>{policy.resolved_at.startsWith('0001-') ? 'Not resolved at this revision' : iso(policy.resolved_at)}</dd><dt>Fallback</dt><dd>{policy.fallback}</dd></dl></details>
+    </section>}
     <div className="history-fills-title"><strong>Simulated fills <span className="fill-count">{report.fills.length}</span></strong></div>
     <div className="history-fill-table"><table><thead><tr><th>Side / quantity</th><th>Price</th><th>Fee</th><th>Liquidity</th></tr></thead><tbody>{visibleRows.map((fill) => <tr key={fill.execution_id}><td>{fill.side.toUpperCase()} {fill.quantity}</td><td>{fill.price}</td><td>{fill.fee} {feeCurrency(fill.fee_currency)}</td><td>{fill.maker ? 'Maker' : 'Taker'}</td></tr>)}{!visibleRows.length && <tr><td colSpan={4} className="table-empty">No simulated fills recorded.</td></tr>}</tbody></table></div>
     {report.fills.length > fillsPageSize && <div className="history-fill-pagination">
