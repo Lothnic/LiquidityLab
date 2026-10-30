@@ -21,9 +21,15 @@ produced an accepted model action and a `0.01 BTC` simulated fill. Portable
 Go/frontend/Python images and a resource-bounded Compose lifecycle now build and
 run locally, including actual PPO preparation, scoped account access, audited
 worker-unavailable fallback, cancellation and terminal-account restart. Its
-healthy-worker attempts paused on expiry/source backlog, so successful repeatable
-packaged model execution remains a beta blocker. Container active-session/fill
-recovery, hosted access, operational gates and browser sign-off remain open. See
+initial healthy-worker attempts paused on expiry/source backlog. The bounded
+handoff fix `b795231` subsequently completed a packaged `0.1 BTC` plan through 50
+simulated fills without operator resumes; restart preserved both reports, 51 fill
+identities and balances across two sessions. Full Go race verification passes
+1,186 test/subtest events with no skipped test cases, and the updated binary passes
+216 Python checks. The UI now passes 78 checks across seven files plus its
+production build. An explicit 31 October image refresh resumed the retained
+account ready with both pinned reports intact. Supported reliability/latency, active-session recovery under
+load, hosted access, operational gates and browser sign-off remain open. See
 the [demo guide](rl-paper-demo.md) and [package evidence](../deployment/README.md).
 
 ## Verified starting state
@@ -31,7 +37,7 @@ the [demo guide](rl-paper-demo.md) and [package evidence](../deployment/README.m
 - Python reference environment, accounting, recorder, baseline CLI, PPO integration, and 40 checks were implemented before this migration.
 - Migration plan is committed as `9851b87`.
 - Go 1.26.8 and Protobuf compiler are available on the implementation host.
-- Docker's configured daemon is unavailable; a local PostgreSQL 18.6 development instance was provisioned instead. Earlier integration work reports passing real-PostgreSQL race checks for account transitions, ownership, reservations, dispatch and the observation inbox. This is development evidence, not a production restore or failover drill.
+- Early integration used a local PostgreSQL 18.6 development instance because the configured Docker Desktop socket was unavailable. Docker context `default` is now verified and used for the isolated packaged beta. Earlier integration work reports passing real-PostgreSQL race checks for account transitions, ownership, reservations, dispatch and the observation inbox. This is development evidence, not a production restore or failover drill.
 - A bounded real public Kraken BTC/USD capture is committed in `8c7e329`, with Go/Python normalization conformance. It verifies this capture slice only; broader corruption/recovery coverage and operational gates remain.
 - No private exchange credentials, live pilot authorization, or real-money verification has been obtained.
 

@@ -1,0 +1,143 @@
+{
+  "schema": "liquiditylab.beta-conformance-results.v1",
+  "date": "2026-10-30",
+  "purpose": "Native paper beta software-correctness evidence for the Go runtime handoff.",
+  "scope_caveat": "These suites provide software correctness evidence only. They do not establish model quality, savings, win rate, production readiness, hosted reliability, or capacity/latency performance.",
+  "host_context": {
+    "os": "Linux",
+    "kernel": "7.0.0-38-generic",
+    "architecture": "x86_64",
+    "go_version": "go1.26.8",
+    "python_version": "3.12.11",
+    "node_version": "v26.5.0",
+    "npm_version": "11.17.0",
+    "resource_environment": {
+      "GOMAXPROCS": 4,
+      "OMP_NUM_THREADS": 1,
+      "MKL_NUM_THREADS": 1,
+      "OPENBLAS_NUM_THREADS": 1
+    },
+    "performance_claim": false,
+    "cpu_model": "AMD Ryzen 7 7840HS w/ Radeon 780M Graphics",
+    "logical_cpus": 16
+  },
+  "source_provenance": {
+    "runtime_fix_commit": "b795231d4737aff77c03d45cb7e086f92ee0dc69",
+    "runtime_file": "internal/runtime/policy.go",
+    "runtime_file_sha256": "69092680daf582056950dfa469d7a945fa8d5467b15351e0f02529c8a83c8b4b",
+    "runtime_file_git_blob": "143d0f4701adfd8672907b1a37278f570f3fb5cb",
+    "runtime_file_matches_commit": true,
+    "runtime_file_worktree_diff": "none",
+    "ordinary_go_binary": {
+      "path": "$WORK/bin/liquiditylabd-20261030-policy-handoff",
+      "sha256": "930f82419592f4716691c65f6d5effb486ace9a79f70b059835044b4bca9a983",
+      "build_vcs_revision": "bcb1d943277ebd97c279a06b959935eb243de9a9",
+      "build_vcs_time": "2026-10-30T12:30:57Z",
+      "build_vcs_modified": true,
+      "timing_note": "Built from the working tree before runtime fix commit b795231; go version -m reports modified=true. Do not treat this as a clean-commit build.",
+      "module_version": "v0.0.0-20261030123057-bcb1d943277e+dirty"
+    },
+    "ui_test_source_commit": "611003ffd367c85e7156240f8f44e2393886867c",
+    "runtime_files": {
+      "internal/runtime/actor.go": {
+        "sha256": "3b7848e3d3d1b81b6ea6cdb12cabfad16aadc799ea321613975195d6efdd5bb0"
+      },
+      "internal/runtime/actor_loop.go": {
+        "sha256": "7d7c9bab4cee64a8175c328d620dde8c0a67205c38565934fd450fe0b260a8ca"
+      },
+      "internal/runtime/policy.go": {
+        "sha256": "69092680daf582056950dfa469d7a945fa8d5467b15351e0f02529c8a83c8b4b"
+      },
+      "internal/runtime/policy_test.go": {
+        "sha256": "e98b6318acd8afbc549c7fa62a499e5b9d6317640dd329da90e28c8529b8017f"
+      }
+    },
+    "ui_files": {
+      "apps/web/src/lib/api.ts": {
+        "sha256": "de0efd5c6ff5f77bf7c2c1e387a8a94b447cb3345ef7dc5c3d6c00f49fa7a4b5",
+        "matches_commit": true
+      },
+      "apps/web/src/lib/api.test.ts": {
+        "sha256": "1b9ea40ab721b83d4c72d470dac09319477492f4bfd495e7c3e6e5d05ab3cbf5",
+        "matches_commit": true
+      },
+      "apps/web/src/lib/history.ts": {
+        "sha256": "c5b0fb5fc65e5593e8e39ca9f8682c0742633948a8812ecf8bd7f690e9ed7550",
+        "matches_commit": true
+      },
+      "apps/web/src/lib/time.ts": {
+        "sha256": "b55c37cc7f5655305edd1807a3a03c975fb312f2f6838b100569bab41626c781",
+        "matches_commit": true
+      },
+      "apps/web/src/ui/PolicyPanel.tsx": {
+        "sha256": "365942b7d1094d824ce7e336cf5b874c2a367a239748b2b7eef49ea4534e8d86",
+        "matches_commit": true
+      },
+      "apps/web/src/ui/PolicyPanel.test.tsx": {
+        "sha256": "2ef8e3a37d6c2a1e5103dade801996a9e354478c2a9bc7f9c0a07bffc537d480",
+        "matches_commit": true
+      }
+    }
+  },
+  "prerequisites": {
+    "postgres_test_dsn": "LIQUIDITYLAB_TEST_POSTGRES_DSN was configured for the Go integration suite; DSN value and credentials intentionally omitted.",
+    "python_interpreter": "$REPO/.venv/bin/python",
+    "replay_binary": "$WORK/bin/liquiditylabd-20261030-policy-handoff",
+    "python_worker_boundary": "LIQUIDITYLAB_PYTHON and LIQUIDITYLAB_REPLAY_BINARY were set to the venv interpreter and ordinary Go binary for Python integration tests.",
+    "go_python_boundary_test": "LIQUIDITYLAB_PYTHON and LIQUIDITYLAB_REPLAY_BINARY were set to absolute executables; the real worker boundary test passed."
+  },
+  "suites": [
+    {
+      "name": "go_race_full_suite",
+      "command": "GOMAXPROCS=4 go test -race -count=1 -json ./...",
+      "working_directory": "$REPO",
+      "exit_code": 0,
+      "test_events": {
+        "passed": 1186,
+        "failed": 0,
+        "skipped": 0
+      },
+      "no_test_packages": 3,
+      "counting_note": "Counts are individual JSON test events; package-level pass events are excluded. The three skip package events were packages with no test files, not skipped tests.",
+      "real_python_ppo_worker_boundary": {
+        "test": "TestPythonPPOWorkerBoundary",
+        "result": "passed",
+        "detail": "python_integration_test.go:229: real Go/Python PPO boundary passed with 20 features and semantic action 5"
+      },
+      "raw_log": "$WORK/beta-suites-20261030/full-go-policy-handoff.jsonl",
+      "raw_log_sha256": "9ae707b5c5cd0b5718be40cff14533ad55fb375b7988c9d55f7cb2542800202d"
+    },
+    {
+      "name": "python_suite_post_handoff_binary",
+      "command": "LIQUIDITYLAB_REPLAY_BINARY=\"$WORK/bin/liquiditylabd-20261030-policy-handoff\" LIQUIDITYLAB_PYTHON=\"$REPO/.venv/bin/python\" OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 .venv/bin/python -m pytest -q --junitxml=\"$WORK/beta-suites-20261030/python-policy-handoff.xml\"",
+      "working_directory": "$REPO",
+      "exit_code": 0,
+      "counts": {
+        "passed": 216,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "duration_seconds": 13.71,
+      "warning": "One Gymnasium deprecation warning: LiquidityLab-SpotExecution-v0 is out of date; upgrade recommendation is v1.",
+      "raw_log": "$WORK/beta-suites-20261030/python-policy-handoff.log",
+      "raw_log_sha256": "b2e7d6281102e516ad27873bc2adab01c4ae95198961d4c58d5ea80689289189",
+      "junit_xml": "$WORK/beta-suites-20261030/python-policy-handoff.xml",
+      "junit_xml_sha256": "d01ca7f758ecdeedb667c091030ade0cf649fc9ac6fa1492d64a95c37125d496"
+    },
+    {
+      "name": "frontend",
+      "command": "npm test",
+      "working_directory": "$REPO/apps/web",
+      "exit_code": 0,
+      "files_passed": 7,
+      "tests_passed": 78,
+      "failed": 0,
+      "skipped": 0,
+      "raw_log": "$WORK/beta-suites-20261030/frontend-policy-final.log",
+      "raw_log_sha256": "b1427fd6f858eb50fb263760d313e21692f2be255c9d177989cbd66b2a10cadd",
+      "production_build": "npm run build passed",
+      "coverage_note": "Includes model configuration, all semantic action labels, pending/stale/shadow/fallback/current-versus-next plan states and strict calendar timestamp validation. Browser/mobile visual sign-off remains open."
+    }
+  ]
+}

@@ -1,0 +1,117 @@
+{
+  "balances_equal": true,
+  "before_balances": [
+    {
+      "currency": "BTC",
+      "total": "1.101",
+      "free": "1.101",
+      "locked": "0"
+    },
+    {
+      "currency": "USD",
+      "total": "9989.87914807",
+      "free": "9989.87914807",
+      "locked": "0"
+    }
+  ],
+  "after_balances": [
+    {
+      "currency": "BTC",
+      "total": "1.101",
+      "free": "1.101",
+      "locked": "0"
+    },
+    {
+      "currency": "USD",
+      "total": "9989.87914807",
+      "free": "9989.87914807",
+      "locked": "0"
+    }
+  ],
+  "final_child": null,
+  "final_reserved": [
+    {
+      "currency": "BTC",
+      "amount": "0"
+    },
+    {
+      "currency": "USD",
+      "amount": "0"
+    }
+  ],
+  "ready": true,
+  "recovery_required": false,
+  "reports": {
+    "completed": {
+      "exact_parsed_pinned_report_equal": true,
+      "execution_ids_equal": true,
+      "fill_count": 50,
+      "execution_ids": [
+        "paper-trade-6219e5ec75733d27abe7d9986eba8fa66f2063dc452bfadfae43f244fdf77a29-fill",
+        "paper-child-224bdec140dc3dd55cdb0e40b88f30b8-1",
+        "paper-child-d053d344ede7556a2e6fbf3a67771b5c-1",
+        "paper-child-ac4b65513d014c8259ef06e34235e146-1",
+        "paper-child-7d50755d892e15148d9c3a5f5edc0dd0-1",
+        "paper-child-2861e77e212cbca811a52d6c6f2176f8-1",
+        "paper-child-5fd2ebf9eb528e00255853fe23f89ae8-1",
+        "paper-child-c188ff9901203d5b707d2015674a8af3-1",
+        "paper-child-e6fcfe081737db02b791ff6d2c4ce3b2-1",
+        "paper-child-a4b4c5f89f34c3127a92a508f8cfc681-1",
+        "paper-child-c8f2a1f4eafce37b0d0d9a9150d0fb40-1",
+        "paper-child-4d10fd9cfd5cfdcd2cf04524f706066f-1",
+        "paper-child-187ce9850f8115b0787194fcf872d3f3-1",
+        "paper-child-e148e5ca029b7fc4306562b8bca3ccd9-1",
+        "paper-child-1e46f3ffad5a9f34309d0f2c29e3f823-1",
+        "paper-child-d60c2963ee64f0327159b93deb517318-1",
+        "paper-child-ca380a7fd6512c71571f34e41fbbe9f5-1",
+        "paper-child-56071ccb321b49d8c3484fd003b3c9f0-1",
+        "paper-child-6ae026ef58c3d0e4887270328c6966ef-1",
+        "paper-child-14033d168c85c283778d657d262f127f-1",
+        "paper-child-a14c1d6f2567db6c4711592df60b0beb-1",
+        "paper-child-142c3411da9b0048b118d1fa7b86bfe1-1",
+        "paper-child-eed787c349912e3a82dc67b8a8867e92-1",
+        "paper-child-8ab56f6c93a625df807c03265b6b0570-1",
+        "paper-child-56c59157cc5b4482128d78407c7d2f4d-1",
+        "paper-child-e6d2f688f5d32a669e48d8358caef7af-1",
+        "paper-child-215895217ca82cf3f26c6946c3aad88c-1",
+        "paper-child-28cd27015197e69b9a9fedba2e1fb450-1",
+        "paper-child-fd37c6912a4c480666fd93f8a88e0678-1",
+        "paper-child-7face180aa0282765c45b07c8b2acb85-1",
+        "paper-child-dac91adaad558ce4f9e72ed7850b5867-1",
+        "paper-child-5638201672221fed9135459751992822-1",
+        "paper-child-b1d120b801d61d3b3621400bff7ffc31-1",
+        "paper-child-ecb36b5b0b63654032aa15040028bd21-1",
+        "paper-child-bd47d36a70aaafd10010e59707609aad-1",
+        "paper-child-d10519439fd920f1f86564319ac4ce03-1",
+        "paper-child-0bd60ebe6fdfb6c032ac85a50b440270-1",
+        "paper-child-117f93c58089223b9962f9e8c846c59b-1",
+        "paper-child-342b5db6c6abf64c4674b1f6c7460023-1",
+        "paper-child-e297c07dd9a7fc07052b01b1e4f4fa5c-1",
+        "paper-child-690ed0c5958e409babd3e58d8e795044-1",
+        "paper-child-6e5cae6ed6132dce58a6d8a3e116723e-1",
+        "paper-child-08a12f7c66d4b7e07fc6865096aeedda-1",
+        "paper-child-99f7cec3370e77d561752d00fdb8ece6-1",
+        "paper-child-81f06962435a960f2fd92b4d7059a673-1",
+        "paper-child-a86dea9f33ab2bd89dfe96fb0808c037-1",
+        "paper-child-ea2f9f5b3f88fcab311b93a52bb9ec80-1",
+        "paper-child-788ebf661169324798aea4d6b054d96a-1",
+        "paper-child-ad4eaf540c12e0d7716ea88a97d5fb24-1",
+        "paper-child-1973931fac6b94e0a5bd2c1172b8306f-1"
+      ],
+      "status": "completed",
+      "known_final": true,
+      "as_of_revision": 3569
+    },
+    "cancelled": {
+      "exact_parsed_pinned_report_equal": true,
+      "execution_ids_equal": true,
+      "fill_count": 1,
+      "execution_ids": [
+        "paper-trade-992a4c82349a02bc8beca75a04d0d4a243f286577dccb3da2731e1d003b73f5b-fill"
+      ],
+      "status": "cancelled",
+      "known_final": true,
+      "as_of_revision": 3736
+    }
+  }
+}

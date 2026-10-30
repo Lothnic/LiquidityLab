@@ -120,7 +120,7 @@ The container path was run on 2026-10-30. From the repository root,
 `deployment/demo.sh init`, `build`, `prepare`, then `create` initialized local
 secrets, built the images, trained a 2,048 step Go-backed CPU PPO bundle, and
 started paper mode on host loopback port 18882. PostgreSQL and the worker were
-healthy, and create/start/cancel/stop/resume commands ran. The container run did
+healthy, and create/start/cancel/stop/resume commands ran. That initial run did
 not produce an accepted policy action or a fill: its first decision paused with
 `expired`, and operator resumes paused with `source_facts_pending`. In a
 separate worker-loss step, stopping the worker followed by an authorized
@@ -132,6 +132,18 @@ does not demonstrate active-session recovery or fill retention. See the
 for the tested scope, revisions, and limitations. The container defaults to a synthetic feed
 and `pause` fallback, uses a private Unix socket, and binds the web endpoint to
 host loopback.
+
+After the bounded result handoff in `b795231`, the same immutable model completed
+an actual `0.1 BTC` paper plan through 50 simulated fills in about 126 seconds,
+without operator resumes or changes to the 100 ms proposal budget or 500 ms feed.
+A second plan produced one maker fill and subsequently paused on expiry before
+the worker was stopped. Stop/resume retained both revision-pinned reports, all
+51 execution identities and exact balances. See the
+[post-handoff evidence](../deployment/evidence/2026-10-30-handoff/README.md).
+The [31 October refresh](../deployment/evidence/2026-10-31-refresh/README.md)
+also retained these records and recovered a ready account with the rebuilt UI.
+These bounded observations establish the integration and simulated execution;
+they do not establish policy quality, reliable latency or continuous feed service.
 
 The Python worker owns one immutable PPO model and handles one inference at a
 time. The Go actor freezes a bound request, calls the worker asynchronously,

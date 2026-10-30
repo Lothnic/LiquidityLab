@@ -13,10 +13,10 @@ Deployment preparation comes first; the hosting provider and domain will be
 selected afterward.
 
 Try the [RL paper demo](docs/rl-paper-demo.md) or the
-[portable container setup](deployment/README.md). A native run accepted a real
-model action and produced a simulated fill. The container workflow builds,
-trains and recovers its account, but repeatable model execution in that package
-remains an open beta gate.
+[portable container setup](deployment/README.md). A trained policy completed a
+synthetic `0.1 BTC` plan through 50 simulated fills in the local container stack.
+Restart retained its report, fill identities and balances. The model remains
+unvalidated; hosted access, reliability and operational release gates remain open.
 
 ## The trading workflow
 

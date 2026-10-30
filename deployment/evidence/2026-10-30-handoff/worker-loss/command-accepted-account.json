@@ -1,0 +1,108 @@
+{
+  "policy_runtime": {
+    "policy_sha256": "506b1eff74b090e0a8b72c407e8271aa649db87f8323ad344f643a1f67697b26",
+    "profile": "paper",
+    "fallback": "pause",
+    "promotion_status": "unvalidated",
+    "result": "waiting",
+    "reason": "",
+    "action": 1,
+    "observation_snapshot_id": "",
+    "applied_snapshot_id": "",
+    "expires_at": "0001-01-01T00:00:00Z",
+    "resolved_at": "0001-01-01T00:00:00Z"
+  },
+  "policy_config": {
+    "policy_sha256": "506b1eff74b090e0a8b72c407e8271aa649db87f8323ad344f643a1f67697b26",
+    "profile": "paper",
+    "fallback": "pause",
+    "promotion_status": "unvalidated"
+  },
+  "tenant_id": "synthetic-paper-daemon",
+  "account_id": "demo",
+  "profile": "paper",
+  "data_source": "synthetic",
+  "revision": 3638,
+  "authority_revision": 3637,
+  "ready": true,
+  "recovery_required": false,
+  "plan_status": "paused",
+  "base_currency": "BTC",
+  "quote_currency": "USD",
+  "clock_discontinuity": false,
+  "market": {
+    "valid": true,
+    "snapshot_id": "web-feed-d4ef7de9df5ba74bb3b96f8b-334",
+    "instrument_revision": "synthetic-rules-v1",
+    "best_bid": "99.99",
+    "best_ask": "100.01"
+  },
+  "rules": {
+    "symbol": "BTC/USD",
+    "tick_size": "0.01",
+    "lot_size": "0.001",
+    "min_quantity": "0.001",
+    "min_notional": "0.01"
+  },
+  "fees": {
+    "maker": "0.001",
+    "taker": "0.002",
+    "currency": "quote",
+    "source": "synthetic-assumption"
+  },
+  "balances": [
+    {
+      "currency": "BTC",
+      "total": "1.1",
+      "free": "1.1",
+      "locked": "0"
+    },
+    {
+      "currency": "USD",
+      "total": "9989.97923806",
+      "free": "9989.97923806",
+      "locked": "0"
+    }
+  ],
+  "reserved": [
+    {
+      "currency": "BTC",
+      "amount": "0"
+    },
+    {
+      "currency": "USD",
+      "amount": "0"
+    }
+  ],
+  "plan": {
+    "id": "container-ppo-handoff-loss-20261030-c",
+    "revision": 1,
+    "status": "paused",
+    "started": false,
+    "start": "0001-01-01T00:00:00Z",
+    "deadline": "2026-10-30T12:48:39.863278Z",
+    "spec": {
+      "side": "buy",
+      "quantity": "0.02",
+      "limit_price": "102",
+      "deadline_ns": 300000000000,
+      "max_child_quantity": "0.01",
+      "quote_budget": "1000",
+      "base_balance": "1",
+      "symbol": "BTC/USD"
+    },
+    "policy": "liquidity-aware",
+    "filled": "0",
+    "remaining": "0.02",
+    "average_price": "0",
+    "arrival_mid": "0",
+    "benchmark_valid": false,
+    "executed_cost_quote": null,
+    "fees_base": "0",
+    "fees_quote": "0"
+  },
+  "child": null,
+  "fills": [],
+  "fill_count": 0,
+  "fills_truncated": false
+}

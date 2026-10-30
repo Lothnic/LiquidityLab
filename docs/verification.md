@@ -605,3 +605,32 @@ paper-session source binding/replay jobs/UI, design-user acceptance, immutable
 policy evaluation/promotion, private adapter/reconciliation, deployment,
 soak/restore and authorized live evidence remain incomplete. The full goal is
 active.
+
+
+## RL paper beta execution checkpoint — 30–31 October 2026
+
+The [handoff suite record](../conformance/results/20261030-paper-beta-handoff.json)
+retains the full uncached Go race run (1,186 passing test/subtest events, no failing
+or skipped test cases), 216 Python checks without skips and 78 UI checks across
+seven files plus the production build. Go used actual PostgreSQL and Python/replay
+paths. Three Go packages have no test files. The record distinguishes runtime
+source `b795231`, UI source `611003f` and the pre-commit replay binary's modified
+build metadata; it must not be described as a clean-source release build.
+
+The [packaged execution evidence](../deployment/evidence/2026-10-30-handoff/README.md)
+records a real Go-backed PPO model completing a `0.1 BTC` plan through 50 simulated
+fills, followed by one maker fill in a second, later cancelled plan. No operator
+resume was needed to finish the first plan. Exact parsed revision-pinned reports,
+all 51 execution identities, balances and zero remaining reservations survived
+stop/resume. The second plan's expiry occurred before the worker's SIGTERM, so
+that step does not establish worker-loss causality. Earlier worker-unavailable
+fallback evidence remains separately scoped.
+
+An [explicit image refresh](../deployment/evidence/2026-10-31-refresh/README.md)
+on 31 October observed HTTP availability and account readiness while retaining
+the same model, account and reports. These are bounded local observations, not a
+public deployment, uptime guarantee, strategy-quality benchmark or capacity claim.
+Browser/mobile review remains blocked by the browser access restriction. The
+historical native feed interruption still has no established cause; supported
+feed reliability, hosted access, backup/restore, retention and soak remain beta
+gates in the [milestone checklist](hosted-paper-beta.md).

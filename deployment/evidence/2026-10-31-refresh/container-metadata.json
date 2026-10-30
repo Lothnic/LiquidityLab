@@ -1,0 +1,47 @@
+[
+  {
+    "service": "db",
+    "container_id": "e7eeb4afde2780c9d5d6d0a1773b0d500581d586a8ffa47b61361b5377d77761",
+    "image_id": "sha256:dc3f873bf9f13956c6821197edd8e0224b93086f3312830faf5d76699d43710b",
+    "image": "postgres:18.6-bookworm",
+    "state": "running",
+    "health": "healthy",
+    "ports": {
+      "5432/tcp": null
+    }
+  },
+  {
+    "service": "worker",
+    "container_id": "ffd7c48051504b8d1145472f49733449ea1376a60b610be6ef16e9fa748dfde2",
+    "image_id": "sha256:eba1c8f941d2c61f993b36d7609726a284732186f6a8c7679c56ca6497ccc8de",
+    "image": "liquiditylab-rlbeta-20261030-worker",
+    "state": "running",
+    "health": "healthy",
+    "ports": {}
+  },
+  {
+    "service": "paper",
+    "container_id": "cddd9f71a3664044bd3f2d91025c760025fccb30d5e53957c46594ccf8f38331",
+    "image_id": "sha256:31840a6d4b7b7a26dbb7159dd82480c940b95c58f8a35df95dc1d1edfa7e9d6c",
+    "image": "liquiditylab-rlbeta-20261030-paper",
+    "state": "running",
+    "health": "healthy",
+    "ports": {
+      "8081/tcp": [
+        {
+          "HostIp": "127.0.0.1",
+          "HostPort": "18882"
+        }
+      ]
+    }
+  },
+  {
+    "service": "edge",
+    "container_id": "d1af6aedad5686b6c177e0ca1804e279f3dcd9bd7ca14e86c3a3f2b213bee1ff",
+    "image_id": "sha256:34e04bb6b4bb37d45845842374be0cd181723daffb230849b1984aaeaa96faba",
+    "image": "nginx:1.28-bookworm",
+    "state": "running",
+    "health": null,
+    "ports": {}
+  }
+]

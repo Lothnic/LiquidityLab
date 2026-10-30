@@ -1,0 +1,18 @@
+{
+  "id": "container-handoff-20261030-create-1793364219861388731",
+  "kind": "create",
+  "expected_revision": 3636,
+  "expected_authority_revision": 3568,
+  "plan_id": "container-ppo-handoff-loss-20261030-c",
+  "policy": "liquidity-aware",
+  "plan": {
+    "symbol": "BTC/USD",
+    "side": "buy",
+    "quantity": "0.02",
+    "limit_price": "102",
+    "deadline_ns": 300000000000,
+    "max_child_quantity": "0.01",
+    "quote_budget": "1000",
+    "base_balance": "1"
+  }
+}

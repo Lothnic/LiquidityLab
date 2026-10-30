@@ -61,10 +61,10 @@ their actual assumption labels. No private exchange credentials are required.
 
 ### RL-assisted paper demo
 
-- [ ] Build and train a real PPO bundle through the Go-backed environment. Retain
+- [x] Build and train a real PPO bundle through the Go-backed environment. Retain
       its model hash, training settings, source-data identity and simulator
       assumptions. A short demo training run does not establish trading quality.
-- [ ] Package the Python CPU worker and pinned bundle alongside the Go service,
+- [x] Package the Python CPU worker and pinned bundle alongside the Go service,
       using a private local transport, bounded resources and no exchange secrets.
       Startup verifies the model hash and observation schema before account use.
 - [ ] In paper mode, actual model proposals pass through Go's ordinary execution
@@ -163,17 +163,34 @@ The [portable package](../deployment/README.md) also built its images, trained a
 separate Go-backed CPU policy, created a ready account and served the desk/API in
 an isolated local Docker project. Worker loss produced an audited
 `fallback_pause / worker_unavailable`; cancellation and stop/resume retained the
-terminal account and reports. Its healthy-worker attempts paused on expiry and
-pending source facts, with no accepted policy action or fill. Repeatable
-packaged RL execution remains a release blocker. The retained terminal restart
-does not prove active-session or fill recovery in the package.
+terminal account and reports. Initially its healthy-worker attempts paused on
+expiry and pending source facts, with no accepted policy action or fill.
+
+The bounded result handoff in `b795231` subsequently let ordinary source quanta
+catch up before applying the still-bound proposal. With the same immutable model,
+100 ms proposal budget and 500 ms synthetic feed, the packaged plan completed
+`0.1 BTC` through 50 simulated fills in roughly 126 seconds, without operator
+resumes. A second plan produced a maker fill, then paused on expiry before the
+worker was stopped; it does not prove a worker-caused fallback after the fix.
+Stop/resume retained both pinned reports, all 51 execution identities and balances,
+with no remaining child or reservation. See the [post-fix evidence](../deployment/evidence/2026-10-30-handoff/README.md).
+An [explicit refresh on 31 October](../deployment/evidence/2026-10-31-refresh/README.md)
+rebuilt the images and resumed the same deployment without training, account
+creation or new trading. The account was ready, the service healthy and both
+pinned reports retained. This closes the missing packaged execution demonstration. Supported latency,
+fallback/recovery rates, broader workload coverage and soak remain open gates.
 
 The Go execution/store, authenticated API, baseline paper desk and history are
-implemented. The 48 existing UI checks pass against the new RL views, along with
-the production build; they do not establish dedicated RL-view or browser coverage.
-The 216 Python checks pass without skips using the fixed pre-handoff Go replay
-binary. The new Go/API code builds, and the source design detector reports no
-findings. Full Go verification of the policy-result handoff is still pending.
+implemented. All 78 UI checks across seven files pass, along with the production
+build. Dedicated cases cover proposal/action labels, pending, stale, shadow and
+fallback states, current versus next-plan configuration, saved decision binding
+and strict calendar timestamps. This does not establish browser or mobile coverage.
+The 216 Python checks pass without skips using the updated Go replay binary.
+The full uncached Go race suite passes with actual PostgreSQL and Python paths:
+1,186 test/subtest pass events, zero failing or skipped test cases. Three packages
+have no test files. The source design detector reports no findings. The
+[suite record](../conformance/results/20261030-paper-beta-handoff.json) retains
+commands, counts, artifact hashes and the pre-commit binary build caveat.
 Post-cleanup browser/mobile sign-off remains open after browser access was
 blocked. Earlier PostgreSQL race, conformance and process-recovery evidence is
 recorded in [verification.md](verification.md); it does not validate deployment

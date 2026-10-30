@@ -1,0 +1,660 @@
+{
+  "policy_runtime": {
+    "policy_sha256": "506b1eff74b090e0a8b72c407e8271aa649db87f8323ad344f643a1f67697b26",
+    "profile": "paper",
+    "fallback": "pause",
+    "promotion_status": "unvalidated",
+    "result": "policy_action",
+    "reason": "accepted",
+    "action": 6,
+    "proposed_action": 6,
+    "observation_snapshot_id": "web-feed-d4ef7de9df5ba74bb3b96f8b-263",
+    "applied_snapshot_id": "web-feed-d4ef7de9df5ba74bb3b96f8b-264",
+    "expires_at": "2026-10-30T12:43:04.997176361Z",
+    "resolved_at": "2026-10-30T12:43:04.913187915Z"
+  },
+  "policy_config": {
+    "policy_sha256": "506b1eff74b090e0a8b72c407e8271aa649db87f8323ad344f643a1f67697b26",
+    "profile": "paper",
+    "fallback": "pause",
+    "promotion_status": "unvalidated"
+  },
+  "tenant_id": "synthetic-paper-daemon",
+  "account_id": "demo",
+  "profile": "paper",
+  "data_source": "synthetic",
+  "revision": 3636,
+  "authority_revision": 3568,
+  "ready": true,
+  "recovery_required": false,
+  "plan_status": "completed",
+  "base_currency": "BTC",
+  "quote_currency": "USD",
+  "clock_discontinuity": false,
+  "market": {
+    "valid": true,
+    "snapshot_id": "web-feed-d4ef7de9df5ba74bb3b96f8b-333",
+    "instrument_revision": "synthetic-rules-v1",
+    "best_bid": "99.99",
+    "best_ask": "100.01"
+  },
+  "rules": {
+    "symbol": "BTC/USD",
+    "tick_size": "0.01",
+    "lot_size": "0.001",
+    "min_quantity": "0.001",
+    "min_notional": "0.01"
+  },
+  "fees": {
+    "maker": "0.001",
+    "taker": "0.002",
+    "currency": "quote",
+    "source": "synthetic-assumption"
+  },
+  "balances": [
+    {
+      "currency": "BTC",
+      "total": "1.1",
+      "free": "1.1",
+      "locked": "0"
+    },
+    {
+      "currency": "USD",
+      "total": "9989.97923806",
+      "free": "9989.97923806",
+      "locked": "0"
+    }
+  ],
+  "reserved": [
+    {
+      "currency": "BTC",
+      "amount": "0"
+    },
+    {
+      "currency": "USD",
+      "amount": "0"
+    }
+  ],
+  "plan": {
+    "id": "container-ppo-handoff-20261030-b",
+    "revision": 3,
+    "status": "completed",
+    "started": true,
+    "start": "2026-10-30T12:40:59.113896616Z",
+    "deadline": "2026-10-30T12:50:58.975108Z",
+    "spec": {
+      "side": "buy",
+      "quantity": "0.1",
+      "limit_price": "102",
+      "deadline_ns": 599861211384,
+      "max_child_quantity": "0.01",
+      "quote_budget": "1000",
+      "base_balance": "1",
+      "symbol": "BTC/USD"
+    },
+    "policy": "liquidity-aware",
+    "filled": "0.1",
+    "remaining": "0",
+    "average_price": "100.0096",
+    "arrival_mid": "100",
+    "benchmark_valid": true,
+    "executed_cost_quote": "0.02076194",
+    "fees_base": "0",
+    "fees_quote": "0.01980194"
+  },
+  "child": null,
+  "fills": [
+    {
+      "execution_id": "paper-trade-6219e5ec75733d27abe7d9986eba8fa66f2063dc452bfadfae43f244fdf77a29-fill",
+      "order_id": "child-34a6c872802da824c6dc722db87e09f9",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "99.99",
+      "fee": "0.00019998",
+      "fee_currency": "quote",
+      "time_ns": 4289422656,
+      "maker": true
+    },
+    {
+      "execution_id": "paper-child-224bdec140dc3dd55cdb0e40b88f30b8-1",
+      "order_id": "child-224bdec140dc3dd55cdb0e40b88f30b8",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 30806735964,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-d053d344ede7556a2e6fbf3a67771b5c-1",
+      "order_id": "child-d053d344ede7556a2e6fbf3a67771b5c",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 32798115446,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-ac4b65513d014c8259ef06e34235e146-1",
+      "order_id": "child-ac4b65513d014c8259ef06e34235e146",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 34782468268,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-7d50755d892e15148d9c3a5f5edc0dd0-1",
+      "order_id": "child-7d50755d892e15148d9c3a5f5edc0dd0",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 36786163509,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-2861e77e212cbca811a52d6c6f2176f8-1",
+      "order_id": "child-2861e77e212cbca811a52d6c6f2176f8",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 38783432125,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-5fd2ebf9eb528e00255853fe23f89ae8-1",
+      "order_id": "child-5fd2ebf9eb528e00255853fe23f89ae8",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 40805796111,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-c188ff9901203d5b707d2015674a8af3-1",
+      "order_id": "child-c188ff9901203d5b707d2015674a8af3",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 42798137723,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-e6fcfe081737db02b791ff6d2c4ce3b2-1",
+      "order_id": "child-e6fcfe081737db02b791ff6d2c4ce3b2",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 44798675099,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-a4b4c5f89f34c3127a92a508f8cfc681-1",
+      "order_id": "child-a4b4c5f89f34c3127a92a508f8cfc681",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 46782962419,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-c8f2a1f4eafce37b0d0d9a9150d0fb40-1",
+      "order_id": "child-c8f2a1f4eafce37b0d0d9a9150d0fb40",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 48791131131,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-4d10fd9cfd5cfdcd2cf04524f706066f-1",
+      "order_id": "child-4d10fd9cfd5cfdcd2cf04524f706066f",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 50795272291,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-187ce9850f8115b0787194fcf872d3f3-1",
+      "order_id": "child-187ce9850f8115b0787194fcf872d3f3",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 52784109153,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-e148e5ca029b7fc4306562b8bca3ccd9-1",
+      "order_id": "child-e148e5ca029b7fc4306562b8bca3ccd9",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 54812812011,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-1e46f3ffad5a9f34309d0f2c29e3f823-1",
+      "order_id": "child-1e46f3ffad5a9f34309d0f2c29e3f823",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 56782371094,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-d60c2963ee64f0327159b93deb517318-1",
+      "order_id": "child-d60c2963ee64f0327159b93deb517318",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 58782507004,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-ca380a7fd6512c71571f34e41fbbe9f5-1",
+      "order_id": "child-ca380a7fd6512c71571f34e41fbbe9f5",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 60782245594,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-56071ccb321b49d8c3484fd003b3c9f0-1",
+      "order_id": "child-56071ccb321b49d8c3484fd003b3c9f0",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 62783356099,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-6ae026ef58c3d0e4887270328c6966ef-1",
+      "order_id": "child-6ae026ef58c3d0e4887270328c6966ef",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 64785942027,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-14033d168c85c283778d657d262f127f-1",
+      "order_id": "child-14033d168c85c283778d657d262f127f",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 66782265265,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-a14c1d6f2567db6c4711592df60b0beb-1",
+      "order_id": "child-a14c1d6f2567db6c4711592df60b0beb",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 68783115845,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-142c3411da9b0048b118d1fa7b86bfe1-1",
+      "order_id": "child-142c3411da9b0048b118d1fa7b86bfe1",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 70799939096,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-eed787c349912e3a82dc67b8a8867e92-1",
+      "order_id": "child-eed787c349912e3a82dc67b8a8867e92",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 72782628252,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-8ab56f6c93a625df807c03265b6b0570-1",
+      "order_id": "child-8ab56f6c93a625df807c03265b6b0570",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 74783142395,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-56c59157cc5b4482128d78407c7d2f4d-1",
+      "order_id": "child-56c59157cc5b4482128d78407c7d2f4d",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 76783667119,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-e6d2f688f5d32a669e48d8358caef7af-1",
+      "order_id": "child-e6d2f688f5d32a669e48d8358caef7af",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 78785580395,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-215895217ca82cf3f26c6946c3aad88c-1",
+      "order_id": "child-215895217ca82cf3f26c6946c3aad88c",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 80794079851,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-28cd27015197e69b9a9fedba2e1fb450-1",
+      "order_id": "child-28cd27015197e69b9a9fedba2e1fb450",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 82838310732,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-fd37c6912a4c480666fd93f8a88e0678-1",
+      "order_id": "child-fd37c6912a4c480666fd93f8a88e0678",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 84785309811,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-7face180aa0282765c45b07c8b2acb85-1",
+      "order_id": "child-7face180aa0282765c45b07c8b2acb85",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 86782835655,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-dac91adaad558ce4f9e72ed7850b5867-1",
+      "order_id": "child-dac91adaad558ce4f9e72ed7850b5867",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 88783948964,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-5638201672221fed9135459751992822-1",
+      "order_id": "child-5638201672221fed9135459751992822",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 90794453822,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-b1d120b801d61d3b3621400bff7ffc31-1",
+      "order_id": "child-b1d120b801d61d3b3621400bff7ffc31",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 92782432919,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-ecb36b5b0b63654032aa15040028bd21-1",
+      "order_id": "child-ecb36b5b0b63654032aa15040028bd21",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 94783879777,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-bd47d36a70aaafd10010e59707609aad-1",
+      "order_id": "child-bd47d36a70aaafd10010e59707609aad",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 96786432623,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-d10519439fd920f1f86564319ac4ce03-1",
+      "order_id": "child-d10519439fd920f1f86564319ac4ce03",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 98783720795,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-0bd60ebe6fdfb6c032ac85a50b440270-1",
+      "order_id": "child-0bd60ebe6fdfb6c032ac85a50b440270",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 100783196886,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-117f93c58089223b9962f9e8c846c59b-1",
+      "order_id": "child-117f93c58089223b9962f9e8c846c59b",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 102783090333,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-342b5db6c6abf64c4674b1f6c7460023-1",
+      "order_id": "child-342b5db6c6abf64c4674b1f6c7460023",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 104781239666,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-e297c07dd9a7fc07052b01b1e4f4fa5c-1",
+      "order_id": "child-e297c07dd9a7fc07052b01b1e4f4fa5c",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 106792958298,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-690ed0c5958e409babd3e58d8e795044-1",
+      "order_id": "child-690ed0c5958e409babd3e58d8e795044",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 108817679035,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-6e5cae6ed6132dce58a6d8a3e116723e-1",
+      "order_id": "child-6e5cae6ed6132dce58a6d8a3e116723e",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 110793620910,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-08a12f7c66d4b7e07fc6865096aeedda-1",
+      "order_id": "child-08a12f7c66d4b7e07fc6865096aeedda",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 112792589027,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-99f7cec3370e77d561752d00fdb8ece6-1",
+      "order_id": "child-99f7cec3370e77d561752d00fdb8ece6",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 114790590275,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-81f06962435a960f2fd92b4d7059a673-1",
+      "order_id": "child-81f06962435a960f2fd92b4d7059a673",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 116783456381,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-a86dea9f33ab2bd89dfe96fb0808c037-1",
+      "order_id": "child-a86dea9f33ab2bd89dfe96fb0808c037",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 118785797853,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-ea2f9f5b3f88fcab311b93a52bb9ec80-1",
+      "order_id": "child-ea2f9f5b3f88fcab311b93a52bb9ec80",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 120802460263,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-788ebf661169324798aea4d6b054d96a-1",
+      "order_id": "child-788ebf661169324798aea4d6b054d96a",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 122782721503,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-ad4eaf540c12e0d7716ea88a97d5fb24-1",
+      "order_id": "child-ad4eaf540c12e0d7716ea88a97d5fb24",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 124783637363,
+      "maker": false
+    },
+    {
+      "execution_id": "paper-child-1973931fac6b94e0a5bd2c1172b8306f-1",
+      "order_id": "child-1973931fac6b94e0a5bd2c1172b8306f",
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "100.01",
+      "fee": "0.00040004",
+      "fee_currency": "quote",
+      "time_ns": 126791966963,
+      "maker": false
+    }
+  ],
+  "fill_count": 50,
+  "fills_truncated": false
+}

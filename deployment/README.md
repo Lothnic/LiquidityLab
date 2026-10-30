@@ -166,3 +166,10 @@ retained through a complete stop/resume. See
 model/runtime digests, reports and checksums. The later startup check also observed
 an account requiring recovery while HTTP remained available. Feed continuity,
 latency/fallback rates, operational recovery and soak gates remain open.
+
+
+On 31 October the images were rebuilt and the same project explicitly resumed
+without retraining or new trading. The account was ready with no recovery
+requirement, child or reservations; both pinned reports remained known final.
+The [refresh evidence](evidence/2026-10-31-refresh/README.md) records the observed
+service health separately from account readiness and includes image identifiers.

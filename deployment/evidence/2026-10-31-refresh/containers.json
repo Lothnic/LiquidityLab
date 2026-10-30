@@ -1,0 +1,44 @@
+[
+  {
+    "Service": "db",
+    "State": "running",
+    "Health": "healthy",
+    "Image": "postgres:18.6-bookworm",
+    "Publishers": [
+      {
+        "URL": "",
+        "TargetPort": 5432,
+        "PublishedPort": 0,
+        "Protocol": "tcp"
+      }
+    ]
+  },
+  {
+    "Service": "edge",
+    "State": "running",
+    "Health": "",
+    "Image": "nginx:1.28-bookworm",
+    "Publishers": []
+  },
+  {
+    "Service": "paper",
+    "State": "running",
+    "Health": "healthy",
+    "Image": "liquiditylab-rlbeta-20261030-paper",
+    "Publishers": [
+      {
+        "URL": "127.0.0.1",
+        "TargetPort": 8081,
+        "PublishedPort": 18882,
+        "Protocol": "tcp"
+      }
+    ]
+  },
+  {
+    "Service": "worker",
+    "State": "running",
+    "Health": "healthy",
+    "Image": "liquiditylab-rlbeta-20261030-worker",
+    "Publishers": []
+  }
+]

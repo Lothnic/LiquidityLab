@@ -1,0 +1,49 @@
+[
+  {
+    "service": "db",
+    "image_id": "sha256:dc3f873bf9f13956c6821197edd8e0224b93086f3312830faf5d76699d43710b",
+    "state": "running",
+    "health": "healthy",
+    "memory": 536870912,
+    "nano_cpus": 1000000000,
+    "pids_limit": 128,
+    "port_bindings": {}
+  },
+  {
+    "service": "worker",
+    "image_id": "sha256:eba1c8f941d2c61f993b36d7609726a284732186f6a8c7679c56ca6497ccc8de",
+    "state": "running",
+    "health": "healthy",
+    "memory": 1073741824,
+    "nano_cpus": 1000000000,
+    "pids_limit": 64,
+    "port_bindings": {}
+  },
+  {
+    "service": "paper",
+    "image_id": "sha256:1740f63e2c607c027bdba639662f25e429442ead9c0217bb6a0f28ab67b5f447",
+    "state": "running",
+    "health": null,
+    "memory": 1073741824,
+    "nano_cpus": 1000000000,
+    "pids_limit": 128,
+    "port_bindings": {
+      "8081/tcp": [
+        {
+          "HostIp": "127.0.0.1",
+          "HostPort": "18882"
+        }
+      ]
+    }
+  },
+  {
+    "service": "edge",
+    "image_id": "sha256:34e04bb6b4bb37d45845842374be0cd181723daffb230849b1984aaeaa96faba",
+    "state": "running",
+    "health": null,
+    "memory": 134217728,
+    "nano_cpus": 500000000,
+    "pids_limit": 64,
+    "port_bindings": {}
+  }
+]
