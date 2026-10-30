@@ -1,0 +1,21 @@
+.git
+.venv
+**/__pycache__
+**/node_modules
+apps/web/dist
+apps/web/*.tsbuildinfo
+artifacts
+build
+data
+deployment/secrets
+.env
+.env.*
+*.pprof
+
+# Local outputs and caches mirrored from .gitignore; fixture sources remain included.
+liquiditylabd
+liquiditylab
+dist
+**/.pytest_cache
+**/.ruff_cache
+**/*.egg-info

@@ -1,0 +1,90 @@
+name: liquiditylab-paper-beta
+services:
+  db:
+    mem_limit: ${DB_MEMORY:-512m}
+    cpus: "${DB_CPUS:-1.0}"
+    pids_limit: ${DB_PIDS:-128}
+    image: postgres:18.6-bookworm
+    environment:
+      POSTGRES_USER: liquiditylab
+      POSTGRES_DB: liquiditylab
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+    secrets: [postgres_password]
+    volumes: [database:/var/lib/postgresql]
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U liquiditylab -d liquiditylab']
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    restart: unless-stopped
+  train:
+    mem_limit: ${TRAIN_MEMORY:-2g}
+    cpus: "${TRAIN_CPUS:-2.0}"
+    pids_limit: ${TRAIN_PIDS:-128}
+    profiles: [prepare]
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile
+      target: worker
+    entrypoint: [timeout, --signal=TERM, --kill-after=30s, "${TRAIN_TIMEOUT:-30m}", python]
+    command: [-m, liquiditylab.training, examples/training-tape.jsonl, --plan, examples/buy-plan.json, --backend, go, --replay-binary, /usr/local/bin/liquiditylabd, --num-envs, '4', --timesteps, '2048', --seed, '7', --output, /bundle/policy]
+    volumes: [bundle:/bundle]
+    network_mode: none
+  worker:
+    mem_limit: ${WORKER_MEMORY:-1g}
+    cpus: "${WORKER_CPUS:-1.0}"
+    pids_limit: ${WORKER_PIDS:-64}
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile
+      target: worker
+    volumes: [bundle:/bundle:ro, policy-run:/policy-run]
+    network_mode: none
+    healthcheck:
+      test: [CMD, python, -c, 'import socket; s=socket.socket(socket.AF_UNIX); s.settimeout(1); s.connect("/policy-run/inference.sock"); s.close()']
+      interval: 2s
+      timeout: 2s
+      retries: 60
+    # A crash can leave the socket inode behind. Repair only after stopping both
+    # worker and paper; the worker deliberately refuses to replace an old socket.
+  paper:
+    mem_limit: ${PAPER_MEMORY:-1g}
+    cpus: "${PAPER_CPUS:-1.0}"
+    pids_limit: ${PAPER_PIDS:-128}
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile
+      target: paper
+    environment:
+      PAPER_MODE: ${PAPER_MODE:?use deployment/demo.sh create or resume}
+      PAPER_SOURCE: ${PAPER_SOURCE:-synthetic}
+      PAPER_SCHEMA: ${PAPER_SCHEMA:-paper_beta}
+      PAPER_ACCOUNT: ${PAPER_ACCOUNT:-demo}
+      PAPER_DURATION: ${PAPER_DURATION:-24h}
+      INITIAL_BASE: ${INITIAL_BASE:-1}
+      INITIAL_QUOTE: ${INITIAL_QUOTE:-10000}
+    secrets: [api_token, postgres_password]
+    volumes: [bundle:/bundle:ro, policy-run:/policy-run, recordings:/recordings]
+    ports: ['127.0.0.1:${PAPER_PORT:-8080}:8081']
+    depends_on:
+      db: {condition: service_healthy}
+      worker: {condition: service_healthy}
+    stop_grace_period: 45s
+  edge:
+    mem_limit: ${EDGE_MEMORY:-128m}
+    cpus: "${EDGE_CPUS:-0.5}"
+    pids_limit: ${EDGE_PIDS:-64}
+    image: nginx:1.28-bookworm
+    network_mode: service:paper
+    volumes: ['./nginx.conf:/etc/nginx/nginx.conf:ro']
+    depends_on: [paper]
+secrets:
+  api_token:
+    file: ./secrets/api_token
+  postgres_password:
+    file: ./secrets/postgres_password
+volumes:
+  database:
+  bundle:
+  policy-run:
+  recordings:
