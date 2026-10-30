@@ -1,0 +1,81 @@
+{
+  "observed_at_utc": "2026-10-30T22:43:52.758847+00:00",
+  "project": "liquiditylab-restore-20261031-b",
+  "valid_trading_commands_issued": 0,
+  "transport": "HTTPS; hostname and explicit local test CA verified",
+  "before": {
+    "old_token_account_http": 200,
+    "revision": 24905,
+    "reports": {
+      "completed": {
+        "revision": 3569,
+        "canonical_sha256": "ed5ca0e3fa89a77b676b45efc861dcdfe00613753295845fd7f82947b2a19454",
+        "exact_original_report": true
+      },
+      "cancelled": {
+        "revision": 3736,
+        "canonical_sha256": "8b6681b9a5d137ba15424bb497576336d0785ce56a5e83623653ddca3b4e9928",
+        "exact_original_report": true
+      }
+    }
+  },
+  "old_process": {
+    "container_id": "b588f258f18f269300d183f2b88b59a1db5de4e480205abd1cb481753493232e",
+    "running": false,
+    "exit_code": 0,
+    "known_final_logged": true
+  },
+  "after": {
+    "new_token_account_http": 200,
+    "old_token_account_http": 401,
+    "unauthenticated_account_http": 401,
+    "valid_token_wrong_account_http": 404,
+    "health_http": 200,
+    "ready": true,
+    "recovery_required": false,
+    "revision": 24941,
+    "balances": [
+      {
+        "currency": "BTC",
+        "total": "1.101",
+        "free": "1.101",
+        "locked": "0"
+      },
+      {
+        "currency": "USD",
+        "total": "9989.87914807",
+        "free": "9989.87914807",
+        "locked": "0"
+      }
+    ],
+    "reserved": [
+      {
+        "currency": "BTC",
+        "amount": "0"
+      },
+      {
+        "currency": "USD",
+        "amount": "0"
+      }
+    ],
+    "plan_status": "cancelled",
+    "plan_id": "container-ppo-handoff-loss-20261030-c",
+    "child": null,
+    "reports": {
+      "completed": {
+        "revision": 3569,
+        "canonical_sha256": "ed5ca0e3fa89a77b676b45efc861dcdfe00613753295845fd7f82947b2a19454",
+        "exact_original_report": true
+      },
+      "cancelled": {
+        "revision": 3736,
+        "canonical_sha256": "8b6681b9a5d137ba15424bb497576336d0785ce56a5e83623653ddca3b4e9928",
+        "exact_original_report": true
+      }
+    },
+    "economic_projection_unchanged": true,
+    "policy_config_and_runtime_unchanged": true
+  },
+  "fixture_services_stopped_volumes_retained": true,
+  "completed_at_utc": "2026-10-30T22:44:37.333331+00:00"
+}

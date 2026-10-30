@@ -1,0 +1,120 @@
+{
+  "policy_runtime": {
+    "policy_sha256": "506b1eff74b090e0a8b72c407e8271aa649db87f8323ad344f643a1f67697b26",
+    "profile": "paper",
+    "fallback": "pause",
+    "promotion_status": "unvalidated",
+    "result": "fallback_pause",
+    "reason": "expired",
+    "action": 1,
+    "observation_snapshot_id": "web-feed-d4ef7de9df5ba74bb3b96f8b-365",
+    "applied_snapshot_id": "web-feed-d4ef7de9df5ba74bb3b96f8b-366",
+    "expires_at": "2026-10-30T12:43:56.02210255Z",
+    "resolved_at": "2026-10-30T12:43:56.026137557Z"
+  },
+  "policy_config": {
+    "policy_sha256": "506b1eff74b090e0a8b72c407e8271aa649db87f8323ad344f643a1f67697b26",
+    "profile": "paper",
+    "fallback": "pause",
+    "promotion_status": "unvalidated"
+  },
+  "tenant_id": "synthetic-paper-daemon",
+  "account_id": "demo",
+  "profile": "paper",
+  "data_source": "synthetic",
+  "revision": 24905,
+  "authority_revision": 24874,
+  "ready": true,
+  "recovery_required": false,
+  "plan_status": "cancelled",
+  "base_currency": "BTC",
+  "quote_currency": "USD",
+  "clock_discontinuity": false,
+  "market": {
+    "valid": true,
+    "snapshot_id": "web-feed-bed598568fe56489eb3384d6-31",
+    "instrument_revision": "synthetic-rules-v1",
+    "best_bid": "99.99",
+    "best_ask": "100.01"
+  },
+  "rules": {
+    "symbol": "BTC/USD",
+    "tick_size": "0.01",
+    "lot_size": "0.001",
+    "min_quantity": "0.001",
+    "min_notional": "0.01"
+  },
+  "fees": {
+    "maker": "0.001",
+    "taker": "0.002",
+    "currency": "quote",
+    "source": "synthetic-assumption"
+  },
+  "balances": [
+    {
+      "currency": "BTC",
+      "total": "1.101",
+      "free": "1.101",
+      "locked": "0"
+    },
+    {
+      "currency": "USD",
+      "total": "9989.87914807",
+      "free": "9989.87914807",
+      "locked": "0"
+    }
+  ],
+  "reserved": [
+    {
+      "currency": "BTC",
+      "amount": "0"
+    },
+    {
+      "currency": "USD",
+      "amount": "0"
+    }
+  ],
+  "plan": {
+    "id": "container-ppo-handoff-loss-20261030-c",
+    "revision": 5,
+    "status": "cancelled",
+    "started": true,
+    "start": "2026-10-30T12:43:39.977857326Z",
+    "deadline": "2026-10-30T12:48:39.863278Z",
+    "spec": {
+      "side": "buy",
+      "quantity": "0.02",
+      "limit_price": "102",
+      "deadline_ns": 299885420674,
+      "max_child_quantity": "0.01",
+      "quote_budget": "1000",
+      "base_balance": "1",
+      "symbol": "BTC/USD"
+    },
+    "policy": "liquidity-aware",
+    "filled": "0.001",
+    "remaining": "0.019",
+    "average_price": "99.99",
+    "arrival_mid": "100",
+    "benchmark_valid": true,
+    "executed_cost_quote": "0.00008999",
+    "fees_base": "0",
+    "fees_quote": "0.00009999"
+  },
+  "child": null,
+  "fills": [
+    {
+      "execution_id": "paper-trade-992a4c82349a02bc8beca75a04d0d4a243f286577dccb3da2731e1d003b73f5b-fill",
+      "order_id": "child-9e94171c40b53c784671562a3854017a",
+      "side": "buy",
+      "quantity": "0.001",
+      "price": "99.99",
+      "fee": "0.00009999",
+      "fee_currency": "quote",
+      "time_ns": 4425410806,
+      "maker": true
+    }
+  ],
+  "fill_count": 1,
+  "fills_truncated": false
+}

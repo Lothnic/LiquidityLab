@@ -1,0 +1,54 @@
+{
+  "source_revision": "fe3e1cfb64960440ed7242e29ca3ded167d75601",
+  "source_files_sha256": {
+    "deployment/compose.yaml": "56d780121aa3d16efd3e902b82b3beaa68e87b5cc173b958eaddb98bcf195515",
+    "deployment/compose.tls.yaml": "621c45bea5b7b92f5852373116a67d985357401a9c7d24a7e4896bb39ef9e0e1",
+    "deployment/nginx-tls.conf": "96f13806a7639170843b73ce61f98ea2c9994642e8a11f5c6d976cd95a98445b",
+    "deployment/paper-entrypoint.sh": "a40c100f37d8472a99a4afc95417cdc0d82ea725780ad7990afa6e99208e384f",
+    "cmd/liquiditylabd/paper.go": "0ea97b5d57c142c56b275ba2d2b531766e9604d743d4569827e4d7b780162371",
+    "internal/api/handler.go": "cab930fb6b53d6c6f6a91d98ad18229e6becb876c386cc0f149e196be1e3ad05",
+    "deployment/credentials.md": "76ab5f0045f5c6350b2faf1f1161fdaffa4ab8c523496d1179ea96dff9cb5f14"
+  },
+  "fixture_project": "liquiditylab-restore-20261031-b",
+  "fixture_parent": "2026-10-31-tls",
+  "fixture_image_overrides": {
+    "db": {
+      "image": "sha256:dc3f873bf9f13956c6821197edd8e0224b93086f3312830faf5d76699d43710b",
+      "pull_policy": "never"
+    },
+    "paper": {
+      "image": "sha256:e32c0bb8796ca88366265bfaccc89518ac91f16279033d099754d46b68b56fb5",
+      "pull_policy": "never",
+      "environment": {
+        "PAPER_DURATION": "10m"
+      }
+    },
+    "worker": {
+      "image": "sha256:faf22453eadbb77582665df63bdf4fe8f4dbc2404e6d6615e30ce508b6610a55",
+      "pull_policy": "never"
+    }
+  },
+  "authentication": "one account-scoped bearer token per daemon; old value held only in verifier memory during replacement",
+  "rotation": "stop edge, stop paper to known finality, atomic 0600 file replacement, force-recreate paper and edge in resume mode",
+  "valid_trading_commands_issued": 0,
+  "verified_fields_unchanged": [
+    "balances",
+    "reserved",
+    "plan",
+    "child",
+    "fills",
+    "fill_count",
+    "policy_config",
+    "policy_runtime"
+  ],
+  "limits": [
+    "Terminal cancelled parent only; active shutdown cancellation and queued-child crash recovery have separate evidence.",
+    "Read-only API economic projection and two exact saved reports compared, not a full SQL snapshot comparison in this drill.",
+    "Locally trusted self-signed certificate and loopback host publication only; no chosen-host deployment or public certificate.",
+    "Disruptive single-token rotation; no overlapping credentials, sessions, user directory or multi-tenant provisioning.",
+    "No database role-password rotation, credential-delivery service or browser verification.",
+    "Revision and source receipt state may advance during startup; account economics and pinned reports remain equal.",
+    "Existing pinned Docker images reused; no fresh-host build or image-delivery assertion.",
+    "The original demonstration was not reconfigured; a separate read-only check returned ready=true, recovery_required=false, cancelled parent and unchanged balances."
+  ]
+}
