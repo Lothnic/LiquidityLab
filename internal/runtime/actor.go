@@ -23,6 +23,7 @@ type Actor struct {
 	decisionStartedAt time.Time
 	policyStartedAt   time.Time
 	policyResults     chan policyResult
+	policyDeferred    *policyResult
 	policyBusy        bool
 	policyCancel      context.CancelFunc
 	policyTimer       *time.Timer

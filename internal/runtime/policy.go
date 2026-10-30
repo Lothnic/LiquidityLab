@@ -191,16 +191,79 @@ func policyError(err error) string {
 		return "worker_unavailable"
 	}
 }
+
+// receivePolicy retains at most the one admitted RPC result. It never drains
+// facts: the ordinary actor quantum owns that work and its FIFO position.
 func (a *Actor) receivePolicy(result policyResult) {
-	a.policyBusy = false
-	if a.policyCancel != nil {
-		a.policyCancel()
-		a.policyCancel = nil
+	if a.policyDeferred != nil {
+		// Admission stays occupied until the retained result is consumed, so a
+		// second result cannot arise from the worker through the ordinary path.
+		return
+	}
+	a.policyDeferred = &result
+	a.progressPolicyResult()
+	if a.policyDeferred != nil && !a.factBlocked {
+		a.wakeFacts()
+	}
+}
+
+func (a *Actor) progressPolicyResult() {
+	result := a.policyDeferred
+	if result == nil {
+		return
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 	if err := a.refreshOwned(ctx); err != nil {
+		if errors.Is(err, pg.ErrOwnership) {
+			// A fenced owner discards its process-local handoff. It cannot
+			// write even a late audit into the new owner's account.
+			a.policyDeferred = nil
+			a.policyBusy = false
+			if a.policyCancel != nil {
+				a.policyCancel()
+				a.policyCancel = nil
+			}
+		}
 		return
+	}
+	pending := a.state.PolicyPending
+	if pending != nil && pending.RequestID == result.audit.RequestID {
+		if pending.Slot != result.audit.Slot || pending.OwnerGeneration != result.audit.OwnerGeneration || pending.OwnerGeneration != a.owner.Epoch {
+			// Malformed local identity cannot occupy admission indefinitely or
+			// supply action authority. The original slot still expires normally.
+			a.policyDeferred = nil
+			a.policyBusy = false
+			if a.policyCancel != nil {
+				a.policyCancel()
+				a.policyCancel = nil
+			}
+			return
+		}
+		// Original expiry wins over catch-up. No fresh request or budget is minted.
+		if !a.now().Before(pending.ExpiresAt) {
+			if err := a.expirePolicy(ctx); err != nil {
+				return
+			}
+			pending = a.state.PolicyPending
+		}
+		if pending != nil {
+			if a.factBlocked || a.pending != nil || a.account.ObservedSequence != a.account.ProcessedSequence {
+				return
+			}
+		}
+	}
+	// Clear before consuming: a terminal slot uses the same audit-only late path
+	// even if facts are blocked. A retained result keeps worker admission occupied.
+	a.policyDeferred = nil
+	a.applyPolicyResult(ctx, *result)
+}
+
+func (a *Actor) applyPolicyResult(ctx context.Context, result policyResult) {
+	a.policyBusy = false
+	if a.policyCancel != nil {
+		a.policyCancel()
+		a.policyCancel = nil
 	}
 	pending := a.state.PolicyPending
 	if pending == nil || result.audit.RequestID != pending.RequestID {

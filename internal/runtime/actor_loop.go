@@ -70,11 +70,13 @@ func (a *Actor) loop() {
 			a.handlePolicyExpiry()
 		default:
 		}
+		a.progressPolicyResult()
 		select {
 		case result := <-a.policyResults:
 			a.receivePolicy(result)
 		default:
 		}
+		policyFactRevision, policyOrdinaryPending := a.account.Revision, a.pending
 		a.progressCancellation()
 		if a.pending != nil {
 			a.handleOperation(a.pending)
@@ -86,6 +88,12 @@ func (a *Actor) loop() {
 			}
 		}
 		a.finishControl()
+		// A returned proposal gets its next eligibility check only after the
+		// next cycle's controls and expiry. The wake also bounds continuation
+		// without taking another fact quantum inside policy handling.
+		if a.policyDeferred != nil && !a.factBlocked && !a.needsReload && (a.account.Revision != policyFactRevision || policyOrdinaryPending != nil && a.pending == nil) {
+			a.wakeFacts()
+		}
 		if !stopping {
 			select {
 			case <-a.stop:

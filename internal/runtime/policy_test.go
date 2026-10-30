@@ -3,7 +3,9 @@ package runtime
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -109,7 +111,11 @@ func TestPolicyStalledWorkerDoesNotBlockCancelOrLeaseAndLateCannotAct(t *testing
 	if time.Since(started) > 90*time.Millisecond {
 		t.Fatal("stalled inference delayed cancellation")
 	}
-	resolved := actorTestWaitView(t, a, time.Second, func(v View) bool { return v.State.PolicyPending == nil && v.State.LastPolicyDecision != nil })
+	// The control receipt precedes independent known-final bookkeeping. Await
+	// the finality already asserted below, separately from receipt latency.
+	resolved := actorTestWaitView(t, a, time.Second, func(v View) bool {
+		return v.State.PolicyPending == nil && v.State.LastPolicyDecision != nil && v.State.Parent.Status == "cancelled"
+	})
 	if resolved.State.LastPolicyDecision.Result != "fallback_pause" || resolved.State.DecisionCount != 1 || len(resolved.State.Fills) != 0 || resolved.State.Parent.Status != "cancelled" {
 		t.Fatalf("unexpected cancellation outcome: %+v", resolved.State)
 	}
@@ -515,5 +521,127 @@ func TestPolicyLateOutcomeRemainsAuditableWithUnresolvedFacts(t *testing.T) {
 	after := actorTestWaitView(t, a, time.Second, func(v View) bool { return v.State.PolicyLateOutcome != nil })
 	if after.State.PolicyLateOutcome.RequestID != request.Binding.RequestId || after.State.LastPolicyDecision.Result != "fallback_pause" || after.State.Parent.Status != "paused" || after.State.Child != nil || len(after.State.Fills) != 0 || !after.State.RecoveryRequired {
 		t.Fatalf("late audit changed financial state or was lost: %+v", after.State)
+	}
+}
+
+// Exercise the exact handoff race with a durable source receipt and a returned
+// controlled worker result, before the ordinary fact quantum gets its turn.
+func TestPolicyReturnedProposalWaitsForOrdinarySourceQuantum(t *testing.T) {
+	for _, scenario := range []string{"caught_up", "original_deadline", "control_cancel"} {
+		t.Run(scenario, func(t *testing.T) {
+			expired := scenario == "original_deadline"
+			w := newControlledPolicy()
+			w.returned = make(chan struct{}, 1)
+			a, store, key := policyTestActor(t, w, "pause", 150*time.Millisecond, func(c *Config) { c.AutoExecute = false; c.Lease = time.Minute; c.FactQuantumSteps = 1 })
+			policyTestStart(t, a)
+			ctx := context.Background()
+			if err := a.Close(ctx); err != nil {
+				t.Fatal(err)
+			}
+			// Give the stopped owner's worker a live destination, then receive
+			// its actual channel handoff before restarting the loop.
+			a.done = make(chan struct{})
+			frozen := time.Now()
+			a.now = func() time.Time { return frozen }
+			if err := a.startPolicy(ctx); err != nil {
+				t.Fatal(err)
+			}
+			req := policyTestCall(t, w)
+			result := policyResult{audit: *a.state.PolicyPending, proposal: inference.Proposal{Binding: proto.Clone(req.Binding).(*pb.DecisionBinding), Action: d.Hold, Mode: "unvalidated"}}
+			w.release <- d.Hold
+			select {
+			case <-w.returned:
+			case <-time.After(time.Second):
+				t.Fatal("worker did not return")
+			}
+			select {
+			case result = <-a.policyResults:
+			case <-time.After(time.Second):
+				t.Fatal("worker did not hand off result")
+			}
+			authority, processed := a.state.AuthorityRevision, a.account.ProcessedSequence
+			for i := 0; i < 3; i++ {
+				id := fmt.Sprintf("handoff-source-%d", i)
+				fact := paperTradeFact{ID: id, InputDigest: id, Event: actorTestTrade(id, "0.01", uint64(i+1), int64(i+1)), Fills: []d.Fill{}}
+				if _, err := store.RecordPaperObservation(ctx, key, a.owner, pg.Observation{ID: id, Kind: paperTradeKind, Payload: jsonBytes(fact)}); err != nil {
+					t.Fatal(err)
+				}
+			}
+			a.receivePolicy(result)
+			if a.state.PolicyPending == nil || a.state.LastPolicyDecision != nil {
+				t.Fatalf("source-only debt immediately resolved proposal: %+v", a.state.LastPolicyDecision)
+			}
+			if !a.policyBusy {
+				t.Fatal("parked result released worker admission")
+			}
+			// One receipt wake is sufficient. Retrying without ordinary
+			// progress must not create an endless self-waking reduction loop.
+			select {
+			case <-a.factWake:
+			default:
+				t.Fatal("no initial fact wake")
+			}
+			for i := 0; i < 3; i++ {
+				a.progressPolicyResult()
+			}
+			select {
+			case <-a.factWake:
+				t.Fatal("no-progress eligibility retry re-woke facts")
+			default:
+			}
+			if a.account.ProcessedSequence != processed {
+				t.Fatal("policy handoff consumed an extra fact quantum")
+			}
+			if scenario == "control_cancel" {
+				control := quantumTestRequest("command", Command{ID: "handoff-cancel", Kind: "cancel", ExpectedRevision: a.account.Revision})
+				a.handle(control)
+				if r := quantumTestResponse(t, control); r.err != nil {
+					t.Fatal(r.err)
+				}
+				// Receipt already retained: control resolves the slot, and the
+				// result must now be audit-only even before its source debt drains.
+				a.progressPolicyResult()
+				if a.state.PolicyLateOutcome == nil || a.policyDeferred != nil || a.policyBusy {
+					t.Fatal("control did not flush parked result as audit-only")
+				}
+			}
+			// Ordinary FIFO operation must finish its source watermark before the
+			// retained result can compile. It also makes continuation independent of a
+			// second source notification.
+			waiter := quantumTestRequest("facts", a.account.ObservedSequence)
+			a.pending = &actorOperation{request: waiter, stage: operationAwaitFacts, target: a.account.ObservedSequence}
+			if expired {
+				frozen = result.audit.ExpiresAt.Add(time.Nanosecond)
+			}
+			a.stop, a.done = make(chan struct{}), make(chan struct{})
+			a.once = sync.Once{}
+			a.closing = false
+			go a.loop()
+			defer func() {
+				if err := a.Close(context.Background()); err != nil {
+					t.Error(err)
+				}
+			}()
+			if r := quantumTestResponse(t, waiter); r.err != nil {
+				t.Fatal(r.err)
+			}
+			v := actorTestWaitView(t, a, time.Second, func(v View) bool { return v.State.LastPolicyDecision != nil })
+			want := "policy_action"
+			if expired || scenario == "control_cancel" {
+				want = "fallback_pause"
+			}
+			if v.State.LastPolicyDecision.Result != want || v.State.LastPolicyDecision.RequestID != req.Binding.RequestId || v.State.DecisionCount != 1 || w.count.Load() != 1 || v.Account.ProcessedSequence != v.Account.ObservedSequence || len(v.State.Fills) != 0 || v.State.Child != nil {
+				t.Fatalf("handoff outcome: %+v", v.State.LastPolicyDecision)
+			}
+			if scenario == "caught_up" && v.State.AuthorityRevision != authority {
+				t.Fatal("source-only drain changed authority")
+			}
+			if expired && v.State.LastPolicyDecision.Reason != "expired" {
+				t.Fatal("original expiry was extended")
+			}
+			if scenario == "control_cancel" && v.State.LastPolicyDecision.Reason != "control_cancel" {
+				t.Fatal("parked result overwrote control decision")
+			}
+		})
 	}
 }
