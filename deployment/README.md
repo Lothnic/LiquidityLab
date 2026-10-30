@@ -50,6 +50,13 @@ Configuration is supplied as shell environment variables when invoking the scrip
 `INITIAL_BASE=1` and `INITIAL_QUOTE=10000` apply only to `create`.
 Kraken uses public market data only and produces bounded new recordings per run;
 synthetic mode provides a deterministic offline paper feed. No exchange key is used.
+The Kraken profile also admits each capture against retained recording files:
+`PAPER_MAX_RECORDING_BYTES=1073741824` (1 GiB total admission budget) and
+`PAPER_MAX_CAPTURE_BYTES=67108864` (64 MiB raw per capture). It reserves manifest
+space and refuses startup when capacity or the exclusive directory lock is
+unavailable, before changing the account. It never deletes retained material.
+See [storage admission](storage.md) for the dedicated-root contract, limits and
+remaining database capacity, retention and monitoring requirements.
 
 All five Compose services use Docker's `json-file` log driver with rotation at
 10 MB and at most three files per container (roughly 30 MB each, plus rotation
@@ -67,8 +74,9 @@ have no network access or published ports. PostgreSQL has no published port. An
 nginx sidecar shares Go's network namespace because Go only accepts loopback HTTP;
 it forwards port 8081 to Go's loopback port 8080. The only published port is bound
 to the Docker host's loopback. For remote hosting, place authenticated TLS ingress
-on the same host or use an SSH tunnel. No provider, domain, TLS certificate or
-public deployment is configured by this package.
+on the same host or use an SSH tunnel. The optional [HTTPS profile](https.md)
+accepts operator-provided certificates. No provider, domain, issued certificate
+or public deployment is selected by this package.
 
 The paper container healthcheck calls its local `/healthz` endpoint every two
 seconds and requires HTTP 200 with `{"status":"ok"}`. This reports HTTP service

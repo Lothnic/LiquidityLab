@@ -54,6 +54,8 @@ type paperServerOptions struct {
 	duration                                               time.Duration
 	maxFrames                                              uint64
 	maxCaptureBytes                                        int64
+	recordingRoot                                          string
+	maxRecordingBytes                                      int64
 }
 
 type paperSource func(context.Context, func(context.Context, marketdata.Event) error) error
@@ -98,7 +100,9 @@ func parsePaperOptions(args []string) (paperServerOptions, error) {
 	flags.StringVar(&opt.account, "account", "", "synthetic account ID (create: new; resume: existing)")
 	flags.StringVar(&opt.source, "source", "kraken", "kraken public data or synthetic deterministic demo")
 	flags.StringVar(&opt.webDir, "web-dir", "apps/web/dist", "built React index.html/assets directory")
-	flags.StringVar(&opt.captureOutput, "capture-output", "", "new raw JSONL recording path (required for kraken)")
+	flags.StringVar(&opt.captureOutput, "capture-output", "", "new raw JSONL recording path (Kraken requires this or recording-root)")
+	flags.StringVar(&opt.recordingRoot, "recording-root", "", "exclusive existing absolute recording directory; alternative to capture-output")
+	flags.Int64Var(&opt.maxRecordingBytes, "max-recording-bytes", 1<<30, "aggregate recording admission budget including manifest allowance")
 	flags.StringVar(&opt.metricsOutput, "metrics-output", "", "optional new local JSONL path for shutdown metrics (never served over HTTP)")
 	flags.StringVar(&opt.replayArchive, "replay-archive", "", "optional absolute immutable public archive root; enables bounded analytical replay jobs")
 	base := flags.String("initial-base", "", "explicit initial synthetic BTC balance (required)")
@@ -197,9 +201,21 @@ func (o paperServerOptions) validate() error {
 	if o.maxFrames == 0 || o.maxFrames > 1000000 || o.maxCaptureBytes < 1024 || o.maxCaptureBytes > 1<<30 {
 		return errors.New("paper capture bounds must be 1..1000000 frames and 1024..1GiB bytes")
 	}
+	if o.recordingRoot != "" && o.source != "kraken" {
+		return errors.New("recording-root requires kraken source")
+	}
 	if o.source == "kraken" {
+		if o.recordingRoot != "" {
+			if o.captureOutput != "" || !filepath.IsAbs(o.recordingRoot) || o.maxRecordingBytes <= 0 {
+				return errors.New("recording-root requires an absolute path, positive aggregate budget and no capture-output")
+			}
+			if err := validatePaperRecordingRoot(o); err != nil {
+				return err
+			}
+			return validatePaperOutputPaths(o)
+		}
 		if o.captureOutput == "" {
-			return errors.New("kraken source requires a new --capture-output raw JSONL path")
+			return errors.New("kraken source requires --capture-output or --recording-root")
 		}
 		for _, name := range []string{o.captureOutput, o.captureOutput + ".manifest.json", o.captureOutput + ".manifest.json.tmp"} {
 			if _, err := os.Lstat(name); !errors.Is(err, os.ErrNotExist) {
@@ -229,7 +245,7 @@ func paperServerError(stage string, err error) error {
 	for _, kind := range []struct {
 		err error
 		why string
-	}{{rt.ErrOutcomeUnknown, "accepted outcome unknown; retain identities for operator recovery"}, {pg.ErrOwnership, "ownership or lease lost; operator recovery required"}, {pg.ErrIsolationRequired, "prior sender isolation and reconciliation required"}, {pg.ErrStaleRevision, "stale revision"}, {pg.ErrConflict, "durable identity conflict"}, {rt.ErrRecoveryRequired, "recovery required"}, {rt.ErrHistoryLimit, "bounded runtime history exhausted"}, {context.DeadlineExceeded, "deadline exceeded; accepted outcome may be unknown"}} {
+	}{{rt.ErrOutcomeUnknown, "accepted outcome unknown; retain identities for operator recovery"}, {pg.ErrOwnership, "ownership or lease lost; operator recovery required"}, {pg.ErrIsolationRequired, "prior sender isolation and reconciliation required"}, {pg.ErrStaleRevision, "stale revision"}, {pg.ErrConflict, "durable identity conflict"}, {rt.ErrRecoveryRequired, "recovery required"}, {rt.ErrHistoryLimit, "bounded runtime history exhausted"}, {marketdata.ErrCaptureStorageLimit, "configured recording byte budget exhausted"}, {context.DeadlineExceeded, "deadline exceeded; accepted outcome may be unknown"}} {
 		if errors.Is(err, kind.err) {
 			reason = kind.why
 			break
@@ -241,6 +257,14 @@ func paperServerError(stage string, err error) error {
 func servePaper(ctx context.Context, opt paperServerOptions, dsn, token string, output io.Writer) error {
 	if err := opt.validate(); err != nil {
 		return err
+	}
+	if opt.recordingRoot != "" {
+		admission, err := admitPaperRecording(opt.recordingRoot, opt.maxRecordingBytes, opt.maxCaptureBytes)
+		if err != nil {
+			return err
+		}
+		defer admission.Close()
+		opt.captureOutput = admission.output
 	}
 	// Validate and preload immutable assets before creating any account.
 	static, err := paperStatic(opt.webDir)

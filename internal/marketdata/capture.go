@@ -357,6 +357,9 @@ func capture(ctx context.Context, cfg CaptureConfig, dial captureDial) (manifest
 	return manifest, retErr
 }
 
+// ErrCaptureStorageLimit identifies a configured capture or manifest byte cap.
+var ErrCaptureStorageLimit = errors.New("capture disk byte limit reached")
+
 // A rejected write never starts a record that would exceed the disk budget.
 type captureWriter struct {
 	writer         io.Writer
@@ -365,7 +368,7 @@ type captureWriter struct {
 
 func (w *captureWriter) Write(p []byte) (int, error) {
 	if int64(len(p)) > w.limit-w.written {
-		return 0, errors.New("capture disk byte limit reached")
+		return 0, ErrCaptureStorageLimit
 	}
 	n, err := w.writer.Write(p)
 	w.written += int64(n)
@@ -540,6 +543,9 @@ func (s *captureSink) terminalGap(reason string) error {
 	return nil
 }
 
+// MaxManifestBytes bounds each serialized capture manifest, including its newline.
+const MaxManifestBytes = 128 << 10
+
 func writeManifest(output string, manifest CaptureManifest) error {
 	path := output + ".manifest.json"
 	data, err := json.MarshalIndent(manifest, "", "  ")
@@ -547,6 +553,9 @@ func writeManifest(output string, manifest CaptureManifest) error {
 		return err
 	}
 	data = append(data, '\n')
+	if len(data) > MaxManifestBytes {
+		return fmt.Errorf("capture manifest exceeds byte limit: %w", ErrCaptureStorageLimit)
+	}
 	tmp := path + ".tmp"
 	f, err := os.OpenFile(tmp, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600)
 	if err != nil {

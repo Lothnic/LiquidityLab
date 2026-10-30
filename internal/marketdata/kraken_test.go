@@ -2,6 +2,7 @@ package marketdata
 
 import (
 	"encoding/json"
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -16,7 +17,7 @@ func TestCaptureDiskBudgetRejectsWholeWrite(t *testing.T) {
 	if n, err := writer.Write([]byte("first")); n != 5 || err != nil {
 		t.Fatal(n, err)
 	}
-	if n, err := writer.Write([]byte("next")); n != 0 || err == nil {
+	if n, err := writer.Write([]byte("next")); n != 0 || !errors.Is(err, ErrCaptureStorageLimit) {
 		t.Fatal("over-budget write accepted", n, err)
 	}
 	if destination.String() != "first" || writer.written != 5 {

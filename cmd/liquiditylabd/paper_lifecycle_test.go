@@ -33,6 +33,21 @@ func TestPaperServerErrorWithholdsUnknownSourceCredentials(t *testing.T) {
 	}
 }
 
+func TestPaperServerErrorClassifiesRecordingBudgetWithoutPrivateDetails(t *testing.T) {
+	err := paperServerError("source", fmt.Errorf("private-path token=secret: %w", marketdata.ErrCaptureStorageLimit))
+	if !errors.Is(err, marketdata.ErrCaptureStorageLimit) || err.Error() != "source: configured recording byte budget exhausted" {
+		t.Fatalf("storage classification not safely retained: %v", err)
+	}
+}
+
+func TestPaperServerErrorPrioritizesAuthorityOverRecordingBudget(t *testing.T) {
+	err := paperServerError("source", errors.Join(pg.ErrOwnership, marketdata.ErrCaptureStorageLimit))
+	if !errors.Is(err, pg.ErrOwnership) || !errors.Is(err, marketdata.ErrCaptureStorageLimit) ||
+		err.Error() != "source: ownership or lease lost; operator recovery required" {
+		t.Fatalf("joined source failure lost authority priority: %v", err)
+	}
+}
+
 func TestPaperDaemonOwnershipLossPreservesIngressClassification(t *testing.T) {
 	opt := daemonOptions(t)
 	dsn := daemonPostgres(t, &opt)

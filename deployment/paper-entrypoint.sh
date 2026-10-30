@@ -16,8 +16,9 @@ case "$mode" in
 esac
 source=${PAPER_SOURCE:-synthetic}
 if [ "$source" = kraken ]; then
-  capture_dir=$(gosu 10001:10001 mktemp -d /recordings/kraken-XXXXXXXXXXXX)
-  set -- "$@" --capture-output "$capture_dir/raw.jsonl"
+  set -- "$@" --recording-root /recordings \
+    --max-recording-bytes "${PAPER_MAX_RECORDING_BYTES:-1073741824}" \
+    --max-capture-bytes "${PAPER_MAX_CAPTURE_BYTES:-67108864}"
 fi
 exec gosu 10001:10001 liquiditylabd paper "$mode" "$@" \
   --schema "${PAPER_SCHEMA:-paper_beta}" --account "${PAPER_ACCOUNT:-demo}" \
