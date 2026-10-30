@@ -1,0 +1,156 @@
+{
+  "schema": "liquiditylab.beta-storage-verification.v1",
+  "initial_full_go": {
+    "run": {
+      "source_revision": "921008f2e7689c259ad8eb77b0ba337dcbbd79ce",
+      "started_at_utc": "2026-10-30T22:58:05.109141+00:00",
+      "steps": [
+        {
+          "name": "build",
+          "started_at_utc": "2026-10-30T22:58:05.109177+00:00",
+          "command": [
+            "go",
+            "build",
+            "-o",
+            "/home/lothnic/Documents/Codex/2026-10-23/i-x20/work/beta-storage-suites-20261031/liquiditylabd",
+            "./cmd/liquiditylabd"
+          ],
+          "exit_code": 0,
+          "ended_at_utc": "2026-10-30T22:58:20.790022+00:00",
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "go-race",
+          "started_at_utc": "2026-10-30T22:58:20.790333+00:00",
+          "command": [
+            "go",
+            "test",
+            "-race",
+            "-count=1",
+            "-json",
+            "./..."
+          ],
+          "exit_code": 1,
+          "ended_at_utc": "2026-10-30T23:00:42.338971+00:00",
+          "log_sha256": "9dee71da3234cbbcd00315489722af0c749d4cf55e9e7c359b73f853fd22183e"
+        }
+      ]
+    },
+    "results": {
+      "log": "go-race-initial.jsonl.gz",
+      "sha256": "2b208f88d0551c19bae720e3ee72a0e9862deaca88dbb0d261ff112771e4eb24",
+      "uncompressed_sha256": "9dee71da3234cbbcd00315489722af0c749d4cf55e9e7c359b73f853fd22183e",
+      "test_events": {
+        "pass": 1205,
+        "fail": 1,
+        "skip": 0
+      },
+      "package_passes": 17,
+      "packages_without_tests": 3,
+      "failed_tests": [
+        "TestDBActivityPostgresObservesOnlyOwnedLockWait"
+      ],
+      "real_ppo_boundary_tests": [
+        "TestPythonPPOWorkerBoundary"
+      ]
+    }
+  },
+  "final_full_go": {
+    "run": {
+      "source_revision": "14ea160eb0617952c33f1986691934d5cd6bca53",
+      "command": [
+        "go",
+        "test",
+        "-race",
+        "-count=1",
+        "-json",
+        "./..."
+      ],
+      "started_at_utc": "2026-10-30T23:04:25.345885+00:00",
+      "completed_at_utc": "2026-10-30T23:06:42.079952+00:00",
+      "exit_code": 0,
+      "log_sha256": "32cc05c98368ba7a9d2733840ed3af70ea461742cb17e90a90db413549315b8a",
+      "replay_binary_sha256": "d8012714274c1697cedc3802fd2dd495105db357e06fc54789ff9c1b16339732",
+      "replay_binary_source_revision": "921008f2e7689c259ad8eb77b0ba337dcbbd79ce",
+      "environment": {
+        "GOMAXPROCS": "2",
+        "GOFLAGS": "-p=2",
+        "GORACE": "history_size=1",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1"
+      },
+      "prerequisites": {
+        "postgres": "Actual local PostgreSQL18.6 fixture configured; DSN withheld",
+        "python": "Project venv Python3.12.11 with real RL/Go extras",
+        "replay": "Fresh ordinary Go binary built from recording admission runtime sources; no runtime source changes in subsequent test-only commit"
+      }
+    },
+    "results": {
+      "log": "go-race-final.jsonl.gz",
+      "sha256": "8c1a7ca3e85344ecb160238b4640c3336d5f2cd87045928f4e201ee99018b06e",
+      "uncompressed_sha256": "32cc05c98368ba7a9d2733840ed3af70ea461742cb17e90a90db413549315b8a",
+      "test_events": {
+        "pass": 1208,
+        "fail": 0,
+        "skip": 0
+      },
+      "package_passes": 18,
+      "packages_without_tests": 3,
+      "failed_tests": [],
+      "real_ppo_boundary_tests": [
+        "TestPythonPPOWorkerBoundary"
+      ]
+    }
+  },
+  "python": {
+    "tests_passed": 233,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "replay_binary_sha256": "d8012714274c1697cedc3802fd2dd495105db357e06fc54789ff9c1b16339732",
+    "warning": "Existing Gymnasium LiquidityLab-SpotExecution-v0 deprecation warning.",
+    "log_sha256": "dd3f615293feea6709c8c61a28c6a0cf12aee255608a17de93428e520c181036"
+  },
+  "frontend": {
+    "tests_passed": 78,
+    "test_files_passed": 7,
+    "test_exit": 0,
+    "build_exit": 0,
+    "test_log_sha256": "0af36cc08212487d27f77d826f8d04a0e691df7d6a8c8917daaecd9145e3e652",
+    "build_log_sha256": "f822afac1693e715654111005950a2dd5c29e49aa1974aee8362c1583ecee11a",
+    "browser_visual_review": false
+  },
+  "native_binary_build_metadata": [
+    "/home/lothnic/Documents/Codex/2026-10-23/i-x20/work/beta-storage-suites-20261031/liquiditylabd: go1.26.8",
+    "\tpath\tgithub.com/liquiditylab/liquiditylab/cmd/liquiditylabd",
+    "\tmod\tgithub.com/liquiditylab/liquiditylab\tv0.0.0-20261030225801-921008f2e768+dirty\t",
+    "\tdep\tgithub.com/coder/websocket\tv1.8.15\th1:6B2JPeOGlpff2Uz6vOEH1Vzpi0iUz20A+lPVhPHtNUA=",
+    "\tdep\tgithub.com/jackc/pgpassfile\tv1.0.0\th1:/6Hmqy13Ss2zCq62VdNG8tM1wchn8zjSGOBJ6icpsIM=",
+    "\tdep\tgithub.com/jackc/pgservicefile\tv0.0.0-20240606120523-5a60cdf6a761\th1:iCEnooe7UlwOQYpKFhBabPMi4aNAfoODPEFNiAnClxo=",
+    "\tdep\tgithub.com/jackc/pgx/v5\tv5.11.0\th1:IzBBtyK9AHqf98cctWFifYSci2hgQR/cd56wB4p+ogg=",
+    "\tdep\tgithub.com/jackc/puddle/v2\tv2.2.2\th1:PR8nw+E/1w0GLuRFSmiioY6UooMp6KJv0/61nB7icHo=",
+    "\tdep\tgolang.org/x/net\tv0.57.0\th1:K5+3DljvIuDG9/Jv9rvyMywYNFCQ9RSUY6OOTTkT+tE=",
+    "\tdep\tgolang.org/x/sync\tv0.22.0\th1:SZjpbeLmrCk4xhRSZFNZW5gFUeCeFgjekvI/+gfScek=",
+    "\tdep\tgolang.org/x/sys\tv0.47.0\th1:o7XGOvZQCADBQQ4Y7VNq2dRWQR7JmOUW8Kxx4ZsNgWs=",
+    "\tdep\tgolang.org/x/text\tv0.40.0\th1:Ub2Z6/xjgF1WrYQz2nuITOEegKFtiIy+rieRJ5lHZKs=",
+    "\tdep\tgoogle.golang.org/genproto/googleapis/rpc\tv0.0.0-20260706201446-f0a921348800\th1:qEHAMpSaUhtD0p3NbEEI83HwNGFxEwaSJ1G9PLnCBZE=",
+    "\tdep\tgoogle.golang.org/grpc\tv1.84.0\th1:soMyaPJ8pAak5PIQ0DGBUir0XRo2fRoMqhNWMLlLxO0=",
+    "\tdep\tgoogle.golang.org/protobuf\tv1.36.12\th1:pJOKDDOyeXErUroCihFAd5LQuwXBSpVnKGrj5o/fwxc=",
+    "\tbuild\t-buildmode=exe",
+    "\tbuild\t-compiler=gc",
+    "\tbuild\tCGO_ENABLED=1",
+    "\tbuild\tCGO_CFLAGS=",
+    "\tbuild\tCGO_CPPFLAGS=",
+    "\tbuild\tCGO_CXXFLAGS=",
+    "\tbuild\tCGO_LDFLAGS=",
+    "\tbuild\tGOARCH=amd64",
+    "\tbuild\tGOOS=linux",
+    "\tbuild\tGOAMD64=v1",
+    "\tbuild\tvcs=git",
+    "\tbuild\tvcs.revision=921008f2e7689c259ad8eb77b0ba337dcbbd79ce",
+    "\tbuild\tvcs.time=2026-10-30T22:58:01Z",
+    "\tbuild\tvcs.modified=true"
+  ],
+  "scope": "Software correctness and local negative container startup only; no trading quality, reliability, capacity, physical disk protection, soak or hosted release claim."
+}

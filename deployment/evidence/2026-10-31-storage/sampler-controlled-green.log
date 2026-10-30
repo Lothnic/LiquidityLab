@@ -1,0 +1,124 @@
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query
+--- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait (0.13s)
+    --- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline (0.03s)
+    --- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query (0.09s)
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query
+--- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait (0.12s)
+    --- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline (0.03s)
+    --- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query (0.09s)
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query
+--- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait (0.12s)
+    --- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline (0.03s)
+    --- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query (0.09s)
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query
+--- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait (0.12s)
+    --- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline (0.03s)
+    --- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query (0.09s)
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query
+--- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait (0.12s)
+    --- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline (0.03s)
+    --- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query (0.09s)
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query
+--- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait (0.12s)
+    --- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline (0.03s)
+    --- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query (0.09s)
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query
+--- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait (0.12s)
+    --- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline (0.03s)
+    --- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query (0.09s)
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query
+--- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait (0.12s)
+    --- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline (0.03s)
+    --- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query (0.09s)
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query
+--- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait (0.12s)
+    --- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline (0.03s)
+    --- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query (0.09s)
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query
+--- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait (0.12s)
+    --- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline (0.03s)
+    --- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query (0.09s)
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query
+--- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait (0.12s)
+    --- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline (0.03s)
+    --- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query (0.09s)
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query
+--- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait (0.12s)
+    --- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline (0.03s)
+    --- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query (0.09s)
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query
+--- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait (0.12s)
+    --- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline (0.03s)
+    --- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query (0.09s)
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query
+--- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait (0.13s)
+    --- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline (0.03s)
+    --- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query (0.09s)
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query
+--- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait (0.12s)
+    --- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline (0.03s)
+    --- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query (0.09s)
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query
+--- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait (0.12s)
+    --- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline (0.03s)
+    --- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query (0.09s)
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query
+--- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait (0.12s)
+    --- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline (0.03s)
+    --- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query (0.09s)
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query
+--- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait (0.12s)
+    --- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline (0.03s)
+    --- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query (0.09s)
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query
+--- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait (0.12s)
+    --- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline (0.03s)
+    --- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query (0.09s)
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query
+--- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait (0.12s)
+    --- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline (0.03s)
+    --- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query (0.09s)
+PASS
+ok  	github.com/liquiditylab/liquiditylab/benchmarks/runtime	3.460s
+
+EXIT_CODE=0

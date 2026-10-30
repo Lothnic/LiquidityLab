@@ -1,0 +1,33 @@
+{
+  "recording_admission_commit": "921008f2e7689c259ad8eb77b0ba337dcbbd79ce",
+  "sampler_test_fix_commit": "14ea160",
+  "logging_commit": "a4c8625",
+  "recording_defaults": {
+    "root": "/recordings",
+    "raw_bytes": 67108864,
+    "aggregate_bytes": 1073741824,
+    "manifest_bytes_each": 131072,
+    "manifest_reservation_count": 2,
+    "max_entries_including_reserved_new_files": 10000
+  },
+  "admission": "Linux nonblocking exclusive directory flock, held through daemon lifetime; cooperating recorder only; all regular file sizes counted; no pruning",
+  "controls": [
+    "Refuses before database/account mutation for insufficient budget or lock contention.",
+    "Counts unknown/orphan/incomplete/temp files; rejects symlinks, special files and inspection errors.",
+    "Reserves new directory/raw/manifest/temp entry count and bounds scanning batches.",
+    "Raw cap rejects whole writes; oversized manifests refused before temporary creation.",
+    "Source failures retain account inspection/cancellation; fixed safe budget reason preserves error identity.",
+    "Authority/outcome failures retain classification priority when joined with budget error."
+  ],
+  "limits": [
+    "Logical file-byte admission, not physical filesystem quota or free-space reservation.",
+    "Root/ancestors must remain stable; operators or unrelated processes must not concurrently mutate the root.",
+    "Legacy capture-output has no aggregate admission guarantee.",
+    "One recorder per root; non-Linux admission is unsupported.",
+    "No automatic retention deletion or verified reference catalog.",
+    "No PostgreSQL/WAL/bundle quota, disk alert or 24-hour soak.",
+    "Container check is an isolated negative startup case with dummy secrets/model manifest and no network/database/account/source feed.",
+    "Native race/Python/UI results are software checks, not performance, strategy quality, hosting or visual acceptance.",
+    "Original local demonstration was not recreated and has not adopted new image/logging/storage settings."
+  ]
+}

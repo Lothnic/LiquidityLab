@@ -1,0 +1,17 @@
+{
+  "command": "/home/lothnic/Documents/Codex/2026-10-23/i-x20/outputs/liquiditylab/.venv/bin/python -m pytest -q --junitxml=/home/lothnic/Documents/Codex/2026-10-23/i-x20/work/beta-storage-suites-20261031/python.xml",
+  "environment": {
+    "LIQUIDITYLAB_REPLAY_BINARY": "/home/lothnic/Documents/Codex/2026-10-23/i-x20/work/beta-storage-suites-20261031/liquiditylabd",
+    "LIQUIDITYLAB_PYTHON": "/home/lothnic/Documents/Codex/2026-10-23/i-x20/outputs/liquiditylab/.venv/bin/python",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "postgres_dsn": "not required by Python suite tests; no DSN supplied"
+  },
+  "started_at_utc": "2026-10-30T23:03:03.406855+00:00",
+  "ended_at_utc": "2026-10-30T23:03:18.499375+00:00",
+  "exit_code": 0,
+  "repository_source_commit": "921008f2e7689c259ad8eb77b0ba337dcbbd79ce",
+  "runtime_go_source_commit": "921008f (fresh runtime binary provided for this suite)",
+  "runtime_binary_sha256": "d8012714274c1697cedc3802fd2dd495105db357e06fc54789ff9c1b16339732"
+}

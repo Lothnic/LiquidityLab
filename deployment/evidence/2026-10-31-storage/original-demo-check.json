@@ -1,0 +1,33 @@
+{
+  "observed_at_utc": "2026-10-30T23:07:30.176427+00:00",
+  "http_status": 200,
+  "ready": true,
+  "recovery_required": false,
+  "plan_status": "cancelled",
+  "balances": [
+    {
+      "currency": "BTC",
+      "total": "1.101",
+      "free": "1.101",
+      "locked": "0"
+    },
+    {
+      "currency": "USD",
+      "total": "9989.87914807",
+      "free": "9989.87914807",
+      "locked": "0"
+    }
+  ],
+  "reserved": [
+    {
+      "currency": "BTC",
+      "amount": "0"
+    },
+    {
+      "currency": "USD",
+      "amount": "0"
+    }
+  ],
+  "child": null,
+  "scope": "Read-only point observation; original containers not reconfigured or recreated."
+}

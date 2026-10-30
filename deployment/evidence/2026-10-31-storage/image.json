@@ -1,0 +1,42 @@
+{
+  "started_at_utc": "2026-10-30T23:02:00.163158+00:00",
+  "completed_at_utc": "2026-10-30T23:02:20.367128+00:00",
+  "source_revision": "921008f2e7689c259ad8eb77b0ba337dcbbd79ce",
+  "source_archive_sha256": "e0b47b9db56e053f1f3df7ddd456ee1eaa8846fc9273b68073899982e44b213b",
+  "source_context": "git archive of committed tracked files; untracked replay drafts excluded",
+  "target": "paper",
+  "local_tag": "liquiditylab-paper:storage-921008f",
+  "image_id": "sha256:e38087593c3bfd05ef9e24161ddc2d7db0ff18734c03aa80889b678403c8c635",
+  "build_exit_code": 0,
+  "smoke_exit_code": 0,
+  "build_log_sha256": "390c5525e61a5d1e0b59975cbfc40b6ac2efec1d07d3e03ce3f91d9715153ce7",
+  "smoke": {
+    "observed_at_utc": "2026-10-30T23:02:20.268081+00:00",
+    "network": "none",
+    "host_volumes": [],
+    "entrypoint": "/usr/local/bin/paper-entrypoint",
+    "profile": "kraken resume; dummy runtime secrets and model manifest; admission only",
+    "max_capture_bytes": 1024,
+    "max_recording_bytes": 263195,
+    "retained_bytes": 28,
+    "manifest_reserve_bytes": 262144,
+    "shortfall_bytes": 1,
+    "exit_code": 1,
+    "admission_refused": true,
+    "database_not_opened": true,
+    "existing_files_unchanged": true,
+    "fresh_capture_directory_created": false,
+    "fixture_credentials_withheld": true,
+    "valid_trading_commands_issued": 0,
+    "limitations": [
+      "No source connection or capture.",
+      "No actual database, account, PPO worker or trained-model validation in this refusal check.",
+      "Logical admission budget only; no disk-full, host quota or performance test."
+    ]
+  },
+  "limitations": [
+    "Local image build and isolated negative startup check only; no deployment changed.",
+    "No registry push or fresh-host transfer; base image tags are not digest-pinned.",
+    "CPU worker image and original protected demo were not rebuilt or recreated."
+  ]
+}

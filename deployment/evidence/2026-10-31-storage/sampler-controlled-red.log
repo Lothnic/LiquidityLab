@@ -1,0 +1,12 @@
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline
+=== RUN   TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query
+    db_activity_test.go:277: scoped lock observation incomplete: issues=[missed_sample] categories=map[active_lock:1 idle:7] backends=2
+--- FAIL: TestDBActivityPostgresObservesOnlyOwnedLockWait (0.30s)
+    --- PASS: TestDBActivityPostgresObservesOnlyOwnedLockWait/baseline (0.16s)
+    --- FAIL: TestDBActivityPostgresObservesOnlyOwnedLockWait/slow_first_query (0.15s)
+FAIL
+FAIL	github.com/liquiditylab/liquiditylab/benchmarks/runtime	0.323s
+FAIL
+
+EXIT_CODE=1
