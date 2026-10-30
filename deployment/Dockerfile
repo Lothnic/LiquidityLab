@@ -21,10 +21,10 @@ WORKDIR /app
 COPY pyproject.toml uv.lock ./
 COPY src/ src/
 COPY examples/training-tape.jsonl examples/buy-plan.json examples/
-COPY --from=go /out/liquiditylabd /usr/local/bin/liquiditylabd
 RUN uv sync --locked --extra go --extra rl --no-dev \
  && mkdir /bundle /policy-run \
  && chown 10001:10001 /bundle /policy-run
+COPY --from=go /out/liquiditylabd /usr/local/bin/liquiditylabd
 ENV PATH="/app/.venv/bin:$PATH" OMP_NUM_THREADS=1 MKL_NUM_THREADS=1
 USER 10001:10001
 ENTRYPOINT ["python"]
