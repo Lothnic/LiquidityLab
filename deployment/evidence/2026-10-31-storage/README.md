@@ -4,7 +4,9 @@
 before database/account initialization. The packaged Kraken profile reserves the
 next bounded raw file and manifest allowance against all retained file sizes.
 It refuses exhausted budgets, concurrent cooperating recorders and unsafe or
-uninspectable entries. Existing recordings and financial history are preserved.
+uninspectable entries. Admission has no file-deletion or financial-history
+mutation path. The isolated smoke below verifies retained fixture bytes and
+refusal before database access; it contains no account history to compare.
 
 The clean committed source snapshot produced a local paper image. Its real shell
 entrypoint was exercised in a disposable container with no network or host volumes.

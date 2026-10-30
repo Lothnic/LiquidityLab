@@ -152,5 +152,25 @@
     "\tbuild\tvcs.time=2026-10-30T22:58:01Z",
     "\tbuild\tvcs.modified=true"
   ],
-  "scope": "Software correctness and local negative container startup only; no trading quality, reliability, capacity, physical disk protection, soak or hosted release claim."
+  "scope": "Software correctness and local negative container startup only; no trading quality, reliability, capacity, physical disk protection, soak or hosted release claim.",
+  "sampler_isolated_repeats": {
+    "command": [
+      "go",
+      "test",
+      "-race",
+      "./benchmarks/runtime",
+      "-run",
+      "^TestDBActivityPostgresObservesOnlyOwnedLockWait$",
+      "-count=30"
+    ],
+    "environment": {
+      "GOMAXPROCS": "2",
+      "GOFLAGS": "-p=2",
+      "postgres": "Actual development fixture DSN configured; withheld"
+    },
+    "exit_code": 0,
+    "log": "sampler-isolated-repeats.log",
+    "sha256": "903bc728d100d8ab0ca5df5258d1c12942ea1694541bd77f1df8e8d08a90754b",
+    "scope": "Original test before correction; thirty isolated parent repetitions passed. Not a reliability or performance measurement."
+  }
 }
