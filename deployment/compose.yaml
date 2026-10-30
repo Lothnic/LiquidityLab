@@ -69,6 +69,13 @@ services:
     depends_on:
       db: {condition: service_healthy}
       worker: {condition: service_healthy}
+    healthcheck:
+      # Process/API availability only; market readiness is reported by the account API.
+      test: [CMD, python3, -c, 'import json,urllib.request; r=urllib.request.urlopen("http://127.0.0.1:8080/healthz",timeout=2); data=json.load(r); r.close(); raise SystemExit(0 if r.status == 200 and data.get("status") == "ok" else 1)']
+      interval: 2s
+      timeout: 2s
+      retries: 60
+      start_period: 10s
     stop_grace_period: 45s
   edge:
     mem_limit: ${EDGE_MEMORY:-128m}
@@ -77,7 +84,8 @@ services:
     image: nginx:1.28-bookworm
     network_mode: service:paper
     volumes: ['./nginx.conf:/etc/nginx/nginx.conf:ro']
-    depends_on: [paper]
+    depends_on:
+      paper: {condition: service_healthy}
 secrets:
   api_token:
     file: ./secrets/api_token

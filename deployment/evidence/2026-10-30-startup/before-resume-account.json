@@ -1,0 +1,64 @@
+{
+  "tenant_id": "synthetic-paper-daemon",
+  "account_id": "demo",
+  "revision": 4336,
+  "ready": false,
+  "recovery_required": true,
+  "profile": "paper",
+  "data_source": "synthetic",
+  "balances": [
+    {
+      "currency": "BTC",
+      "total": "1.101",
+      "free": "1.101",
+      "locked": "0"
+    },
+    {
+      "currency": "USD",
+      "total": "9989.87914807",
+      "free": "9989.87914807",
+      "locked": "0"
+    }
+  ],
+  "reserved": [
+    {
+      "currency": "BTC",
+      "amount": "0"
+    },
+    {
+      "currency": "USD",
+      "amount": "0"
+    }
+  ],
+  "plan_status": "cancelled",
+  "plan": {
+    "id": "container-ppo-handoff-loss-20261030-c",
+    "revision": 5,
+    "status": "cancelled",
+    "started": true,
+    "start": "2026-10-30T12:43:39.977857326Z",
+    "deadline": "2026-10-30T12:48:39.863278Z",
+    "spec": {
+      "side": "buy",
+      "quantity": "0.02",
+      "limit_price": "102",
+      "deadline_ns": 299885420674,
+      "max_child_quantity": "0.01",
+      "quote_budget": "1000",
+      "base_balance": "1",
+      "symbol": "BTC/USD"
+    },
+    "policy": "liquidity-aware",
+    "filled": "0.001",
+    "remaining": "0.019",
+    "average_price": "99.99",
+    "arrival_mid": "100",
+    "benchmark_valid": true,
+    "executed_cost_quote": "0.00008999",
+    "fees_base": "0",
+    "fees_quote": "0.00009999"
+  },
+  "child": null,
+  "fill_count": 1,
+  "fills_truncated": false
+}

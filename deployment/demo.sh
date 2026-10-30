@@ -27,7 +27,7 @@ case "$command" in
     export PAPER_MODE="$command"
     docker compose up -d db worker
     # Recreate both shared-network services together when switching modes.
-    docker compose up -d --force-recreate paper edge
+    docker compose up -d --force-recreate --wait --wait-timeout 120 paper edge
     ;;
   stop) docker compose down ;;
   logs) docker compose logs --tail 100 paper worker edge ;;

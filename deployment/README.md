@@ -56,6 +56,15 @@ to the Docker host's loopback. For remote hosting, place authenticated TLS ingre
 on the same host or use an SSH tunnel. No provider, domain, TLS certificate or
 public deployment is configured by this package.
 
+The paper container healthcheck calls its local `/healthz` endpoint every two
+seconds and requires HTTP 200 with `{"status":"ok"}`. This reports HTTP service
+availability only; it does not certify a valid market book, feed continuity, or
+account readiness. A feed gap can leave the API available while the account is
+not ready. Use the account's readiness and recovery fields for trading decisions.
+The edge service waits for the paper service to become healthy. The `create` and
+`resume` helper waits for paper and edge, including their healthy dependencies,
+for up to 120 seconds and exits nonzero on startup failure.
+
 Policy startup must pass Go's pinned hash/schema checks. Fallback is explicitly
 `pause`: worker failure or stale proposals pause the session. Worker readiness
 checks socket connectivity only; Go performs the policy handshake. The worker
@@ -111,10 +120,18 @@ its pinned report and policy digest, BTC `1`, USD `10000`, and the empty fill li
 The terminal plan stayed cancelled; this does not establish active-session recovery
 or fill retention. Command acceptance does not imply policy proposal acceptance.
 
+After adding the process-availability check, an explicit resume of the same
+cancelled account was used to verify startup waits and health reporting. The
+bounded post-fix record is linked as
+[`startup-health-summary.json`](evidence/2026-10-30-startup/startup-health-summary.json);
+it records container health separately from account readiness, retained balances,
+and child state. It is a startup/recovery observation, not evidence of market
+availability or a continuously healthy feed.
+
 Curated credential-free responses, command bodies/receipts, revision-pinned reports,
 image IDs, effective resource limits and SHA-256 digests are in
 [`evidence/2026-10-30`](evidence/2026-10-30/). Build/training success and safe failure
-handling are demonstrated; successful container policy execution, target-host
+handling describe that initial run; later execution is recorded below. Target-host
 latency/capacity and strategy quality remain unproved. No public host was deployed.
 
 Docker context selection depends on the host. Inspect `docker context ls` and use
@@ -132,3 +149,20 @@ working-tree execution evidence, not a clean source release. Distinct final
 container metadata and health/account responses are retained beside the original
 records. The bundle provenance records PPO, seed, requested/actual timesteps and
 the manifest's dataset, dependency-lock and implementation digests directly.
+
+### Execution after the bounded result handoff
+
+Runtime commit `b795231` retained returned policy results for ordinary source
+catch-up within their original deadlines. The same immutable trained model then
+completed a `0.1 BTC` plan through 50 simulated fills in about 126 seconds, without
+operator resumes or changes to the 100 ms budget and 500 ms source cadence.
+The order-size cap did not force a fill size: participation guards compiled
+smaller quantities. A second plan recorded a maker fill and later paused on
+expiry before the worker stopped; it does not prove a worker-caused fallback.
+
+Both pinned reports, all 51 execution identities and account balances were
+retained through a complete stop/resume. See
+[the post-handoff evidence](evidence/2026-10-30-handoff/README.md) for exact scope,
+model/runtime digests, reports and checksums. The later startup check also observed
+an account requiring recovery while HTTP remained available. Feed continuity,
+latency/fallback rates, operational recovery and soak gates remain open.

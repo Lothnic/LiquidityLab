@@ -1,0 +1,22 @@
+[
+  {
+    "service": "db",
+    "state": "running",
+    "health": "healthy"
+  },
+  {
+    "service": "edge",
+    "state": "running",
+    "health": null
+  },
+  {
+    "service": "paper",
+    "state": "running",
+    "health": "healthy"
+  },
+  {
+    "service": "worker",
+    "state": "running",
+    "health": "healthy"
+  }
+]

@@ -1,0 +1,118 @@
+{
+  "date": "2026-10-30",
+  "scope": "Bounded startup/recovery check for the existing cancelled synthetic paper account; no new plan was created.",
+  "command": {
+    "script": "deployment/demo.sh resume",
+    "environment": {
+      "DOCKER_CONTEXT": "default",
+      "COMPOSE_PROJECT_NAME": "liquiditylab-rlbeta-20261030",
+      "PAPER_PORT": "18882",
+      "PAPER_MODE": "resume"
+    },
+    "compose_up_wait_timeout_seconds": 120,
+    "compose_wait_exit_code": 0,
+    "docker_compose_version": "v2.39.2-desktop.1",
+    "up_wait_and_wait_timeout_supported": true,
+    "operation": "Explicit resume of existing cancelled account; no create command, new plan, or volume reset was used."
+  },
+  "paper_healthcheck": {
+    "endpoint": "http://127.0.0.1:8080/healthz (inside paper container)",
+    "acceptance": "HTTP 200 and JSON status=ok",
+    "interval_seconds": 2,
+    "timeout_seconds": 2,
+    "retries": 60,
+    "start_period_seconds": 10,
+    "meaning": "HTTP process/service availability only; does not assert market validity, feed continuity, or account readiness."
+  },
+  "account": {
+    "tenant_id": "synthetic-paper-daemon",
+    "account_id": "demo",
+    "data_source": "synthetic",
+    "state_before": {
+      "revision": 4336,
+      "ready": false,
+      "recovery_required": true,
+      "plan_status": "cancelled",
+      "child_is_null": true,
+      "fill_count": 1,
+      "balances": [
+        {
+          "currency": "BTC",
+          "total": "1.101",
+          "free": "1.101",
+          "locked": "0"
+        },
+        {
+          "currency": "USD",
+          "total": "9989.87914807",
+          "free": "9989.87914807",
+          "locked": "0"
+        }
+      ]
+    },
+    "state_after": {
+      "revision": 4394,
+      "ready": true,
+      "recovery_required": false,
+      "plan_status": "cancelled",
+      "child_is_null": true,
+      "fill_count": 1,
+      "balances": [
+        {
+          "currency": "BTC",
+          "total": "1.101",
+          "free": "1.101",
+          "locked": "0"
+        },
+        {
+          "currency": "USD",
+          "total": "9989.87914807",
+          "free": "9989.87914807",
+          "locked": "0"
+        }
+      ]
+    },
+    "balances_unchanged": true,
+    "fill_count_unchanged": true,
+    "http_health_before": {
+      "status": "ok"
+    },
+    "http_health_after": {
+      "status": "ok"
+    }
+  },
+  "services_after_resume": [
+    {
+      "service": "db",
+      "state": "running",
+      "health": "healthy"
+    },
+    {
+      "service": "edge",
+      "state": "running",
+      "health": null
+    },
+    {
+      "service": "paper",
+      "state": "running",
+      "health": "healthy"
+    },
+    {
+      "service": "worker",
+      "state": "running",
+      "health": "healthy"
+    }
+  ],
+  "changed_configuration_sha256": {
+    "deployment/compose.yaml": "56d780121aa3d16efd3e902b82b3beaa68e87b5cc173b958eaddb98bcf195515",
+    "deployment/demo.sh": "f29ed1266e4bd32f436b7d2f6b0e71a251225edeec6f5402838391764a10e0e2"
+  },
+  "resume_log": {
+    "path": "$WORK/beta-startup-health-20261030/resume.log",
+    "sha256": "7bf49beacef982f0b81d8fd4c09d3e266ad5b58a31f6bf562f7728454bd8eef2",
+    "credential_pattern_matches": 0
+  },
+  "caveat": "The account was unready and required recovery before resume even though HTTP health returned status=ok. After resume, service health was healthy and the synthetic account became ready; this single observation does not establish feed availability, soak reliability, latency, capacity, or model quality.",
+  "paper_docker_health_before": "No container healthcheck was configured before this change (Compose ps showed no health state).",
+  "paper_docker_health_after": "healthy"
+}
