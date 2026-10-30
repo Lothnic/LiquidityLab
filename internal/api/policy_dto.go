@@ -13,6 +13,7 @@ type PolicyRuntimeDTO struct {
 	PolicySHA256          string    `json:"policy_sha256"`
 	Profile               string    `json:"profile"`
 	Fallback              string    `json:"fallback"`
+	PromotionStatus       string    `json:"promotion_status"`
 	Result                string    `json:"result"`
 	Reason                string    `json:"reason"`
 	Action                d.Action  `json:"action"`
@@ -23,12 +24,29 @@ type PolicyRuntimeDTO struct {
 	ResolvedAt            time.Time `json:"resolved_at"`
 }
 
+// PolicyConfigDTO exposes the account default for the next parent. An existing
+// parent retains its own immutable bundle, exposed through PolicyRuntimeDTO.
+type PolicyConfigDTO struct {
+	PolicySHA256    string `json:"policy_sha256"`
+	Profile         string `json:"profile"`
+	Fallback        string `json:"fallback"`
+	PromotionStatus string `json:"promotion_status"`
+}
+
+func policyConfigProjection(s rt.State) *PolicyConfigDTO {
+	if s.PolicyBundle == nil {
+		return nil
+	}
+	b := s.PolicyBundle
+	return &PolicyConfigDTO{PolicySHA256: b.PolicySHA256, Profile: b.Profile, Fallback: b.Fallback, PromotionStatus: b.PromotionStatus}
+}
+
 func policyProjection(s rt.State) *PolicyRuntimeDTO {
 	if s.Parent == nil || s.Parent.PolicyBundle == nil {
 		return nil
 	}
 	b := s.Parent.PolicyBundle
-	out := &PolicyRuntimeDTO{PolicySHA256: b.PolicySHA256, Profile: b.Profile, Fallback: b.Fallback, Result: "waiting", Action: d.Hold}
+	out := &PolicyRuntimeDTO{PolicySHA256: b.PolicySHA256, Profile: b.Profile, Fallback: b.Fallback, PromotionStatus: b.PromotionStatus, Result: "waiting", Action: d.Hold}
 	audit := s.LastPolicyDecision
 	if s.PolicyPending != nil && s.PolicyPending.ParentID == s.Parent.ID {
 		audit = s.PolicyPending
