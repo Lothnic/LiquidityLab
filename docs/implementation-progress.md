@@ -40,8 +40,14 @@ running writers and restores only into fresh isolated database/file volumes.
 The local drill verified all 13 tables and one sequence, policy file contents and
 permissions, then read both exact pinned reports from an explicitly inspected
 clone. All 51 executions and exact balances survived; no trading command was
-sent. The account was already terminal and recordings were empty, so this does
-not close active-parent recovery, nonempty recording restore or broader beta ops.
+sent. That first drill used a terminal account and empty recordings. The
+[subsequent active drill](../deployment/evidence/2026-10-31-active-restore/README.md)
+restored a queued child's held reservation into paused recovery with deadline and
+all accepted identities intact, and preserved three nonempty recording fixtures.
+It does not prove dispatched/uncertain send or accepted-fill backlog recovery.
+An optional [HTTPS overlay](../deployment/https.md) also passes local certificate,
+protocol, authentication and pinned-report checks. Public-host TLS/renewal,
+credential lifecycle, storage retention, workload/soak and browser gates remain.
 
 ## Verified starting state
 

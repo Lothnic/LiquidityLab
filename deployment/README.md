@@ -183,3 +183,15 @@ verified every schema table and sequence plus bundle-file readback in fresh loca
 volumes. Explicit clone inspection returned both exact pinned reports with all
 51 fills. The source account was terminal and recordings empty; this evidence
 does not close active-parent recovery or nonempty recording restoration.
+
+
+The [active queued-child restore drill](evidence/2026-10-31-active-restore/README.md)
+subsequently preserved a held reservation, deadline, accepted facts and reports
+while ordinary recovery left the plan paused. Three nonempty copied recording
+fixtures survived as well; dispatched/uncertain-send coverage remains separate.
+
+For operator-provided certificates, use the explicit [HTTPS profile](https.md).
+It replaces the HTTP publication and still binds only host loopback. Its
+[local TLS check](evidence/2026-10-31-tls/README.md) verifies authentication,
+certificate/protocol rejection, body limits and retained reports using a test CA.
+Hosting, production certificates, renewal and expiry alerts remain unconfigured.

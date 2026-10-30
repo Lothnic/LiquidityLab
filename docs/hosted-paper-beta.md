@@ -67,7 +67,7 @@ their actual assumption labels. No private exchange credentials are required.
 - [x] Package the Python CPU worker and pinned bundle alongside the Go service,
       using a private local transport, bounded resources and no exchange secrets.
       Startup verifies the model hash and observation schema before account use.
-- [ ] In paper mode, actual model proposals pass through Go's ordinary execution
+- [x] In paper mode, actual model proposals pass through Go's ordinary execution
       checks and simulated order/fill path. In shadow mode, clearly distinguish
       the proposal from the baseline action actually applied.
 - [ ] The desk visibly shows paper/shadow mode, unvalidated training status,
@@ -103,8 +103,11 @@ their actual assumption labels. No private exchange credentials are required.
       readiness. Data gaps must not make stop controls unreachable.
 - [ ] Logs, metrics and actionable alerts cover database/ownership failures, source
       gaps, storage limits, unresolved outcomes and failed recovery.
-- [ ] Restore a backup into a separate paused deployment and verify balances,
-      reservations, fill identities, command results and reports.
+- [x] Restore a backup into a separate paused deployment and verify balances,
+      reservations, fill identities, command results and reports. The local
+      queued-child drill preserves the original deadline and settles its held
+      reservation; dispatched/uncertain sends and backlog recovery under load
+      retain their separate coverage gates.
 - [ ] Exercise process termination and restart under the declared beta workload.
       Accepted effects remain recoverable and original deadlines are retained.
 - [ ] Complete a 24-hour soak within declared recording/storage bounds and publish
@@ -202,7 +205,7 @@ Post-cleanup browser/mobile sign-off remains open after browser access was
 blocked. Earlier PostgreSQL race, conformance and process-recovery evidence is
 recorded in [verification.md](verification.md); it does not validate deployment
 capacity, the new RL views or the eventual hosting environment. Hosting, TLS,
-credential lifecycle, storage retention, backup/restore and soak release gates
+credential lifecycle, storage retention, broader crash/recovery and soak release gates
 remain open.
 
 
@@ -211,6 +214,19 @@ then verified all 13 schema tables and one sequence, the policy files and their
 permissions in fresh isolated volumes. Explicit clone inspection returned the
 exact original pinned reports with all 51 fills; both clone and source retained
 the exact balances and terminal plan. The restore command itself starts only an
-isolated database. Active-parent/held-obligation recovery, nonempty recording
-restore, migration rollback and fresh-host image delivery remain unverified, so
-the broader restore/operations gate stays open.
+isolated database. The subsequent
+[active restore drill](../deployment/evidence/2026-10-31-active-restore/README.md)
+restored an ACTIVE parent with a queued child and held reservation into ready
+PAUSED state, preserving its deadline, policy pin, all previous accepted facts,
+command results, fills and five reports. Three nonempty retained Kraken files
+also survived; they were copied fixtures, not the session's market input.
+Dispatched/uncertain send recovery, accepted-fill debt under load, migration
+rollback and fresh-host image delivery remain separate gates.
+
+
+An optional [certificate-based HTTPS profile](../deployment/https.md) now replaces
+the plaintext port mapping. A [local trusted-test-CA check](../deployment/evidence/2026-10-31-tls/README.md)
+verified TLS 1.2/1.3, hostname/trust rejection, authentication, body limits and exact
+retained reports. Missing/mismatched certificates were refused. No public host or
+certificate was deployed; chosen-host TLS, renewal/expiry alerts, credential
+lifecycle and the remaining release checklist stay open.

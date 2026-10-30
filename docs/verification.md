@@ -697,3 +697,32 @@ the prior full Go race and UI evidence remains separately scoped.
 This terminal-account drill does not establish active-parent/held-obligation
 recovery, nonempty recording restoration, fresh-host image transfer, power-loss
 behavior or hosted reliability. Those broader operations gates remain open.
+
+
+### Active queued-child restore and HTTPS preparation — 31 October 2026
+
+The [active restore record](../deployment/evidence/2026-10-31-active-restore/README.md)
+uses two further isolated projects. After source-container death, an account-row
+lock waits for any server-side commit before the durable cutoff is collected.
+The ACTIVE parent at revision 24115 has a queued passive .002 BTC child and a
+.20037996 USD hold. Offline restore matches the full cutoff; ordinary Go/PPO
+resume advances epoch 9→10, preserves deadline/policy/spec and leaves the parent
+ready PAUSED, with that child obsolete and no hold or new dispatch attempt.
+All 51 executions, 23,492 previous observation rows, 24,055 command rows/results
+and five pinned reports survive. Independent root comparison verifies every
+retained row hash against the private full SQL snapshots and derives balances
+with rational arithmetic. Three nonempty copied Kraken recording fixtures also
+match. All test containers were stopped with volumes retained. This boundary
+had no dispatched/uncertain child or nonzero accepted-fill debt.
+
+Component `959994f` adds an optional certificate-based HTTPS overlay using runtime
+certificate files and replacing the base HTTP publication. The
+[local TLS record](../deployment/evidence/2026-10-31-tls/README.md) verifies trusted
+self-signed test-CA hostname validation, HTTP 200 health/authenticated reads,
+HTTP 401 unauthenticated reads, HTTP 413 ingress body rejection and exact retained
+reports. TLS 1.2/1.3 succeed; TLS 1.1, untrusted/wrong-host certificates and missing
+or mismatched certificate configuration are rejected. An initial isolated test
+bridge failed to publish the port; normal loopback-published bridge verification
+was completed before claiming successful ingress. No production certificate,
+public hostname or browser/mobile review was supplied. Hosted transport,
+renewal/expiry alerts and broader operations gates remain open.
