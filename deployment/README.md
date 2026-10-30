@@ -37,7 +37,10 @@ bundle and secrets for resume; recovery can pause an active session and require
 fresh market readiness and reconciliation. Use the UI's controls to inspect and
 recover it. A daemon run is bounded to 24 hours; it has no automatic restart loop.
 Use explicit `resume` after shutdown. Back up the database and bundle together
-before upgrading; this package supplies no automated backup or migration rollback.
+before upgrading. The explicit [backup and isolated restore workflow](backup-restore.md)
+provides a quiescent schema/bundle/recordings snapshot and an offline clone with
+full row/file verification. Migration rollback and active-session restore remain
+separate operator decisions and verification gates.
 
 Configuration is supplied as shell environment variables when invoking the script:
 `PAPER_SOURCE=synthetic` (default) or `kraken`, `PAPER_ACCOUNT=demo`,
