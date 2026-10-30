@@ -1,46 +1,168 @@
 # LiquidityLab
 
-LiquidityLab is a paper spot-execution system and research environment. It includes a deterministic Go execution runtime with durable PostgreSQL account state, an authenticated HTTP API and local paper server, a React operator desk, and Python replay, Gymnasium, training, and inference tools.
+A crypto spot execution assistant for planning orders, supervising paper trades, and comparing execution strategies on recorded markets.
 
-The paper runtime simulates balances, orders, and fills. It does not send private exchange orders. Public market data, when available, changes the market input only; it does not turn paper execution into live execution. Synthetic feed events and default rules or fees are assumptions, not exchange observations.
+**Go owns execution and accounting. Python provides the RL environment, training, and policy inference. React provides the trader desk.**
 
-## Run the local paper desk
+**Status:** local paper trading is implemented. Balances, orders, fees, and fills are simulated; live exchange execution is not enabled. The current desk supports one BTC/USD paper account per daemon.
 
-The supported local operator flow uses the bounded Go daemon and PostgreSQL. Install the web dependencies, build the UI, and create a paper account with an isolated development database and a fresh bearer token. Use `paper resume` to reopen that account with its retained balances and paused plan. Follow [paper-server.md](docs/paper-server.md) and [paper recovery](docs/paper-recovery.md) for commands, source options and recovery limits. The daemon serves the built UI and authenticated API on the same loopback origin.
+## The trading workflow
 
-The [trader UI guide](docs/trader-ui.md) covers the Vite development server, operator flow, exact amount handling, preview and command semantics, freshness, and presentation limits. The UI labels the execution profile as Paper and identifies the data source separately.
+1. **Set limits:** choose buy or sell, an amount, a hard price boundary, a deadline, and a maximum size per order.
+2. **Review the plan:** inspect the proposed first order and required funds before creating a paused plan.
+3. **Start and supervise:** track fills, fees, remaining quantity, balances, and local reservations. Pause, resume, or cancel as needed.
+4. **Inspect the record:** open session history, examine saved reports, and export results.
 
-## Python replay and training
+The deadline starts when a plan is created and continues while paused. Cancellation stays pending until the current order's final state is confirmed.
 
-Use Python 3.12 and `uv` for the Python environment:
+The default execution method is a deterministic baseline: `scheduled` or `liquidity-aware`. A Python policy can propose execution actions through an optional paper/shadow integration; Go validates proposals against the current execution constraints and applies the configured baseline or pause fallback.
+
+## What is implemented
+
+- **Durable paper execution:** PostgreSQL account state, exact decimal accounting, reservations, ordered observations, command retries, and ownership fencing.
+- **Trader desk:** authenticated account access, plan review, execution controls, current fills, session history, and report exports.
+- **Market data:** synthetic demo input, public Kraken recording and normalization, checksum validation, and verified recording archives.
+- **Historical comparisons:** CLI and durable API jobs compare baseline simulations on the same verified recording, with explicit rules, fees, latency, and fill assumptions.
+- **RL tooling:** Python Gymnasium environments, PPO training, a Go replay bridge, and bounded policy inference with fallback.
+- **Recovery evidence:** local process-kill, restart, accepted-fill recovery, and stale-owner checks against development PostgreSQL.
+
+Historical comparison reports contain simulated references and alternatives. Their estimated cost differences are not realized savings. The replay comparison UI and reconstruction of a trader's actual execution remain unfinished.
+
+## Run the paper desk
+
+### Prerequisites
+
+The verified development setup uses Linux, Go **1.26.8**, Node.js **26** / npm **11**, and PostgreSQL **18.6**. Python **3.12** and [`uv`](https://docs.astral.sh/uv/) are needed for the Python workflows below. Archive filesystem operations currently require Linux.
+
+Start with an existing, dedicated development PostgreSQL database and a database role that can create the configured schema. The database and role in the example URL must already exist.
+
+### Build and start
+
+From the repository root:
 
 ```sh
-uv sync --extra dev --python 3.12
+npm --prefix apps/web ci
+npm --prefix apps/web run build
+
+mkdir -p build
+go build -o build/liquiditylabd ./cmd/liquiditylabd
+
+export LIQUIDITYLAB_DATABASE_URL='postgres://liquiditylab@localhost/liquiditylab'
+export LIQUIDITYLAB_API_TOKEN="$(openssl rand -hex 32)"
+
+build/liquiditylabd paper create \
+  --listen 127.0.0.1:8080 \
+  --schema ll_paper_demo \
+  --account demo \
+  --source synthetic \
+  --web-dir apps/web/dist \
+  --initial-base 0 \
+  --initial-quote 1000 \
+  --duration 30m
 ```
 
-Run a deterministic generated demo or replay the checked-in fixtures:
+Open **[localhost:8080](http://127.0.0.1:8080/)** and paste the value of `LIQUIDITYLAB_API_TOKEN` into the access-token field. The token stays in tab memory and is cleared on disconnect. Use a fresh token for your server; never commit it.
+
+This example starts with **0 synthetic BTC and 1,000 synthetic USD**. Prices come from a generated demo feed. The daemon serves the built UI and API from the same loopback address and applies database migrations automatically.
+
+### Resume an existing account
+
+Creation refuses to reset an existing account. To reopen it, use the same database URL, schema, and account with `resume`:
 
 ```sh
-uv run liquiditylab demo --policy scheduled --side buy
-uv run liquiditylab demo --policy liquidity-aware --side sell
-uv run liquiditylab replay examples/synthetic.jsonl --plan examples/buy-plan.json --policy scheduled --output artifacts/buy-report.json
-uv run liquiditylab replay examples/synthetic.jsonl --plan examples/sell-plan.json --policy scheduled --output artifacts/sell-report.json
+build/liquiditylabd paper resume \
+  --listen 127.0.0.1:8080 \
+  --schema ll_paper_demo \
+  --account demo \
+  --source synthetic \
+  --web-dir apps/web/dist \
+  --duration 30m
 ```
 
-Optional PPO training uses the separate RL extra because PyTorch is large:
+Resume preserves retained balances and deadlines, recovers accepted paper effects, and leaves recovered plans paused. Initial-balance flags are rejected in resume mode.
+
+See the [paper server guide](docs/paper-server.md), [recovery guide](docs/paper-recovery.md), and [trader UI guide](docs/trader-ui.md) for source options, development setup, and lifecycle details.
+
+## Replay and RL
+
+### Run a baseline without PostgreSQL
 
 ```sh
-uv run --extra rl python -m liquiditylab.training examples/training-tape.jsonl --plan examples/buy-plan.json --output artifacts/policy-001 --timesteps 2048 --seed 0
+uv sync --locked --extra dev --python 3.12
+uv run --locked liquiditylab demo --policy scheduled --side buy
+uv run --locked liquiditylab demo --policy liquidity-aware --side sell
 ```
 
-Bundles start as unvalidated and are not live eligible. Training and replay checks establish software behavior, not policy quality or execution performance. The Go execution core is the durable runtime and also supports replay and Python Gymnasium/SB3 integration; see [Go replay setup](docs/go-replay.md) and the [inference worker and Go client](docs/inference.md).
+Replay a checked-in synthetic tape with an explicit plan:
 
-## Current scope and limits
+```sh
+mkdir -p artifacts
+uv run --locked liquiditylab replay examples/synthetic.jsonl \
+  --plan examples/buy-plan.json \
+  --policy scheduled \
+  --output artifacts/buy-report.json
+```
 
-The Go paper runtime, durable store and actor, authenticated API, bounded local server, Python inference worker/client, and React desk are implemented. The default execution mode is the deterministic baseline. Explicit paper/shadow opt-in connects asynchronous Python proposals with durable slot resolution and configured baseline/pause fallback; see [policy runtime](docs/policy-runtime.md). Revision-pinned [session history](docs/session-history.md) preserves exact accounting and stored event inspection. A real 50-frame Kraken recording with 45-event Go/Python normalization conformance is retained; this short capture verifies that slice, not sustained feed operations. Synthetic source events are generated demo input.
+### Train a policy
 
-The Go CLI can [archive verified public recordings](docs/market-archive.md) and [compare bounded historical baseline simulations](docs/historical-replay.md). Recorded paper sessions can prospectively [pin a sealed archive and decision cursors](docs/source-provenance.md). The daemon optionally runs [durable replay jobs](docs/replay-jobs.md) with authenticated history, cancellation and exact report downloads. Every comparison scenario is an estimate with explicit assumptions. Actual-session comparison, unsealed live-source binding and trader replay UI remain outstanding.
+The optional RL dependencies include PyTorch and Stable-Baselines3:
 
-Live private exchange access and order transport are unavailable. Local paper recovery has process-kill and suspended-sender checks; its database effect fence provides no external exchange fencing guarantee. Design-user acceptance, deployment hardening, policy evaluation/promotion, shared multi-account operation and measured product capacity remain outstanding. Stored event inspection does not replay market data. Replay throughput benchmarks do not establish supported account capacity. See the [implementation status](docs/implementation-progress.md), [runtime plan](docs/go-runtime-plan.md), and [verification evidence](docs/verification.md) for progress and limitations.
+```sh
+uv run --locked --extra rl python -m liquiditylab.training \
+  examples/training-tape.jsonl \
+  --plan examples/buy-plan.json \
+  --output artifacts/policy-001 \
+  --timesteps 2048 \
+  --seed 7
+```
 
-The JSONL fixture is intentionally small and deterministic. It covers relative receipt times from 0 through 64 seconds, including a snapshot, absolute quantity book updates, trades, and a feed gap. Its generated demo outcomes, balances, fee settings, and instrument assumptions do not establish execution quality or profitability. See [simulation assumptions](docs/simulation.md) before interpreting reports.
+Policy bundles start **unvalidated** and are not live eligible. Training on the example tape demonstrates the pipeline; policy quality still requires holdout evaluation and promotion gates. Python remains the default training backend; the measured synthetic Go bridge has not justified switching that default.
+
+For Go-backed Gymnasium/PPO integration, see [Go replay and training](docs/go-replay.md). For paper/shadow inference, see [policy runtime](docs/policy-runtime.md).
+
+### Compare strategies on verified recordings
+
+The Go CLI imports recordings into content-addressed archives and compares baseline scenarios with exact fills, fees, cashflows, and residual quantities. A retained public Kraken capture is included in [`examples/recordings/`](examples/recordings/).
+
+Recorded paper sessions can [pin a verified sealed archive and decision cursors](docs/source-provenance.md). Legacy sessions and unsealed live inputs remain unbound; matching a symbol or timestamp does not establish source lineage.
+
+Follow the [archive guide](docs/market-archive.md) and [historical comparison guide](docs/historical-replay.md). To run comparisons as persistent authenticated API jobs, start the paper daemon with `--replay-archive /absolute/archive/root`; see [replay jobs](docs/replay-jobs.md).
+
+## Code layout
+
+| Location | Responsibility |
+| --- | --- |
+| [`cmd/`](cmd/) | Go CLI and daemon entry points |
+| [`internal/`](internal/) | Execution core, replay engine, account actors, market data, API, inference client, and persistence |
+| [`migrations/`](migrations/) | Versioned PostgreSQL schema |
+| [`apps/web/`](apps/web/) | React and TypeScript trader desk |
+| [`src/liquiditylab/`](src/liquiditylab/) | Python reference engine, Gymnasium integration, training, and inference |
+| [`proto/`](proto/), [`gen/`](gen/), [`conformance/`](conformance/) | Shared contracts, generated bindings, and cross-language fixtures |
+| [`examples/`](examples/), [`benchmarks/`](benchmarks/) | Example plans/tapes, retained recordings, and scoped benchmark evidence |
+
+Go is the authority for paper execution. Inference and analytical replay jobs run outside the account actor; neither can bypass its financial controls. Replay workers use a separate bounded database pool, and replay HTTP requests have separate admission slots from trading controls.
+
+## Checks and evidence
+
+Common development commands:
+
+```sh
+go test -race ./...
+uv run --locked --extra dev pytest -q
+npm --prefix apps/web test
+npm --prefix apps/web run build
+```
+
+Integration coverage requires additional configuration. PostgreSQL checks use `LIQUIDITYLAB_TEST_POSTGRES_DSN`; Go/Python process checks use the interpreter and replay-binary settings documented in the [verification record](docs/verification.md) and [Go replay guide](docs/go-replay.md). Cases without their required configuration may be skipped. Shared contract verification is documented in [`conformance/`](conformance/README.md).
+
+Recorded checks demonstrate software behavior within their stated scope. They do not establish production capacity, policy quality, or live-trading readiness.
+
+## Remaining work
+
+- Finish the trader replay UI, source reconstruction, and actual-session comparisons.
+- Add shared feeds, account supervision, and bounded multi-account scheduling.
+- Complete immutable policy evaluation and promotion gates.
+- Implement private exchange transport, reconciliation, and a separately authorized bounded pilot.
+- Complete deployment hardening, supported-capacity measurements, a 24-hour soak, backup/restore drills, and trader usability validation.
+
+The [progress ledger](docs/implementation-progress.md) tracks delivered components and open acceptance gates. The [Go runtime plan](docs/go-runtime-plan.md) describes the architecture and delivery sequence; [simulation assumptions](docs/simulation.md) explains how to interpret replay results.
