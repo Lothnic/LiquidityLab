@@ -1,0 +1,108 @@
+{
+  "policy_runtime": {
+    "policy_sha256": "b1f012e7a9368093f88d1ca3c59613c26443c8866354e8b13e8a878d42aaf9bf",
+    "profile": "paper",
+    "fallback": "pause",
+    "promotion_status": "unvalidated",
+    "result": "fallback_pause",
+    "reason": "source_facts_pending",
+    "action": 1,
+    "observation_snapshot_id": "web-feed-1093b55209edd1c7653ed143-905",
+    "applied_snapshot_id": "web-feed-1093b55209edd1c7653ed143-906",
+    "expires_at": "2026-10-30T15:33:05.704569726+05:30",
+    "resolved_at": "2026-10-30T15:33:05.612414093+05:30"
+  },
+  "policy_config": {
+    "policy_sha256": "b1f012e7a9368093f88d1ca3c59613c26443c8866354e8b13e8a878d42aaf9bf",
+    "profile": "paper",
+    "fallback": "pause",
+    "promotion_status": "unvalidated"
+  },
+  "tenant_id": "synthetic-paper-daemon",
+  "account_id": "rl-beta-demo",
+  "profile": "paper",
+  "data_source": "synthetic",
+  "revision": 1844,
+  "authority_revision": 1829,
+  "ready": true,
+  "recovery_required": false,
+  "plan_status": "expired",
+  "base_currency": "BTC",
+  "quote_currency": "USD",
+  "clock_discontinuity": false,
+  "market": {
+    "valid": true,
+    "snapshot_id": "web-feed-d33d9835825248f57a522aa9-16",
+    "instrument_revision": "synthetic-rules-v1",
+    "best_bid": "99.99",
+    "best_ask": "100.01"
+  },
+  "rules": {
+    "symbol": "BTC/USD",
+    "tick_size": "0.01",
+    "lot_size": "0.001",
+    "min_quantity": "0.001",
+    "min_notional": "0.01"
+  },
+  "fees": {
+    "maker": "0.001",
+    "taker": "0.002",
+    "currency": "quote",
+    "source": "synthetic-assumption"
+  },
+  "balances": [
+    {
+      "currency": "BTC",
+      "total": "0.02",
+      "free": "0.02",
+      "locked": "0"
+    },
+    {
+      "currency": "USD",
+      "total": "998.9978998",
+      "free": "998.9978998",
+      "locked": "0"
+    }
+  ],
+  "reserved": [
+    {
+      "currency": "BTC",
+      "amount": "0"
+    },
+    {
+      "currency": "USD",
+      "amount": "0"
+    }
+  ],
+  "plan": {
+    "id": "rl-demo-worker-loss-20261030",
+    "revision": 7,
+    "status": "expired",
+    "started": true,
+    "start": "2026-10-30T10:02:13.483782582Z",
+    "deadline": "2026-10-30T10:12:13.47448Z",
+    "spec": {
+      "side": "buy",
+      "quantity": "0.1",
+      "limit_price": "102",
+      "deadline_ns": 599990697418,
+      "max_child_quantity": "0.01",
+      "quote_budget": "900",
+      "base_balance": "0.01",
+      "symbol": "BTC/USD"
+    },
+    "policy": "liquidity-aware",
+    "filled": "0",
+    "remaining": "0.1",
+    "average_price": "0",
+    "arrival_mid": "100",
+    "benchmark_valid": true,
+    "executed_cost_quote": "0",
+    "fees_base": "0",
+    "fees_quote": "0"
+  },
+  "child": null,
+  "fills": [],
+  "fill_count": 0,
+  "fills_truncated": false
+}

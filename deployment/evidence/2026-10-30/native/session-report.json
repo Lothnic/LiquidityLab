@@ -1,0 +1,129 @@
+{
+  "rules": {
+    "symbol": "BTC/USD",
+    "tick_size": "0.01",
+    "lot_size": "0.001",
+    "min_quantity": "0.001",
+    "min_notional": "0.01"
+  },
+  "fees": {
+    "maker": "0.001",
+    "taker": "0.002",
+    "currency": "quote",
+    "source": "synthetic-assumption"
+  },
+  "simulation": {
+    "decision_interval_ns": 1000000000,
+    "submission_latency_ns": 50000000,
+    "cancel_latency_ns": 50000000,
+    "settlement_allowance_ns": 30000000000,
+    "lambda_miss": 100,
+    "max_participation": "0.25",
+    "min_resting_age_ns": 2000000000,
+    "min_message_interval_ns": 100000000,
+    "fill_model": "conservative-v0"
+  },
+  "policy_runtime": {
+    "policy_sha256": "b1f012e7a9368093f88d1ca3c59613c26443c8866354e8b13e8a878d42aaf9bf",
+    "profile": "paper",
+    "fallback": "pause",
+    "promotion_status": "unvalidated",
+    "result": "policy_action",
+    "reason": "accepted",
+    "action": 6,
+    "proposed_action": 6,
+    "observation_snapshot_id": "web-feed-1093b55209edd1c7653ed143-287",
+    "applied_snapshot_id": "web-feed-1093b55209edd1c7653ed143-288",
+    "expires_at": "2026-10-30T15:27:56.705754828+05:30",
+    "resolved_at": "2026-10-30T15:27:56.618995037+05:30"
+  },
+  "tenant_id": "synthetic-paper-daemon",
+  "account_id": "rl-beta-demo",
+  "version": "session-report-v1",
+  "plan_id": "rl-demo-model-and-fallback-20261030",
+  "created_revision": 121,
+  "revision": 302,
+  "created_at": "2026-10-30T15:26:31.191118+05:30",
+  "updated_at": "2026-10-30T15:27:57.624505+05:30",
+  "profile": "paper",
+  "data_source": "synthetic",
+  "base_currency": "BTC",
+  "quote_currency": "USD",
+  "status": "active",
+  "side": "buy",
+  "symbol": "BTC/USD",
+  "quantity": "0.1",
+  "limit_price": "102",
+  "policy": "liquidity-aware",
+  "policy_sha256": "b1f012e7a9368093f88d1ca3c59613c26443c8866354e8b13e8a878d42aaf9bf",
+  "as_of_revision": 302,
+  "plan": {
+    "id": "rl-demo-model-and-fallback-20261030",
+    "revision": 4,
+    "status": "active",
+    "started": true,
+    "start": "2026-10-30T09:57:07.076190911Z",
+    "deadline": "2026-10-30T09:59:31.177173Z",
+    "spec": {
+      "side": "buy",
+      "quantity": "0.1",
+      "limit_price": "102",
+      "deadline_ns": 144100982089,
+      "max_child_quantity": "0.01",
+      "quote_budget": "1000",
+      "base_balance": "0.01",
+      "symbol": "BTC/USD"
+    },
+    "policy": "liquidity-aware",
+    "filled": "0.01",
+    "remaining": "0.09",
+    "average_price": "100.01",
+    "arrival_mid": "100",
+    "benchmark_valid": true,
+    "executed_cost_quote": "0.0021002",
+    "fees_base": "0",
+    "fees_quote": "0.0020002"
+  },
+  "child": {
+    "id": "child-b0f54186e2be9eb40f5c68ae4710622b",
+    "intent": {
+      "side": "buy",
+      "quantity": "0.01",
+      "price": "100.02",
+      "passive": false
+    },
+    "remaining": "0",
+    "state": "attempted",
+    "known_final": false,
+    "cancel_requested": false
+  },
+  "fills": [
+    {
+      "execution_id": "paper-child-b0f54186e2be9eb40f5c68ae4710622b-1",
+      "order_id": "child-b0f54186e2be9eb40f5c68ae4710622b",
+      "side": "buy",
+      "quantity": "0.01",
+      "price": "100.01",
+      "fee": "0.0020002",
+      "fee_currency": "quote",
+      "time_ns": 50537457433,
+      "maker": false
+    }
+  ],
+  "completion_percent": "10",
+  "known_final": false,
+  "recovery_required": false,
+  "deadline_result": "in-progress",
+  "market": {
+    "valid": true,
+    "snapshot_id": "web-feed-1093b55209edd1c7653ed143-289",
+    "instrument_revision": "synthetic-rules-v1",
+    "best_bid": "99.99",
+    "best_ask": "100.01"
+  },
+  "residual_reference_mid": "100",
+  "residual_reference_revision": 302,
+  "residual_reference_kind": "observed-as-of",
+  "residual_opportunity_quote": "0",
+  "marked_cost_estimate_quote": "0.0021002"
+}

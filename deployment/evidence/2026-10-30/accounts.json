@@ -1,0 +1,14 @@
+{
+  "accounts": [
+    {
+      "tenant_id": "synthetic-paper-daemon",
+      "account_id": "demo",
+      "profile": "paper",
+      "data_source": "synthetic",
+      "revision": 28,
+      "authority_revision": 3,
+      "ready": true,
+      "recovery_required": false
+    }
+  ]
+}

@@ -12,10 +12,16 @@ Go execution checks and fallback behavior; the demo policy remains unvalidated.
 Deployment preparation comes first; the hosting provider and domain will be
 selected afterward.
 
+Try the [RL paper demo](docs/rl-paper-demo.md) or the
+[portable container setup](deployment/README.md). A native run accepted a real
+model action and produced a simulated fill. The container workflow builds,
+trains and recovers its account, but repeatable model execution in that package
+remains an open beta gate.
+
 ## The trading workflow
 
 1. **Set limits:** choose buy or sell, an amount, a hard price boundary, a deadline, and a maximum size per order.
-2. **Review the plan:** inspect the proposed first order and required funds before creating a paused plan.
+2. **Review the plan:** inspect the baseline order preview and required funds before creating a paused plan. With RL enabled, this preview is not a model prediction.
 3. **Start and supervise:** track fills, fees, remaining quantity, balances, and local reservations. Pause, resume, or cancel as needed.
 4. **Inspect the record:** open session history, examine saved reports, and export results.
 
@@ -29,7 +35,7 @@ The default execution method is a deterministic baseline: `scheduled` or `liquid
 - **Trader desk:** authenticated account access, plan review, execution controls, current fills, session history, and report exports.
 - **Market data:** synthetic demo input, public Kraken recording and normalization, checksum validation, and verified recording archives.
 - **Historical comparisons:** CLI and durable API jobs compare baseline simulations on the same verified recording, with explicit rules, fees, latency, and fill assumptions.
-- **RL tooling:** Python Gymnasium environments, PPO training, a Go replay bridge, and bounded policy inference with fallback.
+- **RL integration:** Python Gymnasium environments, PPO training, a Go replay bridge, bounded policy inference with fallback, and visible proposed/applied actions in the desk and saved reports.
 - **Recovery evidence:** local process-kill, restart, accepted-fill recovery, and stale-owner checks against development PostgreSQL.
 
 Historical comparison reports contain simulated references and alternatives. Their estimated cost differences are not realized savings. The replay comparison UI and reconstruction of a trader's actual execution remain unfinished.
@@ -124,7 +130,7 @@ uv run --locked --extra rl python -m liquiditylab.training \
 
 Policy bundles start **unvalidated** and are not live eligible. Training on the example tape demonstrates the pipeline; policy quality still requires holdout evaluation and promotion gates. Python remains the default training backend; the measured synthetic Go bridge has not justified switching that default.
 
-For Go-backed Gymnasium/PPO integration, see [Go replay and training](docs/go-replay.md). For paper/shadow inference, see [policy runtime](docs/policy-runtime.md).
+For Go-backed Gymnasium/PPO integration, see [Go replay and training](docs/go-replay.md). The current inference worker requires a bundle trained through the owned Go backend; the default Python bundle above is not compatible with that worker. Follow the [RL paper demo](docs/rl-paper-demo.md) to train and use a compatible bundle in the trader desk. For the request and fallback contract, see [policy runtime](docs/policy-runtime.md).
 
 ### Compare strategies on verified recordings
 
@@ -143,6 +149,7 @@ Follow the [archive guide](docs/market-archive.md) and [historical comparison gu
 | [`migrations/`](migrations/) | Versioned PostgreSQL schema |
 | [`apps/web/`](apps/web/) | React and TypeScript trader desk |
 | [`src/liquiditylab/`](src/liquiditylab/) | Python reference engine, Gymnasium integration, training, and inference |
+| [`deployment/`](deployment/) | Portable paper/CPU policy images, local Compose lifecycle, resource limits and retained demo evidence |
 | [`proto/`](proto/), [`gen/`](gen/), [`conformance/`](conformance/) | Shared contracts, generated bindings, and cross-language fixtures |
 | [`examples/`](examples/), [`benchmarks/`](benchmarks/) | Example plans/tapes, retained recordings, and scoped benchmark evidence |
 

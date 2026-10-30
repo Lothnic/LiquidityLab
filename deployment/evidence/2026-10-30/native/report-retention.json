@@ -1,0 +1,10 @@
+{
+  "report_as_of_revision": 302,
+  "parsed_report_equal_after_resume": true,
+  "canonical_json_sha256": "99db36807d793eb73ecbf908325424a95402977fbe30d5fbfb15d5af4328a9d1",
+  "model_result": "policy_action",
+  "proposed_action": 6,
+  "applied_action": 6,
+  "filled": "0.01",
+  "fill_count": 1
+}

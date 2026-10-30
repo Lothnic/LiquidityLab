@@ -1,0 +1,21 @@
+{
+  "backend": "go",
+  "status": "unvalidated",
+  "live_eligible": false,
+  "policy_sha256": "506b1eff74b090e0a8b72c407e8271aa649db87f8323ad344f643a1f67697b26",
+  "algorithm": "PPO",
+  "seed": 7,
+  "requested_timesteps": 2048,
+  "actual_timesteps": 2048,
+  "dataset_sha256": "9a1e1f24ac9e1764ff969b5f41aef26616fd72ec4584442cb7eb700214dcd2bf",
+  "dependency_lock_sha256": "a76657461acad220283541424d59c04d51f62cf0b6dea6291df936ae1893fd77",
+  "implementation_sha256": "7090d0d56d2f60ddb75b285b2f3a9fd782158ec5b1d7a3767a60d605d2d3c81b",
+  "go_replay": {
+    "environment": "LiquidityLab-SpotExecution-v1",
+    "provenance": "owned-local-process-binary",
+    "binary_path": "/usr/local/bin/liquiditylabd",
+    "binary_sha256": "77b61f9ca9af9bda1b3dff7cd8a1e102261c54bd420966a74187802a5fb21004",
+    "num_envs": 4,
+    "max_batch_operations": 100000
+  }
+}

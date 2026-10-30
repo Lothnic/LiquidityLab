@@ -15,6 +15,17 @@ it does not pass the separate policy-quality or live-promotion gates.
 The remaining full-project requirements below stay open and are not implied
 complete by a paper-beta release.
 
+The 30 October delivery adds a visible RL execution panel, strict model/action
+projections and saved decision views. A native 2,048-step Go-backed PPO demo
+produced an accepted model action and a `0.01 BTC` simulated fill. Portable
+Go/frontend/Python images and a resource-bounded Compose lifecycle now build and
+run locally, including actual PPO preparation, scoped account access, audited
+worker-unavailable fallback, cancellation and terminal-account restart. Its
+healthy-worker attempts paused on expiry/source backlog, so successful repeatable
+packaged model execution remains a beta blocker. Container active-session/fill
+recovery, hosted access, operational gates and browser sign-off remain open. See
+the [demo guide](rl-paper-demo.md) and [package evidence](../deployment/README.md).
+
 ## Verified starting state
 
 - Python reference environment, accounting, recorder, baseline CLI, PPO integration, and 40 checks were implemented before this migration.

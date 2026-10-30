@@ -77,6 +77,10 @@ their actual assumption labels. No private exchange credentials are required.
 - [ ] Demonstrate worker loss or an expired proposal, the configured pause or
       baseline fallback, and responsive trader controls. Recovery must retain
       the same account and pinned policy identity.
+- [ ] Repeat the packaged healthy-worker workflow with accepted model actions and
+      simulated fills under the declared source workload. Investigate repeated
+      deadline/source-backlog pauses while preserving expiry, source ordering and
+      account-authority checks.
 - [ ] Supply a repeatable guided demo from training through the packaged desk,
       history and report export. Label synthetic market inputs explicitly; do
       not claim measured AI savings or performance without a valid comparison.
@@ -142,9 +146,37 @@ gates. The actual RL-assisted paper demo above is required for this beta.
 
 ## Current evidence
 
+On 30 October the native demo trained a real 2,048-step PPO policy through four
+Go replay environments. A revision-pinned report records an accepted proposal
+and Go action (`6`) with a `0.01 BTC` simulated fill. The desk now exposes actual
+model/Go decisions, model status, fallback and historical decision provenance.
+These facts establish the wiring and one execution, not strategy quality or a
+reliability rate.
+
+The native feed later stopped after roughly 1,797 receipts and required account
+recovery. An explicit daemon resume retained the original deadline, balances
+including the earlier fill, and the parsed revision-302 report unchanged. The
+source failure's cause has not been established; reliable feed operation and
+recovery under the declared workload remain beta gates.
+
+The [portable package](../deployment/README.md) also built its images, trained a
+separate Go-backed CPU policy, created a ready account and served the desk/API in
+an isolated local Docker project. Worker loss produced an audited
+`fallback_pause / worker_unavailable`; cancellation and stop/resume retained the
+terminal account and reports. Its healthy-worker attempts paused on expiry and
+pending source facts, with no accepted policy action or fill. Repeatable
+packaged RL execution remains a release blocker. The retained terminal restart
+does not prove active-session or fill recovery in the package.
+
 The Go execution/store, authenticated API, baseline paper desk and history are
-implemented. The UI cleanup passes its 48 existing component checks and production
-build. Post-cleanup browser/mobile sign-off remains open after browser access was
+implemented. The 48 existing UI checks pass against the new RL views, along with
+the production build; they do not establish dedicated RL-view or browser coverage.
+The 216 Python checks pass without skips using the fixed pre-handoff Go replay
+binary. The new Go/API code builds, and the source design detector reports no
+findings. Full Go verification of the policy-result handoff is still pending.
+Post-cleanup browser/mobile sign-off remains open after browser access was
 blocked. Earlier PostgreSQL race, conformance and process-recovery evidence is
 recorded in [verification.md](verification.md); it does not validate deployment
-packaging or the eventual hosting environment.
+capacity, the new RL views or the eventual hosting environment. Hosting, TLS,
+credential lifecycle, storage retention, backup/restore and soak release gates
+remain open.

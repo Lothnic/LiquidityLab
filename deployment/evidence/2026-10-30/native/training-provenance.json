@@ -1,0 +1,85 @@
+{
+  "algorithm": "PPO",
+  "policy_sha256": "b1f012e7a9368093f88d1ca3c59613c26443c8866354e8b13e8a878d42aaf9bf",
+  "backend": "go",
+  "environment": "LiquidityLab-SpotExecution-v1",
+  "status": "unvalidated",
+  "live_eligible": false,
+  "requested_timesteps": 2048,
+  "actual_timesteps": 2048,
+  "seed": 7,
+  "num_envs": 4,
+  "go_binary_sha256": "e166839ebdafbcffa6900ea9ffb518716a62f416e112efb1f453b1017ad379e6",
+  "dataset_sha256": "9a1e1f24ac9e1764ff969b5f41aef26616fd72ec4584442cb7eb700214dcd2bf",
+  "implementation_sha256": "7090d0d56d2f60ddb75b285b2f3a9fd782158ec5b1d7a3767a60d605d2d3c81b",
+  "dependency_lock_sha256": "a76657461acad220283541424d59c04d51f62cf0b6dea6291df936ae1893fd77",
+  "assumptions": {
+    "training_tape": "examples/training-tape.jsonl",
+    "plan": {
+      "side": "buy",
+      "quantity": "0.060",
+      "limit_price": "100.05",
+      "deadline": 30.0,
+      "max_child_quantity": "0.060",
+      "quote_budget": "20",
+      "base_balance": "0",
+      "symbol": "BTC/USD"
+    },
+    "instrument_rules": {
+      "symbol": "BTC/USD",
+      "tick_size": "0.01",
+      "lot_size": "0.001",
+      "min_quantity": "0.001",
+      "min_notional": "0.01"
+    },
+    "fees": {
+      "maker": "0.001",
+      "taker": "0.002",
+      "currency": "quote",
+      "source": "synthetic-assumption"
+    },
+    "replay_config": {
+      "decision_interval": 1.0,
+      "submission_latency": 0.05,
+      "cancel_latency": 0.05,
+      "settlement_allowance": 30.0,
+      "lambda_miss": 100.0,
+      "max_participation": "0.25",
+      "min_resting_age": 2.0,
+      "min_message_interval": 0.1,
+      "fill_model": "conservative-v0"
+    },
+    "reward_version": "marked-cost-bps-with-terminal-residual-v0",
+    "action_version": "six-actions-v0",
+    "action_compatibility": {
+      "policy_action_values": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "go_wire_enum_values": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "mapping": "wire enum value = policy action value + 1"
+    },
+    "feature_normalization": "fixed scaling defined by observation version; no fitted scaler"
+  },
+  "dependencies": {
+    "liquiditylab": "0.1.0",
+    "gymnasium": "1.4.0",
+    "numpy": "2.5.4",
+    "stable-baselines3": "2.9.0",
+    "torch": "2.14.1+cpu",
+    "grpcio": "1.84.1",
+    "protobuf": "7.36.2"
+  },
+  "provenance": "owned-local-process-binary"
+}
