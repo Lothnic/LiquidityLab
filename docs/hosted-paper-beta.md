@@ -87,11 +87,15 @@ their actual assumption labels. No private exchange credentials are required.
 
 ### Secure hosted access
 
-- [ ] A provider-independent HTTPS/reverse-proxy configuration; application and
-      database ports are not directly exposed to the public network.
-- [ ] Invite-only, account-scoped access with a documented credential provisioning,
-      revocation and rotation procedure. Tokens never enter URLs, frontend builds
-      or logs.
+- [x] A provider-independent HTTPS/reverse-proxy configuration; application and
+      database ports are not directly exposed to the public network. The optional
+      HTTPS profile is verified on local loopback with a test CA; chosen-host
+      configuration and production certificates remain open.
+- [x] One account-scoped bearer credential per daemon, with documented
+      provisioning, revocation and rotation. Rotation is disruptive and requires
+      stopping and recreating that daemon; this is not cohort provisioning or a
+      multi-tenant credential service. Hosted credential delivery and operator
+      rehearsal remain open. Tokens never enter URLs, frontend builds or logs.
 - [ ] Measured request/body/concurrency limits, server timeouts and bounded history
       reads. Replay traffic preserves capacity for trading controls.
 - [ ] Public market-data egress works in the selected environment and feed loss
@@ -101,6 +105,9 @@ their actual assumption labels. No private exchange credentials are required.
 
 - [ ] Distinguish process liveness, service availability and market/account trading
       readiness. Data gaps must not make stop controls unreachable.
+- [x] Docker Compose bounds each service's `json-file` logs to 10 MB per file and
+      three files per container. This is a size cap, not a 30-day retention
+      guarantee. Existing containers require deliberate recreation to adopt it.
 - [ ] Logs, metrics and actionable alerts cover database/ownership failures, source
       gaps, storage limits, unresolved outcomes and failed recovery.
 - [x] Restore a backup into a separate paused deployment and verify balances,
@@ -204,9 +211,10 @@ invalidation outcome; they do not by themselves fix that interruption.
 Post-cleanup browser/mobile sign-off remains open after browser access was
 blocked. Earlier PostgreSQL race, conformance and process-recovery evidence is
 recorded in [verification.md](verification.md); it does not validate deployment
-capacity, the new RL views or the eventual hosting environment. Hosting, TLS,
-credential lifecycle, storage retention, broader crash/recovery and soak release gates
-remain open.
+capacity, the new RL views or the eventual hosting environment. Chosen-host
+configuration, production TLS and renewal, hosted credential delivery/operator
+rehearsal, storage retention, broader crash/recovery and soak release gates remain
+open.
 
 
 The [local backup/restore drill](../deployment/evidence/2026-10-31-backup-restore/README.md)
@@ -228,5 +236,7 @@ An optional [certificate-based HTTPS profile](../deployment/https.md) now replac
 the plaintext port mapping. A [local trusted-test-CA check](../deployment/evidence/2026-10-31-tls/README.md)
 verified TLS 1.2/1.3, hostname/trust rejection, authentication, body limits and exact
 retained reports. Missing/mismatched certificates were refused. No public host or
-certificate was deployed; chosen-host TLS, renewal/expiry alerts, credential
-lifecycle and the remaining release checklist stay open.
+certificate was deployed; chosen-host configuration, production certificates,
+renewal/expiry alerts, hosted credential delivery/operator rehearsal, and the
+remaining release checklist stay open. The account-scoped credential procedure
+and disruptive per-daemon rotation are documented and locally verified.

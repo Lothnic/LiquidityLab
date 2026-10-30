@@ -45,9 +45,13 @@ sent. That first drill used a terminal account and empty recordings. The
 restored a queued child's held reservation into paused recovery with deadline and
 all accepted identities intact, and preserved three nonempty recording fixtures.
 It does not prove dispatched/uncertain send or accepted-fill backlog recovery.
-An optional [HTTPS overlay](../deployment/https.md) also passes local certificate,
-protocol, authentication and pinned-report checks. Public-host TLS/renewal,
-credential lifecycle, storage retention, workload/soak and browser gates remain.
+The provider-independent [HTTPS overlay](../deployment/https.md) and documented
+[account credential procedure](../deployment/credentials.md) now have focused local
+verification, including disruptive per-daemon token rotation. The [credential
+rotation record](../deployment/evidence/2026-10-31-credentials/README.md) does not
+establish hosted delivery or operator rehearsal. Chosen-host configuration,
+production certificates and renewal, storage retention, workload/soak and browser
+gates remain open.
 
 ## Verified starting state
 

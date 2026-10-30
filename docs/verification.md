@@ -726,3 +726,26 @@ bridge failed to publish the port; normal loopback-published bridge verification
 was completed before claiming successful ingress. No production certificate,
 public hostname or browser/mobile review was supplied. Hosted transport,
 renewal/expiry alerts and broader operations gates remain open.
+
+### Account credential rotation and bounded Compose logs — 31 October 2026
+
+The [credential rotation record](../deployment/evidence/2026-10-31-credentials/README.md)
+verifies one account-scoped token replacement over the local TLS profile. The old
+token first returned HTTP 200; after the old daemon stopped with exit code zero
+and logged `known_final`, the old token returned 401, the new token 200, an
+unauthenticated request 401, and a valid token for a wrong account 404. Health
+returned 200 and the account was ready without recovery required. The terminal
+cancelled account's balances, reservations, plan, child, fills and policy state
+were unchanged, and both pinned reports matched their original canonical hashes.
+No valid trading command was issued. The record covers disruptive rotation for
+one daemon, not hosted delivery, browser behavior, a cohort, public hosting or
+database-password rotation.
+
+Commit `a4c8625` configures Docker's `json-file` driver for all five Compose
+services, with 10 MB files and three files per container. The focused
+`tests/test_deployment_logging.py` check passed against resolved Compose
+configuration; the whole Python suite was not rerun for this change. This size
+limit is not a 30-day retention guarantee. Existing containers were not
+recreated, so they have not adopted the new logging settings. Database, bundle
+and recording volume growth is not bounded by this setting. Recording aggregate
+work in Go remains in progress.
