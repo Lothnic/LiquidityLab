@@ -1,0 +1,45 @@
+[
+  {
+    "service": "paper",
+    "image_id": "sha256:e32c0bb8796ca88366265bfaccc89518ac91f16279033d099754d46b68b56fb5",
+    "state": "running",
+    "health": "healthy",
+    "network_mode": "liquiditylab-restore-20261031-b_tls_test_bridge",
+    "published_ports": {
+      "8443/tcp": [
+        {
+          "HostIp": "127.0.0.1",
+          "HostPort": "18884"
+        }
+      ]
+    },
+    "configured_bindings": {
+      "8443/tcp": [
+        {
+          "HostIp": "127.0.0.1",
+          "HostPort": "18884"
+        }
+      ]
+    }
+  },
+  {
+    "service": "edge",
+    "image_id": "sha256:34e04bb6b4bb37d45845842374be0cd181723daffb230849b1984aaeaa96faba",
+    "state": "running",
+    "health": "healthy",
+    "network_mode": "container:b588f258f18f269300d183f2b88b59a1db5de4e480205abd1cb481753493232e",
+    "published_ports": {},
+    "configured_bindings": {}
+  },
+  {
+    "service": "db",
+    "image_id": "sha256:dc3f873bf9f13956c6821197edd8e0224b93086f3312830faf5d76699d43710b",
+    "state": "running",
+    "health": "healthy",
+    "network_mode": "liquiditylab-restore-20261031-b_tls_test_bridge",
+    "published_ports": {
+      "5432/tcp": null
+    },
+    "configured_bindings": {}
+  }
+]

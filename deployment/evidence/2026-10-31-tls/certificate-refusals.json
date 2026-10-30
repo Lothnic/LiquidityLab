@@ -1,0 +1,4 @@
+{
+  "missing_runtime_certificate": "nginx -t refused; no fallback listener",
+  "mismatched_private_key": "nginx -t refused with key-values-mismatch"
+}

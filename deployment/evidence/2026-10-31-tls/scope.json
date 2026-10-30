@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-31",
+  "component_commit": "959994f54048c484b119fab582e5ea421eef4a28",
+  "source_files": {
+    "deployment/compose.tls.yaml": "621c45bea5b7b92f5852373116a67d985357401a9c7d24a7e4896bb39ef9e0e1",
+    "deployment/nginx-tls.conf": "96f13806a7639170843b73ce61f98ea2c9994642e8a11f5c6d976cd95a98445b",
+    "deployment/https.md": "ed27e50035ff501d05cb62b9f08aa41f6c7fc6cadafeaccbdc3f79ecb3222424"
+  },
+  "compose_version": "Docker Compose version v2.39.2-desktop.1",
+  "project": "liquiditylab-restore-20261031-b",
+  "ingress": "127.0.0.1:18884 -> 8443 TLS only; original 8081 HTTP publication replaced.",
+  "configuration_command": "PAPER_MODE=resume PAPER_TLS_CERTIFICATE=PRIVATE/test-ca.pem PAPER_TLS_PRIVATE_KEY=PRIVATE/test-key.pem PAPER_TLS_PORT=18884 docker --context default compose -p liquiditylab-restore-20261031-b -f deployment/compose.yaml -f deployment/compose.tls.yaml -f PRIVATE/fixture.compose.json up -d --no-build --pull never --wait --wait-timeout 120 db worker paper edge",
+  "fixture": "Existing restored terminal account, exact retained application/worker/database images, fresh API token and database credential, synthetic source. A normal Docker bridge allowed loopback publication; worker network remained none.",
+  "initial_fixture_failure": "An initial internal=true test bridge did not publish the configured host port on this engine. Host connection was refused although Go health and nginx config checks passed. Replaced that fixture bridge and reran verified HTTPS requests. This was not treated as successful ingress or a certificate failure.",
+  "after_checks": "All TLS-fixture services explicitly stopped, restored volumes retained. Original demonstration project was not reconfigured.",
+  "limitations": [
+    "Local explicit test CA only; no public hostname/certificate/provider selected or deployed.",
+    "No browser or mobile visual review; tests used backend HTTPS clients.",
+    "nginx healthcheck validates configuration/certificate readability, not end-to-end availability or expiry alerting.",
+    "Automated renewal, credential rotation/revocation, selected-host smoke and capacity/soak remain open."
+  ]
+}

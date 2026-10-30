@@ -1,0 +1,5 @@
+{
+  "certificate_sha256": "03bb2e59eb2a98c1a3acbaf5514a0212e36af1d86f1af24f0f73c70ff455c286",
+  "public_metadata": "subject=CN=localhost\nissuer=CN=localhost\nnotBefore=Oct 30 22:20:36 2026 GMT\nnotAfter=Oct 31 22:20:36 2026 GMT\nX509v3 Subject Alternative Name: \n    DNS:localhost, IP Address:127.0.0.1\n",
+  "trust_scope": "Locally generated self-signed test certificate, explicitly trusted only by test clients. Not a public CA certificate. Private key not included."
+}

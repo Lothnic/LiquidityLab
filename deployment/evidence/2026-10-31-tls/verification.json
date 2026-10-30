@@ -1,0 +1,35 @@
+{
+  "observed_at_utc": "2026-10-30T22:25:07.873887+00:00",
+  "health": {
+    "http_status": 200,
+    "hsts": "max-age=31536000"
+  },
+  "unauthenticated_account": {
+    "http_status": 401,
+    "hsts": "max-age=31536000"
+  },
+  "authenticated_account": {
+    "http_status": 200,
+    "hsts": "max-age=31536000"
+  },
+  "completed_report": {
+    "http_status": 200,
+    "hsts": "max-age=31536000",
+    "pinned_report_exact": true
+  },
+  "cancelled_report": {
+    "http_status": 200,
+    "hsts": "max-age=31536000",
+    "pinned_report_exact": true
+  },
+  "oversized_body": {
+    "http_status": 413,
+    "hsts": "max-age=31536000"
+  },
+  "untrusted_certificate_rejected": true,
+  "hostname_mismatch_rejected": true,
+  "tls1_2": "accepted with explicit test CA",
+  "tls1_3": "accepted with explicit test CA",
+  "tls1_1": "server rejected with protocol-version alert",
+  "missing_certificate_configuration_refused": true
+}

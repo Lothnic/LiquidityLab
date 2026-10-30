@@ -1,0 +1,16 @@
+{
+  "completed": {
+    "as_of_revision": 3569,
+    "fill_count": 50,
+    "canonical_json_sha256": "ed5ca0e3fa89a77b676b45efc861dcdfe00613753295845fd7f82947b2a19454",
+    "exact_before_after": true,
+    "reference": "../2026-10-31-backup-restore/completed-report.json"
+  },
+  "cancelled": {
+    "as_of_revision": 3736,
+    "fill_count": 1,
+    "canonical_json_sha256": "8b6681b9a5d137ba15424bb497576336d0785ce56a5e83623653ddca3b4e9928",
+    "exact_before_after": true,
+    "reference": "../2026-10-31-backup-restore/cancelled-report.json"
+  }
+}
