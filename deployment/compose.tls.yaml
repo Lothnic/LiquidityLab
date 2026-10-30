@@ -1,0 +1,20 @@
+# Optional certificate-based ingress. Requires Compose >=2.24.4 for !override.
+# Supply certificate files first; never falls back to a plaintext published port.
+services:
+  paper:
+    ports: !override ['127.0.0.1:${PAPER_TLS_PORT:-8443}:8443']
+  edge:
+    volumes:
+      - './nginx-tls.conf:/etc/nginx/nginx.conf:ro'
+    secrets: [tls_certificate, tls_private_key]
+    healthcheck:
+      # Configuration/certificate readability only; check HTTPS externally too.
+      test: [CMD, nginx, -t]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+secrets:
+  tls_certificate:
+    file: ${PAPER_TLS_CERTIFICATE:?set the PEM full-chain certificate path}
+  tls_private_key:
+    file: ${PAPER_TLS_PRIVATE_KEY:?set the PEM private-key path}
