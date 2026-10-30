@@ -22,8 +22,27 @@ export type Fill = {
   time_ns: number;
   maker: boolean;
 };
+export type PolicyConfig = {
+  policy_sha256: string;
+  profile: 'paper' | 'shadow';
+  fallback: 'baseline' | 'pause';
+  promotion_status: string;
+};
+// These are Go semantic actions (1–6), not the model's zero-based action index.
+export type PolicyAction = 1 | 2 | 3 | 4 | 5 | 6;
+export type PolicyRuntime = PolicyConfig & {
+  result: 'waiting' | 'pending' | 'policy_action' | 'shadow_baseline' | 'fallback_baseline' | 'fallback_pause';
+  reason: string;
+  action: PolicyAction;
+  proposed_action?: PolicyAction;
+  observation_snapshot_id: string;
+  applied_snapshot_id: string;
+  expires_at: string;
+  resolved_at: string;
+};
 export type Account = AccountSummary & {
-  policy_runtime?: { policy_sha256: string; profile: string; fallback: string; result: string; reason: string };
+  policy_config?: PolicyConfig;
+  policy_runtime?: PolicyRuntime;
   base_currency: string;
   quote_currency: string;
   clock_discontinuity: boolean;
@@ -122,12 +141,27 @@ function validIntent(value: unknown): boolean {
 function validArray(value: unknown, item: (entry: unknown) => boolean): boolean {
   return Array.isArray(value) && value.every(item);
 }
+function validPolicyConfig(value: unknown): boolean {
+  return record(value) && typeof value.policy_sha256 === 'string' && /^[0-9a-f]{64}$/.test(value.policy_sha256) &&
+    (value.profile === 'paper' || value.profile === 'shadow') && (value.fallback === 'baseline' || value.fallback === 'pause') &&
+    typeof value.promotion_status === 'string' && value.promotion_status.length > 0 && value.promotion_status.length <= 64;
+}
+function validPolicyAction(value: unknown): boolean {
+  return typeof value === 'number' && Number.isInteger(value) && value >= 1 && value <= 6;
+}
+function validPolicyRuntime(value: unknown): boolean {
+  return record(value) && validPolicyConfig(value) && typeof value.result === 'string' &&
+    ['waiting', 'pending', 'policy_action', 'shadow_baseline', 'fallback_baseline', 'fallback_pause'].includes(value.result) &&
+    validString(value.reason) && validPolicyAction(value.action) &&
+    (value.proposed_action === undefined || validPolicyAction(value.proposed_action)) &&
+    validString(value.observation_snapshot_id) && validString(value.applied_snapshot_id) &&
+    validTime(value.expires_at) && validTime(value.resolved_at);
+}
 function validAccount(value: unknown, tenant?: string, account?: string): value is Account {
   if (!record(value) || !validSummary(value) || (tenant !== undefined && value.tenant_id !== tenant) || (account !== undefined && value.account_id !== account)) return false;
-  return (value.policy_runtime === undefined || (record(value.policy_runtime) &&
-    typeof value.policy_runtime.policy_sha256 === 'string' && /^[0-9a-f]{64}$/.test(value.policy_runtime.policy_sha256) &&
-    typeof value.policy_runtime.profile === 'string' && typeof value.policy_runtime.fallback === 'string' &&
-    typeof value.policy_runtime.result === 'string' && typeof value.policy_runtime.reason === 'string')) && validString(value.base_currency) && validString(value.quote_currency) && validBoolean(value.clock_discontinuity) &&
+  return (value.policy_config === undefined || validPolicyConfig(value.policy_config)) &&
+    (value.policy_runtime === undefined || validPolicyRuntime(value.policy_runtime)) &&
+    validString(value.base_currency) && validString(value.quote_currency) && validBoolean(value.clock_discontinuity) &&
     validMarket(value.market) &&
     record(value.rules) && validString(value.rules.symbol) && validDecimal(value.rules.tick_size) && validDecimal(value.rules.lot_size) &&
     validDecimal(value.rules.min_quantity) && validDecimal(value.rules.min_notional) &&
