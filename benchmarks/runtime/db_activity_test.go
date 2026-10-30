@@ -187,85 +187,180 @@ func TestDBActivityFailureSanitizationAndSerializedCap(t *testing.T) {
 }
 
 func TestDBActivityPostgresObservesOnlyOwnedLockWait(t *testing.T) {
-	dsn := os.Getenv("LIQUIDITYLAB_TEST_POSTGRES_DSN")
-	if dsn == "" {
-		t.Skip("set explicit development PostgreSQL DSN")
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	tag := "llbench-test-" + strconv.FormatInt(time.Now().UnixNano(), 36)
-	connect := func(name string) *pgx.Conn {
-		t.Helper()
-		cfg, err := pgx.ParseConfig(dsn)
-		if err != nil {
-			t.Fatal("parse development DSN")
+	for _, slowFirst := range []bool{false, true} {
+		name := "baseline"
+		if slowFirst {
+			name = "slow_first_query"
 		}
-		cfg.RuntimeParams["application_name"] = name
-		c, err := pgx.ConnectConfig(ctx, cfg)
-		if err != nil {
-			t.Fatal("connect development database")
-		}
-		t.Cleanup(func() { c.Close(context.Background()) })
-		return c
-	}
-	holder, waiter, other, observer := connect(tag), connect(tag), connect(tag+"-other"), connect(tag+"-observer")
-	// Advisory locks create a controlled owned waiter without schema mutation.
-	lock := time.Now().UnixNano()
-	if _, err := holder.Exec(ctx, "SELECT pg_advisory_lock($1)", lock); err != nil {
-		t.Fatal(err)
-	}
-	defer holder.Exec(context.Background(), "SELECT pg_advisory_unlock($1)", lock)
-	done := make(chan error, 1)
-	go func() { _, err := waiter.Exec(ctx, "SELECT pg_advisory_lock($1)", lock); done <- err }()
-	s, err := prepareDBActivity(ctx, observer, tag, 20*time.Millisecond, 2)
-	if err != nil {
-		t.Fatal(err)
-	}
-	s.Start(ctx)
-	defer s.Stop()
-	var blocked bool
-	until := time.Now().Add(2 * time.Second)
-	// This probe uses an unrelated connection, never the sampler-owned observer.
-	for time.Now().Before(until) {
-		if err := other.QueryRow(ctx, "SELECT EXISTS(SELECT 1 FROM pg_stat_activity WHERE pid=$1 AND wait_event_type='Lock')", waiter.PgConn().PID()).Scan(&blocked); err != nil {
-			t.Fatal(err)
-		}
-		if blocked {
-			break
-		}
-		time.Sleep(time.Millisecond)
-	}
-	if !blocked {
-		t.Fatal("owned waiter never reached server lock")
-	}
-	time.Sleep(65 * time.Millisecond)
-	if _, err := holder.Exec(ctx, "SELECT pg_advisory_unlock($1)", lock); err != nil {
-		t.Fatal(err)
-	}
-	if err := <-done; err != nil {
-		t.Fatal(err)
-	}
-	if _, err := waiter.Exec(ctx, "SELECT pg_advisory_unlock($1)", lock); err != nil {
-		t.Fatal(err)
-	}
-	time.Sleep(65 * time.Millisecond)
-	r := s.Stop()
-	if !r.Complete || r.Categories["active_lock"] == 0 || len(r.Backends) != 2 || !r.Stopped {
-		t.Fatalf("scoped lock observation incomplete: issues=%v categories=%v backends=%d", r.Issues, r.Categories, len(r.Backends))
-	}
-	for _, b := range r.Backends {
-		if uint32(b.PID) != holder.PgConn().PID() && uint32(b.PID) != waiter.PgConn().PID() {
-			t.Fatal("foreign or observer backend was included")
-		}
-	}
-	last := r.Samples[len(r.Samples)-1]
-	for _, o := range last.Observations {
-		if o.Category == "active_lock" {
-			t.Fatal("released lock still observed")
-		}
-	}
-	if _, err := observer.Exec(ctx, "SELECT 1"); err != nil {
-		t.Fatal("stop did not return observer connection for ordinary audit use")
+		t.Run(name, func(t *testing.T) {
+			dsn := os.Getenv("LIQUIDITYLAB_TEST_POSTGRES_DSN")
+			if dsn == "" {
+				t.Skip("set explicit development PostgreSQL DSN")
+			}
+			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+			defer cancel()
+			tag := "llbench-test-" + strconv.FormatInt(time.Now().UnixNano(), 36)
+			connect := func(name string) *pgx.Conn {
+				t.Helper()
+				cfg, err := pgx.ParseConfig(dsn)
+				if err != nil {
+					t.Fatal("parse development DSN")
+				}
+				cfg.RuntimeParams["application_name"] = name
+				c, err := pgx.ConnectConfig(ctx, cfg)
+				if err != nil {
+					t.Fatal("connect development database")
+				}
+				t.Cleanup(func() { c.Close(context.Background()) })
+				return c
+			}
+			holder, waiter, observer := connect(tag), connect(tag), connect(tag+"-observer")
+			_ = connect(tag + "-other") // Keep an unrelated backend present to test scope exclusion.
+			// Advisory locks create a controlled owned waiter without schema mutation.
+			lock := time.Now().UnixNano()
+			if _, err := holder.Exec(ctx, "SELECT pg_advisory_lock($1)", lock); err != nil {
+				t.Fatal(err)
+			}
+			defer holder.Exec(context.Background(), "SELECT pg_advisory_unlock($1)", lock)
+			done := make(chan error, 1)
+			go func() { _, err := waiter.Exec(ctx, "SELECT pg_advisory_lock($1)", lock); done <- err }()
+			s, err := prepareDBActivity(ctx, observer, tag, 20*time.Millisecond, 2)
+			if err != nil {
+				t.Fatal(err)
+			}
+			type observedQuery struct {
+				started time.Time
+				rows    []dbActivityRow
+			}
+			observed := make(chan observedQuery, 1)
+			query := s.query
+			first := true
+			s.query = func(ctx context.Context) ([]dbActivityRow, error) {
+				started := time.Now()
+				if first && slowFirst {
+					// Hold the accepted first call across scheduled ticks. These are
+					// real missed samples and must remain incomplete evidence.
+					timer := time.NewTimer(3 * s.interval)
+					defer timer.Stop()
+					select {
+					case <-timer.C:
+					case <-ctx.Done():
+						return nil, ctx.Err()
+					}
+				}
+				first = false
+				rows, err := query(ctx)
+				if err == nil {
+					select {
+					case observed <- observedQuery{started: started, rows: rows}:
+					default: // Never delay the sampler while the test releases the lock.
+					}
+				}
+				return rows, err
+			}
+			s.Start(ctx)
+			defer s.Stop()
+			awaitObservation := func(after time.Time, locked bool) {
+				t.Helper()
+				for {
+					select {
+					case sample := <-observed:
+						if sample.started.Before(after) || len(sample.rows) != 2 {
+							continue
+						}
+						for _, row := range sample.rows {
+							if uint32(row.PID) == waiter.PgConn().PID() && (dbActivityCategory(row) == "active_lock") == locked {
+								return
+							}
+						}
+					case <-ctx.Done():
+						t.Fatalf("timed out awaiting owned waiter observation: locked=%t", locked)
+					}
+				}
+			}
+			// Observe the actual sampled state rather than assuming that a sleep
+			// gives the scheduler and PostgreSQL enough time under race instrumentation.
+			awaitObservation(s.origin, true)
+			if _, err := holder.Exec(ctx, "SELECT pg_advisory_unlock($1)", lock); err != nil {
+				t.Fatal(err)
+			}
+			select {
+			case err := <-done:
+				if err != nil {
+					t.Fatal(err)
+				}
+			case <-ctx.Done():
+				t.Fatal("owned waiter did not acquire released lock")
+			}
+			if _, err := waiter.Exec(ctx, "SELECT pg_advisory_unlock($1)", lock); err != nil {
+				t.Fatal(err)
+			}
+			releasedAt := time.Now()
+			awaitObservation(releasedAt, false)
+			r := s.Stop()
+			if r.Categories["active_lock"] == 0 || len(r.Backends) != 2 || !r.Stopped {
+				t.Fatalf("scoped lock observation incomplete: issues=%v categories=%v backends=%d", r.Issues, r.Categories, len(r.Backends))
+			}
+			for _, b := range r.Backends {
+				if uint32(b.PID) != holder.PgConn().PID() && uint32(b.PID) != waiter.PgConn().PID() {
+					t.Fatal("foreign or observer backend was included")
+				}
+			}
+			outcomes := map[string]int{}
+			misses := 0
+			var lastSuccessful *dbActivitySample
+			for i := range r.Samples {
+				sample := &r.Samples[i]
+				outcomes[sample.Outcome]++
+				if sample.Index != i || sample.IntendedNS != int64(i)*r.IntervalNS || sample.AttemptNS < sample.IntendedNS || sample.EndNS < sample.AttemptNS {
+					t.Fatal("sample timing provenance incorrect")
+				}
+				switch sample.Outcome {
+				case "completed":
+					if len(sample.Observations) != 2 {
+						t.Fatal("successful sample missing owned backends")
+					}
+					lastSuccessful = sample
+				case "query_busy", "generator_late", "stopped_before_query":
+					misses++
+					if len(sample.Observations) != 0 {
+						t.Fatal("missed sample contains observations")
+					}
+				default:
+					t.Fatalf("unexpected sample outcome: %s", sample.Outcome)
+				}
+			}
+			if len(outcomes) != len(r.Outcomes) {
+				t.Fatal("sample outcome totals differ")
+			}
+			for outcome, count := range outcomes {
+				if r.Outcomes[outcome] != count {
+					t.Fatal("sample outcome count differs")
+				}
+			}
+			if misses > 0 {
+				if r.Complete || r.Status != "incomplete" || len(r.Issues) != 1 || r.Issues[0] != "missed_sample" {
+					t.Fatalf("missed samples must remain explicitly incomplete: %+v", r)
+				}
+			} else if !r.Complete || r.Status != "complete" || len(r.Issues) != 0 {
+				t.Fatalf("unexpected diagnostic issue: %v", r.Issues)
+			}
+			if slowFirst && (misses == 0 || outcomes["query_busy"] == 0) {
+				t.Fatal("controlled slow first query did not expose missed scheduled samples")
+			}
+			if lastSuccessful == nil || lastSuccessful.EndNS < releasedAt.Sub(s.origin).Nanoseconds() {
+				t.Fatal("no successful post-release observation")
+			}
+			for _, o := range lastSuccessful.Observations {
+				if o.Category == "active_lock" {
+					t.Fatal("released lock still observed")
+				}
+			}
+			if _, err := observer.Exec(ctx, "SELECT 1"); err != nil {
+				t.Fatal("stop did not return observer connection for ordinary audit use")
+			}
+
+		})
 	}
 }
 
