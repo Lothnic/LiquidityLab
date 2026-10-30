@@ -1,3 +1,5 @@
+import { isTimestamp } from './time';
+
 export type AccountSummary = {
   tenant_id: string;
   account_id: string;
@@ -124,7 +126,7 @@ function validDecimal(value: unknown): value is string {
     value.replace(/^[+-]?/, '').replace('.', '').length <= 512;
 }
 function validTime(value: unknown): value is string {
-  return typeof value === 'string' && /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?(?:Z|[+-]\d\d:\d\d)$/.test(value) && Number.isFinite(Date.parse(value));
+  return isTimestamp(value);
 }
 function validSummary(value: unknown): boolean {
   return record(value) && validString(value.tenant_id) && validString(value.account_id) && validString(value.profile) &&

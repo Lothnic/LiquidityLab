@@ -1,4 +1,5 @@
 import { ApiError, isPolicyRuntime, request, type Account, type Fill, type PolicyRuntime } from './api';
+import { isTimestamp } from './time';
 
 export type SessionSummary = {
   plan_id: string; created_revision: number; revision: number; created_at: string; updated_at: string;
@@ -22,7 +23,7 @@ const record = (x: unknown): x is Record<string, unknown> => typeof x === 'objec
 const str = (x: unknown): x is string => typeof x === 'string';
 const rev = (x: unknown): x is number => typeof x === 'number' && Number.isSafeInteger(x) && x >= 0;
 const decimal = (x: unknown): x is string => typeof x === 'string' && x.length <= 659 && /^[+-]?\d+(?:\.\d{1,144})?$/.test(x) && x.replace(/^[+-]?/, '').replace('.', '').length <= 512;
-const time = (x: unknown): x is string => typeof x === 'string' && /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?(?:Z|[+-]\d\d:\d\d)$/.test(x) && Number.isFinite(Date.parse(x));
+const time = isTimestamp;
 const identifier = (x: unknown): x is string => typeof x === 'string' && x.length > 0 && x.length <= 128 && x !== '.' && x !== '..' && /^[a-zA-Z0-9_.-]+$/.test(x);
 const invalid = (): never => { throw new ApiError(502, 'invalid_response'); };
 function summary(x: unknown): x is SessionSummary {

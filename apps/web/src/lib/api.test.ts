@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { api } from './api';
+import { api, isPolicyRuntime } from './api';
 
 const summary = { tenant_id: 't', account_id: 'a', profile: 'paper', data_source: 'synthetic', revision: 7, authority_revision: 3, ready: true, recovery_required: false };
 const accountDTO = {
@@ -10,8 +10,43 @@ const accountDTO = {
   balances: [{ currency: 'BTC', total: '2', free: '2', locked: '0' }], reserved: [{ currency: 'BTC', amount: '0' }],
   plan: null, child: null, fills: [], fill_count: 0, fills_truncated: false,
 };
+const policyRuntime = {
+  policy_sha256: 'a'.repeat(64), profile: 'paper', fallback: 'pause', promotion_status: 'unvalidated',
+  result: 'waiting', reason: '', action: 1, observation_snapshot_id: '', applied_snapshot_id: '',
+  expires_at: '0001-01-01T00:00:00Z', resolved_at: '0001-01-01T00:00:00Z',
+};
 
 afterEach(() => vi.unstubAllGlobals());
+
+describe('policy runtime validation', () => {
+  it('accepts Go zero timestamps and valid semantic actions', () => {
+    expect(isPolicyRuntime(policyRuntime)).toBe(true);
+    expect(isPolicyRuntime({ ...policyRuntime, proposed_action: 6 })).toBe(true);
+  });
+
+  it.each([
+    '2000-02-29T12:30:45.123456789+05:30',
+    '0001-01-01T00:00:00.000000001+05:30',
+  ])('accepts valid timestamp %s', (timestamp) => {
+    expect(isPolicyRuntime({ ...policyRuntime, expires_at: timestamp, resolved_at: timestamp })).toBe(true);
+  });
+
+  it.each([
+    ['result enum', { result: 'paused' }], ['profile enum', { profile: 'live' }],
+    ['fallback enum', { fallback: 'ignore' }], ['action below range', { action: 0 }],
+    ['action above range', { action: 7 }], ['proposed action', { proposed_action: 0 }],
+    ['expiration timestamp', { expires_at: 'yesterday' }],
+    ['non-leap year February 29', { resolved_at: '1900-02-29T00:00:00Z' }],
+    ['impossible month', { resolved_at: '2026-13-01T00:00:00Z' }],
+    ['impossible day', { resolved_at: '2026-04-31T00:00:00Z' }],
+    ['impossible hour', { resolved_at: '2026-01-01T24:00:00Z' }],
+    ['offset hour above 23', { resolved_at: '2026-01-01T00:00:00+24:00' }],
+    ['offset minute above 59', { resolved_at: '2026-01-01T00:00:00+05:60' }],
+    ['February 30', { resolved_at: '2026-02-30T00:00:00Z' }],
+  ])('rejects invalid policy runtime %s', (_label, change) => {
+    expect(isPolicyRuntime({ ...policyRuntime, ...change })).toBe(false);
+  });
+});
 
 describe('API success response validation', () => {
   it.each([
