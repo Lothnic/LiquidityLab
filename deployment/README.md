@@ -51,6 +51,15 @@ Configuration is supplied as shell environment variables when invoking the scrip
 Kraken uses public market data only and produces bounded new recordings per run;
 synthetic mode provides a deterministic offline paper feed. No exchange key is used.
 
+All five Compose services use Docker's `json-file` log driver with rotation at
+10 MB and at most three files per container (roughly 30 MB each, plus rotation
+overhead). This byte cap does not guarantee thirty days of diagnostic retention;
+busy containers can rotate logs sooner. Database, bundle and recording volume
+growth remains unbounded by this setting. Existing containers adopt these options
+only after a deliberate recreation; editing the Compose file does not change
+their active log configuration. Plan recreation through the normal stop/resume
+workflow while preserving the named volumes and retained account data.
+
 Go serves the built UI and owns account state, risk, simulated execution and durable
 audit. Python only proposes PPO actions over a private Unix socket. A shared volume
 and the same numeric UID preserve its owner-only permissions. Worker and training
