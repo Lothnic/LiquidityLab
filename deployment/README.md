@@ -21,7 +21,9 @@ Open http://127.0.0.1:8080. Obtain the bearer token locally from
 `deployment/secrets/api_token` and enter it in the UI's connection flow. The token
 is scoped by Go to the configured paper account; no credential is baked into the
 UI or images. Protect this directory and do not paste its contents into logs.
-Docker operators can inspect container environments and volumes.
+Docker operators can inspect container environments and volumes. See the
+[credential and token rotation guide](credentials.md) for private delivery,
+revocation, and verification procedures.
 
 The first startup explicitly creates a synthetic account. Repeating `create`
 against an existing account fails rather than resetting balances. After stopping:
