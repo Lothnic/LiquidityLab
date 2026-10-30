@@ -24,10 +24,11 @@ worker-unavailable fallback, cancellation and terminal-account restart. Its
 initial healthy-worker attempts paused on expiry/source backlog. The bounded
 handoff fix `b795231` subsequently completed a packaged `0.1 BTC` plan through 50
 simulated fills without operator resumes; restart preserved both reports, 51 fill
-identities and balances across two sessions. Full Go race verification passes
-1,190 test/subtest events after source diagnostics, with no skipped test cases;
-the updated ordinary Go replay binary passes
-232 Python checks including 16 backup regressions. The UI now passes 78 checks across seven files plus its
+identities and balances across two sessions. The latest full Go race verification
+passes 1,208 test/subtest events after recording admission and a sampler test
+correction, with no skipped test cases. The updated ordinary Go replay binary
+passes 233 Python checks, including 16 backup regressions and the Compose logging
+check. The UI passes 78 checks across seven files plus its
 production build. An explicit 31 October image refresh resumed the retained
 account ready with both pinned reports intact. A later source interruption again
 required recovery despite healthy HTTP; diagnostics now retain a safe reason and
@@ -52,6 +53,17 @@ rotation record](../deployment/evidence/2026-10-31-credentials/README.md) does n
 establish hosted delivery or operator rehearsal. Chosen-host configuration,
 production certificates and renewal, storage retention, workload/soak and browser
 gates remain open.
+
+Packaged Kraken recording now has [aggregate admission](../deployment/storage.md):
+an exclusive directory lock, retained-file accounting and reservation for the
+next raw capture and bounded manifest. The default aggregate budget is 1 GiB;
+existing files are preserved. Docker logs are bounded separately. A clean-source
+local paper image passed an isolated entrypoint refusal check. Reference-aware
+retention, PostgreSQL/WAL growth and host disk headroom remain open; the original
+demonstration has not been recreated to adopt these settings.
+The [verification record](../deployment/evidence/2026-10-31-storage/README.md)
+retains the initial sampler-test failure, controlled reproduction, test-only fix
+and final passing suites; production sampling still marks every miss incomplete.
 
 ## Verified starting state
 

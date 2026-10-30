@@ -749,3 +749,43 @@ limit is not a 30-day retention guarantee. Existing containers were not
 recreated, so they have not adopted the new logging settings. Database, bundle
 and recording volume growth is not bounded by this setting. Recording aggregate
 work in Go remains in progress.
+
+### Aggregate recording admission and final suites — 31 October 2026
+
+Component `921008f` adds Linux directory locking, bounded retained-file accounting
+and reservation for the next raw capture plus bounded manifests before account
+initialization. Packaged Kraken defaults to 1 GiB aggregate admission and 64 MiB
+per raw capture. It preserves existing files and refuses unsafe entries, capacity
+exhaustion and concurrent cooperating recorders. Controlled raw exhaustion keeps
+an incomplete recording within its cap and does not deliver the rejected frame.
+Safe source diagnostics identify the configured recording budget while retaining
+higher-priority ownership/outcome failure classifications.
+
+The [storage verification record](../deployment/evidence/2026-10-31-storage/README.md)
+pins a clean committed source archive and its local paper image. With no network
+or host volumes, the actual packaged entrypoint refused a budget one byte below
+the required reservation before opening the database and preserved retained
+fixture bytes. This is a negative startup check with dummy credentials/model
+metadata, not a real feed/account/model execution or physical disk-full trial.
+
+The first full Go race run passed 1,205 test/subtest events and failed one existing
+database sampler test which required complete 20 ms sampling despite scheduling
+misses. Thirty isolated repeats passed; a controlled slow query reproduced that
+invalid assertion. Test-only commit `14ea160` waits for actual scoped lock/release
+observations and checks exact outcomes, including mandatory incomplete status for
+every miss. Twenty repeated parent runs (40 variants) passed. Production sampler
+behavior and financial guards were unchanged.
+
+The final full uncached Go race run passes 1,208 test/subtest events with actual
+PostgreSQL and the real Python PPO boundary, no failed or skipped test cases, and
+three packages without tests. The full Python suite passes 233 tests with no
+failures/errors/skips, using the fresh recording-admission Go binary; the existing
+Gymnasium v0 deprecation warning remains. All 78 UI tests and the production
+build also pass. Both full Go logs, the controlled RED/GREEN logs, source hashes
+and scope limits are retained. Browser/mobile acceptance remains open.
+
+Original demo containers were not recreated. A read-only point check still found
+the original account ready without recovery required, with unchanged balances,
+no child and a cancelled parent. Recording admission and log caps do not provide
+reference-aware retention, PostgreSQL/WAL bounds, host disk headroom, actionable
+alerts, declared workload capacity, a 24-hour soak or chosen-host verification.

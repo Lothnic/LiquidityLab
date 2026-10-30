@@ -71,8 +71,9 @@ Stopping the paper daemon is disruptive: graceful shutdown cancels an active
 plan and tries to settle it to known finality. It does not merely pause an
 active plan. A terminal cancelled plan cannot be restarted; create a new plan if
 trading is approved again. Inspect the account afterward and use the recovery
-procedure if shutdown did not reach known finality. If the daemon crashes,
-recovery leaves the existing plan paused and requires an explicit resume action.
+procedure if shutdown did not reach known finality. If the daemon crashes during
+an active plan, recovery leaves that plan paused and requires an explicit resume
+action. Terminal plans retain their terminal state.
 A later `resume` startup recovers the account but never starts or resumes trading
 automatically.
 

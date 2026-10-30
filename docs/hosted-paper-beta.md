@@ -56,6 +56,10 @@ their actual assumption labels. No private exchange credentials are required.
       boundary between application ingress, database access and internal workers.
 - [ ] Bounded recording storage, distinct capture identities on restart, and
       retention/rotation behavior which preserves referenced source material.
+      Packaged Kraken recording admission now reserves each new capture against
+      a 1 GiB default aggregate budget under an exclusive directory lock. It
+      preserves existing files; reference-aware retention, host disk headroom
+      and database storage bounds remain open.
 - [ ] A fresh environment can start, stop, resume and upgrade the same deployment
       using the supplied instructions.
 
@@ -240,3 +244,10 @@ certificate was deployed; chosen-host configuration, production certificates,
 renewal/expiry alerts, hosted credential delivery/operator rehearsal, and the
 remaining release checklist stay open. The account-scoped credential procedure
 and disruptive per-daemon rotation are documented and locally verified.
+
+The [recording storage component](../deployment/storage.md) now refuses exhausted
+aggregate budgets before account initialization and bounds manifest output. A
+clean committed source snapshot produced a local paper image; an isolated check
+of its actual entrypoint refused a budget one byte short while preserving retained
+files. This is admission verification, not disk-exhaustion, retention or soak
+evidence. Existing demo containers were not recreated with these new settings.
