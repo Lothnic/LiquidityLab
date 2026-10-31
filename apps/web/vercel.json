@@ -2,5 +2,15 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "vite",
   "buildCommand": "npm run build",
-  "outputDirectory": "dist"
+  "outputDirectory": "dist",
+  "rewrites": [
+    {
+      "source": "/v1/:path*",
+      "destination": "https://liquiditylab-paper-demo.onrender.com/v1/:path*"
+    },
+    {
+      "source": "/healthz",
+      "destination": "https://liquiditylab-paper-demo.onrender.com/healthz"
+    }
+  ]
 }
