@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: liquiditylab-paper-demo
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /healthz
+    autoDeployTrigger: off
+    envVars:
+      - key: LIQUIDITYLAB_DATABASE_URL
+        sync: false
+      - key: LIQUIDITYLAB_API_TOKEN
+        sync: false
+      - key: PAPER_MODE
+        value: resume
+      - key: PAPER_SCHEMA
+        value: hosted_paper_demo
+      - key: PAPER_ACCOUNT
+        value: demo

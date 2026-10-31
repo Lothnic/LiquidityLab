@@ -10,6 +10,9 @@ data
 deployment/secrets
 .env
 .env.*
+**/.env
+**/.env.*
+**/.vercel
 *.pprof
 
 # Local outputs and caches mirrored from .gitignore; fixture sources remain included.

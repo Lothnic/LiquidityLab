@@ -7,3 +7,11 @@ __pycache__/
 /artifacts/
 /dist/
 /build/
+.vercel/
+.neon
+.neon.*
+.env
+.env.*
+apps/web/node_modules/
+apps/web/dist/
+apps/web/*.tsbuildinfo
