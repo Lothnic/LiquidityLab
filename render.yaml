@@ -16,6 +16,6 @@ services:
       - key: PAPER_MODE
         value: resume
       - key: PAPER_SCHEMA
-        value: hosted_paper_demo
+        value: hosted_kraken_demo
       - key: PAPER_ACCOUNT
-        value: demo
+        value: kraken-demo

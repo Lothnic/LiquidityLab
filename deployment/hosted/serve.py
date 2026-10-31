@@ -11,6 +11,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import uuid
 from pathlib import Path
 
 
@@ -20,8 +21,8 @@ def configuration(env):
         raise ValueError("PORT must be a nonprivileged numeric TCP port")
     if int(port) == 8080:
         raise ValueError("PORT must differ from the private daemon port 8080")
-    schema = env.get("PAPER_SCHEMA", "hosted_paper_demo")
-    account = env.get("PAPER_ACCOUNT", "demo")
+    schema = env.get("PAPER_SCHEMA", "hosted_kraken_demo")
+    account = env.get("PAPER_ACCOUNT", "kraken-demo")
     if not re.fullmatch(r"[a-z][a-z0-9_]{0,62}", schema):
         raise ValueError("PAPER_SCHEMA must be an isolated SQL identifier")
     if schema in {"public", "information_schema"} or schema.startswith("pg_"):
@@ -43,7 +44,8 @@ def configuration(env):
     command = [
         "/usr/local/bin/liquiditylabd", "paper", "resume",
         "--listen", "127.0.0.1:8080", "--schema", schema, "--account", account,
-        "--source", "synthetic", "--web-dir", "/app/web", "--duration", "24h",
+        "--source", "kraken", "--web-dir", "/app/web", "--duration", "24h",
+        "--capture-output", str(Path(tempfile.gettempdir()) / f"liquiditylab-kraken-{uuid.uuid4().hex}.jsonl"),
     ]
     return int(port), command
 
@@ -104,7 +106,7 @@ def main():
             children.append(subprocess.Popen([
                 "nginx", "-c", str(config), "-g", "daemon off;",
             ]))
-            print("Hosted synthetic paper demo starting; RL disabled", flush=True)
+            print("Hosted Kraken-price paper demo starting; RL disabled", flush=True)
             while not stopping and all(child.poll() is None for child in children):
                 time.sleep(0.2)
             result = 0 if stopping else 1
@@ -120,6 +122,9 @@ def main():
                 except subprocess.TimeoutExpired:
                     child.kill()
                     child.wait()
+            capture = Path(command[command.index("--capture-output") + 1])
+            for suffix in ("", ".manifest.json", ".manifest.json.tmp"):
+                capture.with_name(capture.name + suffix).unlink(missing_ok=True)
     return result
 
 

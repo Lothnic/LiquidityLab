@@ -28,6 +28,8 @@ def test_cold_start_only_resumes_and_keeps_credentials_out_of_argv(env):
     assert env["LIQUIDITYLAB_DATABASE_URL"] not in " ".join(command)
     assert env["LIQUIDITYLAB_API_TOKEN"] not in " ".join(command)
     assert "--policy-target" not in command
+    assert command[command.index("--source") + 1] == "kraken"
+    assert command[command.index("--capture-output") + 1].startswith("/tmp/liquiditylab-kraken-")
 
 
 def test_create_is_refused_on_hosted_restart(env):

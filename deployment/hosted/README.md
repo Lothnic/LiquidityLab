@@ -1,8 +1,9 @@
 # Free hosted baseline paper demo
 
 This profile uses Vercel for the React desk, Render Free for the Go daemon and
-nginx ingress, and Neon Free for PostgreSQL. It uses synthetic BTC/USD input and
-the deterministic baselines. Python in the image only supervises processes; PPO
+nginx ingress, and Neon Free for PostgreSQL. It uses Kraken public BTC/USD prices
+and deterministic baselines; balances, orders and fills are simulated. Python in
+the image only supervises processes; PPO
 training and inference are not enabled. This is a demo, not the hosted RL beta.
 
 The root `Dockerfile` builds the independent small image. The full local PPO
@@ -17,7 +18,7 @@ Set these as Render runtime secrets/configuration, never Vercel frontend values:
   per-connection search path.
 - `LIQUIDITYLAB_API_TOKEN`: a unique random bearer credential, at least 32 bytes,
   privately delivered to the intended demo user.
-- `PAPER_SCHEMA=hosted_paper_demo`, `PAPER_ACCOUNT=demo`, `PAPER_MODE=resume`.
+- `PAPER_SCHEMA=hosted_kraken_demo`, `PAPER_ACCOUNT=kraken-demo`, `PAPER_MODE=resume`.
 - Render supplies `PORT`; the default is `10000`. Go stays on `127.0.0.1:8080`,
   with a non-root nginx process accepting external requests on `PORT`.
 
@@ -27,8 +28,8 @@ secrets privately, and run:
 
 ```sh
 liquiditylabd paper create \
-  --listen 127.0.0.1:8089 --schema hosted_paper_demo --account demo \
-  --source synthetic --web-dir apps/web/dist \
+  --listen 127.0.0.1:8089 --schema hosted_kraken_demo --account kraken-demo \
+  --source kraken --web-dir apps/web/dist --capture-output /tmp/kraken-init.jsonl \
   --initial-base 1 --initial-quote 10000 --duration 30s
 ```
 
@@ -72,7 +73,11 @@ The Go daemon has a 24-hour maximum lifetime. The wrapper exits if Go or nginx
 exits and forwards shutdown to both processes. Any platform restart follows the
 same resume path. This does not establish continuous market reliability.
 
-No recording volume or replay archive is attached in this profile. `/healthz`
+Kraken captures use bounded temporary files on Render's ephemeral filesystem.
+They are not durable and are removed on a graceful shutdown. A capture limit or
+feed interruption can leave the account unready and require recovery. The prior
+synthetic account and its history remain in the separate `hosted_paper_demo`
+schema. No replay archive is attached in this profile. `/healthz`
 checks HTTP availability only; separately inspect account `ready` and
 `recovery_required`. A successful container smoke test is not a hosted capacity
 or soak result.
