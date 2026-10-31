@@ -1,0 +1,36 @@
+{
+  "checked_at": "2026-10-31T14:37:10.317494+00:00",
+  "origin": "https://liquiditylab-peach.vercel.app",
+  "plan_id": "hosted-smoke-008a1427",
+  "commands": [
+    {
+      "id": "hosted-create-008a1427",
+      "kind": "create",
+      "expected_revision": 227,
+      "expected_authority_revision": 5,
+      "plan_id": "hosted-smoke-008a1427",
+      "plan": {
+        "symbol": "BTC/USD",
+        "side": "buy",
+        "quantity": "0.001",
+        "limit_price": "101",
+        "deadline_ns": 45000000000,
+        "max_child_quantity": "0.001",
+        "quote_budget": "1",
+        "base_balance": "0"
+      },
+      "policy": "liquidity-aware"
+    },
+    {
+      "id": "hosted-start-008a1427",
+      "kind": "start",
+      "expected_revision": 231,
+      "expected_authority_revision": 229
+    }
+  ],
+  "preview_ready": true,
+  "duplicate_command_verified": true,
+  "status": "expired_without_orders",
+  "reason": "The test requested 0.001 BTC over three slices; each slice rounded below the 0.001 BTC lot size. Preview had no order intent. Retained without resetting history.",
+  "known_final": true
+}

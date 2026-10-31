@@ -1,0 +1,101 @@
+{
+  "checked_at": "2026-10-31T14:39:13.374859+00:00",
+  "origin": "https://liquiditylab-peach.vercel.app",
+  "plan_id": "hosted-smoke-8d1bcb55",
+  "commands": [
+    {
+      "id": "hosted-create-8d1bcb55",
+      "kind": "create",
+      "expected_revision": 499,
+      "expected_authority_revision": 344,
+      "plan_id": "hosted-smoke-8d1bcb55",
+      "plan": {
+        "symbol": "BTC/USD",
+        "side": "buy",
+        "quantity": "0.006",
+        "limit_price": "101",
+        "deadline_ns": 45000000000,
+        "max_child_quantity": "0.002",
+        "quote_budget": "1",
+        "base_balance": "0"
+      },
+      "policy": "liquidity-aware"
+    },
+    {
+      "id": "hosted-start-8d1bcb55",
+      "kind": "start",
+      "expected_revision": 502,
+      "expected_authority_revision": 500
+    }
+  ],
+  "preview": {
+    "revision": 498,
+    "authority_revision": 344,
+    "profile": "paper",
+    "observed_at": "2026-10-31T14:39:14.213662855Z",
+    "market": {
+      "valid": true,
+      "snapshot_id": "web-feed-d27e542773258c1bc4050fdd-467",
+      "instrument_revision": "synthetic-rules-v1",
+      "best_bid": "99.99",
+      "best_ask": "100.01"
+    },
+    "policy": "liquidity-aware",
+    "ready": true,
+    "reason": "submit_passive",
+    "spread": "0.02",
+    "visible_bids": "2",
+    "visible_asks": "2",
+    "intent": {
+      "side": "buy",
+      "quantity": "0.002",
+      "price": "99.99",
+      "passive": true
+    },
+    "reservation": {
+      "currency": "USD",
+      "amount": "0.20037996"
+    },
+    "estimated_maker_fee": {
+      "currency": "USD",
+      "amount": "0.00019998"
+    },
+    "estimated_taker_fee": {
+      "currency": "USD",
+      "amount": "0.00039996"
+    },
+    "fee_source": "synthetic-assumption",
+    "completion_guaranteed": false
+  },
+  "duplicate_command_verified": true,
+  "status": "passed",
+  "known_final": true,
+  "filled": "0.006",
+  "fill_count": 3,
+  "as_of_revision": 544,
+  "report_sha256": "a388fa42a2a5795fff747d5b1016f40cc59522769a1509203ad5c150dd98ffbc",
+  "balances": [
+    {
+      "currency": "BTC",
+      "total": "1.006",
+      "free": "1.006",
+      "locked": "0"
+    },
+    {
+      "currency": "USD",
+      "total": "9999.39946006",
+      "free": "9999.39946006",
+      "locked": "0"
+    }
+  ],
+  "reserved": [
+    {
+      "currency": "BTC",
+      "amount": "0"
+    },
+    {
+      "currency": "USD",
+      "amount": "0"
+    }
+  ]
+}

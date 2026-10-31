@@ -1,0 +1,19 @@
+{
+  "checked_at": "2026-10-31T14:40:57.206797+00:00",
+  "status": "passed",
+  "new_instances": [
+    {
+      "createdAt": "2026-10-31T14:39:52Z",
+      "id": "srv-dbivm20ae00c73cqpikg-hcsml"
+    }
+  ],
+  "ready": true,
+  "recovery_required": false,
+  "authority_revision": 602,
+  "plan_id": "hosted-smoke-8d1bcb55",
+  "exact_balances_retained": true,
+  "zero_reservations": true,
+  "report_bytes_identical": true,
+  "report_sha256": "a388fa42a2a5795fff747d5b1016f40cc59522769a1509203ad5c150dd98ffbc",
+  "fill_count": 3
+}

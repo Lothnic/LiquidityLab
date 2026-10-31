@@ -29,13 +29,18 @@ secrets privately, and run:
 liquiditylabd paper create \
   --listen 127.0.0.1:8089 --schema hosted_paper_demo --account demo \
   --source synthetic --web-dir apps/web/dist \
-  --initial-base 1 --initial-quote 10000 --duration 3s
+  --initial-base 1 --initial-quote 10000 --duration 30s
 ```
 
 This grants only synthetic balances. Repeating creation refuses an existing
 account. Every hosted startup uses `paper resume`; failed startup never falls
 back to creation. Existing balances, deadlines and history remain authoritative,
 and recovered plans can require an explicit trader resume.
+
+The duration includes database migration and initialization. A short local run
+against a remote database can finish with an uncertain shutdown even after the
+account was created. Inspect its retained balances and obligations before
+continuing with resume; never repeat creation to clear that state.
 
 ## Deploy
 

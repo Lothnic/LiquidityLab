@@ -1,0 +1,43 @@
+{
+  "profile": "synthetic BTC/USD baseline paper demo; RL disabled",
+  "frontend_url": "https://liquiditylab-peach.vercel.app",
+  "backend_url": "https://liquiditylab-paper-demo.onrender.com",
+  "render_service": "srv-dbivm20ae00c73cqpikg",
+  "render_deployment": "dep-dbivp4ks728c738etasg",
+  "source_commit": "ff50e6814bbcfb3c89b392116c24873cb499fdef",
+  "vercel_deployment": "dpl_Fpq8exL486Ljt87Kf6BXq4Yerz4M",
+  "neon_project": "misty-resonance-42856178",
+  "postgresql_major_version": 18,
+  "region": "Singapore (Render); aws-ap-southeast-1 (Neon)",
+  "plans": {
+    "render": "free",
+    "vercel": "hobby",
+    "neon_organization": "free"
+  },
+  "runtime_secrets": "Stored only on Render and in restrictive local operator files; no frontend credentials",
+  "local_validation": {
+    "frontend_tests": 78,
+    "hosted_startup_tests": 14,
+    "container_smoke": "512 MiB / 0.1 CPU; explicit creation, authentication, readiness, resume and retained balances passed"
+  },
+  "initialization": "The deliberately created account retained BTC 1 and USD 10000 with no plans/orders/fills after a short local shutdown reported known_final=false. No reset/recreation occurred. Render subsequently recovered the account to ready=true, recovery_required=false.",
+  "restart": {
+    "checked_at": "2026-10-31T14:40:57.206797+00:00",
+    "status": "passed",
+    "new_instances": [
+      {
+        "createdAt": "2026-10-31T14:39:52Z",
+        "id": "srv-dbivm20ae00c73cqpikg-hcsml"
+      }
+    ],
+    "ready": true,
+    "recovery_required": false,
+    "authority_revision": 602,
+    "plan_id": "hosted-smoke-8d1bcb55",
+    "exact_balances_retained": true,
+    "zero_reservations": true,
+    "report_bytes_identical": true,
+    "report_sha256": "a388fa42a2a5795fff747d5b1016f40cc59522769a1509203ad5c150dd98ffbc",
+    "fill_count": 3
+  }
+}
