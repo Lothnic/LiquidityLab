@@ -65,7 +65,7 @@ backend and verify that account balances and session reports are retained.
 
 Render Free can sleep after 15 minutes without inbound requests; the next
 visitor may wait for cold startup. Neon compute and storage allowances are
-finite. Synthetic source observations, ownership renewal and audit writes
+finite. Market observations, ownership renewal and audit writes
 consume database resources while the daemon runs. Inspect consumption and
 retain backups; there is no automatic deletion of financial history.
 
@@ -77,7 +77,8 @@ Kraken captures use bounded temporary files on Render's ephemeral filesystem.
 They are not durable and are removed on a graceful shutdown. A capture limit or
 feed interruption can leave the account unready and require recovery. The prior
 synthetic account and its history remain in the separate `hosted_paper_demo`
-schema. No replay archive is attached in this profile. `/healthz`
+schema; the current daemon serves the Kraken account only. No replay archive is
+attached in this profile. `/healthz`
 checks HTTP availability only; separately inspect account `ready` and
 `recovery_required`. A successful container smoke test is not a hosted capacity
 or soak result.
